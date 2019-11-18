@@ -1,0 +1,5 @@
+.phpunit.result.cache
+coveralls.json
+composer.lock
+clover.xml
+vendor/

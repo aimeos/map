@@ -1,0 +1,11 @@
+sudo: false
+language: php
+
+php:
+  - 7.3
+  - 7.2
+  - 7.1
+
+before_script: composer update
+script: vendor/bin/phpunit
+after_success: travis_retry vendor/bin/php-coveralls -o coveralls.json -x clover.xml

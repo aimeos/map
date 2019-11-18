@@ -1,0 +1,24 @@
+{
+	"name": "aimeos/map",
+	"description": "Easy and elegant handling of PHP arrays as array-like map objects similar to jQuery and Laravel Collections",
+	"license": "MIT",
+	"keywords": ["php", "array", "map", "collection"],
+	"require": {
+		"php": "^7.1"
+	},
+	"require-dev": {
+		"php-coveralls/php-coveralls": "~2.0",
+		"phpunit/phpunit": "~7.0||~8.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"Aimeos\\": "src/"
+		},
+		"files": [
+			"src/map.php"
+		],
+		"classmap": [
+			"src/"
+		]
+	}
+}
