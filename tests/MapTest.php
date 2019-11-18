@@ -401,6 +401,16 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals( ['en_GB', 'fr', 'HR'], $c->diff( new Map( ['en_gb', 'hr'] ) )->values()->toArray() );
 	}
 
+	public function testDiffFunction()
+	{
+		$c1 = new Map( ['a' => 'green', 'b' => 'brown', 'c' => 'blue', 'red'] );
+		$c2 = new Map( ['A' => 'Green', 'yellow', 'red'] );
+		// demonstrate that the case of the keys will affect the output when diff is used
+		$this->assertEquals( ['a' => 'green', 'b' => 'brown', 'c' => 'blue'], $c1->diff( $c2 )->toArray() );
+		// allow for case insensitive difference
+		$this->assertEquals( ['b' => 'brown', 'c' => 'blue'], $c1->diff( $c2, 'strcasecmp' )->toArray() );
+	}
+
 	public function testDiffKeys()
 	{
 		$c1 = new Map( ['id' => 1, 'first_word' => 'Hello'] );
@@ -557,6 +567,29 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$this->assertSame( ['a', 'aa', 'aaa'], $c->foo()->toArray() );
 	}
 
+	public function testMethodException()
+	{
+		$c = new Map( [] );
+
+		$this->expectException(\BadMethodCallException::class);
+		$c->bar();
+	}
+
+	public function testMethodStatic()
+	{
+		Map::method( 'baz', function() {
+			return [];
+		} );
+
+		$this->assertSame( [], Map::baz() );
+	}
+
+	public function testMethodStaticException()
+	{
+		$this->expectException(\BadMethodCallException::class);
+		Map::bar();
+	}
+
 	public function testMakeMethodFromMap()
 	{
 		$firstMap = Map::from( ['foo' => 'bar'] );
@@ -631,6 +664,12 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$c = new Map( [] );
 		$value = $c->pull( 0, 'foo' );
 		$this->assertEquals( 'foo', $value );
+	}
+
+	public function testPush()
+	{
+		$c = new Map( [] );
+		$this->assertEquals( ['foo'], $c->push( 'foo' )->toArray() );
 	}
 
 	public function testSearch()
