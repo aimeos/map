@@ -8,4 +8,4 @@ php:
 
 before_script: composer update
 script: vendor/bin/phpunit
-after_success: travis_retry vendor/bin/php-coveralls -o coveralls.json -x clover.xml
+after_success: travis_retry vendor/bin/php-coveralls -o coveralls.json -x coverage.xml
