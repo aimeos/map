@@ -1,35 +1,59 @@
 # Working with PHP arrays easily
 
-Easy to use and elegant handling of PHP arrays as array-like hash map object like
-we are used from jQuery and Laravel Collections.
+Easy to use and elegant handling for PHP arrays with an array-like map object
+as offered by Javascript, jQuery and Laravel Collections.
+
+**Table of contents**
+
+* [Why](#why)
+* [List of methods](#methods)
+* [Method documentation](#method-documentation)
+* [Custom methods](#custom-methods)
+* [Performance](#performance)
+
+## Why
 
 Instead of:
 ```
-$list = [['id' => 'one', 'value' => 'value1'], ['id' => 'two', 'value' => null]];
-$list['three'] => 'value3';                    // add element
-unset( $list['one'] );                         // remove element
-$list = array_filter( $list );                 // remove empty values
-$list = array_unique( $list );                 // only unique ones
-sort( $list );                                 // sort elements
-$pairs = array_column( $list, 'value', 'id' ); // create ['three' => 'value3']
-$value = $pairs['three'];                      // return value
+$list = [['id' => 'one', 'value' => 'value1'], ['id' => 'two', 'value' => 'value2'], null];
+$list[] = ['id' => 'three', 'value' => 'value3'];    // add element
+unset( $list[0] );                                   // remove element
+$list = array_filter( $list );                       // remove empty values
+sort( $list );                                       // sort elements
+$pairs = array_column( $list, 'value', 'id' );       // create ['three' => 'value3']
+$value = reset( $pairs ) ?: null;                    // return first value
 ```
+
 Only use:
 ```
-$list = [['id' => 'one', 'value' => 'value1'], ['id' => 'two', 'value' => null]];
+$list = [['id' => 'one', 'value' => 'value1'], ['id' => 'two', 'value' => 'value2'], null];
 $value = map( $list )
-    ->set( 'three', 'value3' ) // add element
-    ->remove( 'one' )          // remove element
-    ->filter()                 // remove empty values
-    ->unique()                 // only unique ones
-    ->sort()                   // sort elements
-    ->col( 'value', 'id' )     // create ['three' => 'value3']
-    ->get( 'three' );          // return value
+    ->push( ['id' => 'three', 'value' => 'value3'] ) // add element
+    ->remove( 0 )                                    // remove element
+    ->filter()                                       // remove empty values
+    ->sort()                                         // sort elements
+    ->col( 'value', 'id' )                           // create ['three' => 'value3']
+    ->first();                                       // return first value
+```
+
+Of course, you can still use:
+```
+$map[] = ['id' => 'three', 'value' => 'value3'];
+$value = $map['three'];
+```
+
+Also, the map object enables you to do much more advanced things because you can
+pass anonymous functions to a lot of methods, e.g.:
+```
+$map->each( function( $val, $key ) {
+	echo $key . ': ' . $val;
+} );
 ```
 
 
 ## Methods
 
+* [map()](#map-function) : Creates a new map from elements
 * [__construct()](#__construct) : Creates a new map
 * [__call()](#__call) : Calls a custom method
 * [__callStatic()](#__callstatic) : Calls a custom method statically
@@ -84,17 +108,29 @@ $value = map( $list )
 * [unshift()](#unshift) : Adds an element at the beginning
 * [values()](#values) : Returns all elements with new keys
 
-## Description
+
+## Method documentation
+
+### map() function
+
+Returns a new map for the passed elements.
+
+```php
+function map( iterable $elements ) : \Aimeos\Map
+```
+
+* @param iterable `$elements` List of elements
+
 
 ### __construct()
 
 Creates a new map.
 
 ```php
-public function __construct( iterable $items = [] )
+public function __construct( iterable $elements = [] )
 ```
 
-* @param iterable `$items` List of items
+* @param iterable `$elements` List of elements
 
 
 ### __call()
@@ -187,10 +223,10 @@ The col() method works for objects implementing the __isset() and __get() method
 Pushs all of the given elements onto the map without creating a new map.
 
 ```php
-public function concat( iterable $items ) : self
+public function concat( iterable $elements ) : self
 ```
 
-* @param iterable `$items` List of items
+* @param iterable `$elements` List of elements
 * @return self Updated map for fluid interface
 
 **Examples:**
@@ -206,7 +242,7 @@ Map::from( ['foo'] )->concat( new Map( ['bar] ));
 
 ### copy()
 
-Creates a new map with the same items.
+Creates a new map with the same elements.
 
 Both maps share the same array until one of the map objects modifies the
 array. Then, the array is copied and the copy is modfied (copy on write).
@@ -226,7 +262,7 @@ Counts the number of elements in the map.
 public function count() : int
 ```
 
-* @return int Number of items
+* @return int Number of elements
 
 
 ### diff()
@@ -234,10 +270,10 @@ public function count() : int
 Returns the keys/values in the map whose values are not present in the passed elements in a new map.
 
 ```php
-public function diff( iterable $items, callable $callback = null ) : self
+public function diff( iterable $elements, callable $callback = null ) : self
 ```
 
-* @param iterable `$items` List of items
+* @param iterable `$elements` List of elements
 * @param  callable|null `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @return self New map
 
@@ -273,10 +309,10 @@ when compared case insensitive.
 Returns the keys/values in the map whose keys and values are not present in the passed elements in a new map.
 
 ```php
-public function diffAssoc( iterable $items, callable $callback = null ) : self
+public function diffAssoc( iterable $elements, callable $callback = null ) : self
 ```
 
-* @param iterable `$items` List of items
+* @param iterable `$elements` List of elements
 * @param  callable|null `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @return self New map
 
@@ -314,10 +350,10 @@ an empty map because 'A' is part of the passed array but the keys doesn't match
 Returns the key/value pairs from the map whose keys are not present in the passed elements in a new map.
 
 ```php
-public function diffKeys( iterable $items, callable $callback = null ) : self
+public function diffKeys( iterable $elements, callable $callback = null ) : self
 ```
 
-* @param iterable `$items` List of items
+* @param iterable `$elements` List of elements
 * @param  callable|null `$callback` Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @return self New map
 
@@ -378,10 +414,10 @@ after the first entry and all other entries are then skipped.
 Tests if the passed elements are equal to the elements in the map.
 
 ```php
-public function equals( iterable $items, $assoc = false ) : bool
+public function equals( iterable $elements, $assoc = false ) : bool
 ```
 
-* @param iterable `$items` List of elements to test against
+* @param iterable `$elements` List of elements to test against
 * @param bool `$assoc` TRUE to compare keys too, FALSE to compare only values
 * @return bool TRUE if both are equal, FALSE if not
 
@@ -473,10 +509,10 @@ The first example will return 'a', the second 'c' and the third 'x'.
 Creates a new map instance if the value isn't one already.
 
 ```php
-public static function from( iterable $items = [] ) : self
+public static function from( iterable $elements = [] ) : self
 ```
 
-* @param iterable `$items` List of items
+* @param iterable `$elements` List of elements
 * @return self New map
 
 **Examples:**
@@ -511,7 +547,7 @@ The first example will return 'X', the second 'Z'
 
 ### getIterator()
 
-Returns an iterator for the items.
+Returns an iterator for the elements.
 
 This method will be used by e.g. foreach() to loop over all entries:
 
@@ -519,7 +555,7 @@ This method will be used by e.g. foreach() to loop over all entries:
 public function getIterator() : \Iterator
 ```
 
-* @return \Iterator Over map items
+* @return \Iterator Over map elements
 
 **Examples:**
 ```
@@ -551,13 +587,13 @@ The first example will return TRUE while the second and third one will return FA
 
 ### intersect()
 
-Returns all values in a new map that are available in both, the map and the given items.
+Returns all values in a new map that are available in both, the map and the given elements.
 
 ```php
-public function intersect( iterable $items, callable $callback = null ) : self
+public function intersect( iterable $elements, callable $callback = null ) : self
 ```
 
-* @param iterable `$items` List of items
+* @param iterable `$elements` List of elements
 * @param  callable|null `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @return self New map
 
@@ -593,10 +629,10 @@ values when compared case insensitive.
 Returns all values in a new map that are available in both, the map and the given elements while comparing the keys too.
 
 ```php
-public function intersectAssoc( iterable $items, callable $callback = null ) : self
+public function intersectAssoc( iterable $elements, callable $callback = null ) : self
 ```
 
-* @param iterable `$items` List of items
+* @param iterable `$elements` List of elements
 * @param  callable|null `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @return self New map
 
@@ -633,10 +669,10 @@ an empty map because the keys doesn't match ("b" vs. "B" and "b" vs. "c").
 Returns all values in a new map that are available in both, the map and the given elements by comparing the keys only.
 
 ```php
-public function intersectKeys( iterable $items, callable $callback = null ) : self
+public function intersectKeys( iterable $elements, callable $callback = null ) : self
 ```
 
-* @param iterable `$items` List of items
+* @param iterable `$elements` List of elements
 * @param  callable|null `$callback` Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @return self New map
 
@@ -809,10 +845,10 @@ Merges the map with the given elements without returning a new map.
 Items with the same keys will be overwritten
 
 ```php
-public function merge( iterable $items ) : self
+public function merge( iterable $elements ) : self
 ```
 
-* @param iterable `$items` List of items
+* @param iterable `$elements` List of elements
 * @return self Updated map for fluid interface
 
 **Examples:**
@@ -842,7 +878,7 @@ public static function method( string $name, \Closure $function )
 **Examples:**
 ```php
 Map::method( 'foo', function( $arg1, $arg2 ) {
-    return $this->items;
+    return $this->elements;
 } );
 ```
 
@@ -851,7 +887,7 @@ Access to the class properties:
 (new Map( ['bar'] ))->foo( $arg1, $arg2 );
 ```
 
-Error because $this->items isn't available:
+Error because $this->elements isn't available:
 ```php
 Map::foo( $arg1, $arg2 );
 ```
@@ -1081,10 +1117,10 @@ in an empty list
 Recursively replaces elements in the map with the given elements without returning a new map.
 
 ```php
-public function replace( iterable $items ) : self
+public function replace( iterable $elements ) : self
 ```
 
-* @param iterable `$items` List of items
+* @param iterable `$elements` List of elements
 * @return self Updated map for fluid interface
 
 **Examples:**
@@ -1184,7 +1220,7 @@ Map::from( [] )->shift();
 The first example returns "a" and shortens the map to ['b'] only while the
 second example will return NULL
 
-Performance note:
+**Performance note:**
 The bigger the list, the higher the performance impact because shift()
 reindexes all existing elements. Usually, it's better to reverse() the list
 and pop() entries from the list afterwards if a significant number of elements
@@ -1195,7 +1231,7 @@ $map->reverse()->pop();
 ```
 instead of
 ```php
-$map->shift( 'a' );
+$map->shift();
 ```
 
 
@@ -1354,10 +1390,10 @@ Builds a union of the elements and the given elements without returning a new ma
 Existing keys in the map will not be overwritten
 
 ```php
-public function union( iterable $items ) : self
+public function union( iterable $elements ) : self
 ```
 
-* @param iterable `$items` List of items
+* @param iterable `$elements` List of elements
 * @return self Updated map for fluid interface
 
 **Examples:**
@@ -1422,7 +1458,7 @@ Map::from( ['a', 'b'] )->unshift( 'd', 'first' );
 The first example will result in `['d', 'a', 'b']` while the second one will
 produce `['first' => 'd', 0 => 'a', 1 => 'b']`.
 
-Performance note:
+**Performance note:**
 The bigger the list, the higher the performance impact because unshift()
 needs to create a new list and copies all existing elements to the new
 array. Usually, it's better to push() new entries at the end and reverse()
@@ -1454,3 +1490,137 @@ Map::from( ['a', 'b', 'b', 'c'] )->unique();
 
 **Results:**
 A new map with `['a', 'b', 'c']` as content
+
+
+## Custom methods
+
+Most of the time, it's enough to pass an anonymous function to the pipe() method
+to implement custom functionality in map objects:
+
+```php
+Map::from( ['a', 'b'] )->pipe( function( $map ) {
+    return strrev( $map->join( '-' ) );
+} );
+```
+
+If you need some functionality more often and at different places in your source
+code, than it's better to register a custom method once and only call it everywhere:
+
+```php
+Map::method( 'strrev', function( $sep ) {
+    return strrev( join( '-', $this->items ) );
+} );
+Map::from( ['a', 'b'] )->strrev( '-' );
+```
+
+Make sure, you register the method before using it. You can pass arbitrary parameters
+to your function and it has access to the internas of the map. Thus, your function
+can use `$this` to call all available methods:
+
+```php
+Map::method( 'notInBoth', function( iterable $elements ) {
+    return new self( $elements->diff( $this->diff( $elements ) ) );
+} );
+```
+
+Your custom method has access to `$this->items` array which contains the map
+elements and can also use the internal `getArray( iterable $list )` method to convert
+iterable parameters (arrays, generators and objects implementing \Traversable) to
+plain arrays:
+
+```php
+Map::method( 'combine', function( iterable $keys ) {
+    return new self( array_combine( $this->getArray( $keys ), $this-items ) );
+} );
+```
+
+
+## Performance
+
+### Creating Map vs. array
+
+Creating an map object with an array instead of creating a plain array only is
+significantly slower (ca. 10x) but in absolute values we are talking about nano
+seconds. It will only get notable if you create 10,000 map objects instead of
+10,000 arrays. Then, creating maps will last ca. 10ms longer.
+
+Usually, this isn't much of a problem because applications create arrays with
+lots of elements instead of 10,000+ arrays. Nevertheless, if your application
+creates a very large number of arrays within one area, you should think about
+avoiding map objects in that area.
+
+If you use the `map()` function or `Map::from()` to create map objects, then be
+aware that this adds another method call. Using these methods for creating the
+map object lasts around 1.5x compared to the time for `new Map()` only. Also,
+`Map::from()` is faster than `map()`.
+
+### Populating Map vs. array
+
+Adding an element to a Map object using `$map[] = 'a'` is ca. 5x slower than
+doing the same on a plain array. This is because the method `offsetSet()` will
+be called instead of adding the new element to the array directly. This applies
+to the `$map->push( 'a' )` method too.
+
+When creating arrays in loops, you should populate the array first and then
+create a Map object from the the array:
+
+```php
+$list = [];
+for( $i = 0; $i < 1000; $i++ ) {
+	$list[] = $i;
+}
+$map = map( $list );
+```
+
+The array is **NOT** copied when creating the Map object so there's virtually no
+performance loss using the Map afterwards.
+
+### Using Map methods vs. language constructs
+
+Language constructs such as `empty()`, `count()` or `isset()` are faster than
+calling a method and using `$map->isEmpty()` or `$map->count()` is ca. 4x
+slower.
+
+Again, we are talking about nano seconds. For 10,000 calls to `empty( $array )`
+compared to `$map->empty()`, the costs are around 4ms in total.
+
+### Using Map methods vs. array_* functions
+
+Using the Map methods instead of the array_* functions adds an additional method
+call. Internally, the Map objects uses the same array_* functions but offers a
+much more usable interface.
+
+The time for the additional method call is almost neglectable because the array_*
+methods needs much longer to perform the operation on the array elements depending
+on the size of the array.
+
+### Using anonymous functions
+
+Several Map methods support passing an anonymous function that is applied to
+every element of the map. PHP needs some time to call the passed function and
+to execute its code. Depending on the number of elements, this may have a
+significant impact on performance!
+
+The `pipe()` method of the Map object is an exception because it receives the
+whole map object instead of each element separately. Its performance mainly
+depends on the implemented code:
+
+```php
+$map->pipe( function( Map $map ) {
+	// perform operations on the map
+} );
+```
+
+### Using shift() and unshift()
+
+Both methods are costly, especially on large arrays. The used `array_shift()` and
+`array_unshift()` functions will reindex all numerical keys of the array.
+
+If you want to reduce or create a large list of elements from the beginning in
+an iterative way, you should use `reverse()` and `pop()`/`push()` instead of
+`shift()` and `unshift()`:
+
+```php
+$map->reverse()->pop(); // until pop() returns NULL
+$map->push( 'z' )->push( 'y' )->push( 'x' )->reverse();
+```
