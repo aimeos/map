@@ -462,6 +462,14 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testIn()
+	{
+		$this->assertTrue( Map::from( ['a', 'b'] )->in( 'a' ) );
+		$this->assertFalse( Map::from( ['a', 'b'] )->in( 'x' ) );
+		$this->assertFalse( Map::from( ['1', '2'] )->in( 2, true ) );
+	}
+
+
 	public function testIntersec()
 	{
 		$m = new Map( ['id' => 1, 'first_word' => 'Hello'] );
@@ -539,6 +547,14 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	{
 		$m = new Map( ['foo'] );
 		$this->assertFalse( $m->isEmpty() );
+	}
+
+
+	public function testJoin()
+	{
+		$m = new Map( ['a', 'b', null, false] );
+		$this->assertEquals( 'ab', $m->join() );
+		$this->assertEquals( 'a-b--', $m->join( '-' ) );
 	}
 
 

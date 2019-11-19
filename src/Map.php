@@ -506,6 +506,27 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Tests if the passed element is part of the map.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'b'] )->in( 'a' );
+	 *  Map::from( ['a', 'b'] )->in( 'x' );
+	 *  Map::from( ['1', '2'] )->in( 2, true );
+	 *
+	 * Results:
+	 * The first example will return TRUE while the second and third one will return FALSE
+	 *
+	 * @param mixed $element Element to search for in the map
+	 * @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
+	 * @return bool TRUE if element is available in map, FALSE if not
+	 */
+	public function in( $element, bool $strict = false ) : bool
+	{
+		return in_array( $element, $this->items, $strict );
+	}
+
+
+	/**
 	 * Returns all values in a new map that are available in both, the map and the given items.
 	 *
 	 * Examples:
@@ -634,6 +655,30 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function isEmpty() : bool
 	{
 		return empty( $this->items );
+	}
+
+
+	/**
+	 * Concatenates the string representation of all elements.
+	 *
+	 * Objects that implement __toString() does also work, otherwise (and in case
+	 * of arrays) a PHP notice is generated. NULL and FALSE values are treated as
+	 * empty strings.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'b', false] )->join();
+	 *  Map::from( ['a', 'b', null, false] )->join( '-' );
+	 *
+	 * Results:
+	 * The first example will return "ab" while the second one will return "a-b--"
+	 *
+	 * @param mixed $element Element to search for in the map
+	 * @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
+	 * @return bool TRUE if element is available in map, FALSE if not
+	 */
+	public function join( $glue = '' ) : string
+	{
+		return implode( $glue, $this->items );
 	}
 
 

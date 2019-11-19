@@ -585,6 +585,29 @@ Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'X' );
 The first example will return TRUE while the second and third one will return FALSE
 
 
+### in()
+
+Tests if the passed element is part of the map.
+
+```php
+public function in( $element, bool $strict = false ) : bool
+```
+
+* @param mixed $element Element to search for in the map
+* @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
+* @return bool TRUE if element is available in map, FALSE if not
+
+**Examples:**
+```php
+Map::from( ['a', 'b'] )->in( 'a' );
+Map::from( ['a', 'b'] )->in( 'x' );
+Map::from( ['1', '2'] )->in( 2, true );
+```
+
+**Results:**
+The first example will return TRUE while the second and third one will return FALSE
+
+
 ### intersect()
 
 Returns all values in a new map that are available in both, the map and the given elements.
@@ -723,6 +746,32 @@ Map::from( ['a'] );
 
 **Results:**
 The first example returns TRUE while the second returns FALSE
+
+
+### join()
+
+Concatenates the string representation of all elements.
+
+Objects that implement __toString() does also work, otherwise (and in case
+of arrays) a PHP notice is generated. NULL and FALSE values are treated as
+empty strings.
+
+```php
+public function join( $glue = '' ) : string
+```
+
+* @param mixed $element Element to search for in the map
+* @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
+* @return bool TRUE if element is available in map, FALSE if not
+
+**Examples:**
+```php
+Map::from( ['a', 'b', false] )->join();
+Map::from( ['a', 'b', null, false] )->join( '-' );
+```
+
+**Results:**
+The first example will return "ab" while the second one will return "a-b--"
 
 
 ### keys()
