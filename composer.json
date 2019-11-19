@@ -15,7 +15,7 @@
 			"Aimeos\\": "src/"
 		},
 		"files": [
-			"src/map.php"
+			"src/function.php"
 		],
 		"classmap": [
 			"src/"
