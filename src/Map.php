@@ -13,7 +13,7 @@ namespace Aimeos;
  * Handling and operating on a list of items easily
  * Inspired by Laravel Collection class, PHP map data structure and Javascript
  */
-class Map implements MapIface
+class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 {
 	protected static $methods = [];
 	protected $items = [];
@@ -72,9 +72,9 @@ class Map implements MapIface
 	 * Create a new map instance if the value isn't one already.
 	 *
 	 * @param iterable $items List of items
-	 * @return MapIface New map
+	 * @return self New map
 	 */
-	public static function from( iterable $items = [] ) : MapIface
+	public static function from( iterable $items = [] ) : self
 	{
 		return new static( $items );
 	}
@@ -95,9 +95,9 @@ class Map implements MapIface
 	/**
 	 * Removes all items from the map.
 	 *
-	 * @return MapIface Same map for fluid interface
+	 * @return self Same map for fluid interface
 	 */
-	public function clear() : MapIface
+	public function clear() : self
 	{
 		$this->items = [];
 		return $this;
@@ -107,13 +107,18 @@ class Map implements MapIface
 	/**
 	 * Return the values of a single column/property from an array of arrays or list of items.
 	 *
-	 * @inheritDoc
+	 * Example:
+	 *  Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( 'val', 'id' );
+	 * Returns:
+	 *  ['i1' => 'v1', 'i2' => 'v2']
+	 *
+	 * If $indexcol is omitted, the result will be indexed from 0-n.
 	 *
 	 * @param string $valuecol Name of the value property
 	 * @param string|null $indexcol Name of the index property
-	 * @return MapIface New instance with mapped entries
+	 * @return self New instance with mapped entries
 	 */
-	public function col( string $valuecol, $indexcol = null ) : MapIface
+	public function col( string $valuecol, $indexcol = null ) : self
 	{
 		return new static( array_column( $this->items, $valuecol, $indexcol ) );
 	}
@@ -123,9 +128,9 @@ class Map implements MapIface
 	 * Push all of the given items onto the map.
 	 *
 	 * @param iterable $items List of items
-	 * @return MapIface Updated map for fluid interface
+	 * @return self Updated map for fluid interface
 	 */
-	public function concat( iterable $items ) : MapIface
+	public function concat( iterable $items ) : self
 	{
 		foreach( $items as $item ) {
 			$this->items[] = $item;
@@ -138,9 +143,9 @@ class Map implements MapIface
 	/**
 	 * Creates a new map with the same items.
 	 *
-	 * @return MapIface New map
+	 * @return self New map
 	 */
-	public function copy() : MapIface
+	public function copy() : self
 	{
 		return new static( $this->items );
 	}
@@ -162,9 +167,9 @@ class Map implements MapIface
 	 *
 	 * @param iterable $items List of items
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
-	 * @return MapIface New map
+	 * @return self New map
 	 */
-	public function diff( iterable $items, callable $callback = null ) : MapIface
+	public function diff( iterable $items, callable $callback = null ) : self
 	{
 		if( $callback ) {
 			return new static( array_udiff( $this->items, $this->getArray( $items ), $callback ) );
@@ -179,9 +184,9 @@ class Map implements MapIface
 	 *
 	 * @param iterable $items List of items
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
-	 * @return MapIface New map
+	 * @return self New map
 	 */
-	public function diffAssoc( iterable $items, callable $callback = null ) : MapIface
+	public function diffAssoc( iterable $items, callable $callback = null ) : self
 	{
 		if( $callback ) {
 			return new static( array_diff_uassoc( $this->items, $this->getArray( $items ), $callback ) );
@@ -196,9 +201,9 @@ class Map implements MapIface
 	 *
 	 * @param iterable $items List of items
 	 * @param  callable|null $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
-	 * @return MapIface New map
+	 * @return self New map
 	 */
-	public function diffKeys( iterable $items, callable $callback = null ) : MapIface
+	public function diffKeys( iterable $items, callable $callback = null ) : self
 	{
 		if( $callback ) {
 			return new static( array_diff_ukey( $this->items, $this->getArray( $items ), $callback ) );
@@ -212,9 +217,9 @@ class Map implements MapIface
 	 * Execute a callback over each item.
 	 *
 	 * @param callable $callback Function with (item, key) parameters and returns true/false
-	 * @return MapIface Same map for fluid interface
+	 * @return self Same map for fluid interface
 	 */
-	public function each( callable $callback ) : MapIface
+	public function each( callable $callback ) : self
 	{
 		foreach( $this->items as $key => $item )
 		{
@@ -230,7 +235,8 @@ class Map implements MapIface
 	/**
 	 * Tests if the passed items are equal to the items in the map.
 	 *
-	 * @inheritDoc
+	 * Items are compared by their string values:
+	 * (string) $item1 === (string) $item2
 	 *
 	 * @param iterable $items List of items to test against
 	 * @param bool $assoc True to compare keys too, false to compare only values
@@ -252,9 +258,9 @@ class Map implements MapIface
 	 * Run a filter over each of the items.
 	 *
 	 * @param  callable|null $callback Function with (item) parameter and returns true/false
-	 * @return MapIface New map
+	 * @return self New map
 	 */
-	public function filter( callable $callback = null ) : MapIface
+	public function filter( callable $callback = null ) : self
 	{
 		if( $callback ) {
 			return new static( array_filter( $this->items, $callback, ARRAY_FILTER_USE_BOTH ) );
@@ -331,9 +337,9 @@ class Map implements MapIface
 	 *
 	 * @param iterable $items List of items
 	 * @param  callable|null $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
-	 * @return MapIface New map
+	 * @return self New map
 	 */
-	public function intersect( iterable $items, callable $callback = null ) : MapIface
+	public function intersect( iterable $items, callable $callback = null ) : self
 	{
 		if( $callback ) {
 			return new static( array_uintersect( $this->items, $this->getArray( $items ), $callback ) );
@@ -348,9 +354,9 @@ class Map implements MapIface
 	 *
 	 * @param iterable $items List of items
 	 * @param  callable|null $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
-	 * @return MapIface New map
+	 * @return self New map
 	 */
-	public function intersectAssoc( iterable $items, callable $callback = null ) : MapIface
+	public function intersectAssoc( iterable $items, callable $callback = null ) : self
 	{
 		if( $callback ) {
 			return new static( array_uintersect_assoc( $this->items, $this->getArray( $items ), $callback ) );
@@ -365,9 +371,9 @@ class Map implements MapIface
 	 *
 	 * @param iterable $items List of items
 	 * @param  callable|null $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
-	 * @return MapIface New map
+	 * @return self New map
 	 */
-	public function intersectKeys( iterable $items, callable $callback = null ) : MapIface
+	public function intersectKeys( iterable $items, callable $callback = null ) : self
 	{
 		if( $callback ) {
 			return new static( array_intersect_ukey( $this->items, $this->getArray( $items ), $callback ) );
@@ -391,9 +397,9 @@ class Map implements MapIface
 	/**
 	 * Get the keys of the map items.
 	 *
-	 * @return MapIface New map
+	 * @return self New map
 	 */
-	public function keys() : MapIface
+	public function keys() : self
 	{
 		return new static( array_keys( $this->items ) );
 	}
@@ -404,9 +410,9 @@ class Map implements MapIface
 	 *
 	 * @param callable|null $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @param int $options Sort options for ksort()
-	 * @return MapIface Updated map for fluid interface
+	 * @return self Updated map for fluid interface
 	 */
-	public function ksort( callable $callback = null, int $options = SORT_REGULAR ) : MapIface
+	public function ksort( callable $callback = null, int $options = SORT_REGULAR ) : self
 	{
 		$callback ? uksort( $this->items, $callback ) : ksort( $this->items, $options );
 		return $this;
@@ -442,9 +448,9 @@ class Map implements MapIface
 	 * Calls the provided function once for each element and constructs a new array from the results
 	 *
 	 * @param callable $callback Function with (item, key) parameters and returns computed result
-	 * @return MapIface New map with the original keys and the computed values
+	 * @return self New map with the original keys and the computed values
 	 */
-	public function map( callable $callback ) : MapIface
+	public function map( callable $callback ) : self
 	{
 		$keys = array_keys( $this->items );
 		$items = array_map( $callback, $this->items, $keys );
@@ -458,9 +464,9 @@ class Map implements MapIface
 	 * Items with the same keys will be overwritten
 	 *
 	 * @param iterable $items List of items
-	 * @return MapIface Updated map for fluid interface
+	 * @return self Updated map for fluid interface
 	 */
-	public function merge( iterable $items ) : MapIface
+	public function merge( iterable $items ) : self
 	{
 		$this->items = array_merge( $this->items, $this->getArray( $items ) );
 		return $this;
@@ -561,9 +567,9 @@ class Map implements MapIface
 	 * Push an item onto the end of the map.
 	 *
 	 * @param mixed $value Value to add to the end
-	 * @return MapIface Same map for fluid interface
+	 * @return self Same map for fluid interface
 	 */
-	public function push( $value ) : MapIface
+	public function push( $value ) : self
 	{
 		$this->items[] = $value;
 		return $this;
@@ -587,9 +593,9 @@ class Map implements MapIface
 	 * Remove an item from the map by key.
 	 *
 	 * @param string|iterable $keys List of keys
-	 * @return MapIface Same map for fluid interface
+	 * @return self Same map for fluid interface
 	 */
-	public function remove( $keys ) : MapIface
+	public function remove( $keys ) : self
 	{
 		foreach( (array) $keys as $key ) {
 			unset( $this->items[$key] );
@@ -603,9 +609,9 @@ class Map implements MapIface
 	 * Recursively replaces items in the map with the given items
 	 *
 	 * @param iterable $items List of items
-	 * @return MapIface Updated map for fluid interface
+	 * @return self Updated map for fluid interface
 	 */
-	public function replace( iterable $items ) : MapIface
+	public function replace( iterable $items ) : self
 	{
 		$this->items = array_replace_recursive( $this->items, $this->getArray( $items ) );
 		return $this;
@@ -615,9 +621,9 @@ class Map implements MapIface
 	/**
 	 * Reverse items order.
 	 *
-	 * @return MapIface Updated map for fluid interface
+	 * @return self Updated map for fluid interface
 	 */
-	public function reverse() : MapIface
+	public function reverse() : self
 	{
 		$this->items = array_reverse( $this->items, true );
 		return $this;
@@ -646,9 +652,9 @@ class Map implements MapIface
 	 *
 	 * @param mixed $key Key to set the new value for
 	 * @param mixed $value New item that should be set
-	 * @return MapIface Same map for fluid interface
+	 * @return self Same map for fluid interface
 	 */
-	public function set( $key, $value ) : MapIface
+	public function set( $key, $value ) : self
 	{
 		$this->items[$key] = $value;
 		return $this;
@@ -669,9 +675,9 @@ class Map implements MapIface
 	/**
 	 * Shuffle the items in the map.
 	 *
-	 * @return MapIface Updated map for fluid interface
+	 * @return self Updated map for fluid interface
 	 */
-	public function shuffle() : MapIface
+	public function shuffle() : self
 	{
 		shuffle( $this->items );
 		return $this;
@@ -683,9 +689,9 @@ class Map implements MapIface
 	 *
 	 * @param int $offset Number of items to start from
 	 * @param int $length Number of items to return
-	 * @return MapIface New map
+	 * @return self New map
 	 */
-	public function slice( int $offset, int $length = null ) : MapIface
+	public function slice( int $offset, int $length = null ) : self
 	{
 		return new static( array_slice( $this->items, $offset, $length, true ) );
 	}
@@ -696,9 +702,9 @@ class Map implements MapIface
 	 *
 	 * @param callable|null $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @param int $options Sort options for asort()
-	 * @return MapIface Updated map for fluid interface
+	 * @return self Updated map for fluid interface
 	 */
-	public function sort( callable $callback = null, int $options = SORT_REGULAR ) : MapIface
+	public function sort( callable $callback = null, int $options = SORT_REGULAR ) : self
 	{
 		$callback ? uasort( $this->items, $callback ) : asort( $this->items, $options );
 		return $this;
@@ -711,9 +717,9 @@ class Map implements MapIface
 	 * @param int $offset Number of items to start from
 	 * @param int|null $length Number of items to remove
 	 * @param mixed $replacement List of items to insert
-	 * @return MapIface New map
+	 * @return self New map
 	 */
-	public function splice( int $offset, int $length = null, $replacement = [] ) : MapIface
+	public function splice( int $offset, int $length = null, $replacement = [] ) : self
 	{
 		if( $length === null ) {
 			return new static( array_splice( $this->items, $offset ) );
@@ -739,9 +745,9 @@ class Map implements MapIface
 	 * Existing keys in the map will not be overwritten
 	 *
 	 * @param iterable $items List of items
-	 * @return MapIface Updated map for fluid interface
+	 * @return self Updated map for fluid interface
 	 */
-	public function union( iterable $items ) : MapIface
+	public function union( iterable $items ) : self
 	{
 		$this->items += $this->getArray( $items );
 		return $this;
@@ -751,9 +757,9 @@ class Map implements MapIface
 	/**
 	 * Return only unique items from the map.
 	 *
-	 * @return MapIface New map
+	 * @return self New map
 	 */
-	public function unique() : MapIface
+	public function unique() : self
 	{
 		return new static( array_unique( $this->items ) );
 	}
@@ -764,9 +770,9 @@ class Map implements MapIface
 	 *
 	 * @param mixed $value Item to add at the beginning
 	 * @param mixed $key Key for the item
-	 * @return MapIface Same map for fluid interface
+	 * @return self Same map for fluid interface
 	 */
-	public function unshift( $value, $key = null ) : MapIface
+	public function unshift( $value, $key = null ) : self
 	{
 		if( $key === null ) {
 			array_unshift( $this->items, $value );
@@ -781,9 +787,9 @@ class Map implements MapIface
 	/**
 	 * Reset the keys on the underlying array.
 	 *
-	 * @return MapIface New map of the values
+	 * @return self New map of the values
 	 */
-	public function values() : MapIface
+	public function values() : self
 	{
 		return new static( array_values( $this->items ) );
 	}

@@ -1,6 +1,9 @@
 <?php
 
-function map( iterable $items )
+if( !function_exists( 'map' ) )
 {
-	return \Aimeos\Map::from( $items );
+	function map( iterable $items )
+	{
+		return \Aimeos\Map::from( $items );
+	}
 }
