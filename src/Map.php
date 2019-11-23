@@ -145,6 +145,37 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Chunks the map into arrays with the given number of elements.
+	 *
+	 * Examples:
+	 *  Map::from( [0, 1, 2, 3, 4] )->chunk( 3 );
+	 *  Map::from( ['a' => 0, 'b' => 1, 'c' => 2] )->chunk( 2 );
+	 *
+	 * Results:
+	 *  [[0, 1, 2], [3, 4]]
+	 *  [['a' => 0, 'b' => 1], ['c' => 2]]
+	 *
+	 * The last chunk may contain less elements than the given number.
+	 *
+	 * The sub-arrays of the returned map are plain PHP arrays. If you need Map
+	 * objects, then wrap them with Map::from() when you iterate over the map.
+	 *
+	 * @param int $size Maximum size of the sub-arrays
+	 * @param bool $preserve Preserve keys in new map
+	 * @return self New map with elements chunked in sub-arrays
+	 * @throws \InvalidArgumentException If size is smaller than 1
+	 */
+	public function chunk( int $size, bool $preserve = false ) : self
+	{
+		if( $size < 1 ) {
+			throw new \InvalidArgumentException( 'Chunk size must be greater or equal than 1' );
+		}
+
+		return new static( array_chunk( $this->items, $size, $preserve ) );
+	}
+
+
+	/**
 	 * Removes all items from the current map.
 	 *
 	 * @return self Same map for fluid interface
@@ -175,6 +206,46 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function col( string $valuecol, $indexcol = null ) : self
 	{
 		return new static( array_column( $this->items, $valuecol, $indexcol ) );
+	}
+
+
+	/**
+	 * Collapses all sub-array elements recursively to a new map.
+	 *
+	 * Examples:
+	 *  Map::from( [0 => ['a' => 0, 'b' => 1], 1 => ['c' => 2, 'd' => 3]] )->collapse();
+	 *  Map::from( [0 => ['a' => 0, 'b' => 1], 1 => ['a' => 2]] )->collapse();
+	 *  Map::from( [0 => [0 => 0, 1 => 1], 1 => [0 => ['a' => 2, 0 => 3], 1 => 4]] )->collapse();
+	 *  Map::from( [0 => [0 => 0, 'a' => 1], 1 => [0 => ['b' => 2, 0 => 3], 1 => 4]] )->collapse( 1 );
+	 *  Map::from( [0 => [0 => 0, 'a' => 1], 1 => Map::from( [0 => ['b' => 2, 0 => 3], 1 => 4] )] )->collapse();
+	 *
+	 * Results:
+	 *  ['a' => 0, 'b' => 1, 'c' => 2, 'd' => 3]
+	 *  ['a' => 2, 'b' => 1]
+	 *  [0 => 3, 1 => 4, 'a' => 2]
+	 *  [0 => ['b' => 2, 0 => 3], 1 => 4, 'a' => 1]
+	 *  [0 => 3, 'a' => 1, 'b' => 2, 1 => 4]
+	 *
+	 * The keys are preserved and already existing elements will be overwritten.
+	 * This is also true for numeric keys! A value smaller than 1 for depth will
+	 * return the same map elements. Collapsing does also work if elements
+	 * implement the "Traversable" interface (which the Map object does).
+	 *
+	 * This method is similar than flat() but replaces already existing elements.
+	 *
+	 * @param int|null $depth Number of levels to collapse for multi-dimensional arrays or NULL for all
+	 * @return self New map with all sub-array elements added into it recursively, up to the specified depth
+	 * @throws \InvalidArgumentException If depth must be greater or equal than 0 or NULL
+	 */
+	public function collapse( int $depth = null ) : self
+	{
+		if( $depth < 0 ) {
+			throw new \InvalidArgumentException( 'Depth must be greater or equal than 0 or NULL' );
+		}
+
+		$result = [];
+		$this->kflatten( $this->items, $result, $depth ?? INF );
+		return new self( $result );
 	}
 
 
@@ -468,6 +539,61 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		return reset( $this->items ) ?: $default;
+	}
+
+
+	/**
+	 * Creates a new map with all sub-array elements added recursively
+	 *
+	 * Examples:
+	 *  Map::from( [[0, 1], [2, 3]] )->flat();
+	 *  Map::from( [[0, 1], [[2, 3], 4]] )->flat();
+	 *  Map::from( [[0, 1], [[2, 3], 4]] )->flat( 1 );
+	 *  Map::from( [[0, 1], Map::from( [[2, 3], 4] )] )->flat();
+	 *
+	 * Results:
+	 *  [0, 1, 2, 3]
+	 *  [0, 1, 2, 3, 4]
+	 *  [0, 1, [2, 3], 4]
+	 *  [0, 1, 2, 3, 4]
+	 *
+	 * The keys are not preserved and the new map elements will be numbered from
+	 * 0-n. A value smaller than 1 for depth will return the same map elements
+	 * indexed from 0-n. Flattening does also work if elements implement the
+	 * "Traversable" interface (which the Map object does).
+	 *
+	 * This method is similar than collapse() but doesn't replace existing elements.
+	 *
+	 * @param int|null $depth Number of levels to flatten multi-dimensional arrays or NULL for all
+	 * @return self New map with all sub-array elements added into it recursively, up to the specified depth
+	 * @throws \InvalidArgumentException If depth must be greater or equal than 0 or NULL
+	 */
+	public function flat( int $depth = null ) : self
+	{
+		if( $depth < 0 ) {
+			throw new \InvalidArgumentException( 'Depth must be greater or equal than 0 or NULL' );
+		}
+
+		$result = [];
+		$this->flatten( $this->items, $result, $depth ?? INF );
+		return new self( $result );
+	}
+
+
+	/**
+	 * Exchanges the keys with their values and vice versa.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->flip();
+	 *
+	 * Results:
+	 *  ['X' => 'a', 'Y' => 'b']
+	 *
+	 * @return self New map with keys as values and values as keys
+	 */
+	public function flip() : self
+	{
+		return new self( array_flip( $this->items ) );
 	}
 
 
@@ -1010,6 +1136,36 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns one or more random element from the map.
+	 *
+	 * Examples:
+	 *  Map::from( [2, 4, 8, 16] )->random();
+	 *  Map::from( [2, 4, 8, 16] )->random( 2 );
+	 *  Map::from( [2, 4, 8, 16] )->random( 5 );
+	 *
+	 * Results:
+	 * The first example will return a map including [0 => 8] or any other value,
+	 * the second one will return a map with [0 => 16, 1 => 2] or any other values
+	 * and the third example will return a map of the whole list in random order. The
+	 * less elements are in the map, the less random the order will be, especially if
+	 * the maximum number of values is high or close to the number of elements.
+	 *
+	 * The keys of the original map are preserved in the returned map.
+	 *
+	 * @param int $max Maximum number of elements that should be returned
+	 * @return self New map with key/element pairs from original map in random order
+	 */
+	public function random( int $max = 1 ) : self
+	{
+		if( ( $keys = @array_rand( $this->items, min( $max, count( $this->items ) ) ) ) === null ) {
+			return new self();
+		}
+
+		return new self( array_intersect_key( $this->items, array_flip( (array) $keys ) ) );
+	}
+
+
+	/**
 	 * Iteratively reduces the array to a single value using a callback function.
 	 * Afterwards, the map will be empty.
 	 *
@@ -1315,6 +1471,25 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns the elements encoded as JSON string.
+	 *
+	 * There are several options available to modify the JSON output:
+	 * {@link https://www.php.net/manual/en/function.json-encode.php}
+	 * The parameter can be a single JSON_* constant or a bitmask of several
+	 * constants combine by bitwise OR (|), e.g.:
+	 *
+	 *  JSON_FORCE_OBJECT|JSON_HEX_QUOT
+	 *
+	 * @param int $options Combination of JSON_* constants
+	 * @return string Array encoded as JSON string
+	 */
+	public function toJson( int $options = 0 ) : string
+	{
+		return json_encode( $this->items, $options );
+	}
+
+
+	/**
 	 * Builds a union of the elements and the given items without returning a new map.
 	 * Existing keys in the map will not be overwritten
 	 *
@@ -1432,5 +1607,47 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		return (array) $items;
+	}
+
+
+	/**
+	 * Flattens a multi-dimensional array or map into a single level array.
+	 *
+	 * @param iterable $entries Single of multi-level array, map or everything foreach can be used with
+	 * @param array &$result Will contain all elements from the multi-dimensional arrays afterwards
+	 * @param float $depth Number of levels to flatten in multi-dimensional arrays
+	 * @return array Single level array with all elements
+	 */
+	protected function flatten( iterable $entries, array &$result, float $depth )
+	{
+		foreach( $entries as $entry )
+		{
+			if( is_iterable( $entry ) && $depth > 0.1 ) {
+				$this->flatten( $entry, $result, $depth - 1 );
+			} else {
+				$result[] = $entry;
+			}
+		}
+	}
+
+
+	/**
+	 * Flattens a multi-dimensional array or map into a single level array.
+	 *
+	 * @param iterable $entries Single of multi-level array, map or everything foreach can be used with
+	 * @param array &$result Will contain all elements from the multi-dimensional arrays afterwards
+	 * @param float $depth Number of levels to flatten in multi-dimensional arrays
+	 * @return array Single level array with all elements
+	 */
+	protected function kflatten( iterable $entries, array &$result, float $depth )
+	{
+		foreach( $entries as $key => $entry )
+		{
+			if( is_iterable( $entry ) && $depth > 0.1 ) {
+				$this->kflatten( $entry, $result, $depth - 1 );
+			} else {
+				$result[$key] = $entry;
+			}
+		}
 	}
 }

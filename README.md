@@ -79,8 +79,10 @@ will return `['a' => 'x', 'b' => 'y']` at the end.
 * [__construct()](#__construct) : Creates a new map
 * [__call()](#__call) : Calls a custom method
 * [__callStatic()](#__callstatic) : Calls a custom method statically
+* [chunk()](#chunk) : Splits the map into chunks
 * [clear()](#clear) : Removes all elements
 * [col()](#col) : Creates a key/value mapping
+* [collapse()](#collapse) : Collapses multi-dimensional elements
 * [concat()](#concat) : Combines the elements
 * [copy()](#copy) : Creates a new copy
 * [count()](#count) : Returns the number of elements
@@ -88,9 +90,11 @@ will return `['a' => 'x', 'b' => 'y']` at the end.
 * [diffAssoc()](#diffassoc) : Returns the missing elements and checks keys
 * [diffKeys()](#diffkeys) : Returns the missing elements by keys
 * [each()](#each) : Applies a callback to each element
-* [equals()](#equals) : Tests if maps are equal
+* [equals()](#equals) : Tests if map contents are equal
 * [filter()](#filter) : Applies a filter to the map elements
 * [first()](#first) : Returns the first element
+* [flip()](#flip) : Exchanges keys with their values
+* [flat()](#flat) : Flattens multi-dimensional elements
 * [from()](#from) : Creates a new map from passed elements
 * [get()](#get) : Returns an element by key
 * [getIterator()](#getiterator) : Returns an iterator for the elements
@@ -115,6 +119,7 @@ will return `['a' => 'x', 'b' => 'y']` at the end.
 * [pop()](#pop) : Returns and removes the last element
 * [pull()](#pull) : Returns and removes an element by key
 * [push()](#push) : Adds an element to the end
+* [random()](#random) : Returns random elements
 * [reduce()](#reduce) : Computes a value for the map content
 * [remove()](#remove) : Removes an element by key
 * [replace()](#replace) : Replaces elements recursively
@@ -127,6 +132,7 @@ will return `['a' => 'x', 'b' => 'y']` at the end.
 * [sort()](#sort) : Sorts the elements
 * [splice()](#splice) : Replaces a slice by new elements
 * [toArray()](#toarray) : Returns the plain array
+* [toJson()](#tojson) : Returns the elements in JSON format
 * [union()](#union) : Combines the element without overwriting
 * [unique()](#unique) : Returns unique elements
 * [unshift()](#unshift) : Adds an element at the beginning
@@ -221,6 +227,39 @@ Map::foo( $arg1, $arg2 );
 ```
 
 
+### chunk()
+
+Chunks the map into arrays with the given number of elements.
+
+```php
+public function chunk( int $size, bool $preserve = false ) : self
+```
+
+* @param int `$size` Maximum size of the sub-arrays
+* @param bool `$preserve` Preserve keys in new map
+* @return self New map with elements chunked in sub-arrays
+* @throws \InvalidArgumentException If size is smaller than 1
+
+**Examples:**
+
+```php
+Map::from( [0, 1, 2, 3, 4] )->chunk( 3 );
+Map::from( ['a' => 0, 'b' => 1, 'c' => 2] )->chunk( 2 );
+```
+
+**Results:**
+
+```php
+[[0, 1, 2], [3, 4]]
+[['a' => 0, 'b' => 1], ['c' => 2]]
+```
+
+The last chunk may contain less elements than the given number.
+
+The sub-arrays of the returned map are plain PHP arrays. If you need Map
+objects, then wrap them with `Map::from()` when you iterate over the map.
+
+
 ### clear()
 
 Removes all elements from the current map.
@@ -258,6 +297,47 @@ Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col
 
 If `$indexcol` is omitted, the result will be indexed from 0-n.
 The col() method works for objects implementing the __isset() and __get() methods too.
+
+
+### collapse()
+
+Collapses all sub-array elements recursively to a new map.
+
+```php
+public function collapse( int $depth = null ) : self
+```
+
+* @param int|null `$depth` Number of levels to collapse for multi-dimensional arrays or NULL for all
+* @return self New map with all sub-array elements added into it recursively, up to the specified depth
+
+**Examples:**
+
+```php
+Map::from( [0 => ['a' => 0, 'b' => 1], 1 => ['c' => 2, 'd' => 3]] )->collapse();
+Map::from( [0 => ['a' => 0, 'b' => 1], 1 => ['a' => 2]] )->collapse();
+Map::from( [0 => [0 => 0, 1 => 1], 1 => [0 => ['a' => 2, 0 => 3], 1 => 4]] )->collapse();
+Map::from( [0 => [0 => 0, 'a' => 1], 1 => [0 => ['b' => 2, 0 => 3], 1 => 4]] )->collapse( 1 );
+Map::from( [0 => [0 => 0, 'a' => 1], 1 => Map::from( [0 => ['b' => 2, 0 => 3], 1 => 4] )] )->collapse();
+```
+
+**Results:**
+
+```php
+['a' => 0, 'b' => 1, 'c' => 2, 'd' => 3]
+['a' => 2, 'b' => 1]
+[0 => 3, 1 => 4, 'a' => 2]
+[0 => ['b' => 2, 0 => 3], 1 => 4, 'a' => 1]
+[0 => 3, 'a' => 1, 'b' => 2, 1 => 4]
+```
+
+The keys are preserved and already existing elements will be overwritten. This
+is also true for numeric keys!
+
+A value smaller than 1 for depth will return the same map elements. Collapsing
+does also work if elements implement the "Traversable" interface (which the Map
+object does).
+
+This method is similar than flat() but replaces already existing elements.
 
 
 ### concat()
@@ -559,6 +639,64 @@ Map::from( [] )->first( null, 'x' );
 **Results:**
 
 The first example will return 'a', the second 'c' and the third 'x'.
+
+
+### flat()
+
+Creates a new map with all sub-array elements added recursively
+
+```php
+public function flat( int $depth = null ) : self
+```
+
+* @param int|null `$depth` Number of levels to flatten multi-dimensional arrays
+* @return self New map with all sub-array elements added into it recursively, up to the specified depth
+
+Examples:
+```php
+Map::from( [[0, 1], [2, 3]] )->flat();
+Map::from( [[0, 1], [[2, 3], 4]] )->flat();
+Map::from( [[0, 1], [[2, 3], 4]] )->flat( 1 );
+Map::from( [[0, 1], Map::from( [[2, 3], 4] )] )->flat();
+```
+
+Results:
+```php
+[0, 1, 2, 3]
+[0, 1, 2, 3, 4]
+[0, 1, [2, 3], 4]
+[0, 1, 2, 3, 4]
+```
+
+The keys are not preserved and the new map elements will be numbered from
+0-n. A value smaller than 1 for depth will return the same map elements
+indexed from 0-n. Flattening does also work if elements implement the
+"Traversable" interface (which the Map object does).
+
+This method is similar than collapse() but doesn't replace existing elements.
+
+
+### flip()
+
+Exchanges the keys with their values and vice versa.
+
+```php
+public function flip() : self
+```
+
+* @return self New map with keys as values and values as keys
+
+**Examples:**
+
+```php
+Map::from( ['a' => 'X', 'b' => 'Y'] )->flip();
+```
+
+**Results:**
+
+```php
+['X' => 'a', 'Y' => 'b']
+```
 
 
 ### from()
@@ -1221,6 +1359,36 @@ Map::from( ['a', 'b'] )->push( 'aa' );
 ```
 
 
+### random()
+
+Returns one or more random element from the map.
+
+```php
+public function random( int $max = 1 ) : self
+```
+
+* @param int $max Maximum number of elements that should be returned
+* @return self New map with key/element pairs from original map in random order
+
+**Examples:**
+
+```php
+*  Map::from( [2, 4, 8, 16] )->random();
+*  Map::from( [2, 4, 8, 16] )->random( 2 );
+*  Map::from( [2, 4, 8, 16] )->random( 5 );
+```
+
+**Results:**
+
+The first example will return a map including `[0 => 8]` or any other value,
+the second one will return a map with `[0 => 16, 1 => 2]` or any other values
+and the third example will return a map of the whole list in random order. The
+less elements are in the map, the less random the order will be, especially if
+the maximum number of values is high or close to the number of elements.
+
+The keys of the original map are preserved in the returned map.
+
+
 ### reduce()
 
 Iteratively reduces the array to a single value using a callback function.
@@ -1562,6 +1730,27 @@ public function toArray() : array
 ```
 
 * @return array Plain array
+
+
+### toJson()
+
+Returns the elements encoded as JSON string.
+
+```php
+public function toJson( int $options = 0 ) : string
+```
+
+* @param int $options Combination of JSON_* constants
+* @return string Array encoded as JSON string
+
+There are several options available to modify the JSON output:
+[https://www.php.net/manual/en/function.json-encode.php](https://www.php.net/manual/en/function.json-encode.php)
+The parameter can be a single JSON_* constant or a bitmask of several constants
+combine by bitwise OR (|), e.g.:
+
+```php
+ JSON_FORCE_OBJECT|JSON_HEX_QUOT
+```
 
 
 ### union()

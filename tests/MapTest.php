@@ -17,6 +17,34 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testCall()
+	{
+		$m = new Map( ['a' => new TestMapObject(), 'b' => new TestMapObject()] );
+		$this->assertEquals( ['a' => 1, 'b' => 2], $m->setId( null )->getCode()->toArray() );
+	}
+
+
+	public function testChunk()
+	{
+		$m = new Map( [0, 1, 2, 3, 4] );
+		$this->assertEquals( [[0, 1, 2], [3, 4]], $m->chunk( 3 )->toArray() );
+	}
+
+
+	public function testChunkException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [] )->chunk( 0 );
+	}
+
+
+	public function testChunkKeys()
+	{
+		$m = new Map( ['a' => 0, 'b' => 1, 'c' => 2] );
+		$this->assertEquals( [['a' => 0, 'b' => 1], ['c' => 2]], $m->chunk( 2, true )->toArray() );
+	}
+
+
 	public function testClear()
 	{
 		$m = new Map( ['foo', 'bar'] );
@@ -41,6 +69,48 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertInstanceOf( Map::class, $secondMap );
 		$this->assertEquals( ['one' => 'two'], $secondMap->toArray() );
+	}
+
+
+	public function testCollapse()
+	{
+		$m = Map::from( [0 => ['a' => 0, 'b' => 1], 1 => ['c' => 2, 'd' => 3]]);
+		$this->assertEquals( ['a' => 0, 'b' => 1, 'c' => 2, 'd' => 3], $m->collapse()->toArray() );
+	}
+
+
+	public function testCollapseOverwrite()
+	{
+		$m = Map::from( [0 => ['a' => 0, 'b' => 1], 1 => ['a' => 2]] );
+		$this->assertEquals( ['a' => 2, 'b' => 1], $m->collapse()->toArray() );
+	}
+
+
+	public function testCollapseRecursive()
+	{
+		$m = Map::from( [0 => [0 => 0, 1 => 1], 1 => [0 => ['a' => 2, 0 => 3], 1 => 4]] );
+		$this->assertEquals( [0 => 3, 1 => 4, 'a' => 2], $m->collapse()->toArray() );
+	}
+
+
+	public function testCollapseDepth()
+	{
+		$m = Map::from( [0 => [0 => 0, 'a' => 1], 1 => [0 => ['b' => 2, 0 => 3], 1 => 4]] );
+		$this->assertEquals( [0 => ['b' => 2, 0 => 3], 1 => 4, 'a' => 1], $m->collapse( 1 )->toArray() );
+	}
+
+
+	public function testCollapseIterable()
+	{
+		$m = Map::from( [0 => [0 => 0, 'a' => 1], 1 => Map::from( [0 => ['b' => 2, 0 => 3], 1 => 4] )] );
+		$this->assertEquals( [0 => 3, 'a' => 1, 'b' => 2, 1 => 4], $m->collapse()->toArray() );
+	}
+
+
+	public function testCollapseException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [] )->collapse( -1 );
 	}
 
 
@@ -388,11 +458,52 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
-	public function testFirstWithDefaultAndWithoutCallback()
+	public function testFlat()
 	{
-		$data = new Map;
-		$result = $data->first( null, 'default' );
-		$this->assertEquals( 'default', $result );
+		$m = Map::from( [[0, 1], [2, 3]] );
+		$this->assertEquals( [0, 1, 2, 3], $m->flat()->toArray() );
+	}
+
+
+	public function testFlatNone()
+	{
+		$m = Map::from( [[0, 1], [2, 3]] );
+		$this->assertEquals( [[0, 1], [2, 3]], $m->flat( 0 )->toArray() );
+	}
+
+
+	public function testFlatRecursive()
+	{
+		$m = Map::from( [[0, 1], [[2, 3], 4]] );
+		$this->assertEquals( [0, 1, 2, 3, 4], $m->flat()->toArray() );
+	}
+
+
+	public function testFlatDepth()
+	{
+		$m = Map::from( [[0, 1], [[2, 3], 4]] );
+		$this->assertEquals( [0, 1, [2, 3], 4], $m->flat( 1 )->toArray() );
+	}
+
+
+	public function testFlatTraversable()
+	{
+		$m = Map::from( [[0, 1], Map::from( [[2, 3], 4] )] );
+		$this->assertEquals( [0, 1, 2, 3, 4], $m->flat()->toArray() );
+	}
+
+
+	public function testFlatException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [] )->flat( -1 );
+	}
+
+
+	public function testFlip()
+	{
+		$m = Map::from( ['a' => 'X', 'b' => 'Y'] );
+		$this->assertEquals( ['X' => 'a', 'Y' => 'b'], $m->flip()->toArray() );
 	}
 
 
@@ -800,6 +911,35 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testRandom()
+	{
+		$m = new Map( ['a' => 1, 'b' => 2, 'c' => 3] );
+		$this->assertCount( 1, $m->random() );
+		$this->assertCount( 1, $m->random()->keys()->intersect( $m->keys() ) );
+	}
+
+
+	public function testRandomEmpty()
+	{
+		$m = new Map();
+		$this->assertCount( 0, $m->random() );
+	}
+
+
+	public function testRandomMax()
+	{
+		$m = new Map( ['a' => 1, 'b' => 2, 'c' => 3] );
+		$this->assertCount( 3, $m->random( 4 )->keys()->intersect( $m->keys() ) );
+	}
+
+
+	public function testRandomMultiple()
+	{
+		$m = new Map( ['a' => 1, 'b' => 2, 'c' => 3] );
+		$this->assertCount( 2, $m->random( 2 )->keys()->intersect( $m->keys() ) );
+	}
+
+
 	public function testReduce()
 	{
 		$m = new Map( [1, 2, 3] );
@@ -1068,6 +1208,27 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$this->assertInstanceOf( Map::class, $cut );
 		$this->assertEquals( ['foo', 'bar'], $data->toArray() );
 		$this->assertEquals( ['baz'], $cut->toArray() );
+	}
+
+
+	public function testToArray()
+	{
+		$m = new Map( ['name' => 'Hello'] );
+		$this->assertEquals( ['name' => 'Hello'], $m->toArray() );
+	}
+
+
+	public function testToJson()
+	{
+		$m = new Map( ['name' => 'Hello'] );
+		$this->assertEquals( '{"name":"Hello"}', $m->toJson() );
+	}
+
+
+	public function testToJsonOptions()
+	{
+		$m = new Map( ['name', 'Hello'] );
+		$this->assertEquals( '{"0":"name","1":"Hello"}', $m->toJson( JSON_FORCE_OBJECT ) );
 	}
 
 
