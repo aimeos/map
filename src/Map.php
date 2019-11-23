@@ -632,43 +632,66 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Determines if an element exists in the map by its key.
+	 * Determines if a key or several keys exists in the map.
+	 *
+	 * If several keys are passed as array, all keys must exist in the map for
+	 * TRUE to be returned.
 	 *
 	 * Examples:
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'a' );
+	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->has( ['a', 'b'] );
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'c' );
+	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->has( ['a', 'c'] );
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'X' );
 	 *
 	 * Results:
-	 * The first example will return TRUE while the second and third one will return FALSE
+	 * The first and second example will return TRUE while the other ones will return FALSE
 	 *
-	 * @param mixed $key Key of the requested item
-	 * @return bool TRUE if key is available in map, FALSE if not
+	 * @param mixed|array $key Key of the requested item or list of keys
+	 * @return bool TRUE if key or keys are available in map, FALSE if not
 	 */
 	public function has( $key ) : bool
 	{
-		return array_key_exists( $key, $this->items );
+		foreach( (array) $key as $entry )
+		{
+			if( array_key_exists( $entry, $this->items ) === false ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 
 	/**
-	 * Tests if the passed element is part of the map.
+	 * Tests if the passed element or elements are part of the map.
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'b'] )->in( 'a' );
+	 *  Map::from( ['a', 'b'] )->in( ['a', 'b'] );
 	 *  Map::from( ['a', 'b'] )->in( 'x' );
+	 *  Map::from( ['a', 'b'] )->in( ['a', 'x'] );
 	 *  Map::from( ['1', '2'] )->in( 2, true );
 	 *
 	 * Results:
-	 * The first example will return TRUE while the second and third one will return FALSE
+	 * The first and second example will return TRUE while the other ones will return FALSE
 	 *
-	 * @param mixed $element Element to search for in the map
+	 * @param mixed|array $element Element or elements to search for in the map
 	 * @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
-	 * @return bool TRUE if element is available in map, FALSE if not
+	 * @return bool TRUE if all elements are available in map, FALSE if not
 	 */
 	public function in( $element, bool $strict = false ) : bool
 	{
-		return in_array( $element, $this->items, $strict );
+		$list = is_array( $element ) ? $element : [$element];
+
+		foreach( $list as $entry )
+		{
+			if( in_array( $entry, $this->items, $strict ) === false ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 

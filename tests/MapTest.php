@@ -577,14 +577,18 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$data = new Map( ['id' => 1, 'first' => 'Hello', 'second' => 'World'] );
 
 		$this->assertTrue( $data->has( 'first' ) );
+		$this->assertTrue( $data->has( ['first', 'second'] ) );
 		$this->assertFalse( $data->has( 'third' ) );
+		$this->assertFalse( $data->has( ['first', 'third'] ) );
 	}
 
 
 	public function testIn()
 	{
 		$this->assertTrue( Map::from( ['a', 'b'] )->in( 'a' ) );
+		$this->assertTrue( Map::from( ['a', 'b'] )->in( ['a', 'b'] ) );
 		$this->assertFalse( Map::from( ['a', 'b'] )->in( 'x' ) );
+		$this->assertFalse( Map::from( ['a', 'b'] )->in( ['a', 'x'] ) );
 		$this->assertFalse( Map::from( ['1', '2'] )->in( 2, true ) );
 	}
 
@@ -771,9 +775,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		Map::method( 'foo', function() {
 			return $this->filter( function( $item ) {
 				return strpos( $item, 'a' ) === 0;
-			})
-				->unique()
-				->values();
+			})->unique()->values();
 		} );
 
 		$m = new Map( ['a', 'a', 'aa', 'aaa', 'bar'] );
