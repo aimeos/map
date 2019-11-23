@@ -7,7 +7,7 @@
 Easy to use and elegant handling for PHP arrays with an array-like map object
 as offered by Javascript, jQuery and Laravel Collections.
 
-```
+```bash
 composer require aimeos/map
 ```
 
@@ -22,7 +22,7 @@ composer require aimeos/map
 ## Why
 
 Instead of:
-```
+```php
 $list = [['id' => 'one', 'value' => 'value1'], ['id' => 'two', 'value' => 'value2'], null];
 $list[] = ['id' => 'three', 'value' => 'value3'];    // add element
 unset( $list[0] );                                   // remove element
@@ -33,7 +33,7 @@ $value = reset( $pairs ) ?: null;                    // return first value
 ```
 
 Only use:
-```
+```php
 $list = [['id' => 'one', 'value' => 'value1'], ['id' => 'two', 'value' => 'value2'], null];
 $value = map( $list )                                // create Map
     ->push( ['id' => 'three', 'value' => 'value3'] ) // add element
@@ -45,20 +45,32 @@ $value = map( $list )                                // create Map
 ```
 
 Of course, you can still use:
-```
+```php
 $map[] = ['id' => 'three', 'value' => 'value3'];
 $value = $map[0];
 count( $map );
 foreach( $map as $key => value );
 ```
 
-Also, the map object enables you to do much more advanced things because you can
-pass anonymous functions to a lot of methods, e.g.:
-```
+Also, the map object allows you to pass anonymous functions to a lot of methods, e.g.:
+```php
 $map->each( function( $val, $key ) {
 	echo $key . ': ' . $val;
 } );
 ```
+
+If your map elements are objects, you can call their methods for each object and get
+the result as new map just like in jQuery:
+```php
+// MyClass implements setId() (returning $this) and getCode() (initialized by constructor)
+$map = Map::from( ['a' => new MyClass( 'x' ), 'b' => new MyClass( 'y' )] );
+$map->setStatus( 1 )->getCode()->toArray();
+```
+This will call `setStatus( 1 )` on both objects. If `setStatus()` implementation
+returns `$this`, the new map will contain `['a' => MyClass(), 'b' => MyClass()]`.
+On those new map elements, `getCode()` will be called which returns `x` for the
+first object and `y` for the second. The map created from the results of `getCode()`
+will return `['a' => 'x', 'b' => 'y']` at the end.
 
 
 ## Methods
@@ -158,17 +170,31 @@ public function __call( string $name, array $params )
 
 * @param string `$name` Method name
 * @param array `$params` List of parameters
-* @return mixed Result from called function
-* @throws \BadMethodCallException
+* @return mixed|self Result from called function or map with results from the element methods
 
 **Examples:**
 
 ```php
-Map::method( 'foo', function( $arg1, $arg2 ) {
-    return $this->items;
+Map::method( 'case', function( $case = CASE_LOWER ) {
+    return new self( array_change_key_case( $this->items, $case ) );
 } );
-(new Map( ['bar'] ))->foo( $arg1, $arg2 );
+Map::from( ['a' => 'bar'] )->case( CASE_UPPER );
+
+$item = new MyClass(); // with method setStatus() (returning $this) and getCode() implemented
+Map::from( [$item, $item] )->setStatus( 1 )->getCode()->toArray();
 ```
+
+**Results:**
+
+The first example will return `['A' => 'bar']`.
+
+The second one will call the `setStatus()` method of each element in the map and
+use their return values to create a new map. On the new map, the `getCode()`
+method is called for every element and its return values are also stored in a new
+map. This last map is then returned.
+If the elements are not objects or don't implement the method, they are skipped.
+If this applies to all elements, an empty map is returned. The map keys from the
+original map are preserved in the returned map.
 
 
 ### __callStatic()
@@ -215,7 +241,7 @@ public function col( string $valuecol, $indexcol = null ) : self
 ```
 
 * @param string `$valuecol` Name of the value property
-* @param string|null `$indexcol` Name of the index property
+* @param string|int|null `$indexcol` Name of the index property
 * @return self New instance with mapped entries
 
 **Examples:**
@@ -414,10 +440,10 @@ the same keys when compared case insensitive. The third example will return
 Executes a callback over each entry until `FALSE` is returned.
 
 ```php
-public function each( callable $callback ) : self
+public function each( \Closure $callback ) : self
 ```
 
-* @param callable `$callback` Function with (value, key) parameters and returns `TRUE`/`FALSE`
+* @param \Closure `$callback` Function with (value, key) parameters and returns `TRUE`/`FALSE`
 * @return self Same map for fluid interface
 
 **Examples:**
@@ -807,9 +833,8 @@ empty strings.
 public function join( $glue = '' ) : string
 ```
 
-* @param mixed $element Element to search for in the map
-* @param bool $strict `TRUE` to check the type too, using `FALSE` '1' and 1 will be the same
-* @return bool `TRUE` if element is available in map, `FALSE` if not
+* @param string $glue Character or string added between elements
+* @return string String of concatenated map elements
 
 **Examples:**
 
@@ -947,7 +972,9 @@ Map::from( ['a' => 2, 'b' => 4] )->map( function( $value, $key ) {
 ### merge()
 
 Merges the map with the given elements without returning a new map.
-Items with the same keys will be overwritten
+
+Elements with the same non-numeric keys will be overwritten, elements with the
+same numeric keys will be added.
 
 ```php
 public function merge( iterable $elements ) : self
@@ -970,6 +997,10 @@ Map::from( ['a' => 1, 'b' => 2] )->merge( ['b' => 4, 'c' => 6] );
 ['a' => 1, 'b' => 4, 'c' => 6]
 ```
 
+The method is similar to `replace()` but doesn't replace elements with the same
+numeric keys. If you want to be sure that all passed elements are added without
+replacing existing ones, use `concat()` instead.
+
 
 ### method()
 
@@ -990,12 +1021,12 @@ Map::method( 'foo', function( $arg1, $arg2 ) {
 } );
 ```
 
-Access to the class properties:
+Dynamic calls have access to the class properties:
 ```php
 (new Map( ['bar'] ))->foo( $arg1, $arg2 );
 ```
 
-Error because $this->elements isn't available:
+Static calls yield an error because `$this->elements` isn't available:
 ```php
 Map::foo( $arg1, $arg2 );
 ```
@@ -1101,10 +1132,10 @@ The map will be empty
 Passes the map to the given callback and return the result.
 
 ```php
-public function pipe( callable $callback )
+public function pipe( \Closure $callback )
 ```
 
-* @param callable `$callback` Function with map as parameter which returns arbitrary result
+* @param \Closure `$callback` Function with map as parameter which returns arbitrary result
 * @return mixed Result returned by the callback
 
 **Examples:**

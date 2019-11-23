@@ -663,12 +663,13 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
-	public function testMethodException()
+	public function testMethodNotAvailable()
 	{
 		$m = new Map( [] );
+		$r = $m->bar();
 
-		$this->expectException(\BadMethodCallException::class);
-		$m->bar();
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertTrue( $r->isEmpty() );
 	}
 
 
@@ -801,8 +802,8 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testReduce()
 	{
-		$data = new Map( [1, 2, 3] );
-		$this->assertEquals( 6, $data->reduce( function( $carry, $element ) {
+		$m = new Map( [1, 2, 3] );
+		$this->assertEquals( 6, $m->reduce( function( $carry, $element ) {
 			return $carry += $element;
 		} ) );
 	}
@@ -1119,5 +1120,22 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertEquals( [1, 'Hello'], $r->toArray() );
+	}
+}
+
+
+
+class TestMapObject
+{
+	private static $num = 1;
+
+	public function setId( $id )
+	{
+		return $this;
+	}
+
+	public function getCode()
+	{
+		return self::$num++;
 	}
 }

@@ -63,24 +63,44 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * has access to the internal array by using $this->items.
 	 *
 	 * Examples:
-	 *  Map::method( 'foo', function( $arg1, $arg2 ) {
-	 *      return $this->items;
+	 *  Map::method( 'case', function( $case = CASE_LOWER ) {
+	 *      return new self( array_change_key_case( $this->items, $case ) );
 	 *  } );
-	 *  (new Map( ['bar'] ))->foo( $arg1, $arg2 );
+	 *  Map::from( ['a' => 'bar'] )->case( CASE_UPPER );
+	 *
+	 *  $item = new MyClass(); // with method setId() and getCode()
+	 *  Map::from( [$item, $item] )->setId( null )->getCode();
+	 *
+	 * Results:
+	 * The first example will return ['A' => 'bar'].
+	 *
+	 * The second one will call the setId() method of each element in the map and use
+	 * their return values to create a new map. On the new map, the getCode() method
+	 * is called for every element and its return values are also stored in a new map.
+	 * This last map is then returned.
+	 * If this applies to all elements, an empty map is returned. The map keys from the
+	 * original map are preserved in the returned map.
 	 *
 	 * @param string $name Method name
 	 * @param array $params List of parameters
-	 * @return mixed Result from called function
-	 *
-	 * @throws \BadMethodCallException
+	 * @return mixed|self Result from called function or map with results from the element methods
 	 */
 	public function __call( string $name, array $params )
 	{
-		if( !isset( static::$methods[$name] ) ) {
-			throw new \BadMethodCallException( sprintf( 'Method %s::%s does not exist.', static::class, $name ) );
+		if( isset( static::$methods[$name] ) ) {
+			return call_user_func_array( static::$methods[$name]->bindTo( $this, static::class ), $params );
 		}
 
-		return call_user_func_array( static::$methods[$name]->bindTo( $this, static::class ), $params );
+		$result = [];
+
+		foreach( $this->items as $key => $item )
+		{
+			if( is_object( $item ) && method_exists( $item, $name ) ) {
+				$result[$key] = $item->{$name}( ...$params );
+			}
+		}
+
+		return new self( $result );
 	}
 
 
@@ -109,10 +129,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *      return $this->items;
 	 *  } );
 	 *
-	 * Access to the class properties:
+	 * Dynamic calls have access to the class properties:
 	 *  (new Map( ['bar'] ))->foo( $arg1, $arg2 );
 	 *
-	 * Error because $this->items isn't available:
+	 * Static calls yield an error because $this->elements isn't available:
 	 *  Map::foo( $arg1, $arg2 );
 	 *
 	 * @param string $name Method name
@@ -149,7 +169,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The col() method works for objects implementing the __isset() and __get() methods too.
 	 *
 	 * @param string $valuecol Name of the value property
-	 * @param string|null $indexcol Name of the index property
+	 * @param string|int|null $indexcol Name of the index property
 	 * @return self New instance with mapped entries
 	 */
 	public function col( string $valuecol, $indexcol = null ) : self
@@ -332,10 +352,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The $result array will contain [0 => 'A'] because FALSE is returned
 	 * after the first entry and all other entries are then skipped.
 	 *
-	 * @param callable $callback Function with (value, key) parameters and returns TRUE/FALSE
+	 * @param \Closure $callback Function with (value, key) parameters and returns TRUE/FALSE
 	 * @return self Same map for fluid interface
 	 */
-	public function each( callable $callback ) : self
+	public function each( \Closure $callback ) : self
 	{
 		foreach( $this->items as $key => $item )
 		{
@@ -672,11 +692,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 * The first example will return "ab" while the second one will return "a-b--"
 	 *
-	 * @param mixed $element Element to search for in the map
-	 * @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
-	 * @return bool TRUE if element is available in map, FALSE if not
+	 * @param string $glue Character or string added between elements
+	 * @return string String of concatenated map elements
 	 */
-	public function join( $glue = '' ) : string
+	public function join( string $glue = '' ) : string
 	{
 		return implode( $glue, $this->items );
 	}
@@ -802,7 +821,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 	/**
 	 * Merges the map with the given items without returning a new map.
-	 * Items with the same keys will be overwritten
+	 *
+	 * Elements with the same non-numeric keys will be overwritten, elements
+	 * with the same numeric keys will be added.
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'b'] )->merge( ['b', 'c'] );
@@ -811,6 +832,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 *  ['a', 'b', 'b', 'c']
 	 *  ['a' => 1, 'b' => 4, 'c' => 6]
+	 *
+	 * The method is similar to replace() but doesn't replace elements with
+	 * the same numeric keys. If you want to be sure that all passed elements
+	 * are added without replacing existing ones, use concat() instead.
 	 *
 	 * @param iterable $items List of items
 	 * @return self Updated map for fluid interface
@@ -914,10 +939,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 *  "a-b" will be returned
 	 *
-	 * @param callable $callback Function with map as parameter which returns arbitrary result
+	 * @param \Closure $callback Function with map as parameter which returns arbitrary result
 	 * @return mixed Result returned by the callback
 	 */
-	public function pipe( callable $callback )
+	public function pipe( \Closure $callback )
 	{
 		return $callback( $this );
 	}
@@ -1017,7 +1042,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The first example will result in [2 => 'b'] while the second one resulting
 	 * in an empty list
 	 *
-	 * @param string|int|iterable $keys List of keys
+	 * @param mixed|array $keys List of keys
 	 * @return self Same map for fluid interface
 	 */
 	public function remove( $keys ) : self
