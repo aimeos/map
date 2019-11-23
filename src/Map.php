@@ -1235,22 +1235,31 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Recursively replaces items in the map with the given items without returning a new map.
+	 * Replaces items in the map with the given items without returning a new map.
 	 *
 	 * Examples:
 	 *  Map::from( ['a' => 1, 2 => 'b'] )->replace( ['a' => 2] );
 	 *  Map::from( ['a' => 1, 'b' => ['c' => 3, 'd' => 4]] )->replace( ['b' => ['c' => 9]] );
 	 *
 	 * Results:
-	 * The first example will result in ['a' => 2, 2 => 'b'] while the second one
-	 * will produce ['a' => 1, 'b' => ['c' => 9, 'd' => 4]].
+	 *  ['a' => 2, 2 => 'b']
+	 *  ['a' => 1, 'b' => ['c' => 9, 'd' => 4]]
+	 *
+	 * The method is similar to merge() but it also replaces elements with numeric
+	 * keys. These would be added by merge() with a new numeric key.
 	 *
 	 * @param iterable $items List of items
+	 * @param bool $recursive TRUE to replace recursively (default), FALSE to replace items only
 	 * @return self Updated map for fluid interface
 	 */
-	public function replace( iterable $items ) : self
+	public function replace( iterable $items, bool $recursive = true ) : self
 	{
-		$this->items = array_replace_recursive( $this->items, $this->getArray( $items ) );
+		if( $recursive ) {
+			$this->items = array_replace_recursive( $this->items, $this->getArray( $items ) );
+		} else {
+			$this->items = array_replace( $this->items, $this->getArray( $items ) );
+		}
+
 		return $this;
 	}
 

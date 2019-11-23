@@ -1447,13 +1447,14 @@ in an empty list
 
 ### replace()
 
-Recursively replaces elements in the map with the given elements without returning a new map.
+Replaces elements in the map with the given elements without returning a new map.
 
 ```php
-public function replace( iterable $elements ) : self
+public function replace( iterable $elements, bool $recursive = true ) : self
 ```
 
 * @param iterable `$elements` List of elements
+* @param bool $recursive TRUE to replace recursively (default), FALSE to replace items only
 * @return self Updated map for fluid interface
 
 **Examples:**
@@ -1465,8 +1466,13 @@ Map::from( ['a' => 1, 'b' => ['c' => 3, 'd' => 4]] )->replace( ['b' => ['c' => 9
 
 **Results:**
 
-The first example will result in `['a' => 2, 2 => 'b']` while the second one
-will produce `['a' => 1, 'b' => ['c' => 9, 'd' => 4]]`.
+```php
+['a' => 2, 2 => 'b']
+['a' => 1, 'b' => ['c' => 9, 'd' => 4]]
+```
+
+The method is similar to `merge()` but also replaces elements with numeric keys.
+These would be added by `merge()` with a new numeric key.
 
 
 ### reverse()

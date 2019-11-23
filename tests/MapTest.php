@@ -1015,6 +1015,16 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testReplaceNonRecursive()
+	{
+		$m = new Map( ['a', 'b', ['c']] );
+		$r = $m->replace( [1 => 'd', 2 => [1 => 'f']], false );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['a', 'd', [1 => 'f']], $r->toArray() );
+	}
+
+
 	public function testReplaceRecursiveArray()
 	{
 		$m = new Map( ['a', 'b', ['c', 'd']] );
