@@ -512,19 +512,19 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'b'] )->first();
-	 *  Map::from( ['a', 'c', 'e'] )->first( function( $value, $key ) {
+	 *  Map::from( ['a', 'b'] )->first( 'x' );
+	 *  Map::from( ['a', 'c', 'e'] )->first( null, function( $value, $key ) {
 	 *      return $value >= 'b';
 	 *  } );
-	 *  Map::from( [] )->first( null, 'x' );
 	 *
 	 * Result:
-	 * The first example will return 'a', the second 'c' and the third 'x'.
+	 * The first example will return 'a', the second 'x' and the third 'c'.
 	 *
-	 * @param callable|null $callback Function with (value, key) parameters and returns TRUE/FALSE
 	 * @param mixed $default Default value if no element matches
+	 * @param \Closure|null $callback Function with (value, key) parameters and returns TRUE/FALSE
 	 * @return mixed First value of map or default value
 	 */
-	public function first( callable $callback = null, $default = null )
+	public function first( $default = null, \Closure $callback = null )
 	{
 		if( $callback )
 		{
@@ -892,19 +892,19 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'b'] )->last();
-	 *  Map::from( ['a', 'c', 'e'] )->last( function( $value, $key ) {
+	 *  Map::from( ['a', 'b'] )->last( 'x' );
+	 *  Map::from( ['a', 'c', 'e'] )->last( null, function( $value, $key ) {
 	 *      return $value < 'd';
 	 *  } );
-	 *  Map::from( [] )->last( null, 'x' );
 	 *
 	 * Result:
-	 * The first example will return 'b', the second 'c' and the third 'x'.
+	 * The first example will return 'b', the second 'x' and the third 'c'.
 	 *
-	 * @param callable|null $callback Function with (item, key) parameters and returns TRUE/FALSE
 	 * @param mixed $default Default value if no element matches
+	 * @param \Closure|null $callback Function with (item, key) parameters and returns TRUE/FALSE
 	 * @return mixed Last value of map or default value
 	 */
-	public function last( callable $callback = null, $default = null )
+	public function last( $default = null, \Closure $callback = null )
 	{
 		if( $callback )
 		{

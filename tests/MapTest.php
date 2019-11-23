@@ -431,17 +431,25 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
-	public function testFirstReturnsFirstItemInMap()
+	public function testFirst()
 	{
 		$m = new Map( ['foo', 'bar'] );
 		$this->assertEquals( 'foo', $m->first() );
 	}
 
 
+	public function testFirstWithDefault()
+	{
+		$data = new Map;
+		$result = $data->first( 'default' );
+		$this->assertEquals( 'default', $result );
+	}
+
+
 	public function testFirstWithCallback()
 	{
 		$data = new Map( ['foo', 'bar', 'baz'] );
-		$result = $data->first( function( $value ) {
+		$result = $data->first( null, function( $value ) {
 			return $value === 'bar';
 		} );
 		$this->assertEquals( 'bar', $result );
@@ -451,9 +459,9 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testFirstWithCallbackAndDefault()
 	{
 		$data = new Map( ['foo', 'bar'] );
-		$result = $data->first( function( $value ) {
+		$result = $data->first( 'default', function( $value ) {
 			return $value === 'baz';
-		}, 'default' );
+		} );
 		$this->assertEquals( 'default', $result );
 	}
 
@@ -687,21 +695,29 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
-	public function testLastReturnsLastItemInMap()
+	public function testLast()
 	{
 		$m = new Map( ['foo', 'bar'] );
 		$this->assertEquals( 'bar', $m->last() );
 	}
 
 
+	public function testLastWithDefault()
+	{
+		$data = new Map;
+		$result = $data->last( 'default' );
+		$this->assertEquals( 'default', $result );
+	}
+
+
 	public function testLastWithCallback()
 	{
 		$data = new Map( [100, 200, 300] );
-		$result = $data->last( function( $value ) {
+		$result = $data->last( null, function( $value ) {
 			return $value < 250;
 		} );
 		$this->assertEquals( 200, $result );
-		$result = $data->last( function( $value, $key ) {
+		$result = $data->last( null, function( $value, $key ) {
 			return $key < 2;
 		} );
 		$this->assertEquals( 200, $result );
@@ -711,17 +727,9 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testLastWithCallbackAndDefault()
 	{
 		$data = new Map( ['foo', 'bar'] );
-		$result = $data->last( function( $value ) {
+		$result = $data->last( 'default', function( $value ) {
 			return $value === 'baz';
-		}, 'default' );
-		$this->assertEquals( 'default', $result );
-	}
-
-
-	public function testLastWithDefaultAndWithoutCallback()
-	{
-		$data = new Map;
-		$result = $data->last( null, 'default' );
+		} );
 		$this->assertEquals( 'default', $result );
 	}
 
