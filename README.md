@@ -79,6 +79,8 @@ will return `['a' => 'x', 'b' => 'y']` at the end.
 * [__construct()](#__construct) : Creates a new map
 * [__call()](#__call) : Calls a custom method
 * [__callStatic()](#__callstatic) : Calls a custom method statically
+* [arsort()](#arsort) : Reverse sort elements with keys
+* [asort()](#asort) : Sort elements with keys
 * [chunk()](#chunk) : Splits the map into chunks
 * [clear()](#clear) : Removes all elements
 * [col()](#col) : Creates a key/value mapping
@@ -106,7 +108,8 @@ will return `['a' => 'x', 'b' => 'y']` at the end.
 * [isEmpty()](#isempty) : Tests if map is empty
 * [join()](#join) : Returns concatenated elements as string
 * [keys()](#keys) : Returns the keys
-* [ksort()](#ksort) : Sorts by keys
+* [krsort()](#krsort) : Reverse sort elements by keys
+* [ksort()](#ksort) : Sort elements by keys
 * [last()](#last) : Returns the last element
 * [map()](#map) : Applies a callback to each element and returns the results
 * [merge()](#merge) : Combines elements overwriting existing ones
@@ -124,19 +127,23 @@ will return `['a' => 'x', 'b' => 'y']` at the end.
 * [remove()](#remove) : Removes an element by key
 * [replace()](#replace) : Replaces elements recursively
 * [reverse()](#reverse) : Reverses the array order
+* [rsort()](#rsort) : Reverse sort elements
 * [search()](#search) : Find the key of an element
 * [set()](#set) : Overwrites an element
 * [shift()](#shift) : Returns and removes the first element
 * [shuffle()](#shuffle) : Randomizes the element order
 * [slice()](#slice) : Returns a slice of the map
-* [sort()](#sort) : Sorts the elements
+* [sort()](#sort) : Sorts elements
 * [split()](#split) : Splits a string into map elements
 * [splice()](#splice) : Replaces a slice by new elements
 * [toArray()](#toarray) : Returns the plain array
 * [toJson()](#tojson) : Returns the elements in JSON format
+* [uasort()](#uasort) : Sorts elements with keys using callback
+* [uksort()](#uksort) : Sorts elements by keys using callback
 * [union()](#union) : Combines the element without overwriting
 * [unique()](#unique) : Returns unique elements
 * [unshift()](#unshift) : Adds an element at the beginning
+* [usort()](#usort) : Sorts elements using callback
 * [values()](#values) : Returns all elements with new keys
 
 
@@ -226,6 +233,80 @@ public static function __callStatic( string $name, array $params )
 Map::method( 'foo', function( $arg1, $arg2 ) {} );
 Map::foo( $arg1, $arg2 );
 ```
+
+
+### arsort()
+
+Sorts all elements in reverse order and maintains the key association.
+
+```php
+public function arsort( int $options = SORT_REGULAR ) : self
+```
+
+* @param int $options Sort options for arsort()
+* @return self Updated map for fluid interface
+* @throws \RuntimeException If an error occurs
+
+**Examples:**
+
+```php
+Map::from( ['b' => 0, 'a' => 1] )->arsort();
+Map::from( [1 => 'a', 0 => 'b'] )->arsort();
+```
+
+**Results:**
+
+```php
+['a' => 1, 'b' => 0]
+[0 => 'b', 1 => 'a']
+```
+
+The parameter modifies how the values are compared. Possible parameter values are:
+- SORT_REGULAR : compare items normally (don't change types)
+- SORT_NUMERIC : compare items numerically
+- SORT_STRING : compare items as strings
+- SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
+- SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+- SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+
+The keys are preserved using this method and no new map is created.
+
+
+### asort()
+
+Sorts all elements and maintains the key association.
+
+```php
+public function asort( int $options = SORT_REGULAR ) : self
+```
+
+* @param int $options Sort options for asort()
+* @return self Updated map for fluid interface
+* @throws \RuntimeException If an error occurs
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 'b' => 0] )->asort();
+Map::from( [0 => 'b', 1 => 'a'] )->asort();
+```
+
+**Results:**
+
+```php
+['b' => 0, 'a' => 1]
+[1 => 'a', 0 => 'b']
+```
+
+The parameter modifies how the values are compared. Possible parameter values are:
+- SORT_REGULAR : compare items normally (don't change types)
+- SORT_NUMERIC : compare items numerically
+- SORT_STRING : compare items as strings
+- SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
+- SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+- SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+
+The keys are preserved using this method and no new map is created.
 
 
 ### chunk()
@@ -1016,17 +1097,54 @@ The first example returns a map containing `[0, 1]` while the second one will
 return a map with `['a', 'b']`.
 
 
-### ksort()
+### krsort()
 
-Sorts the map elements by their keys without creating a new map.
+Sorts the elements by their keys in reverse order.
 
 ```php
-public function ksort( callable $callback = null, int $options = SORT_REGULAR ) : self
+public function krsort( int $options = SORT_REGULAR ) : self
 ```
 
-* @param callable|null `$callback` Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
-* @param int `$options` Sort options for ksort()
+* @param int $options Sort options for krsort()
 * @return self Updated map for fluid interface
+* @throws \RuntimeException If an error occurs
+
+**Examples:**
+
+```php
+Map::from( ['b' => 0, 'a' => 1] )->krsort();
+Map::from( [1 => 'a', 0 => 'b'] )->krsort();
+```
+
+**Results:**
+
+```php
+['a' => 1, 'b' => 0]
+[0 => 'b', 1 => 'a']
+```
+
+The parameter modifies how the keys are compared. Possible values are:
+- SORT_REGULAR : compare items normally (don't change types)
+- SORT_NUMERIC : compare items numerically
+- SORT_STRING : compare items as strings
+- SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
+- SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+- SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+
+The keys are preserved using this method and no new map is created.
+
+
+### ksort()
+
+Sorts the elements by their keys.
+
+```php
+public function ksort( int $options = SORT_REGULAR ) : self
+```
+
+* @param int $options Sort options for ksort()
+* @return self Updated map for fluid interface
+* @throws \RuntimeException If an error occurs
 
 **Examples:**
 
@@ -1037,29 +1155,20 @@ Map::from( [1 => 'a', 0 => 'b'] )->ksort();
 
 **Results:**
 
-The first example will sort the map elements to `['a' => 1, 'b' => 0]` while the second
-one will sort the map entries to `[0 => 'b', 1 => 'a']`.
-
-If a callback is passed, the given function will be used to compare the keys.
-The function must accept two parameters (key A and B) and must return
--1 if key A is smaller than key B, 0 if both are equal and 1 if key A is
-greater than key B. Both, a method name and an anonymous function can be passed:
-
 ```php
-Map::from( ['b' => 'a', 'a' => 'b'] )->ksort( 'strcasecmp' );
-Map::from( ['b' => 'a', 'a' => 'b'] )->ksort( function( $keyA, $keyB ) {
-    return strtolower( $keyA ) <=> strtolower( $keyB );
-} );
+['a' => 1, 'b' => 0]
+[0 => 'b', 1 => 'a']
 ```
 
-Both examples will re-sort the entries to ['a' => 'b', 'b' => 'a']. The third
-parameter modifies how the keys are compared. Possible values are:
-- `SORT_REGULAR` : compare elements normally (don't change types)
-- `SORT_NUMERIC` : compare elements numerically
-- `SORT_STRING` : compare elements as strings
-- `SORT_LOCALE_STRING` : compare elements as strings, based on the current locale or changed by setlocale()
-- `SORT_NATURAL` : compare elements as strings using "natural ordering" like natsort()
-- `SORT_FLAG_CASE` : use `SORT_STRING|SORT_FLAG_CASE` and `SORT_NATURALSORT_FLAG_CASE` to sort strings case-insensitively
+The parameter modifies how the keys are compared. Possible values are:
+- SORT_REGULAR : compare items normally (don't change types)
+- SORT_NUMERIC : compare items numerically
+- SORT_STRING : compare items as strings
+- SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
+- SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+- SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+
+The keys are preserved using this method and no new map is created.
 
 
 ### last()
@@ -1499,6 +1608,43 @@ Map::from( ['a', 'b'] )->reverse();
 ```
 
 
+### rsort()
+
+Sorts all elements in reverse order without maintaining the key association.
+
+```php
+public function rsort( int $options = SORT_REGULAR ) : self
+```
+
+* @param int $options Sort options for rsort()
+* @return self Updated map for fluid interface
+* @throws \RuntimeException If an error occurs
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 'b' => 0] )->rsort();
+Map::from( [0 => 'b', 1 => 'a'] )->rsort();
+```
+
+**Results:**
+
+```php
+[0 => 1, 1 => 0]
+[0 => 'b', 1 => 'a']
+```
+
+The parameter modifies how the values are compared. Possible parameter values are:
+- SORT_REGULAR : compare items normally (don't change types)
+- SORT_NUMERIC : compare items numerically
+- SORT_STRING : compare items as strings
+- SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
+- SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+- SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+
+The keys aren't preserved and elements get a new index. No new map is created
+
+
 ### search()
 
 Searches the map for a given value and return the corresponding key if successful.
@@ -1648,15 +1794,15 @@ Similar for the length:
 
 ### sort()
 
-Sorts all elements using a callback without returning a new map.
+Sorts all elements without maintaining the key association.
 
 ```php
-public function sort( callable $callback = null, int $options = SORT_REGULAR ) : self
+public function sort( int $options = SORT_REGULAR ) : self
 ```
 
-* @param callable|null `$callback` Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
-* @param int `$options` Sort options for asort()
+* @param int $options Sort options for sort()
 * @return self Updated map for fluid interface
+* @throws \RuntimeException If an error occurs
 
 **Examples:**
 
@@ -1667,33 +1813,20 @@ Map::from( [0 => 'b', 1 => 'a'] )->sort();
 
 **Results:**
 
-The first example will sort the map elements to `['b' => 0, 'a' => 1]` while the second
-one will sort the map entries to `[1 => 'a', 0 => 'b']`.
-
-If a callback is passed, the given function will be used to compare the values.
-The function must accept two parameters (key A and B) and must return
--1 if key A is smaller than key B, 0 if both are equal and 1 if key A is
-greater than key B. Both, a method name and an anonymous function can be passed:
-
 ```php
-Map::from( ['b' => 'a', 'a' => 'B'] )->sort( 'strcasecmp' );
-Map::from( ['b' => 'a', 'a' => 'B'] )->sort( function( $keyA, $keyB ) {
-    return strtolower( $keyA ) <=> strtolower( $keyB );
-} );
+[0 => 0, 1 => 1]
+[0 => 'a', 1 => 'b']
 ```
 
-Both examples will re-sort the entries to ['a' => 'B', 'b' => 'a'] because
-the ASCII value for "B" is smaller than for "a".
+The parameter modifies how the values are compared. Possible parameter values are:
+- SORT_REGULAR : compare items normally (don't change types)
+- SORT_NUMERIC : compare items numerically
+- SORT_STRING : compare items as strings
+- SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
+- SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+- SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 
-The third parameter modifies how the values are compared. Possible parameter values are:
-- `SORT_REGULAR` : compare elements normally (don't change types)
-- `SORT_NUMERIC` : compare elements numerically
-- `SORT_STRING` : compare elements as strings
-- `SORT_LOCALE_STRING` : compare elements as strings, based on the current locale or changed by setlocale()
-- `SORT_NATURAL` : compare elements as strings using "natural ordering" like natsort()
-- `SORT_FLAG_CASE` : use `SORT_STRING|SORT_FLAG_CASE` and `SORT_NATURALSORT_FLAG_CASE` to sort strings case-insensitively
-
-The keys are preserved using this method with and without callback function.
+The keys aren't preserved and elements get a new index. No new map is created.
 
 
 ### splice()
@@ -1795,6 +1928,78 @@ combine by bitwise OR (|), e.g.:
 ```
 
 
+### uasort()
+
+Sorts all elements using a callback and maintains the key association.
+
+```php
+public function uasort( callable $callback ) : self
+```
+
+* @param callable|null $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @return self Updated map for fluid interface
+* @throws \RuntimeException If an error occurs
+
+The given callback will be used to compare the values. The callback must accept
+two parameters (item A and B) and must return -1 if item A is smaller than
+item B, 0 if both are equal and 1 if item A is greater than item B. Both, a
+method name and an anonymous function can be passed.
+
+**Examples:**
+
+```php
+Map::from( ['a' => 'B', 'b' => 'a'] )->uasort( 'strcasecmp' );
+Map::from( ['a' => 'B', 'b' => 'a'] )->uasort( function( $itemA, $itemB ) {
+    return strtolower( $itemA ) <=> strtolower( $itemB );
+} );
+```
+
+**Results:**
+
+```php
+['b' => 'a', 'a' => 'B']
+['b' => 'a', 'a' => 'B']
+```
+
+The keys are preserved using this method and no new map is created.
+
+
+## uksort()
+
+Sorts the map items by their keys using a callback.
+
+```php
+public function uksort( callable $callback ) : self
+```
+
+* @param callable $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @return self Updated map for fluid interface
+* @throws \RuntimeException If an error occurs
+
+The given callback will be used to compare the keys. The callback must accept
+two parameters (key A and B) and must return -1 if key A is smaller than
+key B, 0 if both are equal and 1 if key A is greater than key B. Both, a
+method name and an anonymous function can be passed.
+
+**Examples:**
+
+```php
+Map::from( ['B' => 'a', 'a' => 'b'] )->uksort( 'strcasecmp' );
+Map::from( ['B' => 'a', 'a' => 'b'] )->uksort( function( $keyA, $keyB ) {
+    return strtolower( $keyA ) <=> strtolower( $keyB );
+} );
+```
+
+**Results:**
+
+```php
+['a' => 'b', 'B' => 'a']
+['a' => 'b', 'B' => 'a']
+```
+
+The keys are preserved using this method and no new map is created.
+
+
 ### union()
 
 Builds a union of the elements and the given elements without returning a new map.
@@ -1874,6 +2079,43 @@ Map::from( ['a', 'b'] )->unshift( 'd', 'first' );
 
 The first example will result in `['d', 'a', 'b']` while the second one will
 produce `['first' => 'd', 0 => 'a', 1 => 'b']`.
+
+
+### usort()
+
+Sorts all elements using a callback without maintaining the key association.
+
+```php
+public function usort( callable $callback ) : self
+```
+
+* @param callable $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @return self Updated map for fluid interface
+* @throws \RuntimeException If an error occurs
+
+The given callback will be used to compare the values. The callback must accept
+two parameters (item A and B) and must return -1 if item A is smaller than
+item B, 0 if both are equal and 1 if item A is greater than item B. Both, a
+method name and an anonymous function can be passed.
+
+**Examples:**
+
+```php
+Map::from( ['a' => 'B', 'b' => 'a'] )->usort( 'strcasecmp' );
+Map::from( ['a' => 'B', 'b' => 'a'] )->usort( function( $itemA, $itemB ) {
+    return strtolower( $itemA ) <=> strtolower( $itemB );
+} );
+```
+
+**Results:**
+
+```php
+[0 => 'a', 1 => 'B']
+[0 => 'a', 1 => 'B']
+```
+
+The keys aren't preserved and elements get a new index. No new map is created.
+
 
 **Performance note:**
 

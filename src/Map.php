@@ -172,6 +172,76 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Sorts all elements and maintains the key association.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 1, 'b' => 0] )->asort();
+	 *  Map::from( [0 => 'b', 1 => 'a'] )->asort();
+	 *
+	 * Results:
+	 *  ['b' => 0, 'a' => 1]
+	 *  [1 => 'a', 0 => 'b']
+	 *
+	 * The parameter modifies how the values are compared. Possible parameter values are:
+	 * - SORT_REGULAR : compare items normally (don't change types)
+	 * - SORT_NUMERIC : compare items numerically
+	 * - SORT_STRING : compare items as strings
+	 * - SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
+	 * - SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+	 *
+	 * The keys are preserved using this method and no new map is created.
+	 *
+	 * @param int $options Sort options for asort()
+	 * @return self Updated map for fluid interface
+	 * @throws \RuntimeException If an error occurs
+	 */
+	public function asort( int $options = SORT_REGULAR ) : self
+	{
+		if( asort( $this->items, $options ) === false ) {
+			throw new \RuntimeException( 'Sorting array failed' );
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Sorts all elements in reverse order and maintains the key association.
+	 *
+	 * Examples:
+	 *  Map::from( ['b' => 0, 'a' => 1] )->arsort();
+	 *  Map::from( [1 => 'a', 0 => 'b'] )->arsort();
+	 *
+	 * Results:
+	 *  ['a' => 1, 'b' => 0]
+	 *  [0 => 'b', 1 => 'a']
+	 *
+	 * The parameter modifies how the values are compared. Possible parameter values are:
+	 * - SORT_REGULAR : compare items normally (don't change types)
+	 * - SORT_NUMERIC : compare items numerically
+	 * - SORT_STRING : compare items as strings
+	 * - SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
+	 * - SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+	 *
+	 * The keys are preserved using this method and no new map is created.
+	 *
+	 * @param int $options Sort options for arsort()
+	 * @return self Updated map for fluid interface
+	 * @throws \RuntimeException If an error occurs
+	 */
+	public function arsort( int $options = SORT_REGULAR ) : self
+	{
+		if( arsort( $this->items, $options ) === false ) {
+			throw new \RuntimeException( 'Sorting array failed' );
+		}
+
+		return $this;
+	}
+
+
+	/**
 	 * Chunks the map into arrays with the given number of elements.
 	 *
 	 * Examples:
@@ -897,28 +967,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Sorts the map items by their keys without creating a new map.
+	 * Sorts the elements by their keys in reverse order.
 	 *
 	 * Examples:
-	 *  Map::from( ['b' => 0, 'a' => 1] )->ksort();
-	 *  Map::from( [1 => 'a', 0 => 'b'] )->ksort();
+	 *  Map::from( ['b' => 0, 'a' => 1] )->krsort();
+	 *  Map::from( [1 => 'a', 0 => 'b'] )->krsort();
 	 *
 	 * Results:
-	 * The first example will sort the map items to ['a' => 1, 'b' => 0] while the second
-	 * one will sort the map entries to [0 => 'b', 1 => 'a'].
+	 *  ['a' => 1, 'b' => 0]
+	 *  [0 => 'b', 1 => 'a']
 	 *
-	 * If a callback is passed, the given function will be used to compare the keys.
-	 * The function must accept two parameters (key A and B) and must return
-	 * -1 if key A is smaller than key B, 0 if both are equal and 1 if key A is
-	 * greater than key B. Both, a method name and an anonymous function can be passed:
-	 *
-	 *  Map::from( ['b' => 'a', 'a' => 'b'] )->ksort( 'strcasecmp' );
-	 *  Map::from( ['b' => 'a', 'a' => 'b'] )->ksort( function( $keyA, $keyB ) {
-	 *      return strtolower( $keyA ) <=> strtolower( $keyB );
-	 *  } );
-	 *
-	 * Both examples will re-sort the entries to ['a' => 'b', 'b' => 'a']. The third
-	 * parameter modifies how the keys are compared. Possible values are:
+	 * The parameter modifies how the keys are compared. Possible values are:
 	 * - SORT_REGULAR : compare items normally (don't change types)
 	 * - SORT_NUMERIC : compare items numerically
 	 * - SORT_STRING : compare items as strings
@@ -926,13 +985,53 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * - SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
 	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 	 *
-	 * @param callable|null $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
+	 * The keys are preserved using this method and no new map is created.
+	 *
+	 * @param int $options Sort options for krsort()
+	 * @return self Updated map for fluid interface
+	 * @throws \RuntimeException If an error occurs
+	 */
+	public function krsort( int $options = SORT_REGULAR ) : self
+	{
+		if( krsort( $this->items, $options ) === false ) {
+			throw new \RuntimeException( 'Sorting array failed' );
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Sorts the elements by their keys.
+	 *
+	 * Examples:
+	 *  Map::from( ['b' => 0, 'a' => 1] )->ksort();
+	 *  Map::from( [1 => 'a', 0 => 'b'] )->ksort();
+	 *
+	 * Results:
+	 *  ['a' => 1, 'b' => 0]
+	 *  [0 => 'b', 1 => 'a']
+	 *
+	 * The parameter modifies how the keys are compared. Possible values are:
+	 * - SORT_REGULAR : compare items normally (don't change types)
+	 * - SORT_NUMERIC : compare items numerically
+	 * - SORT_STRING : compare items as strings
+	 * - SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
+	 * - SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+	 *
+	 * The keys are preserved using this method and no new map is created.
+	 *
 	 * @param int $options Sort options for ksort()
 	 * @return self Updated map for fluid interface
+	 * @throws \RuntimeException If an error occurs
 	 */
-	public function ksort( callable $callback = null, int $options = SORT_REGULAR ) : self
+	public function ksort( int $options = SORT_REGULAR ) : self
 	{
-		$callback ? uksort( $this->items, $callback ) : ksort( $this->items, $options );
+		if( ksort( $this->items, $options ) === false ) {
+			throw new \RuntimeException( 'Sorting array failed' );
+		}
+
 		return $this;
 	}
 
@@ -1310,6 +1409,41 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Sorts all elements in reverse order without maintaining the key association.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 1, 'b' => 0] )->rsort();
+	 *  Map::from( [0 => 'b', 1 => 'a'] )->rsort();
+	 *
+	 * Results:
+	 *  [0 => 1, 1 => 0]
+	 *  [0 => 'b', 1 => 'a']
+	 *
+	 * The parameter modifies how the values are compared. Possible parameter values are:
+	 * - SORT_REGULAR : compare items normally (don't change types)
+	 * - SORT_NUMERIC : compare items numerically
+	 * - SORT_STRING : compare items as strings
+	 * - SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
+	 * - SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+	 *
+	 * The keys aren't preserved and elements get a new index. No new map is created
+	 *
+	 * @param int $options Sort options for rsort()
+	 * @return self Updated map for fluid interface
+	 * @throws \RuntimeException If an error occurs
+	 */
+	public function rsort( int $options = SORT_REGULAR ) : self
+	{
+		if( rsort( $this->items, $options ) === false ) {
+			throw new \RuntimeException( 'Sorting array failed' );
+		}
+
+		return $this;
+	}
+
+
+	/**
 	 * Searches the map for a given value and return the corresponding key if successful.
 	 *
 	 * Examples:
@@ -1436,30 +1570,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Sorts all elements using a callback without returning a new map.
+	 * Sorts all elements without maintaining the key association.
 	 *
 	 * Examples:
 	 *  Map::from( ['a' => 1, 'b' => 0] )->sort();
 	 *  Map::from( [0 => 'b', 1 => 'a'] )->sort();
 	 *
 	 * Results:
-	 * The first example will sort the map items to ['b' => 0, 'a' => 1] while the second
-	 * one will sort the map entries to [1 => 'a', 0 => 'b'].
+	 *  [0 => 0, 1 => 1]
+	 *  [0 => 'a', 1 => 'b']
 	 *
-	 * If a callback is passed, the given function will be used to compare the values.
-	 * The function must accept two parameters (key A and B) and must return
-	 * -1 if key A is smaller than key B, 0 if both are equal and 1 if key A is
-	 * greater than key B. Both, a method name and an anonymous function can be passed:
-	 *
-	 *  Map::from( ['b' => 'a', 'a' => 'B'] )->sort( 'strcasecmp' );
-	 *  Map::from( ['b' => 'a', 'a' => 'B'] )->sort( function( $keyA, $keyB ) {
-	 *      return strtolower( $keyA ) <=> strtolower( $keyB );
-	 *  } );
-	 *
-	 * Both examples will re-sort the entries to ['a' => 'B', 'b' => 'a'] because
-	 * the ASCII value for "B" is smaller than for "a".
-	 *
-	 * The third parameter modifies how the values are compared. Possible parameter values are:
+	 * The parameter modifies how the values are compared. Possible parameter values are:
 	 * - SORT_REGULAR : compare items normally (don't change types)
 	 * - SORT_NUMERIC : compare items numerically
 	 * - SORT_STRING : compare items as strings
@@ -1467,15 +1588,18 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * - SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
 	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 	 *
-	 * The keys are preserved using this method with and without callback function.
+	 * The keys aren't preserved and elements get a new index. No new map is created.
 	 *
-	 * @param callable|null $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
-	 * @param int $options Sort options for asort()
+	 * @param int $options Sort options for sort()
 	 * @return self Updated map for fluid interface
+	 * @throws \RuntimeException If an error occurs
 	 */
-	public function sort( callable $callback = null, int $options = SORT_REGULAR ) : self
+	public function sort( int $options = SORT_REGULAR ) : self
 	{
-		$callback ? uasort( $this->items, $callback ) : asort( $this->items, $options );
+		if( sort( $this->items, $options ) === false ) {
+			throw new \RuntimeException( 'Sorting array failed' );
+		}
+
 		return $this;
 	}
 
@@ -1545,6 +1669,74 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function toJson( int $options = 0 ) : string
 	{
 		return json_encode( $this->items, $options );
+	}
+
+
+	/**
+	 * Sorts all elements using a callback and maintains the key association.
+	 *
+	 * The given callback will be used to compare the values. The callback must accept
+	 * two parameters (item A and B) and must return -1 if item A is smaller than
+	 * item B, 0 if both are equal and 1 if item A is greater than item B. Both, a
+	 * method name and an anonymous function can be passed.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 'B', 'b' => 'a'] )->uasort( 'strcasecmp' );
+	 *  Map::from( ['a' => 'B', 'b' => 'a'] )->uasort( function( $itemA, $itemB ) {
+	 *      return strtolower( $itemA ) <=> strtolower( $itemB );
+	 *  } );
+	 *
+	 * Results:
+	 *  ['b' => 'a', 'a' => 'B']
+	 *  ['b' => 'a', 'a' => 'B']
+	 *
+	 * The keys are preserved using this method and no new map is created.
+	 *
+	 * @param callable|null $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
+	 * @return self Updated map for fluid interface
+	 * @throws \RuntimeException If an error occurs
+	 */
+	public function uasort( callable $callback ) : self
+	{
+		if( uasort( $this->items, $callback ) === false ) {
+			throw new \RuntimeException( 'Sorting array failed' );
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Sorts the map items by their keys using a callback.
+	 *
+	 * The given callback will be used to compare the keys. The callback must accept
+	 * two parameters (key A and B) and must return -1 if key A is smaller than
+	 * key B, 0 if both are equal and 1 if key A is greater than key B. Both, a
+	 * method name and an anonymous function can be passed.
+	 *
+	 * Examples:
+	 *  Map::from( ['B' => 'a', 'a' => 'b'] )->uksort( 'strcasecmp' );
+	 *  Map::from( ['B' => 'a', 'a' => 'b'] )->uksort( function( $keyA, $keyB ) {
+	 *      return strtolower( $keyA ) <=> strtolower( $keyB );
+	 *  } );
+	 *
+	 * Results:
+	 *  ['a' => 'b', 'B' => 'a']
+	 *  ['a' => 'b', 'B' => 'a']
+	 *
+	 * The keys are preserved using this method and no new map is created.
+	 *
+	 * @param callable $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
+	 * @return self Updated map for fluid interface
+	 * @throws \RuntimeException If an error occurs
+	 */
+	public function uksort( callable $callback ) : self
+	{
+		if( uksort( $this->items, $callback ) === false ) {
+			throw new \RuntimeException( 'Sorting array failed' );
+		}
+
+		return $this;
 	}
 
 
@@ -1626,6 +1818,40 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			array_unshift( $this->items, $value );
 		} else {
 			$this->items = [$key => $value] + $this->items;
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Sorts all elements using a callback without maintaining the key association.
+	 *
+	 * The given callback will be used to compare the values. The callback must accept
+	 * two parameters (item A and B) and must return -1 if item A is smaller than
+	 * item B, 0 if both are equal and 1 if item A is greater than item B. Both, a
+	 * method name and an anonymous function can be passed.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 'B', 'b' => 'a'] )->usort( 'strcasecmp' );
+	 *  Map::from( ['a' => 'B', 'b' => 'a'] )->usort( function( $itemA, $itemB ) {
+	 *      return strtolower( $itemA ) <=> strtolower( $itemB );
+	 *  } );
+	 *
+	 * Results:
+	 *  [0 => 'a', 1 => 'B']
+	 *  [0 => 'a', 1 => 'B']
+	 *
+	 * The keys aren't preserved and elements get a new index. No new map is created.
+	 *
+	 * @param callable $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
+	 * @return self Updated map for fluid interface
+	 * @throws \RuntimeException If an error occurs
+	 */
+	public function usort( callable $callback ) : self
+	{
+		if( usort( $this->items, $callback ) === false ) {
+			throw new \RuntimeException( 'Sorting array failed' );
 		}
 
 		return $this;
