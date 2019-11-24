@@ -16,17 +16,17 @@ namespace Aimeos;
 class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 {
 	protected static $methods = [];
-	protected $items = [];
+	protected $list = [];
 
 
 	/**
 	 * Creates a new map.
 	 *
-	 * @param iterable $items List of items
+	 * @param iterable $elements List of items
 	 */
-	public function __construct( iterable $items = [] )
+	public function __construct( iterable $elements = [] )
 	{
-		$this->items = $this->getArray( $items );
+		$this->list = $this->getArray( $elements );
 	}
 
 
@@ -60,11 +60,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Handles dynamic calls to custom methods for the class.
 	 *
 	 * Calls a custom method added by Map::method(). The called method
-	 * has access to the internal array by using $this->items.
+	 * has access to the internal array by using $this->list.
 	 *
 	 * Examples:
 	 *  Map::method( 'case', function( $case = CASE_LOWER ) {
-	 *      return new self( array_change_key_case( $this->items, $case ) );
+	 *      return new self( array_change_key_case( $this->list, $case ) );
 	 *  } );
 	 *  Map::from( ['a' => 'bar'] )->case( CASE_UPPER );
 	 *
@@ -93,7 +93,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 		$result = [];
 
-		foreach( $this->items as $key => $item )
+		foreach( $this->list as $key => $item )
 		{
 			if( is_object( $item ) && method_exists( $item, $name ) ) {
 				$result[$key] = $item->{$name}( ...$params );
@@ -112,12 +112,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  Map::from( new Map() );
 	 *  Map::from( new ArrayObject() );
 	 *
-	 * @param iterable $items List of items
+	 * @param iterable $elements List of items
 	 * @return self New map
 	 */
-	public static function from( iterable $items = [] ) : self
+	public static function from( iterable $elements = [] ) : self
 	{
-		return new static( $items );
+		return new static( $elements );
 	}
 
 
@@ -153,7 +153,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * Examples:
 	 *  Map::method( 'foo', function( $arg1, $arg2 ) {
-	 *      return $this->items;
+	 *      return $this->list;
 	 *  } );
 	 *
 	 * Dynamic calls have access to the class properties:
@@ -198,7 +198,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function asort( int $options = SORT_REGULAR ) : self
 	{
-		if( asort( $this->items, $options ) === false ) {
+		if( asort( $this->list, $options ) === false ) {
 			throw new \RuntimeException( 'Sorting array failed' );
 		}
 
@@ -233,7 +233,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function arsort( int $options = SORT_REGULAR ) : self
 	{
-		if( arsort( $this->items, $options ) === false ) {
+		if( arsort( $this->list, $options ) === false ) {
 			throw new \RuntimeException( 'Sorting array failed' );
 		}
 
@@ -268,7 +268,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			throw new \InvalidArgumentException( 'Chunk size must be greater or equal than 1' );
 		}
 
-		return new static( array_chunk( $this->items, $size, $preserve ) );
+		return new static( array_chunk( $this->list, $size, $preserve ) );
 	}
 
 
@@ -279,7 +279,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function clear() : self
 	{
-		$this->items = [];
+		$this->list = [];
 		return $this;
 	}
 
@@ -302,7 +302,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function col( string $valuecol, $indexcol = null ) : self
 	{
-		return new static( array_column( $this->items, $valuecol, $indexcol ) );
+		return new static( array_column( $this->list, $valuecol, $indexcol ) );
 	}
 
 
@@ -341,7 +341,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		$result = [];
-		$this->kflatten( $this->items, $result, $depth ?? INF );
+		$this->kflatten( $this->list, $result, $depth ?? INF );
 		return new self( $result );
 	}
 
@@ -355,13 +355,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 *  ['foo', 'bar']
 	 *
-	 * @param iterable $items List of items
+	 * @param iterable $elements List of items
 	 * @return self Updated map for fluid interface
 	 */
-	public function concat( iterable $items ) : self
+	public function concat( iterable $elements ) : self
 	{
-		foreach( $items as $item ) {
-			$this->items[] = $item;
+		foreach( $elements as $item ) {
+			$this->list[] = $item;
 		}
 
 		return $this;
@@ -378,7 +378,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function copy() : self
 	{
-		return new static( $this->items );
+		return clone $this;
 	}
 
 
@@ -389,7 +389,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function count() : int
 	{
-		return count( $this->items );
+		return count( $this->list );
 	}
 
 
@@ -416,17 +416,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * All examples will return an empty map because both contain the same values
 	 * when compared case insensitive.
 	 *
-	 * @param iterable $items List of items
+	 * @param iterable $elements List of items
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self New map
 	 */
-	public function diff( iterable $items, callable $callback = null ) : self
+	public function diff( iterable $elements, callable $callback = null ) : self
 	{
 		if( $callback ) {
-			return new static( array_udiff( $this->items, $this->getArray( $items ), $callback ) );
+			return new static( array_udiff( $this->list, $this->getArray( $elements ), $callback ) );
 		}
 
-		return new static( array_diff( $this->items, $this->getArray( $items ) ) );
+		return new static( array_diff( $this->list, $this->getArray( $elements ) ) );
 	}
 
 
@@ -455,17 +455,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * an empty map because 'A' is part of the passed array but the keys doesn't match
 	 * ("b" vs. "B" and "b" vs. "c").
 	 *
-	 * @param iterable $items List of items
+	 * @param iterable $elements List of items
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self New map
 	 */
-	public function diffAssoc( iterable $items, callable $callback = null ) : self
+	public function diffAssoc( iterable $elements, callable $callback = null ) : self
 	{
 		if( $callback ) {
-			return new static( array_diff_uassoc( $this->items, $this->getArray( $items ), $callback ) );
+			return new static( array_diff_uassoc( $this->list, $this->getArray( $elements ), $callback ) );
 		}
 
-		return new static( array_diff_assoc( $this->items, $this->getArray( $items ) ) );
+		return new static( array_diff_assoc( $this->list, $this->getArray( $elements ) ) );
 	}
 
 
@@ -493,17 +493,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * the same keys when compared case insensitive. The third example will return
 	 * ['b' => 'a'] because the keys doesn't match ("b" vs. "c").
 	 *
-	 * @param iterable $items List of items
+	 * @param iterable $elements List of items
 	 * @param  callable|null $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self New map
 	 */
-	public function diffKeys( iterable $items, callable $callback = null ) : self
+	public function diffKeys( iterable $elements, callable $callback = null ) : self
 	{
 		if( $callback ) {
-			return new static( array_diff_ukey( $this->items, $this->getArray( $items ), $callback ) );
+			return new static( array_diff_ukey( $this->list, $this->getArray( $elements ), $callback ) );
 		}
 
-		return new static( array_diff_key( $this->items, $this->getArray( $items ) ) );
+		return new static( array_diff_key( $this->list, $this->getArray( $elements ) ) );
 	}
 
 
@@ -525,7 +525,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function each( \Closure $callback ) : self
 	{
-		foreach( $this->items as $key => $item )
+		foreach( $this->list as $key => $item )
 		{
 			if( $callback( $item, $key ) === false ) {
 				break;
@@ -559,19 +559,19 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Keys and values are compared by their string values:
 	 * (string) $item1 === (string) $item2
 	 *
-	 * @param iterable $items List of items to test against
+	 * @param iterable $elements List of items to test against
 	 * @param bool $assoc TRUE to compare keys too, FALSE to compare only values
 	 * @return bool TRUE if both are equal, FALSE if not
 	 */
-	public function equals( iterable $items, $assoc = false ) : bool
+	public function equals( iterable $elements, $assoc = false ) : bool
 	{
-		$items = $this->getArray( $items );
+		$elements = $this->getArray( $elements );
 
 		if( $assoc ) {
-			return array_diff_assoc( $this->items, $items ) === [] && array_diff_assoc( $items, $this->items ) === [];
+			return array_diff_assoc( $this->list, $elements ) === [] && array_diff_assoc( $elements, $this->list ) === [];
 		}
 
-		return array_diff( $this->items, $items ) === [] && array_diff( $items, $this->items ) === [];
+		return array_diff( $this->list, $elements ) === [] && array_diff( $elements, $this->list ) === [];
 	}
 
 
@@ -596,10 +596,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function filter( callable $callback = null ) : self
 	{
 		if( $callback ) {
-			return new static( array_filter( $this->items, $callback, ARRAY_FILTER_USE_BOTH ) );
+			return new static( array_filter( $this->list, $callback, ARRAY_FILTER_USE_BOTH ) );
 		}
 
-		return new static( array_filter( $this->items ) );
+		return new static( array_filter( $this->list ) );
 	}
 
 
@@ -625,7 +625,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	{
 		if( $callback )
 		{
-			foreach( $this->items as $key => $value )
+			foreach( $this->list as $key => $value )
 			{
 				if( $callback( $value, $key ) ) {
 					return $value;
@@ -635,7 +635,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			return $default;
 		}
 
-		return reset( $this->items ) ?: $default;
+		return reset( $this->list ) ?: $default;
 	}
 
 
@@ -672,7 +672,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		$result = [];
-		$this->flatten( $this->items, $result, $depth ?? INF );
+		$this->flatten( $this->list, $result, $depth ?? INF );
 		return new self( $result );
 	}
 
@@ -690,7 +690,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function flip() : self
 	{
-		return new self( array_flip( $this->items ) );
+		return new self( array_flip( $this->list ) );
 	}
 
 
@@ -710,7 +710,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function get( $key, $default = null )
 	{
-		return array_key_exists( $key, $this->items ) ? $this->items[$key] : $default;
+		return array_key_exists( $key, $this->list ) ? $this->list[$key] : $default;
 	}
 
 
@@ -724,7 +724,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function getIterator() : \Iterator
 	{
-		return new \ArrayIterator( $this->items );
+		return new \ArrayIterator( $this->list );
 	}
 
 
@@ -751,7 +751,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	{
 		foreach( (array) $key as $entry )
 		{
-			if( array_key_exists( $entry, $this->items ) === false ) {
+			if( array_key_exists( $entry, $this->list ) === false ) {
 				return false;
 			}
 		}
@@ -780,12 +780,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function in( $element, bool $strict = false ) : bool
 	{
 		if( !is_array( $element ) ) {
-			return in_array( $element, $this->items, $strict );
+			return in_array( $element, $this->list, $strict );
 		};
 
 		foreach( array_unique( $element ) as $entry )
 		{
-			if( in_array( $entry, $this->items, $strict ) === false ) {
+			if( in_array( $entry, $this->list, $strict ) === false ) {
 				return false;
 			}
 		}
@@ -817,17 +817,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * All examples will return a map containing ['a'] because both contain the same
 	 * values when compared case insensitive.
 	 *
-	 * @param iterable $items List of items
+	 * @param iterable $elements List of items
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self New map
 	 */
-	public function intersect( iterable $items, callable $callback = null ) : self
+	public function intersect( iterable $elements, callable $callback = null ) : self
 	{
 		if( $callback ) {
-			return new static( array_uintersect( $this->items, $this->getArray( $items ), $callback ) );
+			return new static( array_uintersect( $this->list, $this->getArray( $elements ), $callback ) );
 		}
 
-		return new static( array_intersect( $this->items, $this->getArray( $items ) ) );
+		return new static( array_intersect( $this->list, $this->getArray( $elements ) ) );
 	}
 
 
@@ -855,17 +855,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * values when compared case insensitive. The second and third example will return
 	 * an empty map because the keys doesn't match ("b" vs. "B" and "b" vs. "c").
 	 *
-	 * @param iterable $items List of items
+	 * @param iterable $elements List of items
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self New map
 	 */
-	public function intersectAssoc( iterable $items, callable $callback = null ) : self
+	public function intersectAssoc( iterable $elements, callable $callback = null ) : self
 	{
 		if( $callback ) {
-			return new static( array_uintersect_assoc( $this->items, $this->getArray( $items ), $callback ) );
+			return new static( array_uintersect_assoc( $this->list, $this->getArray( $elements ), $callback ) );
 		}
 
-		return new static( array_intersect_assoc( $this->items, $this->getArray( $items ) ) );
+		return new static( array_intersect_assoc( $this->list, $this->getArray( $elements ) ) );
 	}
 
 
@@ -894,17 +894,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * case insensitive. The third example will return an empty map because the keys
 	 * doesn't match ("b" vs. "c").
 	 *
-	 * @param iterable $items List of items
+	 * @param iterable $elements List of items
 	 * @param  callable|null $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self New map
 	 */
-	public function intersectKeys( iterable $items, callable $callback = null ) : self
+	public function intersectKeys( iterable $elements, callable $callback = null ) : self
 	{
 		if( $callback ) {
-			return new static( array_intersect_ukey( $this->items, $this->getArray( $items ), $callback ) );
+			return new static( array_intersect_ukey( $this->list, $this->getArray( $elements ), $callback ) );
 		}
 
-		return new static( array_intersect_key( $this->items, $this->getArray( $items ) ) );
+		return new static( array_intersect_key( $this->list, $this->getArray( $elements ) ) );
 	}
 
 
@@ -922,7 +922,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function isEmpty() : bool
 	{
-		return empty( $this->items );
+		return empty( $this->list );
 	}
 
 
@@ -945,7 +945,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function join( string $glue = '' ) : string
 	{
-		return implode( $glue, $this->items );
+		return implode( $glue, $this->list );
 	}
 
 
@@ -964,7 +964,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function keys() : self
 	{
-		return new static( array_keys( $this->items ) );
+		return new static( array_keys( $this->list ) );
 	}
 
 
@@ -995,7 +995,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function krsort( int $options = SORT_REGULAR ) : self
 	{
-		if( krsort( $this->items, $options ) === false ) {
+		if( krsort( $this->list, $options ) === false ) {
 			throw new \RuntimeException( 'Sorting array failed' );
 		}
 
@@ -1030,7 +1030,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function ksort( int $options = SORT_REGULAR ) : self
 	{
-		if( ksort( $this->items, $options ) === false ) {
+		if( ksort( $this->list, $options ) === false ) {
 			throw new \RuntimeException( 'Sorting array failed' );
 		}
 
@@ -1059,7 +1059,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	{
 		if( $callback )
 		{
-			foreach( array_reverse( $this->items, true ) as $key => $value )
+			foreach( array_reverse( $this->list, true ) as $key => $value )
 			{
 				if( $callback( $value, $key ) ) {
 					return $value;
@@ -1069,7 +1069,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			return $default;
 		}
 
-		return end( $this->items ) ?: $default;
+		return end( $this->list ) ?: $default;
 	}
 
 
@@ -1089,10 +1089,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function map( callable $callback ) : self
 	{
-		$keys = array_keys( $this->items );
-		$items = array_map( $callback, $this->items, $keys );
+		$keys = array_keys( $this->list );
+		$elements = array_map( $callback, $this->list, $keys );
 
-		return new static( array_combine( $keys, $items ) ?: [] );
+		return new static( array_combine( $keys, $elements ) ?: [] );
 	}
 
 
@@ -1114,12 +1114,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * the same numeric keys. If you want to be sure that all passed elements
 	 * are added without replacing existing ones, use concat() instead.
 	 *
-	 * @param iterable $items List of items
+	 * @param iterable $elements List of items
 	 * @return self Updated map for fluid interface
 	 */
-	public function merge( iterable $items ) : self
+	public function merge( iterable $elements ) : self
 	{
-		$this->items = array_merge( $this->items, $this->getArray( $items ) );
+		$this->list = array_merge( $this->list, $this->getArray( $elements ) );
 		return $this;
 	}
 
@@ -1140,7 +1140,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function offsetExists( $key )
 	{
-		return array_key_exists( $key, $this->items );
+		return array_key_exists( $key, $this->list );
 	}
 
 
@@ -1159,7 +1159,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function offsetGet( $key )
 	{
-		return $this->items[$key];
+		return $this->list[$key];
 	}
 
 
@@ -1180,9 +1180,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function offsetSet( $key, $value )
 	{
 		if( $key !== null ) {
-			$this->items[$key] = $value;
+			$this->list[$key] = $value;
 		} else {
-			$this->items[] = $value;
+			$this->list[] = $value;
 		}
 	}
 
@@ -1201,7 +1201,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function offsetUnset( $key )
 	{
-		unset( $this->items[$key] );
+		unset( $this->list[$key] );
 	}
 
 
@@ -1238,7 +1238,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function pop()
 	{
-		return array_pop( $this->items );
+		return array_pop( $this->list );
 	}
 
 
@@ -1261,7 +1261,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function pull( $key, $default = null )
 	{
 		$value = $this->get( $key, $default );
-		unset( $this->items[$key] );
+		unset( $this->list[$key] );
 
 		return $value;
 	}
@@ -1281,7 +1281,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function push( $value ) : self
 	{
-		$this->items[] = $value;
+		$this->list[] = $value;
 		return $this;
 	}
 
@@ -1308,13 +1308,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function random( int $max = 1 ) : self
 	{
-		if( empty( $this->items ) || ( $keys = @array_rand( $this->items, $max ) ) === null
-			&& ( $keys = array_rand( $this->items, count( $this->items ) ) ) === null
+		if( empty( $this->list ) || ( $keys = @array_rand( $this->list, $max ) ) === null
+			&& ( $keys = array_rand( $this->list, count( $this->list ) ) ) === null
 		) {
 			return new self();
 		}
 
-		return new self( array_intersect_key( $this->items, array_flip( (array) $keys ) ) );
+		return new self( array_intersect_key( $this->list, array_flip( (array) $keys ) ) );
 	}
 
 
@@ -1336,7 +1336,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function reduce( callable $callback, $initial = null )
 	{
-		return array_reduce( $this->items, $callback, $initial );
+		return array_reduce( $this->list, $callback, $initial );
 	}
 
 
@@ -1357,7 +1357,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function remove( $keys ) : self
 	{
 		foreach( (array) $keys as $key ) {
-			unset( $this->items[$key] );
+			unset( $this->list[$key] );
 		}
 
 		return $this;
@@ -1378,16 +1378,16 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The method is similar to merge() but it also replaces elements with numeric
 	 * keys. These would be added by merge() with a new numeric key.
 	 *
-	 * @param iterable $items List of items
+	 * @param iterable $elements List of items
 	 * @param bool $recursive TRUE to replace recursively (default), FALSE to replace items only
 	 * @return self Updated map for fluid interface
 	 */
-	public function replace( iterable $items, bool $recursive = true ) : self
+	public function replace( iterable $elements, bool $recursive = true ) : self
 	{
 		if( $recursive ) {
-			$this->items = array_replace_recursive( $this->items, $this->getArray( $items ) );
+			$this->list = array_replace_recursive( $this->list, $this->getArray( $elements ) );
 		} else {
-			$this->items = array_replace( $this->items, $this->getArray( $items ) );
+			$this->list = array_replace( $this->list, $this->getArray( $elements ) );
 		}
 
 		return $this;
@@ -1407,7 +1407,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function reverse() : self
 	{
-		$this->items = array_reverse( $this->items, true );
+		$this->list = array_reverse( $this->list, true );
 		return $this;
 	}
 
@@ -1439,7 +1439,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function rsort( int $options = SORT_REGULAR ) : self
 	{
-		if( rsort( $this->items, $options ) === false ) {
+		if( rsort( $this->list, $options ) === false ) {
 			throw new \RuntimeException( 'Sorting array failed' );
 		}
 
@@ -1464,7 +1464,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function search( $value, $strict = true )
 	{
-		if( ( $result = array_search( $value, $this->items, $strict ) ) !== false ) {
+		if( ( $result = array_search( $value, $this->list, $strict ) ) !== false ) {
 			return $result;
 		}
 
@@ -1488,7 +1488,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function set( $key, $value ) : self
 	{
-		$this->items[$key] = $value;
+		$this->list[$key] = $value;
 		return $this;
 	}
 
@@ -1518,7 +1518,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function shift()
 	{
-		return array_shift( $this->items );
+		return array_shift( $this->list );
 	}
 
 
@@ -1535,7 +1535,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function shuffle() : self
 	{
-		shuffle( $this->items );
+		shuffle( $this->list );
 		return $this;
 	}
 
@@ -1569,7 +1569,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function slice( int $offset, int $length = null ) : self
 	{
-		return new static( array_slice( $this->items, $offset, $length, true ) );
+		return new static( array_slice( $this->list, $offset, $length, true ) );
 	}
 
 
@@ -1600,7 +1600,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function sort( int $options = SORT_REGULAR ) : self
 	{
-		if( sort( $this->items, $options ) === false ) {
+		if( sort( $this->list, $options ) === false ) {
 			throw new \RuntimeException( 'Sorting array failed' );
 		}
 
@@ -1639,10 +1639,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function splice( int $offset, int $length = null, $replacement = [] ) : self
 	{
 		if( $length === null ) {
-			return new static( array_splice( $this->items, $offset ) );
+			return new static( array_splice( $this->list, $offset ) );
 		}
 
-		return new static( array_splice( $this->items, $offset, $length, $replacement ) );
+		return new static( array_splice( $this->list, $offset, $length, $replacement ) );
 	}
 
 
@@ -1653,7 +1653,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function toArray() : array
 	{
-		return $this->items;
+		return $this->list;
 	}
 
 
@@ -1672,7 +1672,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function toJson( int $options = 0 ) : string
 	{
-		return json_encode( $this->items, $options );
+		return json_encode( $this->list, $options );
 	}
 
 
@@ -1702,7 +1702,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function uasort( callable $callback ) : self
 	{
-		if( uasort( $this->items, $callback ) === false ) {
+		if( uasort( $this->list, $callback ) === false ) {
 			throw new \RuntimeException( 'Sorting array failed' );
 		}
 
@@ -1736,7 +1736,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function uksort( callable $callback ) : self
 	{
-		if( uksort( $this->items, $callback ) === false ) {
+		if( uksort( $this->list, $callback ) === false ) {
 			throw new \RuntimeException( 'Sorting array failed' );
 		}
 
@@ -1759,12 +1759,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * If list entries should be overwritten,  please use merge() instead!
 	 *
-	 * @param iterable $items List of items
+	 * @param iterable $elements List of items
 	 * @return self Updated map for fluid interface
 	 */
-	public function union( iterable $items ) : self
+	public function union( iterable $elements ) : self
 	{
-		$this->items += $this->getArray( $items );
+		$this->list += $this->getArray( $elements );
 		return $this;
 	}
 
@@ -1787,7 +1787,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function unique() : self
 	{
-		return new static( array_unique( $this->items ) );
+		return new static( array_unique( $this->list ) );
 	}
 
 
@@ -1819,9 +1819,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function unshift( $value, $key = null ) : self
 	{
 		if( $key === null ) {
-			array_unshift( $this->items, $value );
+			array_unshift( $this->list, $value );
 		} else {
-			$this->items = [$key => $value] + $this->items;
+			$this->list = [$key => $value] + $this->list;
 		}
 
 		return $this;
@@ -1854,7 +1854,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function usort( callable $callback ) : self
 	{
-		if( usort( $this->items, $callback ) === false ) {
+		if( usort( $this->list, $callback ) === false ) {
 			throw new \RuntimeException( 'Sorting array failed' );
 		}
 
@@ -1875,27 +1875,27 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function values() : self
 	{
-		return new static( array_values( $this->items ) );
+		return new static( array_values( $this->list ) );
 	}
 
 
 	/**
 	 * Returns a plain array of the given items.
 	 *
-	 * @param iterable $items List of items
+	 * @param iterable $elements List of items
 	 * @return array Plain array
 	 */
-	protected function getArray( iterable $items ) : array
+	protected function getArray( iterable $elements ) : array
 	{
-		if( is_array( $items ) ) {
-			return $items;
-		} elseif( $items instanceof self ) {
-			return $items->toArray();
-		} elseif( $items instanceof \Traversable ) {
-			return iterator_to_array( $items );
+		if( is_array( $elements ) ) {
+			return $elements;
+		} elseif( $elements instanceof self ) {
+			return $elements->toArray();
+		} elseif( $elements instanceof \Traversable ) {
+			return iterator_to_array( $elements );
 		}
 
-		return (array) $items;
+		return (array) $elements;
 	}
 
 

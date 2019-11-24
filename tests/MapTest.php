@@ -26,37 +26,37 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testArsortNummeric()
 	{
-		$data = ( new Map( [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2] ) )->arsort();
+		$m = ( new Map( [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2] ) )->arsort();
 
-		$this->assertInstanceOf( Map::class, $data );
-		$this->assertEquals( [6 => 4, 7 => 3, 9 => 2, 8 => 1, 5 => 0, 4 => -1, 2 => -2, 1 => -3, 3 => -4], $data->toArray() );
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( [6 => 4, 7 => 3, 9 => 2, 8 => 1, 5 => 0, 4 => -1, 2 => -2, 1 => -3, 3 => -4], $m->toArray() );
 	}
 
 
 	public function testArsortStrings()
 	{
-		$data = ( new Map( ['c' => 'bar-10', 1 => 'bar-1', 'a' => 'foo'] ) )->arsort();
+		$m = ( new Map( ['c' => 'bar-10', 1 => 'bar-1', 'a' => 'foo'] ) )->arsort();
 
-		$this->assertInstanceOf( Map::class, $data );
-		$this->assertEquals( ['a' => 'foo', 1 => 'bar-1', 'c' => 'bar-10'], $data->toArray() );
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( ['a' => 'foo', 1 => 'bar-1', 'c' => 'bar-10'], $m->toArray() );
 	}
 
 
 	public function testAsortNummeric()
 	{
-		$data = ( new Map( [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2] ) )->asort();
+		$m = ( new Map( [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2] ) )->asort();
 
-		$this->assertInstanceOf( Map::class, $data );
-		$this->assertEquals( [3 => -4, 1 => -3, 2 => -2, 4 => -1, 5 => 0, 8 => 1, 9 => 2, 7 => 3, 6 => 4], $data->toArray() );
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( [3 => -4, 1 => -3, 2 => -2, 4 => -1, 5 => 0, 8 => 1, 9 => 2, 7 => 3, 6 => 4], $m->toArray() );
 	}
 
 
 	public function testAsortStrings()
 	{
-		$data = ( new Map( ['a' => 'foo', 'c' => 'bar-10', 1 => 'bar-1'] ) )->asort();
+		$m = ( new Map( ['a' => 'foo', 'c' => 'bar-10', 1 => 'bar-1'] ) )->asort();
 
-		$this->assertInstanceOf( Map::class, $data );
-		$this->assertEquals( ['c' => 'bar-10', 1 => 'bar-1', 'a' => 'foo'], $data->toArray() );
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( ['c' => 'bar-10', 1 => 'bar-1', 'a' => 'foo'], $m->toArray() );
 	}
 
 
@@ -460,16 +460,16 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testFirstWithDefault()
 	{
-		$data = new Map;
-		$result = $data->first( 'default' );
+		$m = new Map;
+		$result = $m->first( 'default' );
 		$this->assertEquals( 'default', $result );
 	}
 
 
 	public function testFirstWithCallback()
 	{
-		$data = new Map( ['foo', 'bar', 'baz'] );
-		$result = $data->first( null, function( $value ) {
+		$m = new Map( ['foo', 'bar', 'baz'] );
+		$result = $m->first( null, function( $value ) {
 			return $value === 'bar';
 		} );
 		$this->assertEquals( 'bar', $result );
@@ -478,8 +478,8 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testFirstWithCallbackAndDefault()
 	{
-		$data = new Map( ['foo', 'bar'] );
-		$result = $data->first( 'default', function( $value ) {
+		$m = new Map( ['foo', 'bar'] );
+		$result = $m->first( 'default', function( $value ) {
 			return $value === 'baz';
 		} );
 		$this->assertEquals( 'default', $result );
@@ -594,12 +594,12 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testHas()
 	{
-		$data = new Map( ['id' => 1, 'first' => 'Hello', 'second' => 'World'] );
+		$m = new Map( ['id' => 1, 'first' => 'Hello', 'second' => 'World'] );
 
-		$this->assertTrue( $data->has( 'first' ) );
-		$this->assertTrue( $data->has( ['first', 'second'] ) );
-		$this->assertFalse( $data->has( 'third' ) );
-		$this->assertFalse( $data->has( ['first', 'third'] ) );
+		$this->assertTrue( $m->has( 'first' ) );
+		$this->assertTrue( $m->has( ['first', 'second'] ) );
+		$this->assertFalse( $m->has( 'third' ) );
+		$this->assertFalse( $m->has( ['first', 'third'] ) );
 	}
 
 
@@ -712,37 +712,37 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testKrsortNummeric()
 	{
-		$data = ( new Map( [6 => 4, 7 => 3, 9 => 2, 8 => 1, 5 => 0, 4 => -1, 2 => -2, 1 => -3, 3 => -4] ) )->krsort();
+		$m = ( new Map( [6 => 4, 7 => 3, 9 => 2, 8 => 1, 5 => 0, 4 => -1, 2 => -2, 1 => -3, 3 => -4] ) )->krsort();
 
-		$this->assertInstanceOf( Map::class, $data );
-		$this->assertEquals( [9 => 2, 8 => 1, 7 => 3, 6 => 4, 5 => 0, 4 => -1, 3 => -4, 2 => -2, 1 => -3], $data->toArray() );
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( [9 => 2, 8 => 1, 7 => 3, 6 => 4, 5 => 0, 4 => -1, 3 => -4, 2 => -2, 1 => -3], $m->toArray() );
 	}
 
 
 	public function testKrsortStrings()
 	{
-		$data = ( new Map( [1 => 'bar-1', 'a' => 'foo', 'c' => 'bar-10'] ) )->krsort();
+		$m = ( new Map( [1 => 'bar-1', 'a' => 'foo', 'c' => 'bar-10'] ) )->krsort();
 
-		$this->assertInstanceOf( Map::class, $data );
-		$this->assertEquals( ['c' => 'bar-10', 'a' => 'foo', 1 => 'bar-1'], $data->toArray() );
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( ['c' => 'bar-10', 'a' => 'foo', 1 => 'bar-1'], $m->toArray() );
 	}
 
 
 	public function testKsortNummeric()
 	{
-		$data = ( new Map( [3 => -4, 1 => -3, 2 => -2, 4 => -1, 5 => 0, 8 => 1, 9 => 2, 7 => 3, 6 => 4] ) )->ksort();
+		$m = ( new Map( [3 => -4, 1 => -3, 2 => -2, 4 => -1, 5 => 0, 8 => 1, 9 => 2, 7 => 3, 6 => 4] ) )->ksort();
 
-		$this->assertInstanceOf( Map::class, $data );
-		$this->assertEquals( [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2], $data->toArray() );
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2], $m->toArray() );
 	}
 
 
 	public function testKsortStrings()
 	{
-		$data = ( new Map( ['a' => 'foo', 'c' => 'bar-10', 1 => 'bar-1'] ) )->ksort();
+		$m = ( new Map( ['a' => 'foo', 'c' => 'bar-10', 1 => 'bar-1'] ) )->ksort();
 
-		$this->assertInstanceOf( Map::class, $data );
-		$this->assertEquals( [1 => 'bar-1', 'a' => 'foo', 'c' => 'bar-10'], $data->toArray() );
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( [1 => 'bar-1', 'a' => 'foo', 'c' => 'bar-10'], $m->toArray() );
 	}
 
 
@@ -755,23 +755,23 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testLastWithDefault()
 	{
-		$data = new Map;
-		$result = $data->last( 'default' );
+		$m = new Map;
+		$result = $m->last( 'default' );
 		$this->assertEquals( 'default', $result );
 	}
 
 
 	public function testLastWithCallback()
 	{
-		$data = new Map( [100, 200, 300] );
+		$m = new Map( [100, 200, 300] );
 
-		$result = $data->last( null, function( $value ) {
+		$result = $m->last( null, function( $value ) {
 			return $value < 250;
 		} );
 
 		$this->assertEquals( 200, $result );
 
-		$result = $data->last( null, function( $value, $key ) {
+		$result = $m->last( null, function( $value, $key ) {
 			return $key < 2;
 		} );
 
@@ -781,9 +781,9 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testLastWithCallbackAndDefault()
 	{
-		$data = new Map( ['foo', 'bar'] );
+		$m = new Map( ['foo', 'bar'] );
 
-		$result = $data->last( 'default', function( $value ) {
+		$result = $m->last( 'default', function( $value ) {
 			return $value === 'baz';
 		} );
 
@@ -793,13 +793,13 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testMap()
 	{
-		$data = new Map( ['first' => 'test', 'last' => 'user'] );
-		$data = $data->map( function( $item, $key ) {
+		$m = new Map( ['first' => 'test', 'last' => 'user'] );
+		$m = $m->map( function( $item, $key ) {
 			return $key . '-' . strrev( $item );
 		} );
 
-		$this->assertInstanceOf( Map::class, $data );
-		$this->assertEquals( ['first' => 'first-tset', 'last' => 'last-resu'], $data->toArray() );
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( ['first' => 'first-tset', 'last' => 'last-resu'], $m->toArray() );
 	}
 
 
@@ -1106,8 +1106,8 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testReverse()
 	{
-		$data = new Map( ['hello', 'world'] );
-		$reversed = $data->reverse();
+		$m = new Map( ['hello', 'world'] );
+		$reversed = $m->reverse();
 
 		$this->assertInstanceOf( Map::class, $reversed );
 		$this->assertSame( [1 => 'world', 0 => 'hello'], $reversed->toArray() );
@@ -1116,8 +1116,8 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testReverseKeys()
 	{
-		$data = new Map( ['name' => 'test', 'last' => 'user'] );
-		$reversed = $data->reverse();
+		$m = new Map( ['name' => 'test', 'last' => 'user'] );
+		$reversed = $m->reverse();
 
 		$this->assertInstanceOf( Map::class, $reversed );
 		$this->assertSame( ['last' => 'user', 'name' => 'test'], $reversed->toArray() );
@@ -1126,19 +1126,19 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testRsortNummeric()
 	{
-		$data = ( new Map( [-1, -3, -2, -4, -5, 0, 5, 3, 1, 2, 4] ) )->rsort();
+		$m = ( new Map( [-1, -3, -2, -4, -5, 0, 5, 3, 1, 2, 4] ) )->rsort();
 
-		$this->assertInstanceOf( Map::class, $data );
-		$this->assertEquals( [5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5], $data->toArray() );
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( [5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5], $m->toArray() );
 	}
 
 
 	public function testRsortStrings()
 	{
-		$data = ( new Map( ['bar-10', 'foo', 'bar-1'] ) )->rsort();
+		$m = ( new Map( ['bar-10', 'foo', 'bar-1'] ) )->rsort();
 
-		$this->assertInstanceOf( Map::class, $data );
-		$this->assertEquals( ['foo', 'bar-10', 'bar-1'], $data->toArray() );
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( ['foo', 'bar-10', 'bar-1'], $m->toArray() );
 	}
 
 
@@ -1265,60 +1265,60 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testSortNummeric()
 	{
-		$data = ( new Map( [-1, -3, -2, -4, -5, 0, 5, 3, 1, 2, 4] ) )->sort();
+		$m = ( new Map( [-1, -3, -2, -4, -5, 0, 5, 3, 1, 2, 4] ) )->sort();
 
-		$this->assertInstanceOf( Map::class, $data );
-		$this->assertEquals( [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5], $data->toArray() );
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5], $m->toArray() );
 	}
 
 
 	public function testSortStrings()
 	{
-		$data = ( new Map( ['foo', 'bar-10', 'bar-1'] ) )->sort();
+		$m = ( new Map( ['foo', 'bar-10', 'bar-1'] ) )->sort();
 
-		$this->assertInstanceOf( Map::class, $data );
-		$this->assertEquals( ['bar-1', 'bar-10', 'foo'], $data->toArray() );
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( ['bar-1', 'bar-10', 'foo'], $m->toArray() );
 	}
 
 
 	public function testSplice()
 	{
-		$data = new Map( ['foo', 'baz'] );
-		$data->splice( 1 );
+		$m = new Map( ['foo', 'baz'] );
+		$m->splice( 1 );
 
-		$this->assertInstanceOf( Map::class, $data );
-		$this->assertEquals( ['foo'], $data->toArray() );
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( ['foo'], $m->toArray() );
 	}
 
 
 	public function testSpliceReplace()
 	{
-		$data = new Map( ['foo', 'baz'] );
-		$data->splice( 1, 0, 'bar' );
+		$m = new Map( ['foo', 'baz'] );
+		$m->splice( 1, 0, 'bar' );
 
-		$this->assertInstanceOf( Map::class, $data );
-		$this->assertEquals( ['foo', 'bar', 'baz'], $data->toArray() );
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( ['foo', 'bar', 'baz'], $m->toArray() );
 	}
 
 
 	public function testSpliceRemove()
 	{
-		$data = new Map( ['foo', 'baz'] );
-		$data->splice( 1, 1 );
+		$m = new Map( ['foo', 'baz'] );
+		$m->splice( 1, 1 );
 
-		$this->assertInstanceOf( Map::class, $data );
-		$this->assertEquals( ['foo'], $data->toArray() );
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( ['foo'], $m->toArray() );
 	}
 
 
 	public function testSpliceCut()
 	{
-		$data = new Map( ['foo', 'baz'] );
-		$cut = $data->splice( 1, 1, 'bar' );
+		$m = new Map( ['foo', 'baz'] );
+		$cut = $m->splice( 1, 1, 'bar' );
 
-		$this->assertInstanceOf( Map::class, $data );
+		$this->assertInstanceOf( Map::class, $m );
 		$this->assertInstanceOf( Map::class, $cut );
-		$this->assertEquals( ['foo', 'bar'], $data->toArray() );
+		$this->assertEquals( ['foo', 'bar'], $m->toArray() );
 		$this->assertEquals( ['baz'], $cut->toArray() );
 	}
 
@@ -1373,34 +1373,34 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testUasort()
 	{
-		$data = ( new Map( ['a' => 'foo', 'c' => 'bar-10', 1 => 'bar-1'] ) )->uasort( function( $a, $b ) {
+		$m = ( new Map( ['a' => 'foo', 'c' => 'bar-10', 1 => 'bar-1'] ) )->uasort( function( $a, $b ) {
 			return strrev( $a ) <=> strrev( $b );
 		} );
 
-		$this->assertInstanceOf( Map::class, $data );
-		$this->assertEquals( ['c' => 'bar-10', 1 => 'bar-1', 'a' => 'foo'], $data->toArray() );
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( ['c' => 'bar-10', 1 => 'bar-1', 'a' => 'foo'], $m->toArray() );
 	}
 
 
 	public function testUksort()
 	{
-		$data = ( new Map( ['a' => 'foo', 'c' => 'bar-10', 1 => 'bar-1'] ) )->uksort( function( $a, $b ) {
+		$m = ( new Map( ['a' => 'foo', 'c' => 'bar-10', 1 => 'bar-1'] ) )->uksort( function( $a, $b ) {
 			return (string) $a <=> (string) $b;
 		} );
 
-		$this->assertInstanceOf( Map::class, $data );
-		$this->assertEquals( [1 => 'bar-1', 'a' => 'foo', 'c' => 'bar-10'], $data->toArray() );
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( [1 => 'bar-1', 'a' => 'foo', 'c' => 'bar-10'], $m->toArray() );
 	}
 
 
 	public function testUsort()
 	{
-		$data = ( new Map( ['foo', 'bar-10', 'bar-1'] ) )->usort( function( $a, $b ) {
+		$m = ( new Map( ['foo', 'bar-10', 'bar-1'] ) )->usort( function( $a, $b ) {
 			return strrev( $a ) <=> strrev( $b );
 		} );
 
-		$this->assertInstanceOf( Map::class, $data );
-		$this->assertEquals( ['bar-10', 'bar-1', 'foo'], $data->toArray() );
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( ['bar-10', 'bar-1', 'foo'], $m->toArray() );
 	}
 
 
