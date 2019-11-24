@@ -122,6 +122,33 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Creates a new map with the string splitted by the delimiter.
+	 *
+	 * Examples:
+	 *  Map::split( 'a,b,c' );
+	 *  Map::split( 'a a<-->b b<-->c c', '<-->' );
+	 *  Map::split( 'string', '' );
+	 *
+	 * Results:
+	 *  ['a', 'b', 'c']
+	 *  ['a a', 'b b', 'c c']
+	 *  ['s', 't', 'r', 'i', 'n', 'g']
+	 *
+	 * @param string $delimiter Delimiter character or string
+	 * @param string $str String to split
+	 * @return self New map with splitted parts
+	 */
+	public static function split( string $str, string $delimiter = ',' ) : self
+	{
+		if( $delimiter !== '' ) {
+			return new static( explode( $delimiter, $str ) );
+		}
+
+		return new static( str_split( $str ) );
+	}
+
+
+	/**
 	 * Registers a custom method that has access to the class properties if called non-static.
 	 *
 	 * Examples:

@@ -130,6 +130,7 @@ will return `['a' => 'x', 'b' => 'y']` at the end.
 * [shuffle()](#shuffle) : Randomizes the element order
 * [slice()](#slice) : Returns a slice of the map
 * [sort()](#sort) : Sorts the elements
+* [split()](#split) : Splits a string into map elements
 * [splice()](#splice) : Replaces a slice by new elements
 * [toArray()](#toarray) : Returns the plain array
 * [toJson()](#tojson) : Returns the elements in JSON format
@@ -1731,6 +1732,35 @@ Similar for the length:
 - If the array is shorter than the length, then only the available array elements will be present
 - If length is given and is negative then the sequence will stop that many elements from the end
 - If it is omitted, then the sequence will have everything from offset up until the end
+
+
+### split()
+
+Creates a new map with the string splitted by the delimiter.
+
+```php
+public static function split( string $delimiter, string $str ) : self
+```
+
+* @param string $str String to split
+* @param string $delimiter Delimiter character or string
+* @return self New map with splitted parts
+
+**Examples:**
+
+```php
+Map::split( 'a,b,c' );
+Map::split( 'a a<-->b b<-->c c', '<-->' );
+Map::split( 'string', '' );
+```
+
+**Results:**
+
+```php
+['a', 'b', 'c']
+['a a', 'b b', 'c c']
+['s', 't', 'r', 'i', 'n', 'g']
+```
 
 
 ### toArray()

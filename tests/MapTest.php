@@ -1231,6 +1231,33 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testSplit()
+	{
+		$map = Map::split( 'a,b,c' );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertEquals( ['a', 'b', 'c'], $map->toArray() );
+	}
+
+
+	public function testSplitMultiple()
+	{
+		$map = Map::split( 'a a<-->b b<-->c c', '<-->' );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertEquals( ['a a', 'b b', 'c c'], $map->toArray() );
+	}
+
+
+	public function testSplitString()
+	{
+		$map = Map::split(  'string', '' );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertEquals( ['s', 't', 'r', 'i', 'n', 'g'], $map->toArray() );
+	}
+
+
 	public function testToArray()
 	{
 		$m = new Map( ['name' => 'Hello'] );
