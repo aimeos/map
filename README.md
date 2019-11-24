@@ -5,7 +5,7 @@
 # Working with PHP arrays easily
 
 Easy to use and elegant handling for PHP arrays with an array-like map object
-as offered by Javascript, jQuery and Laravel Collections.
+as offered by jQuery and Laravel Collections.
 
 ```bash
 composer require aimeos/map
@@ -21,7 +21,8 @@ composer require aimeos/map
 
 ## Why
 
-Instead of:
+**Instead of:**
+
 ```php
 $list = [['id' => 'one', 'value' => 'value1'], ['id' => 'two', 'value' => 'value2'], null];
 $list[] = ['id' => 'three', 'value' => 'value3'];    // add element
@@ -32,7 +33,8 @@ $pairs = array_column( $list, 'value', 'id' );       // create ['three' => 'valu
 $value = reset( $pairs ) ?: null;                    // return first value
 ```
 
-Only use:
+**Only use:**
+
 ```php
 $list = [['id' => 'one', 'value' => 'value1'], ['id' => 'two', 'value' => 'value2'], null];
 $value = map( $list )                                // create Map
@@ -44,7 +46,8 @@ $value = map( $list )                                // create Map
     ->first();                                       // return first value
 ```
 
-Of course, you can still use:
+**You can still use:**
+
 ```php
 $map[] = ['id' => 'three', 'value' => 'value3'];
 $value = $map[0];
@@ -52,25 +55,42 @@ count( $map );
 foreach( $map as $key => value );
 ```
 
+**Use callbacks:**
+
 Also, the map object allows you to pass anonymous functions to a lot of methods, e.g.:
+
 ```php
 $map->each( function( $val, $key ) {
 	echo $key . ': ' . $val;
 } );
 ```
 
+**jQuery style:**
+
 If your map elements are objects, you can call their methods for each object and get
 the result as new map just like in jQuery:
+
 ```php
 // MyClass implements setId() (returning $this) and getCode() (initialized by constructor)
+
 $map = Map::from( ['a' => new MyClass( 'x' ), 'b' => new MyClass( 'y' )] );
 $map->setStatus( 1 )->getCode()->toArray();
 ```
+
 This will call `setStatus( 1 )` on both objects. If `setStatus()` implementation
-returns `$this`, the new map will contain `['a' => MyClass(), 'b' => MyClass()]`.
+returns `$this`, the new map will also contain:
+
+```php
+`['a' => MyClass(), 'b' => MyClass()]`
+```
+
 On those new map elements, `getCode()` will be called which returns `x` for the
 first object and `y` for the second. The map created from the results of `getCode()`
-will return `['a' => 'x', 'b' => 'y']` at the end.
+will return:
+
+```php
+`['a' => 'x', 'b' => 'y']`
+```
 
 
 ## Methods
@@ -2156,6 +2176,7 @@ Map::from( ['a', 'b', 'b', 'c'] )->unique();
 A new map with `['a', 'b', 'c']` as content
 
 
+
 ## Custom methods
 
 Most of the time, it's enough to pass an anonymous function to the pipe() method
@@ -2197,6 +2218,7 @@ Map::method( 'combine', function( iterable $keys ) {
     return new self( array_combine( $this->getArray( $keys ), $this-items ) );
 } );
 ```
+
 
 
 ## Performance
