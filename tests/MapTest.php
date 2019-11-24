@@ -152,57 +152,24 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testConcatWithArray()
 	{
-		$expected = [
-			0 => 4,
-			1 => 5,
-			2 => 6,
-			3 => 'a',
-			4 => 'b',
-			5 => 'c',
-			6 => 'Jonny',
-			7 => 'from',
-			8 => 'Laroe',
-			9 => 'Jonny',
-			10 => 'from',
-			11 => 'Laroe',
-		];
+		$first = new Map( [1, 2] );
+		$r = $first->concat( ['a', 'b'] )->concat( ['x' => 'foo', 'y' => 'bar'] );
 
-		$map = new Map( [4, 5, 6] );
-		$map = $map->concat( ['a', 'b', 'c'] );
-		$map = $map->concat( ['who' => 'Jonny', 'preposition' => 'from', 'where' => 'Laroe'] );
-		$actual = $map->concat( ['who' => 'Jonny', 'preposition' => 'from', 'where' => 'Laroe'] );
-
-		$this->assertInstanceOf( Map::class, $actual );
-		$this->assertSame( $expected, $actual->toArray() );
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [1, 2, 'a', 'b', 'foo', 'bar'], $r->toArray() );
 	}
 
 
-	public function testConcatWithMap()
+	public function testConcatMap()
 	{
-		$expected = [
-			0 => 4,
-			1 => 5,
-			2 => 6,
-			3 => 'a',
-			4 => 'b',
-			5 => 'c',
-			6 => 'Jonny',
-			7 => 'from',
-			8 => 'Laroe',
-			9 => 'Jonny',
-			10 => 'from',
-			11 => 'Laroe',
-		];
+		$first = new Map( [1, 2] );
+		$second = new Map( ['a', 'b'] );
+		$third = new Map( ['x' => 'foo', 'y' => 'bar'] );
 
-		$firstMap = new Map( [4, 5, 6] );
-		$secondMap = new Map( ['a', 'b', 'c'] );
-		$thirdMap = new Map( ['who' => 'Jonny', 'preposition' => 'from', 'where' => 'Laroe'] );
-		$firstMap = $firstMap->concat( $secondMap );
-		$firstMap = $firstMap->concat( $thirdMap );
-		$actual = $firstMap->concat( $thirdMap );
+		$r = $first->concat( $second )->concat( $third );
 
-		$this->assertInstanceOf( Map::class, $actual );
-		$this->assertSame( $expected, $actual->toArray() );
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [1, 2, 'a', 'b', 'foo', 'bar'], $r->toArray() );
 	}
 
 
@@ -213,7 +180,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
-	public function testConstructFromMap()
+	public function testConstructMap()
 	{
 		$firstMap = new Map( ['foo' => 'bar'] );
 		$secondMap = new Map( $firstMap );
@@ -224,7 +191,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
-	public function testConstructFromArray()
+	public function testConstructArray()
 	{
 		$map = new Map( ['foo' => 'bar'] );
 
@@ -233,14 +200,14 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
-	public function testConstructFromTraversable()
+	public function testConstructTraversable()
 	{
 		$map = new Map( new \ArrayObject( [1, 2, 3] ) );
 		$this->assertEquals( [1, 2, 3], $map->toArray() );
 	}
 
 
-	public function testConstructFromTraversableWithKeys()
+	public function testConstructTraversableKeys()
 	{
 		$map = new Map( new \ArrayObject( ['foo' => 1, 'bar' => 2, 'baz' => 3] ) );
 		$this->assertEquals( ['foo' => 1, 'bar' => 2, 'baz' => 3], $map->toArray() );
@@ -370,6 +337,12 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertEquals( $original, $result );
+	}
+
+
+	public function testEachFalse()
+	{
+		$m = new Map( $original = [1, 2, 'foo' => 'bar', 'bam' => 'baz'] );
 
 		$result = [];
 		$r = $m->each( function( $item, $key ) use ( &$result ) {
@@ -451,16 +424,27 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testFilter()
 	{
 		$m = new Map( [['id' => 1, 'name' => 'Hello'], ['id' => 2, 'name' => 'World']] );
+
 		$this->assertEquals( [1 => ['id' => 2, 'name' => 'World']], $m->filter( function( $item ) {
 			return $item['id'] == 2;
 		} )->toArray() );
+	}
 
+
+	public function testFilterNoCallback()
+	{
 		$m = new Map( ['', 'Hello', '', 'World'] );
 		$r = $m->filter();
+
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertEquals( ['Hello', 'World'], $r->values()->toArray() );
+	}
 
+
+	public function testFilterRemove()
+	{
 		$m = new Map( ['id' => 1, 'first' => 'Hello', 'second' => 'World'] );
+
 		$this->assertEquals( ['first' => 'Hello', 'second' => 'World'], $m->filter( function( $item, $key ) {
 			return $key != 'id';
 		} )->toArray() );
@@ -780,13 +764,17 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testLastWithCallback()
 	{
 		$data = new Map( [100, 200, 300] );
+
 		$result = $data->last( null, function( $value ) {
 			return $value < 250;
 		} );
+
 		$this->assertEquals( 200, $result );
+
 		$result = $data->last( null, function( $value, $key ) {
 			return $key < 2;
 		} );
+
 		$this->assertEquals( 200, $result );
 	}
 
@@ -794,9 +782,11 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testLastWithCallbackAndDefault()
 	{
 		$data = new Map( ['foo', 'bar'] );
+
 		$result = $data->last( 'default', function( $value ) {
 			return $value === 'baz';
 		} );
+
 		$this->assertEquals( 'default', $result );
 	}
 
@@ -879,15 +869,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$m = new Map( ['name' => 'test'] );
 		$this->assertEquals( 'test', $m['name'] );
 
-		$m['name'] = 'me';
-		$this->assertEquals( 'me', $m['name'] );
+		$m['name'] = 'foo';
+		$this->assertEquals( 'foo', $m['name'] );
 		$this->assertTrue( isset( $m['name'] ) );
 
 		unset( $m['name'] );
 		$this->assertFalse( isset( $m['name'] ) );
 
-		$m[] = 'jason';
-		$this->assertEquals( 'jason', $m[0] );
+		$m[] = 'bar';
+		$this->assertEquals( 'bar', $m[0] );
 	}
 
 
@@ -913,11 +903,17 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testOffsetSet()
 	{
 		$m = new Map( ['foo', 'foo'] );
-
 		$m->offsetSet( 1, 'bar' );
-		$this->assertEquals( 'bar', $m[1] );
 
+		$this->assertEquals( 'bar', $m[1] );
+	}
+
+
+	public function testOffsetSetAppend()
+	{
+		$m = new Map( ['foo', 'foo'] );
 		$m->offsetSet( null, 'qux' );
+
 		$this->assertEquals( 'qux', $m[2] );
 	}
 
@@ -941,33 +937,25 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
-	public function testPopReturnsAndRemovesLastItemInMap()
+	public function testPop()
 	{
 		$m = new Map( ['foo', 'bar'] );
 
 		$this->assertEquals( 'bar', $m->pop() );
-		$this->assertEquals( 'foo', $m->first() );
-		$this->assertEquals( 1, $m->count() );
+		$this->assertEquals( ['foo'], $m->toArray() );
 	}
 
 
-	public function testPullRetrievesItemFromMap()
+	public function testPull()
 	{
 		$m = new Map( ['foo', 'bar'] );
 
 		$this->assertEquals( 'foo', $m->pull( 0 ) );
-	}
-
-
-	public function testPullRemovesItemFromMap()
-	{
-		$m = new Map( ['foo', 'bar'] );
-		$m->pull( 0 );
 		$this->assertEquals( [1 => 'bar'], $m->toArray() );
 	}
 
 
-	public function testPullReturnsDefault()
+	public function testPullDefault()
 	{
 		$m = new Map( [] );
 		$value = $m->pull( 0, 'foo' );
@@ -1022,23 +1010,17 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
-	public function testRemoveSingleKey()
+	public function testRemoveNumeric()
 	{
 		$m = new Map( ['foo', 'bar'] );
 		$r = $m->remove( 0 );
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertFalse( isset( $m['foo'] ) );
-
-		$m = new Map( ['foo' => 'bar', 'baz' => 'qux'] );
-		$r = $m->remove( 'foo' );
-
-		$this->assertInstanceOf( Map::class, $r );
-		$this->assertFalse( isset( $m['foo'] ) );
 	}
 
 
-	public function testRemoveArrayOfKeys()
+	public function testRemoveNumericMultiple()
 	{
 		$m = new Map( ['foo', 'bar', 'baz'] );
 		$r = $m->remove( [0, 2] );
@@ -1047,7 +1029,21 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$this->assertFalse( isset( $m[0] ) );
 		$this->assertFalse( isset( $m[2] ) );
 		$this->assertTrue( isset( $m[1] ) );
+	}
 
+
+	public function testRemoveString()
+	{
+		$m = new Map( ['foo' => 'bar', 'baz' => 'qux'] );
+		$r = $m->remove( 'foo' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertFalse( isset( $m['foo'] ) );
+	}
+
+
+	public function testRemoveStringMultiple()
+	{
 		$m = new Map( ['name' => 'test', 'foo' => 'bar', 'baz' => 'qux'] );
 		$r = $m->remove( ['foo', 'baz'] );
 
@@ -1115,7 +1111,11 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertInstanceOf( Map::class, $reversed );
 		$this->assertSame( [1 => 'world', 0 => 'hello'], $reversed->toArray() );
+	}
 
+
+	public function testReverseKeys()
+	{
 		$data = new Map( ['name' => 'test', 'last' => 'user'] );
 		$reversed = $data->reverse();
 
@@ -1145,6 +1145,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testSearch()
 	{
 		$m = new Map( [false, 0, 1, [], ''] );
+
 		$this->assertNull( $m->search( 'false' ) );
 		$this->assertNull( $m->search( '1' ) );
 		$this->assertEquals( 0, $m->search( false ) );
@@ -1155,41 +1156,37 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
-	public function testSearchReturnsNullWhenItemIsNotFound()
+	public function testSet()
 	{
-		$m = new Map( [1, 2, 3, 4, 5, 'foo' => 'bar'] );
-
-		$this->assertNull( $m->search( 6 ) );
-		$this->assertNull( $m->search( 'foo' ) );
-		$this->assertNull( $m->search( function( $value ) {
-			return $value < 1 && is_numeric( $value );
-		} ) );
-		$this->assertNull( $m->search( function( $value ) {
-			return $value == 'nope';
-		} ) );
-	}
-
-
-	public function testSetAddsItemToMap()
-	{
-		$map = new Map;
-		$this->assertSame( [], $map->toArray() );
-
+		$map = Map::from( [] );
 		$r = $map->set( 'foo', 1 );
+
 		$this->assertInstanceOf( Map::class, $map );
 		$this->assertSame( ['foo' => 1], $map->toArray() );
-
-		$r = $map->set( 'bar', ['nested' => 'two'] );
-		$this->assertInstanceOf( Map::class, $map );
-		$this->assertSame( ['foo' => 1, 'bar' => ['nested' => 'two']], $map->toArray() );
-
-		$r = $map->set( 'foo', 3 );
-		$this->assertInstanceOf( Map::class, $map );
-		$this->assertSame( ['foo' => 3, 'bar' => ['nested' => 'two']], $map->toArray() );
 	}
 
 
-	public function testShiftReturnsAndRemovesFirstItemInMap()
+	public function testSetNested()
+	{
+		$map = Map::from( ['foo' => 1] );
+		$r = $map->set( 'bar', ['nested' => 'two'] );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertSame( ['foo' => 1, 'bar' => ['nested' => 'two']], $map->toArray() );
+	}
+
+
+	public function testSetOverwrite()
+	{
+		$map = Map::from( ['foo' => 3] );
+		$r = $map->set( 'foo', 3 );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertSame( ['foo' => 3], $map->toArray() );
+	}
+
+
+	public function testShift()
 	{
 		$m = new Map( ['foo', 'bar'] );
 
@@ -1291,19 +1288,31 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertInstanceOf( Map::class, $data );
 		$this->assertEquals( ['foo'], $data->toArray() );
+	}
 
+
+	public function testSpliceReplace()
+	{
 		$data = new Map( ['foo', 'baz'] );
 		$data->splice( 1, 0, 'bar' );
 
 		$this->assertInstanceOf( Map::class, $data );
 		$this->assertEquals( ['foo', 'bar', 'baz'], $data->toArray() );
+	}
 
+
+	public function testSpliceRemove()
+	{
 		$data = new Map( ['foo', 'baz'] );
 		$data->splice( 1, 1 );
 
 		$this->assertInstanceOf( Map::class, $data );
 		$this->assertEquals( ['foo'], $data->toArray() );
+	}
 
+
+	public function testSpliceCut()
+	{
 		$data = new Map( ['foo', 'baz'] );
 		$cut = $data->splice( 1, 1, 'bar' );
 
@@ -1430,7 +1439,11 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$m = ( new Map( ['one', 'two', 'three', 'four'] ) )->unshift( 'zero' );
 		$this->assertInstanceOf( Map::class, $m );
 		$this->assertEquals( ['zero', 'one', 'two', 'three', 'four'], $m->toArray() );
+	}
 
+
+	public function testUnshiftWithKey()
+	{
 		$m = ( new Map( ['one' => 1, 'two' => 2] ) )->unshift( 0, 'zero' );
 		$this->assertInstanceOf( Map::class, $m );
 		$this->assertEquals( ['zero' => 0, 'one' => 1, 'two' => 2], $m->toArray() );
