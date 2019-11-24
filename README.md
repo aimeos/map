@@ -81,7 +81,7 @@ This will call `setStatus( 1 )` on both objects. If `setStatus()` implementation
 returns `$this`, the new map will also contain:
 
 ```php
-`['a' => MyClass(), 'b' => MyClass()]`
+['a' => MyClass(), 'b' => MyClass()]
 ```
 
 On those new map elements, `getCode()` will be called which returns `x` for the
@@ -89,7 +89,7 @@ first object and `y` for the second. The map created from the results of `getCod
 will return:
 
 ```php
-`['a' => 'x', 'b' => 'y']`
+['a' => 'x', 'b' => 'y']
 ```
 
 
@@ -2222,6 +2222,10 @@ Map::method( 'combine', function( iterable $keys ) {
 
 
 ## Performance
+
+The performance most methods only depends on the array_* function that are used
+internally by the Map class. If the methods of the Map class contains additional
+code, it's optimized to be as fast as possible.
 
 ### Creating Map vs. array
 

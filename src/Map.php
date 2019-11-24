@@ -779,9 +779,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function in( $element, bool $strict = false ) : bool
 	{
-		$list = is_array( $element ) ? $element : [$element];
+		if( !is_array( $element ) ) {
+			return in_array( $element, $this->items, $strict );
+		};
 
-		foreach( $list as $entry )
+		foreach( array_unique( $element ) as $entry )
 		{
 			if( in_array( $entry, $this->items, $strict ) === false ) {
 				return false;
@@ -1306,7 +1308,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function random( int $max = 1 ) : self
 	{
-		if( ( $keys = @array_rand( $this->items, min( $max, count( $this->items ) ) ) ) === null ) {
+		if( empty( $this->items ) || ( $keys = @array_rand( $this->items, $max ) ) === null
+			&& ( $keys = array_rand( $this->items, count( $this->items ) ) ) === null
+		) {
 			return new self();
 		}
 
