@@ -2240,9 +2240,9 @@ creates a very large number of arrays within one area, you should think about
 avoiding map objects in that area.
 
 If you use the `map()` function or `Map::from()` to create map objects, then be
-aware that this adds another method call. Using these methods for creating the
-map object lasts around 1.5x compared to the time for `new Map()` only. Also,
-`Map::from()` is faster than `map()`.
+aware that this adds another function call. Using these methods for creating the
+map object lasts around 1.1x resp. 1.3x compared to the time for `new Map()`.
+Conclusion: Using `new Map()` is fastest and `map()` is faster than `Map::from()`.
 
 ### Populating Map vs. array
 
