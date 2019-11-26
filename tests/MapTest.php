@@ -465,6 +465,26 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testFind()
+	{
+		$m = new Map( ['foo', 'bar', 'baz'] );
+		$result = $m->find( function( $value ) {
+			return $value === 'bar';
+		} );
+		$this->assertEquals( 'bar', $result );
+	}
+
+
+	public function testFindNone()
+	{
+		$m = new Map( ['foo', 'bar', 'baz'] );
+		$result = $m->find( function( $value ) {
+			return false;
+		} );
+		$this->assertNull( $result );
+	}
+
+
 	public function testFirst()
 	{
 		$m = new Map( ['foo', 'bar'] );
@@ -624,6 +644,13 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$this->assertFalse( Map::from( ['a', 'b'] )->in( 'x' ) );
 		$this->assertFalse( Map::from( ['a', 'b'] )->in( ['a', 'x'] ) );
 		$this->assertFalse( Map::from( ['1', '2'] )->in( 2, true ) );
+	}
+
+
+	public function testIncludes()
+	{
+		$this->assertTrue( Map::from( ['a', 'b'] )->in( 'a' ) );
+		$this->assertFalse( Map::from( ['a', 'b'] )->in( 'x' ) );
 	}
 
 

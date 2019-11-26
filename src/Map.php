@@ -615,9 +615,28 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	}
 
 
+	/**
+	 * Returns the first element where the callback returns TRUE.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'c', 'e'] )->find( function( $value, $key ) {
+	 *      return $value >= 'b';
+	 *  } );
+	 *
+	 * Result:
+	 * The example will return 'c'.
+	 *
+	 * @param \Closure $callback Function with (value, key) parameters and returns TRUE/FALSE
+	 * @return mixed|null First matching value or NULL
+	 */
+	public function find( \Closure $callback )
+	{
+		return $this->first( null, $callback );
+	}
+
 
 	/**
-	 * Returns the first element from the map passing the given truth test.
+	 * Returns the first (matching) element from the map.
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'b'] )->first();
@@ -803,6 +822,32 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		return true;
+	}
+
+
+	/**
+	 * Tests if the passed element or elements are part of the map.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'b'] )->includes( 'a' );
+	 *  Map::from( ['a', 'b'] )->includes( ['a', 'b'] );
+	 *  Map::from( ['a', 'b'] )->includes( 'x' );
+	 *  Map::from( ['a', 'b'] )->includes( ['a', 'x'] );
+	 *  Map::from( ['1', '2'] )->includes( 2, true );
+	 *
+	 * Results:
+	 * The first and second example will return TRUE while the other ones will return FALSE
+	 *
+	 * @param mixed|array $element Element or elements to search for in the map
+	 * @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
+	 * @return bool TRUE if all elements are available in map, FALSE if not
+	 *
+	 * This method is an alias for in(). For performance reasons, in() should be
+	 * preferred because it uses one method call less than includes().
+	 */
+	public function includes( $element, bool $strict = false ) : bool
+	{
+		return $this->in( $element, $strict );
 	}
 
 
