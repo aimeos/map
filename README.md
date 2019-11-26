@@ -112,6 +112,7 @@ will return:
 * [diffAssoc()](#diffassoc) : Returns the missing elements and checks keys
 * [diffKeys()](#diffkeys) : Returns the missing elements by keys
 * [each()](#each) : Applies a callback to each element
+* [empty()](#empty) : Tests if map is empty
 * [equals()](#equals) : Tests if map contents are equal
 * [filter()](#filter) : Applies a filter to the map elements
 * [first()](#first) : Returns the first element
@@ -640,6 +641,30 @@ The `$result` array will contain `[0 => 'A']` because `FALSE` is returned
 after the first entry and all other entries are then skipped.
 
 
+### empty()
+
+Determines if the map is empty or not.
+
+```php
+public function empty() : bool
+```
+
+* @return bool TRUE if map is empty, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( [] )->empty();
+Map::from( ['a'] )->empty();
+```
+
+**Results:**
+
+The first example returns TRUE while the second returns FALSE
+
+The method is equivalent to isEmpty().
+
+
 ### equals()
 
 Tests if the passed elements are equal to the elements in the map.
@@ -1056,13 +1081,15 @@ public function isEmpty() : bool
 **Examples:**
 
 ```php
-Map::from( [] );
-Map::from( ['a'] );
+Map::from( [] )->isEmpty();
+Map::from( ['a'] )-isEmpty();
 ```
 
 **Results:**
 
 The first example returns `TRUE` while the second returns `FALSE`
+
+The method is equivalent to empty().
 
 
 ### join()
@@ -2264,7 +2291,7 @@ calling a method and using `$map->isEmpty()` or `$map->count()` is ca. 4x
 slower.
 
 Again, we are talking about nano seconds. For 10,000 calls to `empty( $array )`
-compared to `$map->empty()`, the costs are around 4ms in total.
+compared to `$map->isEmpty()`, the costs are around 4ms in total.
 
 ### Using Map methods vs. array_* functions
 

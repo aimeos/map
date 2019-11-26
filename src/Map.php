@@ -529,6 +529,26 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Determines if the map is empty or not.
+	 *
+	 * Examples:
+	 *  Map::from( [] )->empty();
+	 *  Map::from( ['a'] )->empty();
+	 *
+	 * Results:
+	 *  The first example returns TRUE while the second returns FALSE
+	 *
+	 * The method is equivalent to isEmpty().
+	 *
+	 * @return bool TRUE if map is empty, FALSE if not
+	 */
+	public function empty() : bool
+	{
+		return empty( $this->list );
+	}
+
+
+	/**
 	 * Tests if the passed items are equal to the items in the map.
 	 *
 	 * Examples:
@@ -916,11 +936,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Determines if the map is empty or not.
 	 *
 	 * Examples:
-	 *  Map::from( [] );
-	 *  Map::from( ['a'] );
+	 *  Map::from( [] )->isEmpty();
+	 *  Map::from( ['a'] )->isEmpty();
 	 *
 	 * Results:
 	 *  The first example returns TRUE while the second returns FALSE
+	 *
+	 * The method is equivalent to empty().
 	 *
 	 * @return bool TRUE if map is empty, FALSE if not
 	 */
