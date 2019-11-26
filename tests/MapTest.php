@@ -357,6 +357,20 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testEmpty()
+	{
+		$m = new Map;
+		$this->assertTrue( $m->empty() );
+	}
+
+
+	public function testEmptyFalse()
+	{
+		$m = new Map( ['foo'] );
+		$this->assertFalse( $m->empty() );
+	}
+
+
 	public function testEquals()
 	{
 		$map = new Map( ['foo' => 'one', 'bar' => 'two'] );
