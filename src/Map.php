@@ -172,41 +172,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Sorts all elements and maintains the key association.
-	 *
-	 * Examples:
-	 *  Map::from( ['a' => 1, 'b' => 0] )->asort();
-	 *  Map::from( [0 => 'b', 1 => 'a'] )->asort();
-	 *
-	 * Results:
-	 *  ['b' => 0, 'a' => 1]
-	 *  [1 => 'a', 0 => 'b']
-	 *
-	 * The parameter modifies how the values are compared. Possible parameter values are:
-	 * - SORT_REGULAR : compare items normally (don't change types)
-	 * - SORT_NUMERIC : compare items numerically
-	 * - SORT_STRING : compare items as strings
-	 * - SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
-	 * - SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
-	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
-	 *
-	 * The keys are preserved using this method and no new map is created.
-	 *
-	 * @param int $options Sort options for asort()
-	 * @return self Updated map for fluid interface
-	 * @throws \RuntimeException If an error occurs
-	 */
-	public function asort( int $options = SORT_REGULAR ) : self
-	{
-		if( asort( $this->list, $options ) === false ) {
-			throw new \RuntimeException( 'Sorting array failed' );
-		}
-
-		return $this;
-	}
-
-
-	/**
 	 * Sorts all elements in reverse order and maintains the key association.
 	 *
 	 * Examples:
@@ -229,14 +194,41 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param int $options Sort options for arsort()
 	 * @return self Updated map for fluid interface
-	 * @throws \RuntimeException If an error occurs
 	 */
 	public function arsort( int $options = SORT_REGULAR ) : self
 	{
-		if( arsort( $this->list, $options ) === false ) {
-			throw new \RuntimeException( 'Sorting array failed' );
-		}
+		arsort( $this->list, $options );
+		return $this;
+	}
 
+
+	/**
+	 * Sorts all elements and maintains the key association.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 1, 'b' => 0] )->asort();
+	 *  Map::from( [0 => 'b', 1 => 'a'] )->asort();
+	 *
+	 * Results:
+	 *  ['b' => 0, 'a' => 1]
+	 *  [1 => 'a', 0 => 'b']
+	 *
+	 * The parameter modifies how the values are compared. Possible parameter values are:
+	 * - SORT_REGULAR : compare items normally (don't change types)
+	 * - SORT_NUMERIC : compare items numerically
+	 * - SORT_STRING : compare items as strings
+	 * - SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
+	 * - SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+	 *
+	 * The keys are preserved using this method and no new map is created.
+	 *
+	 * @param int $options Sort options for asort()
+	 * @return self Updated map for fluid interface
+	 */
+	public function asort( int $options = SORT_REGULAR ) : self
+	{
+		asort( $this->list, $options );
 		return $this;
 	}
 
@@ -1003,14 +995,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param int $options Sort options for krsort()
 	 * @return self Updated map for fluid interface
-	 * @throws \RuntimeException If an error occurs
 	 */
 	public function krsort( int $options = SORT_REGULAR ) : self
 	{
-		if( krsort( $this->list, $options ) === false ) {
-			throw new \RuntimeException( 'Sorting array failed' );
-		}
-
+		krsort( $this->list, $options );
 		return $this;
 	}
 
@@ -1038,14 +1026,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param int $options Sort options for ksort()
 	 * @return self Updated map for fluid interface
-	 * @throws \RuntimeException If an error occurs
 	 */
 	public function ksort( int $options = SORT_REGULAR ) : self
 	{
-		if( ksort( $this->list, $options ) === false ) {
-			throw new \RuntimeException( 'Sorting array failed' );
-		}
-
+		ksort( $this->list, $options );
 		return $this;
 	}
 
@@ -1451,14 +1435,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param int $options Sort options for rsort()
 	 * @return self Updated map for fluid interface
-	 * @throws \RuntimeException If an error occurs
 	 */
 	public function rsort( int $options = SORT_REGULAR ) : self
 	{
-		if( rsort( $this->list, $options ) === false ) {
-			throw new \RuntimeException( 'Sorting array failed' );
-		}
-
+		rsort( $this->list, $options );
 		return $this;
 	}
 
@@ -1612,14 +1592,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param int $options Sort options for sort()
 	 * @return self Updated map for fluid interface
-	 * @throws \RuntimeException If an error occurs
 	 */
 	public function sort( int $options = SORT_REGULAR ) : self
 	{
-		if( sort( $this->list, $options ) === false ) {
-			throw new \RuntimeException( 'Sorting array failed' );
-		}
-
+		sort( $this->list, $options );
 		return $this;
 	}
 
@@ -1714,14 +1690,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param callable|null $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self Updated map for fluid interface
-	 * @throws \RuntimeException If an error occurs
 	 */
 	public function uasort( callable $callback ) : self
 	{
-		if( uasort( $this->list, $callback ) === false ) {
-			throw new \RuntimeException( 'Sorting array failed' );
-		}
-
+		uasort( $this->list, $callback );
 		return $this;
 	}
 
@@ -1748,14 +1720,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param callable $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self Updated map for fluid interface
-	 * @throws \RuntimeException If an error occurs
 	 */
 	public function uksort( callable $callback ) : self
 	{
-		if( uksort( $this->list, $callback ) === false ) {
-			throw new \RuntimeException( 'Sorting array failed' );
-		}
-
+		uksort( $this->list, $callback );
 		return $this;
 	}
 
@@ -1866,14 +1834,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param callable $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self Updated map for fluid interface
-	 * @throws \RuntimeException If an error occurs
 	 */
 	public function usort( callable $callback ) : self
 	{
-		if( usort( $this->list, $callback ) === false ) {
-			throw new \RuntimeException( 'Sorting array failed' );
-		}
-
+		usort( $this->list, $callback );
 		return $this;
 	}
 
