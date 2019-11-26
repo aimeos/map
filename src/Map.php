@@ -616,57 +616,52 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Returns the first element where the callback returns TRUE.
+	 * Returns the first matching element where the callback returns TRUE.
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'c', 'e'] )->find( function( $value, $key ) {
 	 *      return $value >= 'b';
 	 *  } );
+	 *  Map::from( ['a', 'c', 'e'] )->find( function( $value, $key ) {
+	 *      return $value >= 'b';
+	 *  }, true );
 	 *
-	 * Result:
-	 * The example will return 'c'.
+	 * Results:
+	 * The first example will return 'c' while the second will return 'e' (last element).
 	 *
 	 * @param \Closure $callback Function with (value, key) parameters and returns TRUE/FALSE
+	 * @param bool $last TRUE to test elements from back to front, FALSE for front to back (default)
 	 * @return mixed|null First matching value or NULL
 	 */
-	public function find( \Closure $callback )
+	public function find( \Closure $callback, bool $last = false )
 	{
-		return $this->first( null, $callback );
+		foreach( ( $last ? array_reverse( $this->list ) : $this->list ) as $key => $value )
+		{
+			if( $callback( $value, $key ) ) {
+				return $value;
+			}
+		}
+
+		return null;
 	}
 
 
 	/**
-	 * Returns the first (matching) element from the map.
+	 * Returns the first element from the map.
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'b'] )->first();
-	 *  Map::from( ['a', 'b'] )->first( 'x' );
-	 *  Map::from( ['a', 'c', 'e'] )->first( null, function( $value, $key ) {
-	 *      return $value >= 'b';
-	 *  } );
+	 *  Map::from( [] )->first( 'x' );
 	 *
-	 * Result:
-	 * The first example will return 'a', the second 'x' and the third 'c'.
+	 * Results:
+	 * The first example will return 'a' and the second one 'x'.
 	 *
-	 * @param mixed $default Default value if no element matches
-	 * @param \Closure|null $callback Function with (value, key) parameters and returns TRUE/FALSE
+	 * @param mixed $default Default value if map is empty
 	 * @return mixed First value of map or default value
 	 */
-	public function first( $default = null, \Closure $callback = null )
+	public function first( $default = null )
 	{
-		if( $callback )
-		{
-			foreach( $this->list as $key => $value )
-			{
-				if( $callback( $value, $key ) ) {
-					return $value;
-				}
-			}
-
-			return $default;
-		}
-
-		return reset( $this->list ) ?: $default;
+		return ( $value = reset( $this->list ) ) !== false ? $value : $default;
 	}
 
 
@@ -1106,33 +1101,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'b'] )->last();
-	 *  Map::from( ['a', 'b'] )->last( 'x' );
-	 *  Map::from( ['a', 'c', 'e'] )->last( null, function( $value, $key ) {
-	 *      return $value < 'd';
-	 *  } );
+	 *  Map::from( [] )->last( 'x' );
 	 *
-	 * Result:
-	 * The first example will return 'b', the second 'x' and the third 'c'.
+	 * Results:
+	 * The first example will return 'b' and the second one 'x'.
 	 *
-	 * @param mixed $default Default value if no element matches
-	 * @param \Closure|null $callback Function with (item, key) parameters and returns TRUE/FALSE
+	 * @param mixed $default Default value if the map contains no elements
 	 * @return mixed Last value of map or default value
 	 */
-	public function last( $default = null, \Closure $callback = null )
+	public function last( $default = null )
 	{
-		if( $callback )
-		{
-			foreach( array_reverse( $this->list, true ) as $key => $value )
-			{
-				if( $callback( $value, $key ) ) {
-					return $value;
-				}
-			}
-
-			return $default;
-		}
-
-		return end( $this->list ) ?: $default;
+		return ( $value = end( $this->list ) ) !== false ? $value : $default;
 	}
 
 

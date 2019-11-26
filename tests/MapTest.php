@@ -467,11 +467,21 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testFind()
 	{
-		$m = new Map( ['foo', 'bar', 'baz'] );
-		$result = $m->find( function( $value ) {
-			return $value === 'bar';
+		$m = new Map( ['foo', 'bar', 'baz', 'boo'] );
+		$result = $m->find( function( $value, $key ) {
+			return !strncmp( $value, 'ba', 2 );
 		} );
 		$this->assertEquals( 'bar', $result );
+	}
+
+
+	public function testFindLast()
+	{
+		$m = new Map( ['foo', 'bar', 'baz', 'boo'] );
+		$result = $m->find( function( $value, $key ) {
+			return !strncmp( $value, 'ba', 2 );
+		}, true );
+		$this->assertEquals( 'baz', $result );
 	}
 
 
@@ -496,26 +506,6 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	{
 		$m = new Map;
 		$result = $m->first( 'default' );
-		$this->assertEquals( 'default', $result );
-	}
-
-
-	public function testFirstWithCallback()
-	{
-		$m = new Map( ['foo', 'bar', 'baz'] );
-		$result = $m->first( null, function( $value ) {
-			return $value === 'bar';
-		} );
-		$this->assertEquals( 'bar', $result );
-	}
-
-
-	public function testFirstWithCallbackAndDefault()
-	{
-		$m = new Map( ['foo', 'bar'] );
-		$result = $m->first( 'default', function( $value ) {
-			return $value === 'baz';
-		} );
 		$this->assertEquals( 'default', $result );
 	}
 
@@ -798,36 +788,6 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	{
 		$m = new Map;
 		$result = $m->last( 'default' );
-		$this->assertEquals( 'default', $result );
-	}
-
-
-	public function testLastWithCallback()
-	{
-		$m = new Map( [100, 200, 300] );
-
-		$result = $m->last( null, function( $value ) {
-			return $value < 250;
-		} );
-
-		$this->assertEquals( 200, $result );
-
-		$result = $m->last( null, function( $value, $key ) {
-			return $key < 2;
-		} );
-
-		$this->assertEquals( 200, $result );
-	}
-
-
-	public function testLastWithCallbackAndDefault()
-	{
-		$m = new Map( ['foo', 'bar'] );
-
-		$result = $m->last( 'default', function( $value ) {
-			return $value === 'baz';
-		} );
-
 		$this->assertEquals( 'default', $result );
 	}
 

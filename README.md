@@ -742,13 +742,14 @@ removed if their value converted to boolean is `FALSE`:
 
 ### find()
 
-Returns the first element where the callback returns TRUE.
+Returns the first matching element where the callback returns TRUE.
 
 ```php
-public function find( \Closure $callback )
+public function find( \Closure $callback, bool $last = false )
 ```
 
-* @param \Closure $callback Function with (value, key) parameters and returns TRUE/FALSE
+* @param \Closure `$callback` Function with (value, key) parameters and returns TRUE/FALSE
+* @param bool `$last` TRUE to test elements from back to front, FALSE for front to back (default)
 * @return mixed|null First matching value or NULL
 
 **Examples:**
@@ -757,38 +758,37 @@ public function find( \Closure $callback )
 Map::from( ['a', 'c', 'e'] )->find( function( $value, $key ) {
     return $value >= 'b';
 } );
+Map::from( ['a', 'c', 'e'] )->find( function( $value, $key ) {
+    return $value >= 'b';
+}, true );
 ```
 
-**Result:**
+**Results:**
 
-The example will return 'c'.
+The first example will return 'c' while the second will return 'e' (last element).
 
 
 ### first()
 
-Returns the first element from the map passing the given truth test.
+Returns the first element from the map.
 
 ```php
-public function first( $default = null, \Closure $callback = null )
+public function first( $default = null )
 ```
 
-* @param mixed `$default` Default value if no element matches
-* @param \Closure|null `$callback` Function with (value, key) parameters and returns `TRUE`/`FALSE`
+* @param mixed `$default` Default value if map is empty
 * @return mixed First value of map or default value
 
 **Examples:**
 
 ```php
 Map::from( ['a', 'b'] )->first();
-Map::from( ['a', 'b'] )->first( 'x' );
-Map::from( ['a', 'c', 'e'] )->first( null, function( $value, $key ) {
-    return $value >= 'b';
-} );
+Map::from( [] )->first( 'x' );
 ```
 
 **Results:**
 
-The first example will return 'a', the second 'x' and the third 'c'.
+The first example will return 'a' and the second one 'x'.
 
 
 ### flat()
@@ -1275,25 +1275,22 @@ The keys are preserved using this method and no new map is created.
 Returns the last element from the map.
 
 ```php
-public function last( $default = null, \Closure $callback = null )
+public function last( $default = null )
 ```
 
-* @param mixed `$default` Default value if no element matches
-* @param \Closure|null `$callback` Function with (item, key) parameters and returns `TRUE`/`FALSE`
+* @param mixed `$default` Default value if the map contains no elements
 * @return mixed Last value of map or default value
 
 **Examples:**
 
 ```php
 Map::from( ['a', 'b'] )->last();
-Map::from( ['a', 'b'] )->last( 'x' );
-Map::from( ['a', 'c', 'e'] )->last( null, function( $value, $key ) {
-    return $value < 'd';
-} );
+Map::from( [] )->last( 'x' );
 ```
 
-Result:
-The first example will return "b", the second "x" and the third "c".
+**Results:**
+
+The first example will return 'b' and the second one 'x'.
 
 
 ### map()
