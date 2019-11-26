@@ -1294,9 +1294,9 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testSplice()
 	{
 		$m = new Map( ['foo', 'baz'] );
-		$m->splice( 1 );
+		$r = $m->splice( 1 );
 
-		$this->assertInstanceOf( Map::class, $m );
+		$this->assertInstanceOf( Map::class, $r );
 		$this->assertEquals( ['foo'], $m->toArray() );
 	}
 
@@ -1304,9 +1304,9 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testSpliceReplace()
 	{
 		$m = new Map( ['foo', 'baz'] );
-		$m->splice( 1, 0, 'bar' );
+		$r = $m->splice( 1, 0, 'bar' );
 
-		$this->assertInstanceOf( Map::class, $m );
+		$this->assertInstanceOf( Map::class, $r );
 		$this->assertEquals( ['foo', 'bar', 'baz'], $m->toArray() );
 	}
 
@@ -1314,9 +1314,9 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testSpliceRemove()
 	{
 		$m = new Map( ['foo', 'baz'] );
-		$m->splice( 1, 1 );
+		$r = $m->splice( 1, 1 );
 
-		$this->assertInstanceOf( Map::class, $m );
+		$this->assertInstanceOf( Map::class, $r );
 		$this->assertEquals( ['foo'], $m->toArray() );
 	}
 
@@ -1324,12 +1324,21 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testSpliceCut()
 	{
 		$m = new Map( ['foo', 'baz'] );
-		$cut = $m->splice( 1, 1, 'bar' );
+		$r = $m->splice( 1, 1, 'bar' );
 
-		$this->assertInstanceOf( Map::class, $m );
-		$this->assertInstanceOf( Map::class, $cut );
+		$this->assertInstanceOf( Map::class, $r );
 		$this->assertEquals( ['foo', 'bar'], $m->toArray() );
-		$this->assertEquals( ['baz'], $cut->toArray() );
+		$this->assertEquals( ['baz'], $r->toArray() );
+	}
+
+
+	public function testSpliceAll()
+	{
+		$m = new Map( ['foo', 'baz'] );
+		$r = $m->splice( 1, null, ['bar'] );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['foo', 'bar'], $m->toArray() );
 	}
 
 

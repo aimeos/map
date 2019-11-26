@@ -199,7 +199,7 @@ public function __construct( iterable $elements = [] )
 Handles dynamic calls to custom methods for the class.
 
 Calls a custom method added by Map::method(). The called method
-has access to the internal array by using $this->items.
+has access to the internal array by using `$this->items`.
 
 ```php
 public function __call( string $name, array $params )
@@ -266,7 +266,7 @@ Sorts all elements in reverse order and maintains the key association.
 public function arsort( int $options = SORT_REGULAR ) : self
 ```
 
-* @param int $options Sort options for arsort()
+* @param int `$options` Sort options for `arsort()`
 * @return self Updated map for fluid interface
 
 **Examples:**
@@ -284,11 +284,11 @@ Map::from( [1 => 'a', 0 => 'b'] )->arsort();
 ```
 
 The parameter modifies how the values are compared. Possible parameter values are:
-- SORT_REGULAR : compare items normally (don't change types)
-- SORT_NUMERIC : compare items numerically
-- SORT_STRING : compare items as strings
-- SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
-- SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+- SORT_REGULAR : compare elements normally (don't change types)
+- SORT_NUMERIC : compare elements numerically
+- SORT_STRING : compare elements as strings
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
+- SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 
 The keys are preserved using this method and no new map is created.
@@ -302,7 +302,7 @@ Sorts all elements and maintains the key association.
 public function asort( int $options = SORT_REGULAR ) : self
 ```
 
-* @param int $options Sort options for asort()
+* @param int `$options` Sort options for `asort()`
 * @return self Updated map for fluid interface
 
 **Examples:**
@@ -320,11 +320,11 @@ Map::from( [0 => 'b', 1 => 'a'] )->asort();
 ```
 
 The parameter modifies how the values are compared. Possible parameter values are:
-- SORT_REGULAR : compare items normally (don't change types)
-- SORT_NUMERIC : compare items numerically
-- SORT_STRING : compare items as strings
-- SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
-- SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+- SORT_REGULAR : compare elements normally (don't change types)
+- SORT_NUMERIC : compare elements numerically
+- SORT_STRING : compare elements as strings
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
+- SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 
 The keys are preserved using this method and no new map is created.
@@ -379,11 +379,11 @@ public function clear() : self
 Returns the values of a single column/property from an array of arrays or list of elements in a new map.
 
 ```php
-public function col( string $valuecol, $indexcol = null ) : self
+public function col( string $valuecol, string $indexcol = null ) : self
 ```
 
 * @param string `$valuecol` Name of the value property
-* @param string|int|null `$indexcol` Name of the index property
+* @param string|null `$indexcol` Name of the index property
 * @return self New instance with mapped entries
 
 **Examples:**
@@ -457,7 +457,7 @@ public function concat( iterable $elements ) : self
 **Examples:**
 
 ```php
-Map::from( ['foo'] )->concat( new Map( ['bar] ));
+Map::from( ['foo'] )->concat( new Map( ['bar'] ));
 ```
 
 **Results:**
@@ -507,7 +507,7 @@ public function diff( iterable $elements, callable $callback = null ) : self
 **Examples:**
 
 ```php
-Map::from( ['a' => 'foo', 'b' => 'bar] )->diff( ['bar'] );
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->diff( ['bar'] );
 ```
 
 **Results:**
@@ -548,7 +548,7 @@ public function diffAssoc( iterable $elements, callable $callback = null ) : sel
 **Examples:**
 
 ```php
-Map::from( ['a' => 'foo', 'b' => 'bar] )->diffAssoc( new Map( ['foo', 'b' => 'bar'] ) );
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->diffAssoc( new Map( ['foo', 'b' => 'bar'] ) );
 ```
 
 **Results:**
@@ -591,7 +591,7 @@ public function diffKeys( iterable $elements, callable $callback = null ) : self
 **Examples:**
 
 ```php
-Map::from( ['a' => 'foo', 'b' => 'bar] )->diffKeys( new Map( ['foo', 'b' => 'baz'] ) );
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->diffKeys( new Map( ['foo', 'b' => 'baz'] ) );
 ```
 
 **Results:**
@@ -949,8 +949,8 @@ Tests if the passed element or elements are part of the map.
 public function in( $element, bool $strict = false ) : bool
 ```
 
-* @param mixed|array $element Element or elements to search for in the map
-* @param bool $strict `TRUE` to check the type too, using `FALSE` '1' and 1 will be the same
+* @param mixed|array `$element` Element or elements to search for in the map
+* @param bool `$strict` `TRUE` to check the type too, using `FALSE` '1' and 1 will be the same
 * @return bool `TRUE` if all elements are available in map, `FALSE` if not
 
 **Examples:**
@@ -976,8 +976,8 @@ Tests if the passed element or elements are part of the map.
 public function includes( $element, bool $strict = false ) : bool
 ```
 
-* @param mixed|array $element Element or elements to search for in the map
-* @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
+* @param mixed|array `$element` Element or elements to search for in the map
+* @param bool `$strict` TRUE to check the type too, using FALSE '1' and 1 will be the same
 * @return bool TRUE if all elements are available in map, FALSE if not
 
 **Examples:**
@@ -1013,7 +1013,7 @@ public function intersect( iterable $elements, callable $callback = null ) : sel
 **Examples:**
 
 ```php
-Map::from( ['a' => 'foo', 'b' => 'bar] )->intersect( ['bar'] );
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->intersect( ['bar'] );
 ```
 
 **Results:**
@@ -1054,7 +1054,7 @@ public function intersectAssoc( iterable $elements, callable $callback = null ) 
 **Examples:**
 
 ```php
-Map::from( ['a' => 'foo', 'b' => 'bar] )->intersectAssoc( new Map( ['foo', 'b' => 'bar'] ) );
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->intersectAssoc( new Map( ['foo', 'b' => 'bar'] ) );
 ```
 
 **Results:**
@@ -1096,7 +1096,7 @@ public function intersectKeys( iterable $elements, callable $callback = null ) :
 **Examples:**
 
 ```php
-Map::from( ['a' => 'foo', 'b' => 'bar] )->intersectKeys( new Map( ['foo', 'b' => 'baz'] ) );
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->intersectKeys( new Map( ['foo', 'b' => 'baz'] ) );
 ```
 
 **Results:**
@@ -1160,7 +1160,7 @@ empty strings.
 public function join( $glue = '' ) : string
 ```
 
-* @param string $glue Character or string added between elements
+* @param string `$glue` Character or string added between elements
 * @return string String of concatenated map elements
 
 **Examples:**
@@ -1206,7 +1206,7 @@ Sorts the elements by their keys in reverse order.
 public function krsort( int $options = SORT_REGULAR ) : self
 ```
 
-* @param int $options Sort options for krsort()
+* @param int `$options` Sort options for `krsort()`
 * @return self Updated map for fluid interface
 
 **Examples:**
@@ -1224,11 +1224,11 @@ Map::from( [1 => 'a', 0 => 'b'] )->krsort();
 ```
 
 The parameter modifies how the keys are compared. Possible values are:
-- SORT_REGULAR : compare items normally (don't change types)
-- SORT_NUMERIC : compare items numerically
-- SORT_STRING : compare items as strings
-- SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
-- SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+- SORT_REGULAR : compare elements normally (don't change types)
+- SORT_NUMERIC : compare elements numerically
+- SORT_STRING : compare elements as strings
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
+- SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 
 The keys are preserved using this method and no new map is created.
@@ -1242,7 +1242,7 @@ Sorts the elements by their keys.
 public function ksort( int $options = SORT_REGULAR ) : self
 ```
 
-* @param int $options Sort options for ksort()
+* @param int `$options` Sort options for `ksort()`
 * @return self Updated map for fluid interface
 
 **Examples:**
@@ -1260,11 +1260,11 @@ Map::from( [1 => 'a', 0 => 'b'] )->ksort();
 ```
 
 The parameter modifies how the keys are compared. Possible values are:
-- SORT_REGULAR : compare items normally (don't change types)
-- SORT_NUMERIC : compare items numerically
-- SORT_STRING : compare items as strings
-- SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
-- SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+- SORT_REGULAR : compare elements normally (don't change types)
+- SORT_NUMERIC : compare elements numerically
+- SORT_STRING : compare elements as strings
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
+- SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 
 The keys are preserved using this method and no new map is created.
@@ -1579,7 +1579,7 @@ Returns one or more random element from the map.
 public function random( int $max = 1 ) : self
 ```
 
-* @param int $max Maximum number of elements that should be returned
+* @param int `$max` Maximum number of elements that should be returned
 * @return self New map with key/element pairs from original map in random order
 * @throws \InvalidArgumentException If requested number of elements is less than 1
 
@@ -1661,7 +1661,7 @@ public function replace( iterable $elements, bool $recursive = true ) : self
 ```
 
 * @param iterable `$elements` List of elements
-* @param bool $recursive TRUE to replace recursively (default), FALSE to replace items only
+* @param bool `$recursive` TRUE to replace recursively (default), FALSE to replace elements only
 * @return self Updated map for fluid interface
 
 **Examples:**
@@ -1713,7 +1713,7 @@ Sorts all elements in reverse order without maintaining the key association.
 public function rsort( int $options = SORT_REGULAR ) : self
 ```
 
-* @param int $options Sort options for rsort()
+* @param int `$options` Sort options for `rsort()`
 * @return self Updated map for fluid interface
 
 **Examples:**
@@ -1731,11 +1731,11 @@ Map::from( [0 => 'b', 1 => 'a'] )->rsort();
 ```
 
 The parameter modifies how the values are compared. Possible parameter values are:
-- SORT_REGULAR : compare items normally (don't change types)
-- SORT_NUMERIC : compare items numerically
-- SORT_STRING : compare items as strings
-- SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
-- SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+- SORT_REGULAR : compare elements normally (don't change types)
+- SORT_NUMERIC : compare elements numerically
+- SORT_STRING : compare elements as strings
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
+- SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 
 The keys aren't preserved and elements get a new index. No new map is created
@@ -1896,7 +1896,7 @@ Sorts all elements without maintaining the key association.
 public function sort( int $options = SORT_REGULAR ) : self
 ```
 
-* @param int $options Sort options for sort()
+* @param int `$options` Sort options for `sort()`
 * @return self Updated map for fluid interface
 
 **Examples:**
@@ -1914,11 +1914,11 @@ Map::from( [0 => 'b', 1 => 'a'] )->sort();
 ```
 
 The parameter modifies how the values are compared. Possible parameter values are:
-- SORT_REGULAR : compare items normally (don't change types)
-- SORT_NUMERIC : compare items numerically
-- SORT_STRING : compare items as strings
-- SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
-- SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+- SORT_REGULAR : compare elements normally (don't change types)
+- SORT_NUMERIC : compare elements numerically
+- SORT_STRING : compare elements as strings
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
+- SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 
 The keys aren't preserved and elements get a new index. No new map is created.
@@ -1933,7 +1933,7 @@ public function splice( int $offset, int $length = null, $replacement = [] ) : s
 ```
 
 * @param int `$offset` Number of elements to start from
-* @param int|null `$length` Number of elements to remove
+* @param int|null `$length` Number of elements to remove, NULL for all
 * @param mixed `$replacement` List of elements to insert
 * @return self New map
 
@@ -1970,8 +1970,8 @@ Creates a new map with the string splitted by the delimiter.
 public static function split( string $delimiter, string $str ) : self
 ```
 
-* @param string $str String to split
-* @param string $delimiter Delimiter character or string
+* @param string `$str` String to split
+* @param string `$delimiter` Delimiter character or string
 * @return self New map with splitted parts
 
 **Examples:**
@@ -2010,7 +2010,7 @@ Returns the elements encoded as JSON string.
 public function toJson( int $options = 0 ) : string
 ```
 
-* @param int $options Combination of JSON_* constants
+* @param int `$options` Combination of JSON_* constants
 * @return string Array encoded as JSON string
 
 There are several options available to modify the JSON output:
@@ -2031,7 +2031,7 @@ Sorts all elements using a callback and maintains the key association.
 public function uasort( callable $callback ) : self
 ```
 
-* @param callable|null $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @param callable `$callback` Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @return self Updated map for fluid interface
 
 The given callback will be used to compare the values. The callback must accept
@@ -2060,13 +2060,13 @@ The keys are preserved using this method and no new map is created.
 
 ## uksort()
 
-Sorts the map items by their keys using a callback.
+Sorts the map elements by their keys using a callback.
 
 ```php
 public function uksort( callable $callback ) : self
 ```
 
-* @param callable $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @param callable `$callback` Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @return self Updated map for fluid interface
 
 The given callback will be used to compare the keys. The callback must accept
@@ -2182,7 +2182,7 @@ Sorts all elements using a callback without maintaining the key association.
 public function usort( callable $callback ) : self
 ```
 
-* @param callable $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @param callable `$callback` Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @return self Updated map for fluid interface
 
 The given callback will be used to compare the values. The callback must accept
@@ -2276,7 +2276,7 @@ can use `$this` to call all available methods:
 
 ```php
 Map::method( 'notInBoth', function( iterable $elements ) {
-    return new self( $elements->diff( $this->diff( $elements ) ) );
+    return new self( $this->diff( $elements ) + Map::from( $elements )->diff( $this->items ) );
 } );
 ```
 

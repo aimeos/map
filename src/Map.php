@@ -10,7 +10,7 @@ namespace Aimeos;
 
 
 /**
- * Handling and operating on a list of items easily
+ * Handling and operating on a list of elements easily
  * Inspired by Laravel Collection class, PHP map data structure and Javascript
  */
 class Map implements \ArrayAccess, \Countable, \IteratorAggregate
@@ -22,7 +22,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Creates a new map.
 	 *
-	 * @param iterable $elements List of items
+	 * @param iterable $elements List of elements
 	 */
 	public function __construct( iterable $elements = [] )
 	{
@@ -112,7 +112,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  Map::from( new Map() );
 	 *  Map::from( new ArrayObject() );
 	 *
-	 * @param iterable $elements List of items
+	 * @param iterable $elements List of elements
 	 * @return self New map
 	 */
 	public static function from( iterable $elements = [] ) : self
@@ -183,11 +183,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  [0 => 'b', 1 => 'a']
 	 *
 	 * The parameter modifies how the values are compared. Possible parameter values are:
-	 * - SORT_REGULAR : compare items normally (don't change types)
-	 * - SORT_NUMERIC : compare items numerically
-	 * - SORT_STRING : compare items as strings
-	 * - SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
-	 * - SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+	 * - SORT_REGULAR : compare elements normally (don't change types)
+	 * - SORT_NUMERIC : compare elements numerically
+	 * - SORT_STRING : compare elements as strings
+	 * - SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
+	 * - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 	 *
 	 * The keys are preserved using this method and no new map is created.
@@ -214,11 +214,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  [1 => 'a', 0 => 'b']
 	 *
 	 * The parameter modifies how the values are compared. Possible parameter values are:
-	 * - SORT_REGULAR : compare items normally (don't change types)
-	 * - SORT_NUMERIC : compare items numerically
-	 * - SORT_STRING : compare items as strings
-	 * - SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
-	 * - SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+	 * - SORT_REGULAR : compare elements normally (don't change types)
+	 * - SORT_NUMERIC : compare elements numerically
+	 * - SORT_STRING : compare elements as strings
+	 * - SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
+	 * - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 	 *
 	 * The keys are preserved using this method and no new map is created.
@@ -265,7 +265,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Removes all items from the current map.
+	 * Removes all elements from the current map.
 	 *
 	 * @return self Same map for fluid interface
 	 */
@@ -277,7 +277,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Returns the values of a single column/property from an array of arrays or list of items in a new map.
+	 * Returns the values of a single column/property from an array of arrays or list of elements in a new map.
 	 *
 	 * Examples:
 	 *  Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( 'val', 'id' );
@@ -289,10 +289,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The col() method works for objects implementing the __isset() and __get() methods too.
 	 *
 	 * @param string $valuecol Name of the value property
-	 * @param string|int|null $indexcol Name of the index property
+	 * @param string|null $indexcol Name of the index property
 	 * @return self New instance with mapped entries
 	 */
-	public function col( string $valuecol, $indexcol = null ) : self
+	public function col( string $valuecol, string $indexcol = null ) : self
 	{
 		return new static( array_column( $this->list, $valuecol, $indexcol ) );
 	}
@@ -339,15 +339,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Pushs all of the given items onto the map without creating a new map.
+	 * Pushs all of the given elements onto the map without creating a new map.
 	 *
 	 * Examples:
-	 *  Map::from( ['foo'] )->concat( new Map( ['bar] ));
+	 *  Map::from( ['foo'] )->concat( new Map( ['bar'] ));
 	 *
 	 * Results:
 	 *  ['foo', 'bar']
 	 *
-	 * @param iterable $elements List of items
+	 * @param iterable $elements List of elements
 	 * @return self Updated map for fluid interface
 	 */
 	public function concat( iterable $elements ) : self
@@ -361,7 +361,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Creates a new map with the same items.
+	 * Creates a new map with the same elements.
 	 *
 	 * Both maps share the same array until one of the map objects modifies the
 	 * array. Then, the array is copied and the copy is modfied (copy on write).
@@ -375,9 +375,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Counts the number of items in the map.
+	 * Counts the number of elements in the map.
 	 *
-	 * @return int Number of items
+	 * @return int Number of elements
 	 */
 	public function count() : int
 	{
@@ -386,10 +386,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Returns the keys/values in the map whose values are not present in the passed items in a new map.
+	 * Returns the keys/values in the map whose values are not present in the passed elements in a new map.
 	 *
 	 * Examples:
-	 *  Map::from( ['a' => 'foo', 'b' => 'bar] )->diff( ['bar'] );
+	 *  Map::from( ['a' => 'foo', 'b' => 'bar'] )->diff( ['bar'] );
 	 *
 	 * Results:
 	 *  ['a' => 'foo']
@@ -408,7 +408,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * All examples will return an empty map because both contain the same values
 	 * when compared case insensitive.
 	 *
-	 * @param iterable $elements List of items
+	 * @param iterable $elements List of elements
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self New map
 	 */
@@ -423,10 +423,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Returns the keys/values in the map whose keys and values are not present in the passed items in a new map.
+	 * Returns the keys/values in the map whose keys and values are not present in the passed elements in a new map.
 	 *
 	 * Examples:
-	 *  Map::from( ['a' => 'foo', 'b' => 'bar] )->diffAssoc( new Map( ['foo', 'b' => 'bar'] ) );
+	 *  Map::from( ['a' => 'foo', 'b' => 'bar'] )->diffAssoc( new Map( ['foo', 'b' => 'bar'] ) );
 	 *
 	 * Results:
 	 *  ['a' => 'foo']
@@ -447,7 +447,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * an empty map because 'A' is part of the passed array but the keys doesn't match
 	 * ("b" vs. "B" and "b" vs. "c").
 	 *
-	 * @param iterable $elements List of items
+	 * @param iterable $elements List of elements
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self New map
 	 */
@@ -462,10 +462,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Returns the key/value pairs from the map whose keys are not present in the passed items in a new map.
+	 * Returns the key/value pairs from the map whose keys are not present in the passed elements in a new map.
 	 *
 	 * Examples:
-	 *  Map::from( ['a' => 'foo', 'b' => 'bar] )->diffKeys( new Map( ['foo', 'b' => 'baz'] ) );
+	 *  Map::from( ['a' => 'foo', 'b' => 'bar'] )->diffKeys( new Map( ['foo', 'b' => 'baz'] ) );
 	 *
 	 * Results:
 	 *  ['a' => 'foo']
@@ -485,7 +485,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * the same keys when compared case insensitive. The third example will return
 	 * ['b' => 'a'] because the keys doesn't match ("b" vs. "c").
 	 *
-	 * @param iterable $elements List of items
+	 * @param iterable $elements List of elements
 	 * @param  callable|null $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self New map
 	 */
@@ -549,7 +549,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Tests if the passed items are equal to the items in the map.
+	 * Tests if the passed elements are equal to the elements in the map.
 	 *
 	 * Examples:
 	 *  Map::from( ['a'] )->equals( ['a', 'b'] );
@@ -571,7 +571,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Keys and values are compared by their string values:
 	 * (string) $item1 === (string) $item2
 	 *
-	 * @param iterable $elements List of items to test against
+	 * @param iterable $elements List of elements to test against
 	 * @param bool $assoc TRUE to compare keys too, FALSE to compare only values
 	 * @return bool TRUE if both are equal, FALSE if not
 	 */
@@ -741,12 +741,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Returns an iterator for the items.
+	 * Returns an iterator for the elements.
 	 *
 	 * This method will be used by e.g. foreach() to loop over all entries:
 	 *  foreach( Map::from( ['a', 'b'] ) as $value )
 	 *
-	 * @return \Iterator Over map items
+	 * @return \Iterator Over map elements
 	 */
 	public function getIterator() : \Iterator
 	{
@@ -847,10 +847,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Returns all values in a new map that are available in both, the map and the given items.
+	 * Returns all values in a new map that are available in both, the map and the given elements.
 	 *
 	 * Examples:
-	 *  Map::from( ['a' => 'foo', 'b' => 'bar] )->intersect( ['bar'] );
+	 *  Map::from( ['a' => 'foo', 'b' => 'bar'] )->intersect( ['bar'] );
 	 *
 	 * Results:
 	 *  ['b' => 'bar']
@@ -869,7 +869,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * All examples will return a map containing ['a'] because both contain the same
 	 * values when compared case insensitive.
 	 *
-	 * @param iterable $elements List of items
+	 * @param iterable $elements List of elements
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self New map
 	 */
@@ -889,10 +889,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Returns all values in a new map that are available in both, the map and the given items while comparing the keys too.
+	 * Returns all values in a new map that are available in both, the map and the given elements while comparing the keys too.
 	 *
 	 * Examples:
-	 *  Map::from( ['a' => 'foo', 'b' => 'bar] )->intersectAssoc( new Map( ['foo', 'b' => 'bar'] ) );
+	 *  Map::from( ['a' => 'foo', 'b' => 'bar'] )->intersectAssoc( new Map( ['foo', 'b' => 'bar'] ) );
 	 *
 	 * Results:
 	 *  ['a' => 'foo']
@@ -912,7 +912,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * values when compared case insensitive. The second and third example will return
 	 * an empty map because the keys doesn't match ("b" vs. "B" and "b" vs. "c").
 	 *
-	 * @param iterable $elements List of items
+	 * @param iterable $elements List of elements
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self New map
 	 */
@@ -929,10 +929,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Returns all values in a new map that are available in both, the map and the given items by comparing the keys only.
+	 * Returns all values in a new map that are available in both, the map and the given elements by comparing the keys only.
 	 *
 	 * Examples:
-	 *  Map::from( ['a' => 'foo', 'b' => 'bar] )->intersectKeys( new Map( ['foo', 'b' => 'baz'] ) );
+	 *  Map::from( ['a' => 'foo', 'b' => 'bar'] )->intersectKeys( new Map( ['foo', 'b' => 'baz'] ) );
 	 *
 	 * Results:
 	 *  ['b' => 'bar']
@@ -953,7 +953,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * case insensitive. The third example will return an empty map because the keys
 	 * doesn't match ("b" vs. "c").
 	 *
-	 * @param iterable $elements List of items
+	 * @param iterable $elements List of elements
 	 * @param  callable|null $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self New map
 	 */
@@ -1016,7 +1016,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Returns the keys of the map items in a new map object.
+	 * Returns the keys of the map elements in a new map object.
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'b'] );
@@ -1046,11 +1046,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  [0 => 'b', 1 => 'a']
 	 *
 	 * The parameter modifies how the keys are compared. Possible values are:
-	 * - SORT_REGULAR : compare items normally (don't change types)
-	 * - SORT_NUMERIC : compare items numerically
-	 * - SORT_STRING : compare items as strings
-	 * - SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
-	 * - SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+	 * - SORT_REGULAR : compare elements normally (don't change types)
+	 * - SORT_NUMERIC : compare elements numerically
+	 * - SORT_STRING : compare elements as strings
+	 * - SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
+	 * - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 	 *
 	 * The keys are preserved using this method and no new map is created.
@@ -1077,11 +1077,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  [0 => 'b', 1 => 'a']
 	 *
 	 * The parameter modifies how the keys are compared. Possible values are:
-	 * - SORT_REGULAR : compare items normally (don't change types)
-	 * - SORT_NUMERIC : compare items numerically
-	 * - SORT_STRING : compare items as strings
-	 * - SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
-	 * - SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+	 * - SORT_REGULAR : compare elements normally (don't change types)
+	 * - SORT_NUMERIC : compare elements numerically
+	 * - SORT_STRING : compare elements as strings
+	 * - SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
+	 * - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 	 *
 	 * The keys are preserved using this method and no new map is created.
@@ -1139,7 +1139,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Merges the map with the given items without returning a new map.
+	 * Merges the map with the given elements without returning a new map.
 	 *
 	 * Elements with the same non-numeric keys will be overwritten, elements
 	 * with the same numeric keys will be added.
@@ -1156,7 +1156,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * the same numeric keys. If you want to be sure that all passed elements
 	 * are added without replacing existing ones, use concat() instead.
 	 *
-	 * @param iterable $elements List of items
+	 * @param iterable $elements List of elements
 	 * @return self Updated map for fluid interface
 	 */
 	public function merge( iterable $elements ) : self
@@ -1388,7 +1388,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Removes one or more items from the map by its keys without returning a new map.
+	 * Removes one or more elements from the map by its keys without returning a new map.
 	 *
 	 * Examples:
 	 *  Map::from( ['a' => 1, 2 => 'b'] )->remove( 'a' );
@@ -1412,7 +1412,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Replaces items in the map with the given items without returning a new map.
+	 * Replaces elements in the map with the given elements without returning a new map.
 	 *
 	 * Examples:
 	 *  Map::from( ['a' => 1, 2 => 'b'] )->replace( ['a' => 2] );
@@ -1425,8 +1425,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The method is similar to merge() but it also replaces elements with numeric
 	 * keys. These would be added by merge() with a new numeric key.
 	 *
-	 * @param iterable $elements List of items
-	 * @param bool $recursive TRUE to replace recursively (default), FALSE to replace items only
+	 * @param iterable $elements List of elements
+	 * @param bool $recursive TRUE to replace recursively (default), FALSE to replace elements only
 	 * @return self Updated map for fluid interface
 	 */
 	public function replace( iterable $elements, bool $recursive = true ) : self
@@ -1471,11 +1471,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  [0 => 'b', 1 => 'a']
 	 *
 	 * The parameter modifies how the values are compared. Possible parameter values are:
-	 * - SORT_REGULAR : compare items normally (don't change types)
-	 * - SORT_NUMERIC : compare items numerically
-	 * - SORT_STRING : compare items as strings
-	 * - SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
-	 * - SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+	 * - SORT_REGULAR : compare elements normally (don't change types)
+	 * - SORT_NUMERIC : compare elements numerically
+	 * - SORT_STRING : compare elements as strings
+	 * - SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
+	 * - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 	 *
 	 * The keys aren't preserved and elements get a new index. No new map is created
@@ -1566,7 +1566,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Shuffles the items in the map without returning a new map.
+	 * Shuffles the elements in the map without returning a new map.
 	 *
 	 * Examples:
 	 *  Map::from( [2 => 'a', 4 => 'b'] )->shuffle();
@@ -1606,8 +1606,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * - If length is given and is negative then the sequence will stop that many elements from the end
 	 * - If it is omitted, then the sequence will have everything from offset up until the end
 	 *
-	 * @param int $offset Number of items to start from
-	 * @param int $length Number of items to return
+	 * @param int $offset Number of elements to start from
+	 * @param int $length Number of elements to return
 	 * @return self New map
 	 */
 	public function slice( int $offset, int $length = null ) : self
@@ -1628,11 +1628,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  [0 => 'a', 1 => 'b']
 	 *
 	 * The parameter modifies how the values are compared. Possible parameter values are:
-	 * - SORT_REGULAR : compare items normally (don't change types)
-	 * - SORT_NUMERIC : compare items numerically
-	 * - SORT_STRING : compare items as strings
-	 * - SORT_LOCALE_STRING : compare items as strings, based on the current locale or changed by setlocale()
-	 * - SORT_NATURAL : compare items as strings using "natural ordering" like natsort()
+	 * - SORT_REGULAR : compare elements normally (don't change types)
+	 * - SORT_NUMERIC : compare elements numerically
+	 * - SORT_STRING : compare elements as strings
+	 * - SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
+	 * - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 	 *
 	 * The keys aren't preserved and elements get a new index. No new map is created.
@@ -1670,15 +1670,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * - If length is given and is negative then the sequence will stop that many elements from the end
 	 * - If it is omitted, then the sequence will have everything from offset up until the end
 	 *
-	 * @param int $offset Number of items to start from
-	 * @param int|null $length Number of items to remove
-	 * @param mixed $replacement List of items to insert
+	 * @param int $offset Number of elements to start from
+	 * @param int|null $length Number of elements to remove, NULL for all
+	 * @param mixed $replacement List of elements to insert
 	 * @return self New map
 	 */
 	public function splice( int $offset, int $length = null, $replacement = [] ) : self
 	{
 		if( $length === null ) {
-			return new static( array_splice( $this->list, $offset ) );
+			$length = count( $this->list );
 		}
 
 		return new static( array_splice( $this->list, $offset, $length, $replacement ) );
@@ -1746,7 +1746,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Sorts the map items by their keys using a callback.
+	 * Sorts the map elements by their keys using a callback.
 	 *
 	 * The given callback will be used to compare the keys. The callback must accept
 	 * two parameters (key A and B) and must return -1 if key A is smaller than
@@ -1776,7 +1776,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Builds a union of the elements and the given items without returning a new map.
+	 * Builds a union of the elements and the given elements without returning a new map.
 	 * Existing keys in the map will not be overwritten
 	 *
 	 * Examples:
@@ -1790,7 +1790,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * If list entries should be overwritten,  please use merge() instead!
 	 *
-	 * @param iterable $elements List of items
+	 * @param iterable $elements List of elements
 	 * @return self Updated map for fluid interface
 	 */
 	public function union( iterable $elements ) : self
@@ -1801,7 +1801,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Returns only unique items from the map in a new map
+	 * Returns only unique elements from the map in a new map
 	 *
 	 * Examples:
 	 *  Map::from( [0 => 'a', 1 => 'b', 2 => 'b', 3 => 'c'] )->unique();
@@ -1907,9 +1907,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Returns a plain array of the given items.
+	 * Returns a plain array of the given elements.
 	 *
-	 * @param iterable $elements List of items
+	 * @param iterable $elements List of elements
 	 * @return array Plain array
 	 */
 	protected function getArray( iterable $elements ) : array
