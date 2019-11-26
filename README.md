@@ -265,7 +265,6 @@ public function arsort( int $options = SORT_REGULAR ) : self
 
 * @param int $options Sort options for arsort()
 * @return self Updated map for fluid interface
-* @throws \RuntimeException If an error occurs
 
 **Examples:**
 
@@ -302,7 +301,6 @@ public function asort( int $options = SORT_REGULAR ) : self
 
 * @param int $options Sort options for asort()
 * @return self Updated map for fluid interface
-* @throws \RuntimeException If an error occurs
 
 **Examples:**
 
@@ -1127,7 +1125,6 @@ public function krsort( int $options = SORT_REGULAR ) : self
 
 * @param int $options Sort options for krsort()
 * @return self Updated map for fluid interface
-* @throws \RuntimeException If an error occurs
 
 **Examples:**
 
@@ -1164,7 +1161,6 @@ public function ksort( int $options = SORT_REGULAR ) : self
 
 * @param int $options Sort options for ksort()
 * @return self Updated map for fluid interface
-* @throws \RuntimeException If an error occurs
 
 **Examples:**
 
@@ -1505,6 +1501,7 @@ public function random( int $max = 1 ) : self
 
 * @param int $max Maximum number of elements that should be returned
 * @return self New map with key/element pairs from original map in random order
+* @throws \InvalidArgumentException If requested number of elements is less than 1
 
 **Examples:**
 
@@ -1638,7 +1635,6 @@ public function rsort( int $options = SORT_REGULAR ) : self
 
 * @param int $options Sort options for rsort()
 * @return self Updated map for fluid interface
-* @throws \RuntimeException If an error occurs
 
 **Examples:**
 
@@ -1822,7 +1818,6 @@ public function sort( int $options = SORT_REGULAR ) : self
 
 * @param int $options Sort options for sort()
 * @return self Updated map for fluid interface
-* @throws \RuntimeException If an error occurs
 
 **Examples:**
 
@@ -1958,7 +1953,6 @@ public function uasort( callable $callback ) : self
 
 * @param callable|null $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @return self Updated map for fluid interface
-* @throws \RuntimeException If an error occurs
 
 The given callback will be used to compare the values. The callback must accept
 two parameters (item A and B) and must return -1 if item A is smaller than
@@ -1994,7 +1988,6 @@ public function uksort( callable $callback ) : self
 
 * @param callable $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @return self Updated map for fluid interface
-* @throws \RuntimeException If an error occurs
 
 The given callback will be used to compare the keys. The callback must accept
 two parameters (key A and B) and must return -1 if key A is smaller than
@@ -2111,7 +2104,6 @@ public function usort( callable $callback ) : self
 
 * @param callable $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @return self Updated map for fluid interface
-* @throws \RuntimeException If an error occurs
 
 The given callback will be used to compare the values. The callback must accept
 two parameters (item A and B) and must return -1 if item A is smaller than

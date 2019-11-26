@@ -989,6 +989,13 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testRandomException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		( new Map() )->random( 0 );
+	}
+
+
 	public function testRandomMax()
 	{
 		$m = new Map( ['a' => 1, 'b' => 2, 'c' => 3] );

@@ -1301,14 +1301,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param int $max Maximum number of elements that should be returned
 	 * @return self New map with key/element pairs from original map in random order
+	 * @throws \InvalidArgumentException If requested number of elements is less than 1
 	 */
 	public function random( int $max = 1 ) : self
 	{
-		if( empty( $this->list ) || $max < 1 ) {
-			return new self();
+		if( $max < 1 ) {
+			throw new \InvalidArgumentException( 'Requested number of elements must be greater or equal than 1' );
 		}
 
-		if( ( $keys = @array_rand( $this->list, $max ) ) === null
+		if( empty( $this->list ) || ( $keys = @array_rand( $this->list, $max ) ) === null
 			&& ( $keys = array_rand( $this->list, count( $this->list ) ) ) === null
 		) {
 			return new self();
