@@ -823,11 +823,16 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function intersect( iterable $elements, callable $callback = null ) : self
 	{
+		$elements = $this->getArray( $elements );
+
 		if( $callback ) {
-			return new static( array_uintersect( $this->list, $this->getArray( $elements ), $callback ) );
+			return new static( array_uintersect( $this->list, $elements, $callback ) );
 		}
 
-		return new static( array_intersect( $this->list, $this->getArray( $elements ) ) );
+		// using array_intersect() is 7x slower
+		return ( new static( $this->list ) )
+			->remove( array_keys( array_diff( $this->list, $elements ) ) )
+			->remove( array_keys( array_diff( $elements, $this->list ) ) );
 	}
 
 
@@ -861,11 +866,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function intersectAssoc( iterable $elements, callable $callback = null ) : self
 	{
+		$elements = $this->getArray( $elements );
+
 		if( $callback ) {
-			return new static( array_uintersect_assoc( $this->list, $this->getArray( $elements ), $callback ) );
+			return new static( array_uintersect_assoc( $this->list, $elements, $callback ) );
 		}
 
-		return new static( array_intersect_assoc( $this->list, $this->getArray( $elements ) ) );
+		return new static( array_intersect_assoc( $this->list, $elements ) );
 	}
 
 
@@ -900,11 +907,16 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function intersectKeys( iterable $elements, callable $callback = null ) : self
 	{
+		$elements = $this->getArray( $elements );
+
 		if( $callback ) {
-			return new static( array_intersect_ukey( $this->list, $this->getArray( $elements ), $callback ) );
+			return new static( array_intersect_ukey( $this->list, $elements, $callback ) );
 		}
 
-		return new static( array_intersect_key( $this->list, $this->getArray( $elements ) ) );
+		// using array_intersect_key() is 1.6x slower
+		return ( new static( $this->list ) )
+			->remove( array_keys( array_diff_key( $this->list, $elements ) ) )
+			->remove( array_keys( array_diff_key( $elements, $this->list ) ) );
 	}
 
 
@@ -1308,7 +1320,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function random( int $max = 1 ) : self
 	{
-		if( empty( $this->list ) || ( $keys = @array_rand( $this->list, $max ) ) === null
+		if( empty( $this->list ) || $max < 1 ) {
+			return new self();
+		}
+
+		if( ( $keys = @array_rand( $this->list, $max ) ) === null
 			&& ( $keys = array_rand( $this->list, count( $this->list ) ) ) === null
 		) {
 			return new self();
@@ -1887,15 +1903,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	protected function getArray( iterable $elements ) : array
 	{
-		if( is_array( $elements ) ) {
-			return $elements;
-		} elseif( $elements instanceof self ) {
+		if( $elements instanceof self ) {
 			return $elements->toArray();
-		} elseif( $elements instanceof \Traversable ) {
-			return iterator_to_array( $elements );
 		}
 
-		return (array) $elements;
+		if( is_array( $elements ) ) {
+			return $elements;
+		}
+
+		return iterator_to_array( $elements );
 	}
 
 

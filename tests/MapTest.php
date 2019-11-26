@@ -613,7 +613,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
-	public function testIntersec()
+	public function testIntersect()
 	{
 		$m = new Map( ['id' => 1, 'first_word' => 'Hello'] );
 		$i = new Map( ['first_world' => 'Hello', 'last_word' => 'World'] );
@@ -624,7 +624,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
-	public function testIntersecCallback()
+	public function testIntersectCallback()
 	{
 		$m = new Map( ['id' => 1, 'first_word' => 'Hello', 'last_word' => 'World'] );
 		$i = new Map( ['first_world' => 'Hello', 'last_world' => 'world'] );
@@ -646,7 +646,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
-	public function testIntersecAssocCallback()
+	public function testIntersectAssocCallback()
 	{
 		$m = new Map( ['id' => 1, 'first_word' => 'Hello', 'last_word' => 'World'] );
 		$i = new Map( ['first_word' => 'hello', 'Last_word' => 'world'] );
@@ -668,7 +668,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
-	public function testIntersecKeysCallback()
+	public function testIntersectKeysCallback()
 	{
 		$m = new Map( ['id' => 1, 'first_word' => 'Hello', 'last_word' => 'World'] );
 		$i = new Map( ['First_word' => 'Hello', 'last_word' => 'world'] );
@@ -975,8 +975,10 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testRandom()
 	{
 		$m = new Map( ['a' => 1, 'b' => 2, 'c' => 3] );
-		$this->assertCount( 1, $m->random() );
-		$this->assertCount( 1, $m->random()->keys()->intersect( $m->keys() ) );
+		$r = $m->random();
+
+		$this->assertCount( 1, $r );
+		$this->assertCount( 1, $r->intersectAssoc( $m ) );
 	}
 
 
@@ -990,14 +992,14 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testRandomMax()
 	{
 		$m = new Map( ['a' => 1, 'b' => 2, 'c' => 3] );
-		$this->assertCount( 3, $m->random( 4 )->keys()->intersect( $m->keys() ) );
+		$this->assertCount( 3, $m->random( 4 )->intersectAssoc( $m ) );
 	}
 
 
 	public function testRandomMultiple()
 	{
 		$m = new Map( ['a' => 1, 'b' => 2, 'c' => 3] );
-		$this->assertCount( 2, $m->random( 2 )->keys()->intersect( $m->keys() ) );
+		$this->assertCount( 2, $m->random( 2 )->intersectAssoc( $m ) );
 	}
 
 
