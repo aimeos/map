@@ -8,7 +8,7 @@ Easy to use and elegant handling for PHP arrays with an array-like map object
 as offered by jQuery and Laravel Collections.
 
 ```bash
-composer require aimeos/map
+composer req aimeos/map
 ```
 
 **Table of contents**
