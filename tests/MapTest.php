@@ -639,8 +639,8 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testIncludes()
 	{
-		$this->assertTrue( Map::from( ['a', 'b'] )->in( 'a' ) );
-		$this->assertFalse( Map::from( ['a', 'b'] )->in( 'x' ) );
+		$this->assertTrue( Map::from( ['a', 'b'] )->includes( 'a' ) );
+		$this->assertFalse( Map::from( ['a', 'b'] )->includes( 'x' ) );
 	}
 
 
