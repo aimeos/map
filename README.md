@@ -207,7 +207,7 @@ public function __call( string $name, array $params )
 
 * @param string `$name` Method name
 * @param array `$params` List of parameters
-* @return mixed|self Result from called function or map with results from the element methods
+* @return mixed&#124;self Result from called function or map with results from the element methods
 
 **Examples:**
 
@@ -289,7 +289,7 @@ The parameter modifies how the values are compared. Possible parameter values ar
 - SORT_STRING : compare elements as strings
 - SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
 - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
-- SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+- SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
 The keys are preserved using this method and no new map is created.
 
@@ -325,7 +325,7 @@ The parameter modifies how the values are compared. Possible parameter values ar
 - SORT_STRING : compare elements as strings
 - SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
 - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
-- SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+- SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
 The keys are preserved using this method and no new map is created.
 
@@ -383,7 +383,7 @@ public function col( string $valuecol, string $indexcol = null ) : self
 ```
 
 * @param string `$valuecol` Name of the value property
-* @param string|null `$indexcol` Name of the index property
+* @param string&#124;null `$indexcol` Name of the index property
 * @return self New instance with mapped entries
 
 **Examples:**
@@ -410,7 +410,7 @@ Collapses all sub-array elements recursively to a new map.
 public function collapse( int $depth = null ) : self
 ```
 
-* @param int|null `$depth` Number of levels to collapse for multi-dimensional arrays or NULL for all
+* @param int&#124;null `$depth` Number of levels to collapse for multi-dimensional arrays or NULL for all
 * @return self New map with all sub-array elements added into it recursively, up to the specified depth
 
 **Examples:**
@@ -501,7 +501,7 @@ public function diff( iterable $elements, callable $callback = null ) : self
 ```
 
 * @param iterable `$elements` List of elements
-* @param  callable|null `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @param  callable&#124;null `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @return self New map
 
 **Examples:**
@@ -542,7 +542,7 @@ public function diffAssoc( iterable $elements, callable $callback = null ) : sel
 ```
 
 * @param iterable `$elements` List of elements
-* @param  callable|null `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @param  callable&#124;null `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @return self New map
 
 **Examples:**
@@ -585,7 +585,7 @@ public function diffKeys( iterable $elements, callable $callback = null ) : self
 ```
 
 * @param iterable `$elements` List of elements
-* @param  callable|null `$callback` Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @param  callable&#124;null `$callback` Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @return self New map
 
 **Examples:**
@@ -716,7 +716,7 @@ Runs a filter over each element of the map and returns a new map.
 public function filter( callable $callback = null ) : self
 ```
 
-* @param  callable|null `$callback` Function with (item) parameter and returns `TRUE`/`FALSE`
+* @param  callable&#124;null `$callback` Function with (item) parameter and returns `TRUE`/`FALSE`
 * @return self New map
 
 **Examples:**
@@ -750,7 +750,7 @@ public function find( \Closure $callback, bool $last = false )
 
 * @param \Closure `$callback` Function with (value, key) parameters and returns TRUE/FALSE
 * @param bool `$last` TRUE to test elements from back to front, FALSE for front to back (default)
-* @return mixed|null First matching value or NULL
+* @return mixed&#124;null First matching value or NULL
 
 **Examples:**
 
@@ -799,7 +799,7 @@ Creates a new map with all sub-array elements added recursively
 public function flat( int $depth = null ) : self
 ```
 
-* @param int|null `$depth` Number of levels to flatten multi-dimensional arrays
+* @param int&#124;null `$depth` Number of levels to flatten multi-dimensional arrays
 * @return self New map with all sub-array elements added into it recursively, up to the specified depth
 
 Examples:
@@ -923,7 +923,7 @@ If several keys are passed as array, all keys must exist in the map for
 public function has( $key ) : bool
 ```
 
-* @param mixed|array `$key` Key of the requested item
+* @param mixed&#124;array `$key` Key of the requested item
 * @return bool `TRUE` if key is available in map, `FALSE` if not
 
 **Examples:**
@@ -949,7 +949,7 @@ Tests if the passed element or elements are part of the map.
 public function in( $element, bool $strict = false ) : bool
 ```
 
-* @param mixed|array `$element` Element or elements to search for in the map
+* @param mixed&#124;array `$element` Element or elements to search for in the map
 * @param bool `$strict` `TRUE` to check the type too, using `FALSE` '1' and 1 will be the same
 * @return bool `TRUE` if all elements are available in map, `FALSE` if not
 
@@ -976,7 +976,7 @@ Tests if the passed element or elements are part of the map.
 public function includes( $element, bool $strict = false ) : bool
 ```
 
-* @param mixed|array `$element` Element or elements to search for in the map
+* @param mixed&#124;array `$element` Element or elements to search for in the map
 * @param bool `$strict` TRUE to check the type too, using FALSE '1' and 1 will be the same
 * @return bool TRUE if all elements are available in map, FALSE if not
 
@@ -1007,7 +1007,7 @@ public function intersect( iterable $elements, callable $callback = null ) : sel
 ```
 
 * @param iterable `$elements` List of elements
-* @param  callable|null `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @param  callable&#124;null `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @return self New map
 
 **Examples:**
@@ -1048,7 +1048,7 @@ public function intersectAssoc( iterable $elements, callable $callback = null ) 
 ```
 
 * @param iterable `$elements` List of elements
-* @param  callable|null `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @param  callable&#124;null `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @return self New map
 
 **Examples:**
@@ -1090,7 +1090,7 @@ public function intersectKeys( iterable $elements, callable $callback = null ) :
 ```
 
 * @param iterable `$elements` List of elements
-* @param  callable|null `$callback` Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @param  callable&#124;null `$callback` Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @return self New map
 
 **Examples:**
@@ -1229,7 +1229,7 @@ The parameter modifies how the keys are compared. Possible values are:
 - SORT_STRING : compare elements as strings
 - SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
 - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
-- SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+- SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
 The keys are preserved using this method and no new map is created.
 
@@ -1265,7 +1265,7 @@ The parameter modifies how the keys are compared. Possible values are:
 - SORT_STRING : compare elements as strings
 - SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
 - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
-- SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+- SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
 The keys are preserved using this method and no new map is created.
 
@@ -1636,7 +1636,7 @@ Removes one or more elements from the map by its keys without returning a new ma
 public function remove( $keys ) : self
 ```
 
-* @param string|int|iterable `$keys` List of keys
+* @param string&#124;int&#124;iterable `$keys` List of keys
 * @return self Same map for fluid interface
 
 **Examples:**
@@ -1736,7 +1736,7 @@ The parameter modifies how the values are compared. Possible parameter values ar
 - SORT_STRING : compare elements as strings
 - SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
 - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
-- SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+- SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
 The keys aren't preserved and elements get a new index. No new map is created
 
@@ -1751,7 +1751,7 @@ public function search( $value, $strict = true )
 
 * @param mixed `$value` Item to search for
 * @param bool `$strict` `TRUE` if type of the element should be checked too
-* @return mixed|null Value from map or null if not found
+* @return mixed&#124;null Value from map or null if not found
 
 **Examples:**
 
@@ -1798,7 +1798,7 @@ Returns and removes the first element from the map.
 public function shift()
 ```
 
-* @return mixed|null Value from map or null if not found
+* @return mixed&#124;null Value from map or null if not found
 
 **Examples:**
 
@@ -1919,7 +1919,7 @@ The parameter modifies how the values are compared. Possible parameter values ar
 - SORT_STRING : compare elements as strings
 - SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
 - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
-- SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+- SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
 The keys aren't preserved and elements get a new index. No new map is created.
 
@@ -1933,7 +1933,7 @@ public function splice( int $offset, int $length = null, $replacement = [] ) : s
 ```
 
 * @param int `$offset` Number of elements to start from
-* @param int|null `$length` Number of elements to remove, NULL for all
+* @param int&#124;null `$length` Number of elements to remove, NULL for all
 * @param mixed `$replacement` List of elements to insert
 * @return self New map
 
@@ -2016,10 +2016,10 @@ public function toJson( int $options = 0 ) : string
 There are several options available to modify the JSON output:
 [https://www.php.net/manual/en/function.json-encode.php](https://www.php.net/manual/en/function.json-encode.php)
 The parameter can be a single JSON_* constant or a bitmask of several constants
-combine by bitwise OR (|), e.g.:
+combine by bitwise OR (&#124;), e.g.:
 
 ```php
- JSON_FORCE_OBJECT|JSON_HEX_QUOT
+ JSON_FORCE_OBJECT&#124;JSON_HEX_QUOT
 ```
 
 
