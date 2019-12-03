@@ -1893,10 +1893,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Resets the keys and return the values in a new map.
 	 *
 	 * Examples:
-	 *  Map::from( ['a', 'b', 'b', 'c'] )->unique();
+	 *  Map::from( ['x' => 'b', 2 => 'a', 'c'] )->values();
 	 *
 	 * Results:
-	 * A new map with ['a', 'b', 'c'] as content
+	 * A new map with [0 => 'b', 1 => 'a', 2 => 'c'] as content
 	 *
 	 * @return self New map of the values
 	 */
