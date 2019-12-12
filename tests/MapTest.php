@@ -1477,6 +1477,42 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertEquals( [1, 'Hello'], $r->toArray() );
 	}
+
+
+	public function testWalk()
+	{
+		$m = new Map( ['a', 'B', ['c', 'd'], 'e'] );
+		$r = $m->walk( function( &$value ) {
+			$value = strtoupper( $value );
+		} );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['A', 'B', ['C', 'D'], 'E'], $r->toArray() );
+	}
+
+
+	public function testWalkNonRecursive()
+	{
+		$m = new Map( ['a', 'B', ['c', 'd'], 'e'] );
+		$r = $m->walk( function( &$value ) {
+			$value = ( !is_array( $value ) ? strtoupper( $value ) : $value );
+		}, null, false );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['A', 'B', ['c', 'd'], 'E'], $r->toArray() );
+	}
+
+
+	public function testWalkData()
+	{
+		$m = new Map( [1, 2, 3] );
+		$r = $m->walk( function( &$value, $key, $data ) {
+			$value = $data[$value] ?? $value;
+		}, [1 => 'one', 2 => 'two'] );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['one', 'two', 3], $r->toArray() );
+	}
 }
 
 

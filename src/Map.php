@@ -1907,6 +1907,53 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Applies the given callback to all elements.
+	 *
+	 * To change the values of the Map, specify the value parameter as reference
+	 * (&$value). You can only change the values but not the keys nor the array
+	 * structure.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'B', ['c', 'd'], 'e'] )->walk( function( &$value ) {
+	 *    $value = strtoupper( $value );
+	 *  } );
+	 *  Map::from( [66 => 'B', 97 => 'a'] )->walk( function( $value, $key ) {
+	 *    echo 'ASCII ' . $key . ' is ' . $value . "\n";
+	 *  } );
+	 *  Map::from( [1, 2, 3] )->walk( function( &$value, $key, $data ) {
+	 *    $value = $data[$value] ?? $value;
+	 *  }, [1 => 'one', 2 => 'two'] );
+	 *
+	 * Results:
+	 * The first example will change the Map elements to:
+	 *   ['A', 'B', ['C', 'D'], 'E']
+	 * The output of the second one will be:
+	 *  ASCII 66 is B
+	 *  ASCII 97 is a
+	 * The last example changes the Map elements to:
+	 *  ['one', 'two', 3]
+	 *
+	 * By default, Map elements which are arrays will be traversed recursively.
+	 * To iterate over the Map elements only, pass FALSE as third parameter.
+	 *
+	 * @param callable $callback Function with (item, key, data) parameters
+	 * @param mixed $data Arbitrary data that will be passed to the callback as third parameter
+	 * @param bool $recursive TRUE to traverse sub-arrays recursively (default), FALSE to iterate Map elements only
+	 * @return self Map for fluid interface
+	 */
+	public function walk( callable $callback, $data = null, bool $recursive = true ) : self
+	{
+		if( $recursive ) {
+			array_walk_recursive( $this->list, $callback, $data );
+		} else {
+			array_walk( $this->list, $callback, $data );
+		}
+
+		return $this;
+	}
+
+
+	/**
 	 * Returns a plain array of the given elements.
 	 *
 	 * @param iterable $elements List of elements
