@@ -168,6 +168,7 @@ will return:
 * [unshift()](#unshift) : Adds an element at the beginning
 * [usort()](#usort) : Sorts elements using callback
 * [values()](#values) : Returns all elements with new keys
+* [walk()](#walk) : Applies the given callback to all elements
 
 
 ## Method documentation
@@ -2246,6 +2247,57 @@ Map::from( ['x' => 'b', 2 => 'a', 'c'] )->values();
 **Results:**
 
 A new map with `[0 => 'b', 1 => 'a', 2 => 'c']` as content
+
+
+### walk()
+
+Applies the given callback to all elements.
+
+To change the values of the Map, specify the value parameter as reference
+(&$value). You can only change the values but not the keys nor the array
+structure.
+
+```php
+public function walk( callable $callback, $data = null, bool $recursive = true ) : self
+```
+
+* @param callable $callback Function with (item, key, data) parameters
+* @param mixed $data Arbitrary data that will be passed to the callback as third parameter
+* @param bool $recursive TRUE to traverse sub-arrays recursively (default), FALSE to iterate Map elements only
+* @return self Map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( ['a', 'B', ['c', 'd'], 'e'] )->walk( function( &$value ) {
+    $value = strtoupper( $value );
+} );
+Map::from( [66 => 'B', 97 => 'a'] )->walk( function( $value, $key ) {
+    echo 'ASCII ' . $key . ' is ' . $value . "\n";
+} );
+Map::from( [1, 2, 3] )->walk( function( &$value, $key, $data ) {
+    $value = $data[$value] ?? $value;
+}, [1 => 'one', 2 => 'two'] );
+```
+
+**Results:**
+
+The first example will change the Map elements to:
+```php
+   ['A', 'B', ['C', 'D'], 'E']
+```
+The output of the second one will be:
+```
+  ASCII 66 is B
+  ASCII 97 is a
+```
+The last example changes the Map elements to:
+```php
+  ['one', 'two', 3]
+```
+
+By default, Map elements which are arrays will be traversed recursively.
+To iterate over the Map elements only, pass FALSE as third parameter.
 
 
 
