@@ -1201,7 +1201,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function offsetGet( $key )
 	{
-		return $this->list[$key];
+		return $this->list[$key] ?? null;
 	}
 
 

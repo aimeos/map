@@ -95,6 +95,7 @@ will return:
 
 ## Methods
 
+* [function is_map()](#is_map-function) : Tests if the variable is a map object
 * [function map()](#map-function) : Creates a new map from elements
 * [__construct()](#__construct) : Creates a new map
 * [__call()](#__call) : Calls a custom method
@@ -172,6 +173,17 @@ will return:
 
 
 ## Method documentation
+
+### is_map() function
+
+Tests if the variable is a map object
+
+```php
+function is_map( $var ) : bool
+```
+
+* @param mixed `$var` Variable to test
+
 
 ### map() function
 

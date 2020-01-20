@@ -18,6 +18,14 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testIsMap()
+	{
+		$this->assertTrue( is_map( map() ) );
+		$this->assertFalse( is_map( null ) );
+		$this->assertFalse( is_map( true ) );
+	}
+
+
 	public function testCall()
 	{
 		$m = new Map( ['a' => new TestMapObject(), 'b' => new TestMapObject()] );
