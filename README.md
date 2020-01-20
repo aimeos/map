@@ -178,7 +178,7 @@ will return:
 Returns a new map for the passed elements.
 
 ```php
-function map( iterable $elements ) : \Aimeos\Map
+function map( iterable $elements = [] ) : \Aimeos\Map
 ```
 
 * @param iterable `$elements` List of elements
