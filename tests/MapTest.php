@@ -13,6 +13,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 {
 	public function testFunction()
 	{
+		$this->assertInstanceOf( Map::class, \map() );
 		$this->assertInstanceOf( Map::class, \map( [] ) );
 	}
 
