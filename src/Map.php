@@ -652,16 +652,28 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Examples:
 	 *  Map::from( ['a', 'b'] )->first();
 	 *  Map::from( [] )->first( 'x' );
+	 *  Map::from( [] )->first( new \Exception( 'error' ) );
 	 *
 	 * Results:
-	 * The first example will return 'a' and the second one 'x'.
+	 * The first example will return 'b' and the second one 'x'. The third example
+	 * will throw the exception passed if the map contains no elements.
+	 *
+	 * @param mixed $default Default value or exception if the map contains no elements
 	 *
 	 * @param mixed $default Default value if map is empty
 	 * @return mixed First value of map or default value
 	 */
 	public function first( $default = null )
 	{
-		return ( $value = reset( $this->list ) ) !== false ? $value : $default;
+		if( ( $value = reset( $this->list ) ) !== false ) {
+			return $value;
+		}
+
+		if( $default instanceof \Throwable ) {
+			throw $default;
+		}
+
+		return $default;
 	}
 
 
@@ -1102,16 +1114,26 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Examples:
 	 *  Map::from( ['a', 'b'] )->last();
 	 *  Map::from( [] )->last( 'x' );
+	 *  Map::from( [] )->last( new \Exception( 'error' ) );
 	 *
 	 * Results:
-	 * The first example will return 'b' and the second one 'x'.
+	 * The first example will return 'b' and the second one 'x'. The third example
+	 * will throw the exception passed if the map contains no elements.
 	 *
-	 * @param mixed $default Default value if the map contains no elements
+	 * @param mixed $default Default value or exception if the map contains no elements
 	 * @return mixed Last value of map or default value
 	 */
 	public function last( $default = null )
 	{
-		return ( $value = end( $this->list ) ) !== false ? $value : $default;
+		if( ( $value = end( $this->list ) ) !== false ) {
+			return $value;
+		}
+
+		if( $default instanceof \Throwable ) {
+			throw $default;
+		}
+
+		return $default;
 	}
 
 
