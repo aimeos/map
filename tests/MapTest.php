@@ -519,6 +519,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testFirstWithException()
+	{
+		$m = new Map;
+
+		$this->expectException( \RuntimeException::class );
+		$result = $m->first( new \RuntimeException( 'error' ) );
+	}
+
+
 	public function testFlat()
 	{
 		$m = Map::from( [[0, 1], [2, 3]] );
@@ -798,6 +807,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$m = new Map;
 		$result = $m->last( 'default' );
 		$this->assertEquals( 'default', $result );
+	}
+
+
+	public function testLastWithException()
+	{
+		$m = new Map;
+
+		$this->expectException( \RuntimeException::class );
+		$result = $m->last( new \RuntimeException( 'error' ) );
 	}
 
 
