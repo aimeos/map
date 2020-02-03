@@ -901,11 +901,13 @@ public function get( $key, $default = null )
 ```php
 Map::from( ['a' => 'X', 'b' => 'Y'] )->get( 'a' );
 Map::from( ['a' => 'X', 'b' => 'Y'] )->get( 'c', 'Z' );
+Map::from( [] )->get( new \Exception( 'error' ) );
 ```
 
 **Results:**
 
-The first example will return "X", the second "Z"
+The first example will return "X", the second "Z". The third example
+will throw the exception passed if the map contains no elements.
 
 
 ### getIterator()

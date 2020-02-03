@@ -634,6 +634,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testGetWithException()
+	{
+		$m = new Map;
+
+		$this->expectException( \RuntimeException::class );
+		$result = $m->get( 'Y', new \RuntimeException( 'error' ) );
+	}
+
+
 	public function testHas()
 	{
 		$m = new Map( ['id' => 1, 'first' => 'Hello', 'second' => 'World'] );
