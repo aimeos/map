@@ -738,9 +738,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Examples:
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->get( 'a' );
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->get( 'c', 'Z' );
+	 *  Map::from( [] )->get( 'Y', new \Exception( 'error' ) );
 	 *
 	 * Results:
-	 * The first example will return 'X', the second 'Z'
+	 * The first example will return 'X', the second 'Z'. The third example
+	 * will throw the exception passed if the map contains no elements.
 	 *
 	 * @param mixed $key Key of the requested item
 	 * @param mixed $default Default value if no element matches
@@ -748,7 +750,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function get( $key, $default = null )
 	{
-		return array_key_exists( $key, $this->list ) ? $this->list[$key] : $default;
+		if( array_key_exists( $key, $this->list ) ) {
+			return $this->list[$key];
+		}
+
+		if( $default instanceof \Throwable ) {
+			throw $default;
+		}
+
+		return $default;
 	}
 
 
