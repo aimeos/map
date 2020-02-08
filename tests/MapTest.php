@@ -528,6 +528,18 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testFirstKey()
+	{
+		$this->assertEquals( 'a', Map::from( ['a' => 1, 'b' => 2] )->firstKey() );
+	}
+
+
+	public function testFirstKeyEmpty()
+	{
+		$this->assertEquals( null, Map::from( [] )->firstKey() );
+	}
+
+
 	public function testFlat()
 	{
 		$m = Map::from( [[0, 1], [2, 3]] );
@@ -825,6 +837,18 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		$this->expectException( \RuntimeException::class );
 		$result = $m->last( new \RuntimeException( 'error' ) );
+	}
+
+
+	public function testLastKey()
+	{
+		$this->assertEquals( 'b', Map::from( ['a' => 1, 'b' => 2] )->lastKey() );
+	}
+
+
+	public function testLastKeyEmpty()
+	{
+		$this->assertEquals( null, Map::from( [] )->lastKey() );
 	}
 
 

@@ -118,6 +118,7 @@ will return:
 * [filter()](#filter) : Applies a filter to the map elements
 * [find()](#find) : Returns the first matching element
 * [first()](#first) : Returns the first element
+* [firstKey()](#firstkey) : Returns the first key
 * [flip()](#flip) : Exchanges keys with their values
 * [flat()](#flat) : Flattens multi-dimensional elements
 * [from()](#from) : Creates a new map from passed elements
@@ -135,6 +136,7 @@ will return:
 * [krsort()](#krsort) : Reverse sort elements by keys
 * [ksort()](#ksort) : Sort elements by keys
 * [last()](#last) : Returns the last element
+* [lastKey()](#lastkey) : Returns the last key
 * [map()](#map) : Applies a callback to each element and returns the results
 * [merge()](#merge) : Combines elements overwriting existing ones
 * [method()](#method) : Registers a custom method
@@ -806,6 +808,28 @@ The first example will return 'a' and the second one 'x'. The third example
 will throw the exception passed if the map contains no elements.
 
 
+### firstKey()
+
+Returns the first key from the map.
+
+```php
+public function firstKey()
+```
+
+* @return mixed First key of map or `NULL` if empty
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 'b' => 2] )->lastKey();
+Map::from( [] )->lastKey();
+```
+
+**Results:**
+
+The first example will return 'a' and the second one `NULL`.
+
+
 ### flat()
 
 Creates a new map with all sub-array elements added recursively
@@ -1310,6 +1334,28 @@ Map::from( [] )->first( new \Exception( 'error' ) );
 
 The first example will return 'b' and the second one 'x'. The third example
 will throw the exception passed if the map contains no elements.
+
+
+### lastKey()
+
+Returns the last key from the map.
+
+```php
+public function lastKey()
+```
+
+* @return mixed Last key of map or `NULL` if empty
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 'b' => 2] )->lastKey();
+Map::from( [] )->lastKey();
+```
+
+**Results:**
+
+The first example will return 'b' and the second one `NULL`.
 
 
 ### map()
