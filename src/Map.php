@@ -659,8 +659,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * will throw the exception passed if the map contains no elements.
 	 *
 	 * @param mixed $default Default value or exception if the map contains no elements
-	 *
-	 * @param mixed $default Default value if map is empty
 	 * @return mixed First value of map or default value
 	 */
 	public function first( $default = null )
@@ -674,6 +672,29 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		return $default;
+	}
+
+
+	/**
+	 * Returns the first key from the map.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 1, 'b' => 2] )->firstKey();
+	 *  Map::from( [] )->firstKey();
+	 *
+	 * Results:
+	 * The first example will return 'a' and the second one NULL.
+	 *
+	 * @return mixed First key of map or NULL if empty
+	 */
+	public function firstKey()
+	{
+		if( function_exists( 'array_key_first' ) ) {
+			return array_key_first( $this->list );
+		}
+
+		reset( $this->list );
+		return key( $this->list);
 	}
 
 
@@ -1144,6 +1165,29 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		return $default;
+	}
+
+
+	/**
+	 * Returns the last key from the map.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 1, 'b' => 2] )->lastKey();
+	 *  Map::from( [] )->lastKey();
+	 *
+	 * Results:
+	 * The first example will return 'b' and the second one NULL.
+	 *
+	 * @return mixed Last key of map or NULL if empty
+	 */
+	public function lastKey()
+	{
+		if( function_exists( 'array_key_last' ) ) {
+			return array_key_last( $this->list );
+		}
+
+		end( $this->list );
+		return key( $this->list );
 	}
 
 
