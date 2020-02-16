@@ -2084,7 +2084,7 @@ The parameter can be a single JSON_* constant or a bitmask of several constants
 combine by bitwise OR (&#124;), e.g.:
 
 ```php
- JSON_FORCE_OBJECT&#124;JSON_HEX_QUOT
+ JSON_FORCE_OBJECT|JSON_HEX_QUOT
 ```
 
 
