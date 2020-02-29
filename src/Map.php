@@ -630,12 +630,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The first example will return 'c' while the second will return 'e' (last element).
 	 *
 	 * @param \Closure $callback Function with (value, key) parameters and returns TRUE/FALSE
-	 * @param bool $last TRUE to test elements from back to front, FALSE for front to back (default)
+	 * @param bool $reverse TRUE to test elements from back to front, FALSE for front to back (default)
 	 * @return mixed|null First matching value or NULL
 	 */
-	public function find( \Closure $callback, bool $last = false )
+	public function find( \Closure $callback, bool $reverse = false )
 	{
-		foreach( ( $last ? array_reverse( $this->list ) : $this->list ) as $key => $value )
+		foreach( ( $reverse ? array_reverse( $this->list ) : $this->list ) as $key => $value )
 		{
 			if( $callback( $value, $key ) ) {
 				return $value;
