@@ -760,11 +760,11 @@ removed if their value converted to boolean is `FALSE`:
 Returns the first matching element where the callback returns TRUE.
 
 ```php
-public function find( \Closure $callback, bool $last = false )
+public function find( \Closure $callback, bool $reverse = false )
 ```
 
 * @param \Closure `$callback` Function with (value, key) parameters and returns TRUE/FALSE
-* @param bool `$last` TRUE to test elements from back to front, FALSE for front to back (default)
+* @param bool `$reverse` TRUE to test elements from back to front, FALSE for front to back (default)
 * @return mixed&#124;null First matching value or NULL
 
 **Examples:**
