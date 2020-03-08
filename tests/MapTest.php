@@ -15,6 +15,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	{
 		$this->assertInstanceOf( Map::class, \map() );
 		$this->assertInstanceOf( Map::class, \map( [] ) );
+		$this->assertInstanceOf( Map::class, \map( 'a' ) );
 	}
 
 
@@ -589,6 +590,24 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testFromNull()
+	{
+		$m = Map::from( null );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( [], $m->toArray() );
+	}
+
+
+	public function testFromValue()
+	{
+		$m = Map::from( 'a' );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( [0 => 'a'], $m->toArray() );
+	}
+
+
 	public function testFromMap()
 	{
 		$firstMap = Map::from( ['foo' => 'bar'] );
@@ -596,7 +615,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertInstanceOf( Map::class, $firstMap );
 		$this->assertInstanceOf( Map::class, $secondMap );
-		$this->assertEquals( ['foo' => 'bar'], $secondMap->toArray() );
+		$this->assertSame( $firstMap, $secondMap );
 	}
 
 

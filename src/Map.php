@@ -22,9 +22,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Creates a new map.
 	 *
-	 * @param iterable $elements List of elements
+	 * Returns a new map instance containing the list of elements. In case of
+	 * an empty array or null, the map object will contain an empty list.
+	 *
+	 * @param $elements List of elements or single value
 	 */
-	public function __construct( iterable $elements = [] )
+	public function __construct( $elements = [] )
 	{
 		$this->list = $this->getArray( $elements );
 	}
@@ -109,14 +112,25 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * Examples:
 	 *  Map::from( [] );
+	 *  Map::from( null );
+	 *  Map::from( 'a' );
 	 *  Map::from( new Map() );
 	 *  Map::from( new ArrayObject() );
 	 *
-	 * @param iterable $elements List of elements
-	 * @return self New map
+	 * Results:
+	 * A new map instance containing the list of elements. In case of an empty
+	 * array or null, the map object will contain an empty list. If a map object
+	 * is passed, it will be returned instead of creating a new instance.
+	 *
+	 * @param mixed $elements List of elements or single element
+	 * @return self Map object
 	 */
-	public static function from( iterable $elements = [] ) : self
+	public static function from( $elements = [] ) : self
 	{
+		if( $elements instanceof self ) {
+			return $elements;
+		}
+
 		return new static( $elements );
 	}
 
@@ -2032,20 +2046,24 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Returns a plain array of the given elements.
 	 *
-	 * @param iterable $elements List of elements
+	 * @param $elements List of elements or single value
 	 * @return array Plain array
 	 */
-	protected function getArray( iterable $elements ) : array
+	protected function getArray( $elements ) : array
 	{
-		if( $elements instanceof self ) {
-			return $elements->toArray();
-		}
-
 		if( is_array( $elements ) ) {
 			return $elements;
 		}
 
-		return iterator_to_array( $elements );
+		if( $elements instanceof self ) {
+			return $elements->toArray();
+		}
+
+		if( is_iterable( $elements ) ) {
+			return iterator_to_array( $elements );
+		}
+
+		return $elements !== null ? [$elements] : [];
 	}
 
 

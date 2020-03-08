@@ -192,10 +192,27 @@ function is_map( $var ) : bool
 Returns a new map for the passed elements.
 
 ```php
-function map( iterable $elements = [] ) : \Aimeos\Map
+function map( $elements = [] ) : \Aimeos\Map
 ```
 
-* @param iterable `$elements` List of elements
+* @param mixed `$elements` List of elements or single value
+* @return \Aimeos\Map Map instance
+
+**Examples:**
+
+```php
+Map::from( [] );
+Map::from( null );
+Map::from( 'a' );
+Map::from( new Map() );
+Map::from( new ArrayObject() );
+```
+
+**Results:**
+
+A new map instance containing the list of elements. In case of an empty
+array or null, the map object will contain an empty list. If a map object
+is passed, it will be returned instead of creating a new instance.
 
 
 ### __construct()
@@ -893,19 +910,27 @@ Map::from( ['a' => 'X', 'b' => 'Y'] )->flip();
 Creates a new map instance if the value isn't one already.
 
 ```php
-public static function from( iterable $elements = [] ) : self
+public static function from( $elements = [] ) : self
 ```
 
-* @param iterable `$elements` List of elements
+* @param mixed `$elements` List of elements or single value
 * @return self New map
 
 **Examples:**
 
 ```php
 Map::from( [] );
+Map::from( null );
+Map::from( 'a' );
 Map::from( new Map() );
 Map::from( new ArrayObject() );
 ```
+
+**Results:**
+
+A new map instance containing the list of elements. In case of an empty
+array or null, the map object will contain an empty list. If a map object
+is passed, it will be returned instead of creating a new instance.
 
 
 ### get()

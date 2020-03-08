@@ -12,8 +12,12 @@ if( !function_exists( 'is_map' ) )
 
 if( !function_exists( 'map' ) )
 {
-	function map( iterable $items = [] ) : \Aimeos\Map
+	function map( $items = [] ) : \Aimeos\Map
 	{
+		if( $items instanceof \Aimeos\Map ) {
+			return $items;
+		}
+
 		return new \Aimeos\Map( $items );
 	}
 }
