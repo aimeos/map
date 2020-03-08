@@ -25,7 +25,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Returns a new map instance containing the list of elements. In case of
 	 * an empty array or null, the map object will contain an empty list.
 	 *
-	 * @param $elements List of elements or single value
+	 * @param mixed $elements List of elements or single value
 	 */
 	public function __construct( $elements = [] )
 	{
