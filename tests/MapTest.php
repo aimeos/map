@@ -529,6 +529,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testFirstWithClosure()
+	{
+		$m = new Map;
+		$result = $m->first( function() { return rand( 10, 11 ); } );
+
+		$this->assertGreaterThanOrEqual( 10, $result );
+	}
+
+
 	public function testFirstKey()
 	{
 		$this->assertEquals( 'a', Map::from( ['a' => 1, 'b' => 2] )->firstKey() );
@@ -671,6 +680,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		$this->expectException( \RuntimeException::class );
 		$result = $m->get( 'Y', new \RuntimeException( 'error' ) );
+	}
+
+
+	public function testGetWithClosure()
+	{
+		$m = new Map;
+		$result = $m->get( 1, function() { return rand( 10, 11 ); } );
+
+		$this->assertGreaterThanOrEqual( 10, $result );
 	}
 
 
@@ -859,6 +877,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testLastWithClosure()
+	{
+		$m = new Map;
+		$result = $m->last( function() { return rand( 10, 11 ); } );
+
+		$this->assertGreaterThanOrEqual( 10, $result );
+	}
+
+
 	public function testLastKey()
 	{
 		$this->assertEquals( 'b', Map::from( ['a' => 1, 'b' => 2] )->lastKey() );
@@ -1040,6 +1067,24 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$m = new Map( [] );
 		$value = $m->pull( 0, 'foo' );
 		$this->assertEquals( 'foo', $value );
+	}
+
+
+	public function testPullWithException()
+	{
+		$m = new Map;
+
+		$this->expectException( \RuntimeException::class );
+		$result = $m->pull( 'Y', new \RuntimeException( 'error' ) );
+	}
+
+
+	public function testPullWithClosure()
+	{
+		$m = new Map;
+		$result = $m->pull( 1, function() { return rand( 10, 11 ); } );
+
+		$this->assertGreaterThanOrEqual( 10, $result );
 	}
 
 
