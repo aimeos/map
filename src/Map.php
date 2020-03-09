@@ -589,7 +589,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * @param bool $assoc TRUE to compare keys too, FALSE to compare only values
 	 * @return bool TRUE if both are equal, FALSE if not
 	 */
-	public function equals( iterable $elements, $assoc = false ) : bool
+	public function equals( iterable $elements, bool $assoc = false ) : bool
 	{
 		$elements = $this->getArray( $elements );
 
