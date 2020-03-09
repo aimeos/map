@@ -944,6 +944,18 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testMethodInternal()
+	{
+		Map::method( 'foo', function() {
+			return $this->list;
+		} );
+
+		$m = new Map( ['a', 'aa', 'aaa'] );
+
+		$this->assertEquals( ['a', 'aa', 'aaa'], $m->foo() );
+	}
+
+
 	public function testMethodNotAvailable()
 	{
 		$m = new Map( [] );

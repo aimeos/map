@@ -2415,7 +2415,7 @@ code, than it's better to register a custom method once and only call it everywh
 
 ```php
 Map::method( 'strrev', function( $sep ) {
-    return strrev( join( '-', $this->items ) );
+    return strrev( join( '-', $this->list ) );
 } );
 Map::from( ['a', 'b'] )->strrev( '-' );
 ```
