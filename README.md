@@ -130,6 +130,7 @@ will return:
 * [intersect()](#intersect) : Returns the shared elements
 * [intersectAssoc()](#intersectassoc) : Returns the shared elements and checks keys
 * [intersectKeys()](#intersectkeys) : Returns the shared elements by keys
+* [is()](#is) : Tests if the map consists of the same keys and values
 * [isEmpty()](#isempty) : Tests if map is empty
 * [join()](#join) : Returns concatenated elements as string
 * [keys()](#keys) : Returns the keys
@@ -723,6 +724,9 @@ Map::from( ['a', 'b'] )->equals( ['b', 'a'] );
 
 The first and second example will return `FALSE`, the third example will return `TRUE`
 
+The method differs to is() in the fact that it doesn't care about the keys
+by default. The elements are only loosely compared and the keys are ignored.
+
 If the second parameter is `TRUE`, keys are compared too:
 
 ```php
@@ -1194,6 +1198,29 @@ The first example will return a map with [0 => 'a'] and the second one will
 return a map with ['b' => 'a'] because both contain the same keys when compared
 case insensitive. The third example will return an empty map because the keys
 doesn't match ("b" vs. "c").
+
+
+### is()
+
+Tests if the map consists of the same keys and values
+
+```php
+public function is( iterable $list, bool $strict = false ) : bool
+```
+
+* @param iterable `$list` List of key/value pairs to compare with
+* @param bool `$strict` TRUE for comparing order of elements too, FALSE for key/values only
+* @param bool TRUE if given list is equal, FALSE if not
+
+**Examples:**
+```php
+Map::from( ['a', 'b'] )->is( ['b', 'a'] );
+Map::from( ['a', 'b'] )->is( ['b', 'a'], true );
+Map::from( [1, 2] )->is( ['1', '2'] );
+```
+
+**Results:**
+The first example returns TRUE while the second and third one returns FALSE
 
 
 ### isEmpty()

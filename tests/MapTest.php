@@ -786,6 +786,26 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testIs()
+	{
+		$map = new Map( ['foo' => 1, 'bar' => 2] );
+
+		$this->assertTrue( $map->is( ['foo' => 1, 'bar' => 2] ) );
+		$this->assertTrue( $map->is( ['bar' => 2, 'foo' => 1] ) );
+		$this->assertTrue( $map->is( ['foo' => '1', 'bar' => '2'] ) );
+	}
+
+
+	public function testIsStrict()
+	{
+		$map = new Map( ['foo' => 1, 'bar' => 2] );
+
+		$this->assertTrue( $map->is( ['foo' => 1, 'bar' => 2], true ) );
+		$this->assertFalse( $map->is( ['bar' => 2, 'foo' => 1], true ) );
+		$this->assertFalse( $map->is( ['foo' => '1', 'bar' => '2'], true ) );
+	}
+
+
 	public function testIsEmpty()
 	{
 		$m = new Map;
