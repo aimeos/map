@@ -573,6 +573,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 * The first and second example will return FALSE, the third example will return TRUE
 	 *
+	 * The method differs to is() in the fact that it doesn't care about the keys
+	 * by default. The elements are only loosely compared and the keys are ignored.
+	 *
 	 * If the second parameter is TRUE, keys are compared too:
 
 	 *  Map::from( [0 => 'a'] )->equals( [1 => 'a'], true );
@@ -588,13 +591,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * @param iterable $elements List of elements to test against
 	 * @param bool $assoc TRUE to compare keys too, FALSE to compare only values
 	 * @return bool TRUE if both are equal, FALSE if not
+	 * @todo 2.0 Remove the $assoc parameter because is() can be used instead
 	 */
 	public function equals( iterable $elements, bool $assoc = false ) : bool
 	{
 		$elements = $this->getArray( $elements );
 
 		if( $assoc ) {
-			return array_diff_assoc( $this->list, $elements ) === [] && array_diff_assoc( $elements, $this->list ) === [];
+			return $this->list == $elements;
 		}
 
 		return array_diff( $this->list, $elements ) === [] && array_diff( $elements, $this->list ) === [];
@@ -1040,6 +1044,33 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		return ( new static( $this->list ) )
 			->remove( array_keys( array_diff_key( $this->list, $elements ) ) )
 			->remove( array_keys( array_diff_key( $elements, $this->list ) ) );
+	}
+
+
+	/**
+	 * Tests if the map consists of the same keys and values
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'b'] )->is( ['b', 'a'] );
+	 *  Map::from( ['a', 'b'] )->is( ['b', 'a'], true );
+	 *  Map::from( [1, 2] )->is( ['1', '2'] );
+	 *
+	 * Results:
+	 *  The first example returns TRUE while the second and third one returns FALSE
+	 *
+	 * @param iterable $list List of key/value pairs to compare with
+	 * @param bool $strict TRUE for comparing order of elements too, FALSE for key/values only
+	 * @param bool TRUE if given list is equal, FALSE if not
+	 */
+	public function is( iterable $list, bool $strict = false ) : bool
+	{
+		$list = $this->getArray( $list );
+
+		if( $strict ) {
+			return $this->list === $list;
+		}
+
+		return $this->list == $list;
 	}
 
 
