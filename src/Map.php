@@ -577,7 +577,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * by default. The elements are only loosely compared and the keys are ignored.
 	 *
 	 * If the second parameter is TRUE, keys are compared too:
-
+	 *
 	 *  Map::from( [0 => 'a'] )->equals( [1 => 'a'], true );
 	 *  Map::from( [1 => 'a'] )->equals( [0 => 'a'], true );
 	 *  Map::from( [0 => 'a'] )->equals( [0 => 'a'], true );
@@ -650,6 +650,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * @param \Closure $callback Function with (value, key) parameters and returns TRUE/FALSE
 	 * @param bool $reverse TRUE to test elements from back to front, FALSE for front to back (default)
 	 * @return mixed|null First matching value or NULL
+	 * @todo 2.0: Insert the default value (incl. exception and callback) as second parameter
 	 */
 	public function find( \Closure $callback, bool $reverse = false )
 	{
