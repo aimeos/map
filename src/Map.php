@@ -720,7 +720,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		reset( $this->list );
-		return key( $this->list);
+		return key( $this->list );
 	}
 
 
