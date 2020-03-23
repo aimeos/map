@@ -1429,6 +1429,20 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testSome()
+	{
+		$this->assertTrue( Map::from( ['a', 'b'] )->some( ['a', 'c'] ) );
+		$this->assertFalse( Map::from( ['a', 'b'] )->some( ['c', 'd'] ) );
+	}
+
+
+	public function testSomeStrict()
+	{
+		$this->assertTrue( Map::from( ['1', '2'] )->some( ['2'], true ) );
+		$this->assertFalse( Map::from( ['1', '2'] )->some( [2], true ) );
+	}
+
+
 	public function testSortNummeric()
 	{
 		$m = ( new Map( [-1, -3, -2, -4, -5, 0, 5, 3, 1, 2, 4] ) )->sort();

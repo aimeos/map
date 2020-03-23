@@ -160,6 +160,7 @@ will return:
 * [shift()](#shift) : Returns and removes the first element
 * [shuffle()](#shuffle) : Randomizes the element order
 * [slice()](#slice) : Returns a slice of the map
+* [some()](#some) : Tests if at least one element is included
 * [sort()](#sort) : Sorts elements
 * [split()](#split) : Splits a string into map elements
 * [splice()](#splice) : Replaces a slice by new elements
@@ -2012,6 +2013,31 @@ Similar for the length:
 - If the array is shorter than the length, then only the available array elements will be present
 - If length is given and is negative then the sequence will stop that many elements from the end
 - If it is omitted, then the sequence will have everything from offset up until the end
+
+
+### some()
+
+Tests if at least one of the elements in the list is part of the map.
+
+```php
+public function some( iterable $list, bool $strict = false ) : bool
+```
+
+* @param iterable `$list` List of elements to test the map agains
+* @param bool `$strict` TRUE to check the type too, using FALSE '1' and 1 will be the same
+* @return bool TRUE if at least one element is available in map, FALSE if the map contains none of them
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b'] )->some( ['a', 'c'] );
+Map::from( ['a', 'b'] )->some( ['c', 'd'] );
+Map::from( ['1', '2'] )->some( [2], true );
+```
+
+**Results:**
+
+The first example will return TRUE while the second and third one will return FALSE
 
 
 ### sort()
