@@ -294,19 +294,23 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Returns the values of a single column/property from an array of arrays or list of elements in a new map.
 	 *
 	 * Examples:
+	 *  Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( 'val' );
 	 *  Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( 'val', 'id' );
+	 *  Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( null, 'id' );
 	 *
 	 * Results:
+	 *  ['v1', 'v2']
 	 *  ['i1' => 'v1', 'i2' => 'v2']
+	 *  ['i1' => ['id' => 'i1', 'val' => 'v1'], 'i2' => ['id' => 'i2', 'val' => 'v2']]
 	 *
 	 * If $indexcol is omitted, the result will be indexed from 0-n.
 	 * The col() method works for objects implementing the __isset() and __get() methods too.
 	 *
-	 * @param string $valuecol Name of the value property
+	 * @param string|null $valuecol Name of the value property
 	 * @param string|null $indexcol Name of the index property
 	 * @return self New instance with mapped entries
 	 */
-	public function col( string $valuecol, string $indexcol = null ) : self
+	public function col( string $valuecol = null, string $indexcol = null ) : self
 	{
 		return new static( array_column( $this->list, $valuecol, $indexcol ) );
 	}
