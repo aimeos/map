@@ -413,23 +413,27 @@ public function clear() : self
 Returns the values of a single column/property from an array of arrays or list of elements in a new map.
 
 ```php
-public function col( string $valuecol, string $indexcol = null ) : self
+public function col( string $valuecol = null, string $indexcol = null ) : self
 ```
 
-* @param string `$valuecol` Name of the value property
+* @param string&#124;null `$valuecol` Name of the value property
 * @param string&#124;null `$indexcol` Name of the index property
 * @return self New instance with mapped entries
 
 **Examples:**
 
 ```php
+Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( 'val' );
 Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( 'val', 'id' );
+Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( null, 'id' );
 ```
 
 **Results:**
 
 ```php
+['v1', 'v2']
 ['i1' => 'v1', 'i2' => 'v2']
+['i1' => ['id' => 'i1', 'val' => 'v1'], 'i2' => ['id' => 'i2', 'val' => 'v2']]
 ```
 
 If `$indexcol` is omitted, the result will be indexed from 0-n.

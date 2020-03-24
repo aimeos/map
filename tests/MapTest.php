@@ -118,6 +118,16 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testColIndexOnly()
+	{
+		$map = new Map( [['foo' => 'one', 'bar' => 'two']] );
+		$secondMap = $map->col( null, 'foo' );
+
+		$this->assertInstanceOf( Map::class, $secondMap );
+		$this->assertEquals( ['one' => ['foo' => 'one', 'bar' => 'two']], $secondMap->toArray() );
+	}
+
+
 	public function testCollapse()
 	{
 		$m = Map::from( [0 => ['a' => 0, 'b' => 1], 1 => ['c' => 2, 'd' => 3]]);
