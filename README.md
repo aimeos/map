@@ -112,6 +112,7 @@ will return:
 * [diff()](#diff) : Returns the missing elements
 * [diffAssoc()](#diffassoc) : Returns the missing elements and checks keys
 * [diffKeys()](#diffkeys) : Returns the missing elements by keys
+* [dump()](#dump) : Dumps the map content
 * [each()](#each) : Applies a callback to each element
 * [empty()](#empty) : Tests if map is empty
 * [equals()](#equals) : Tests if map contents are equal
@@ -654,6 +655,43 @@ Map::from( ['b' => 'a'] )->diffKeys( ['c' => 'a'], function( $keyA, $keyB ) {
 The first and second example will return an empty map because both contain
 the same keys when compared case insensitive. The third example will return
 ['b' => 'a'] because the keys doesn't match ("b" vs. "c").
+
+
+### dump()
+
+Dumps the map content using the given function (print_r by default).
+
+The `dump()` method is very helpful to see what are the map elements passed
+between two map methods in a method call chain.
+
+```php
+public function dump( callable $callback = null ) : self
+```
+
+* @param callable `$callback` Function receiving the map elements as parameter (optional)
+* @return self Same map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->dump()->sort()->dump( 'var_dump' );
+```
+
+**Results:**
+
+```php
+Array
+(
+    [a] => foo
+    [b] => bar
+)
+array(1) {
+  ["b"]=>
+  string(3) "bar"
+  ["a"]=>
+  string(3) "foo"
+}
+```
 
 
 ### each()
