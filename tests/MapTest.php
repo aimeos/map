@@ -351,18 +351,18 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$r = Map::from( ['a' => 'foo', 'b' => 'bar'] )->dump()->sort()->dump( 'var_dump' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->expectOutputString( 'Array
-(
-    [a] => foo
-    [b] => bar
-)
-array(2) {
-  [0]=>
-  string(3) "bar"
-  [1]=>
-  string(3) "foo"
-}
-' );
+		$this->expectOutputRegex( '/Array
+\(
+    \[a\] => foo
+    \[b\] => bar
+\)
+array\(2\\) \{
+  \[0\][ ]*=>
+  string\(3\) "bar"
+  \[1\][ ]*=>
+  string\(3\) "foo"
+\}
+/smu' );
 	}
 
 
