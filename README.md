@@ -167,6 +167,7 @@ will return:
 * [splice()](#splice) : Replaces a slice by new elements
 * [toArray()](#toarray) : Returns the plain array
 * [toJson()](#tojson) : Returns the elements in JSON format
+* [toUrl()](#tourl) : Creates a HTTP query string
 * [uasort()](#uasort) : Sorts elements with keys using callback
 * [uksort()](#uksort) : Sorts elements by keys using callback
 * [union()](#union) : Combines the element without overwriting
@@ -2214,6 +2215,31 @@ combine by bitwise OR (&#124;), e.g.:
 
 ```php
  JSON_FORCE_OBJECT|JSON_HEX_QUOT
+```
+
+
+### toUrl()
+
+Creates a HTTP query string from the map elements.
+
+```php
+public function toUrl() : string
+```
+
+* @return string Parameter string for GET requests
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 'b' => 2] )->toUrl();
+Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
+```
+
+**Results:**
+
+```php
+a=1&b=2
+a%5Bb%5D=abc&a%5Bc%5D=def&d=123
 ```
 
 

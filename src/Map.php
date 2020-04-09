@@ -1928,6 +1928,25 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Creates a HTTP query string from the map elements.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 1, 'b' => 2] )->toUrl();
+	 *  Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
+	 *
+	 * Results:
+	 *  a=1&b=2
+	 *  a%5Bb%5D=abc&a%5Bc%5D=def&d=123
+	 *
+	 * @return string Parameter string for GET requests
+	 */
+	public function toUrl() : string
+	{
+		return http_build_query( $this->list, null, '&', PHP_QUERY_RFC3986 );
+	}
+
+
+	/**
 	 * Sorts all elements using a callback and maintains the key association.
 	 *
 	 * The given callback will be used to compare the values. The callback must accept

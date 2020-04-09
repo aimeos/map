@@ -1590,6 +1590,19 @@ array(2) {
 	}
 
 
+	public function testToUrl()
+	{
+		$this->assertEquals( 'a=1&b=2', Map::from( ['a' => 1, 'b' => 2] )->toUrl() );
+	}
+
+
+	public function testToUrlNested()
+	{
+		$url = Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
+		$this->assertEquals( 'a%5Bb%5D=abc&a%5Bc%5D=def&d=123', $url );
+	}
+
+
 	public function testUasort()
 	{
 		$m = ( new Map( ['a' => 'foo', 'c' => 'bar-10', 1 => 'bar-1'] ) )->uasort( function( $a, $b ) {
