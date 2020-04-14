@@ -642,6 +642,26 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns a new map without the passed element keys.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 1, 'b' => 2, 'c' => 3] )->except( 'b' );
+	 *  Map::from( [1 => 'a', 2 => 'b', 3 => 'c'] )->except( [1, 3] );
+	 *
+	 * Results:
+	 *  ['a' => 1, 'c' => 3]
+	 *  [2 => 'b']
+	 *
+	 * @param mixed|array $keys List of keys to remove
+	 * @return self New map
+	 */
+	public function except( $keys ) : self
+	{
+		return $this->copy()->remove( $keys );
+	}
+
+
+	/**
 	 * Runs a filter over each element of the map and returns a new map.
 	 *
 	 * Examples:

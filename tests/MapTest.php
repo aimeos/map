@@ -474,6 +474,13 @@ Array
 	}
 
 
+	public function testExcept()
+	{
+		$this->assertEquals( ['a' => 1, 'c' => 3], Map::from( ['a' => 1, 'b' => 2, 'c' => 3] )->except( 'b' )->toArray() );
+		$this->assertEquals( [2 => 'b'], Map::from( [1 => 'a', 2 => 'b', 3 => 'c'] )->except( [1, 3] )->toArray() );
+	}
+
+
 	public function testFilter()
 	{
 		$m = new Map( [['id' => 1, 'name' => 'Hello'], ['id' => 2, 'name' => 'World']] );

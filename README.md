@@ -116,6 +116,7 @@ will return:
 * [each()](#each) : Applies a callback to each element
 * [empty()](#empty) : Tests if map is empty
 * [equals()](#equals) : Tests if map contents are equal
+* [except()](#except) : Returns a new map without the passed element keys
 * [filter()](#filter) : Applies a filter to the map elements
 * [find()](#find) : Returns the first matching element
 * [first()](#first) : Returns the first element
@@ -785,6 +786,32 @@ example will return `TRUE`
 Keys and values are compared by their string values:
 ```php
 (string) $item1 === (string) $item2
+```
+
+
+### except()
+
+Returns a new map without the passed element keys.
+
+```php
+public function except( $keys ) : self
+```
+
+* @param mixed|array `$keys` List of keys to remove
+* @return self New map
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 'b' => 2, 'c' => 3] )->except( 'b' );
+Map::from( [1 => 'a', 2 => 'b', 3 => 'c'] )->except( [1, 3] );
+```
+
+**Results:**
+
+```php
+['a' => 1, 'c' => 3]
+[2 => 'b']
 ```
 
 
