@@ -346,6 +346,25 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testDump()
+	{
+		$r = Map::from( ['a' => 'foo', 'b' => 'bar'] )->dump()->sort()->dump( 'print_r' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->expectOutputString( 'Array
+(
+    [a] => foo
+    [b] => bar
+)
+Array
+(
+    [0] => bar
+    [1] => foo
+)
+' );
+	}
+
+
 	public function testEach()
 	{
 		$m = new Map( $original = [1, 2, 'foo' => 'bar', 'bam' => 'baz'] );
@@ -1567,6 +1586,19 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	{
 		$m = new Map( ['name', 'Hello'] );
 		$this->assertEquals( '{"0":"name","1":"Hello"}', $m->toJson( JSON_FORCE_OBJECT ) );
+	}
+
+
+	public function testToUrl()
+	{
+		$this->assertEquals( 'a=1&b=2', Map::from( ['a' => 1, 'b' => 2] )->toUrl() );
+	}
+
+
+	public function testToUrlNested()
+	{
+		$url = Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
+		$this->assertEquals( 'a%5Bb%5D=abc&a%5Bc%5D=def&d=123', $url );
 	}
 
 

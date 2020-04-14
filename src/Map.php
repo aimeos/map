@@ -517,6 +517,38 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	}
 
 
+    /**
+     * Dumps the map content using the given function (print_r by default).
+	 *
+	 * The dump() method is very helpful to see what are the map elements passed
+	 * between two map methods in a method call chain.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 'foo', 'b' => 'bar'] )->dump()->sort()->dump( 'var_dump' );
+	 *
+	 * Results:
+	 *  Array
+	 *  (
+	 *      [a] => foo
+	 *      [b] => bar
+	 *  )
+	 *  array(1) {
+	 *    ["b"]=>
+	 *    string(3) "bar"
+	 *    ["a"]=>
+	 *    string(3) "foo"
+	 *  }
+     *
+	 * @param callable $callback Function receiving the map elements as parameter (optional)
+	 * @return self Same map for fluid interface
+     */
+    public function dump( callable $callback = null ) : self
+    {
+		$callback ? $callback( $this->list ) : print_r( $this->list );
+        return $this;
+    }
+
+
 	/**
 	 * Executes a callback over each entry until FALSE is returned.
 	 *
@@ -1892,6 +1924,25 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function toJson( int $options = 0 ) : string
 	{
 		return json_encode( $this->list, $options );
+	}
+
+
+	/**
+	 * Creates a HTTP query string from the map elements.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 1, 'b' => 2] )->toUrl();
+	 *  Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
+	 *
+	 * Results:
+	 *  a=1&b=2
+	 *  a%5Bb%5D=abc&a%5Bc%5D=def&d=123
+	 *
+	 * @return string Parameter string for GET requests
+	 */
+	public function toUrl() : string
+	{
+		return http_build_query( $this->list, null, '&', PHP_QUERY_RFC3986 );
 	}
 
 
