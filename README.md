@@ -147,6 +147,7 @@ will return:
 * [offsetGet()](#offsetget) : Returns an element by key
 * [offsetSet()](#offsetset) : Overwrites an element
 * [offsetUnset()](#offsetunset) : Removes an element by key
+* [only()](#only) : Returns only those elements specified by the keys
 * [pipe()](#pipe) : Applies a callback to the map
 * [pop()](#pop) : Returns and removes the last element
 * [pull()](#pull) : Returns and removes an element by key
@@ -1672,6 +1673,32 @@ unset( $map['a'] );
 **Results:**
 
 The map will be empty
+
+
+### only()
+
+Returns a new map with only those elements specified by the given keys.
+
+```php
+public function only( $keys ) : self
+```
+
+* @param array|string|int `$keys` Keys of the elements that should be returned
+* @return self New map with only the elements specified by the keys
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 0 => 'b'] )->only( 'a' );
+Map::from( ['a' => 1, 0 => 'b', 1 => 'c'] )->only( [0, 1] );
+```
+
+**Results:**
+
+```php
+['a' => 1]
+[0 => 'b', 1 => 'c']
+```
 
 
 ### pipe()

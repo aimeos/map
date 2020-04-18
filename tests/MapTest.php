@@ -1102,6 +1102,13 @@ Array
 	}
 
 
+	public function testOnly()
+	{
+		$this->assertEquals( ['a' => 1], Map::from( ['a' => 1, 0 => 'b'] )->only( 'a' )->toArray() );
+		$this->assertEquals( [0 => 'b', 1 => 'c'], Map::from( ['a' => 1, 0 => 'b', 1 => 'c'] )->only( [0, 1] )->toArray() );
+	}
+
+
 	public function testPipe()
 	{
 		$map = new Map( [1, 2, 3] );

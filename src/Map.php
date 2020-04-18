@@ -1447,6 +1447,26 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns a new map with only those elements specified by the given keys.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 1, 0 => 'b'] )->only( 'a' );
+	 *  Map::from( ['a' => 1, 0 => 'b', 1 => 'c'] )->only( [0, 1] );
+	 *
+	 * Results:
+	 *  ['a' => 1]
+	 *  [0 => 'b', 1 => 'c']
+	 *
+	 * @param array|string|int $keys Keys of the elements that should be returned
+	 * @return self New map with only the elements specified by the keys
+	 */
+	public function only( $keys ) : self
+	{
+		return new self( array_intersect_key( $this->list, array_flip( (array) $keys ) ) );
+	}
+
+
+	/**
 	 * Passes the map to the given callback and return the result.
 	 *
 	 * Examples:
