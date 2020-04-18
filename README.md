@@ -1525,10 +1525,11 @@ Elements with the same non-numeric keys will be overwritten, elements with the
 same numeric keys will be added.
 
 ```php
-public function merge( iterable $elements ) : self
+public function merge( iterable $elements, bool $recursive = false ) : self
 ```
 
 * @param iterable `$elements` List of elements
+* @param bool $recursive TRUE to merge nested arrays too, FALSE for first level elements only
 * @return self Updated map for fluid interface
 
 **Examples:**
@@ -1536,6 +1537,7 @@ public function merge( iterable $elements ) : self
 ```php
 Map::from( ['a', 'b'] )->merge( ['b', 'c'] );
 Map::from( ['a' => 1, 'b' => 2] )->merge( ['b' => 4, 'c' => 6] );
+Map::from( ['a' => 1, 'b' => 2] )->merge( ['b' => 4, 'c' => 6], true );
 ```
 
 **Results:**
@@ -1543,6 +1545,7 @@ Map::from( ['a' => 1, 'b' => 2] )->merge( ['b' => 4, 'c' => 6] );
 ```php
 ['a', 'b', 'b', 'c']
 ['a' => 1, 'b' => 4, 'c' => 6]
+['a' => 1, 'b' => [2, 4], 'c' => 6]
 ```
 
 The method is similar to `replace()` but doesn't replace elements with the same

@@ -1346,21 +1346,29 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Examples:
 	 *  Map::from( ['a', 'b'] )->merge( ['b', 'c'] );
 	 *  Map::from( ['a' => 1, 'b' => 2] )->merge( ['b' => 4, 'c' => 6] );
+	 *  Map::from( ['a' => 1, 'b' => 2] )->merge( ['b' => 4, 'c' => 6], true );
 	 *
 	 * Results:
 	 *  ['a', 'b', 'b', 'c']
 	 *  ['a' => 1, 'b' => 4, 'c' => 6]
+	 *  ['a' => 1, 'b' => [2, 4], 'c' => 6]
 	 *
 	 * The method is similar to replace() but doesn't replace elements with
 	 * the same numeric keys. If you want to be sure that all passed elements
 	 * are added without replacing existing ones, use concat() instead.
 	 *
 	 * @param iterable $elements List of elements
+	 * @param bool $recursive TRUE to merge nested arrays too, FALSE for first level elements only
 	 * @return self Updated map for fluid interface
 	 */
-	public function merge( iterable $elements ) : self
+	public function merge( iterable $elements, bool $recursive = false ) : self
 	{
-		$this->list = array_merge( $this->list, $this->getArray( $elements ) );
+		if( $recursive ) {
+			$this->list = array_merge_recursive( $this->list, $this->getArray( $elements ) );
+		} else {
+			$this->list = array_merge( $this->list, $this->getArray( $elements ) );
+		}
+
 		return $this;
 	}
 
@@ -1622,7 +1630,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The first example will result in [2 => 'b'] while the second one resulting
 	 * in an empty list
 	 *
-	 * @param mixed|array $keys List of keys
+	 * @param mixed|array $keys List of keys to remove
 	 * @return self Same map for fluid interface
 	 */
 	public function remove( $keys ) : self

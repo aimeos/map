@@ -986,6 +986,15 @@ Array
 	}
 
 
+	public function testMergeRecursive()
+	{
+		$r = Map::from( ['a' => 1, 'b' => 2] )->merge( ['b' => 4, 'c' => 6], true );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['a' => 1, 'b' => [2, 4], 'c' => 6], $r->toArray() );
+	}
+
+
 	public function testMethod()
 	{
 		Map::method( 'foo', function() {
