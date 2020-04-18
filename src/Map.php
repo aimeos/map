@@ -1863,8 +1863,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Removes a portion of the map and replace it with the given replacement, then return the updated map.
 	 *
 	 * Examples:
-	 *  Map::from( ['a', 'b', 'c'] )->slice( 1 );
-	 *  Map::from( ['a', 'b', 'c'] )->slice( 1, 1, ['x', 'y'] );
+	 *  Map::from( ['a', 'b', 'c'] )->splice( 1 );
+	 *  Map::from( ['a', 'b', 'c'] )->splice( 1, 1, ['x', 'y'] );
 	 *
 	 * Results:
 	 * The first example removes all entries after "a", so only ['a'] will be left

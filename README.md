@@ -2135,8 +2135,8 @@ public function splice( int $offset, int $length = null, $replacement = [] ) : s
 **Examples:**
 
 ```php
-Map::from( ['a', 'b', 'c'] )->slice( 1 );
-Map::from( ['a', 'b', 'c'] )->slice( 1, 1, ['x', 'y'] );
+Map::from( ['a', 'b', 'c'] )->splice( 1 );
+Map::from( ['a', 'b', 'c'] )->splice( 1, 1, ['x', 'y'] );
 ```
 
 **Results:**
