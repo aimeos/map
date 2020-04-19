@@ -379,6 +379,24 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Combines the values of the map as keys with the passed elements as values.
+	 *
+	 * Examples:
+	 *  Map::from( ['name', 'age'] )->combine( ['Tom', 29] );
+	 *
+	 * Results:
+	 *  ['name' => 'Tom', 'age' => 29]
+	 *
+	 * @param iterable $values Values of the new map
+	 * @return self New map
+	 */
+	public function combine( iterable $values ) : self
+	{
+		return new static( array_combine( $this->list, $this->getArray( $values ) ) );
+	}
+
+
+	/**
 	 * Creates a new map with the same elements.
 	 *
 	 * Both maps share the same array until one of the map objects modifies the

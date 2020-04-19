@@ -170,6 +170,13 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testCombine()
+	{
+		$r = Map::from( ['name', 'age'] )->combine( ['Tom', 29] );
+		$this->assertEquals( ['name' => 'Tom', 'age' => 29], $r->toArray() );
+	}
+
+
 	public function testConcatWithArray()
 	{
 		$first = new Map( [1, 2] );

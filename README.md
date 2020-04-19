@@ -106,6 +106,7 @@ will return:
 * [clear()](#clear) : Removes all elements
 * [col()](#col) : Creates a key/value mapping
 * [collapse()](#collapse) : Collapses multi-dimensional elements
+* [combine()](#combine) : Combines the keys with the values
 * [concat()](#concat) : Combines the elements
 * [copy()](#copy) : Creates a new copy
 * [count()](#count) : Returns the number of elements
@@ -506,6 +507,30 @@ Map::from( ['foo'] )->concat( new Map( ['bar'] ));
 
 ```php
 ['foo', 'bar']
+```
+
+
+### combine()
+
+Combines the values of the map as keys with the passed elements as values.
+
+```php
+public function combine( iterable $values ) : self
+```
+
+* @param iterable `$values` Values of the new map
+* @return self New map
+
+**Examples:**
+
+```php
+Map::from( ['name', 'age'] )->combine( ['Tom', 29] );
+```
+
+**Results:**
+
+```php
+['name' => 'Tom', 'age' => 29]
 ```
 
 
