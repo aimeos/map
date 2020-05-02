@@ -764,6 +764,68 @@ Array
 	}
 
 
+	public function testGroupBy()
+	{
+		$list = [
+			10 => ['aid' => 123, 'code' => 'x-abc'],
+			20 => ['aid' => 123, 'code' => 'x-def'],
+			30 => ['aid' => 456, 'code' => 'x-def']
+		];
+		$expected = [
+			123 => [10 => ['aid' => 123, 'code' => 'x-abc'], 20 => ['aid' => 123, 'code' => 'x-def']],
+			456 => [30 => ['aid' => 456, 'code' => 'x-def']]
+		];
+
+		$r = Map::from( $list )->groupBy( 'aid' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( $expected, $r->toArray() );
+	}
+
+
+	public function testGroupByCallback()
+	{
+		$list = [
+			10 => ['aid' => 123, 'code' => 'x-abc'],
+			20 => ['aid' => 123, 'code' => 'x-def'],
+			30 => ['aid' => 456, 'code' => 'x-def']
+		];
+		$expected = [
+			'abc' => [10 => ['aid' => 123, 'code' => 'x-abc']],
+			'def' => [20 => ['aid' => 123, 'code' => 'x-def'], 30 => ['aid' => 456, 'code' => 'x-def']]
+		];
+
+		$r = Map::from( $list )->groupBy( function( $item, $key ) {
+			return substr( $item['code'], -3 );
+		} );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( $expected, $r->toArray() );
+	}
+
+
+	public function testGroupByInvalid()
+	{
+		$list = [
+			10 => ['aid' => 123, 'code' => 'x-abc'],
+			20 => ['aid' => 123, 'code' => 'x-def'],
+			30 => ['aid' => 456, 'code' => 'x-def']
+		];
+		$expected = [
+			'xid' => [
+				10 => ['aid' => 123, 'code' => 'x-abc'],
+				20 => ['aid' => 123, 'code' => 'x-def'],
+				30 => ['aid' => 456, 'code' => 'x-def']
+			]
+		];
+
+		$r = Map::from( $list )->groupBy( 'xid' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( $expected, $r->toArray() );
+	}
+
+
 	public function testHas()
 	{
 		$m = new Map( ['id' => 1, 'first' => 'Hello', 'second' => 'World'] );

@@ -938,6 +938,67 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Groups associative array elements or objects by the passed key or closure.
+	 *
+	 * Instead of overwriting items with the same keys like to the col() method
+	 * does, groupBy() keeps all entries in sub-arrays. It's preserves the keys
+	 * of the orignal map entries too.
+	 *
+	 * Examples:
+	 *  $list = [
+	 *    10 => ['aid' => 123, 'code' => 'x-abc'],
+	 *    20 => ['aid' => 123, 'code' => 'x-def'],
+	 *    30 => ['aid' => 456, 'code' => 'x-def']
+	 *  ];
+	 *  Map::from( $list )->groupBy( 'aid' );
+	 *  Map::from( $list )->groupBy( function( $item, $key ) {
+	 *    return substr( $item['code'], -3 );
+	 *  } );
+	 *  Map::from( $list )->groupBy( 'xid' );
+	 *
+	 * Results:
+	 *  [
+	 *    123 => [10 => ['aid' => 123, 'code' => 'x-abc'], 20 => ['aid' => 123, 'code' => 'x-def']],
+	 *    456 => [30 => ['aid' => 456, 'code' => 'x-def']]
+	 *  ]
+	 *  [
+	 *    'abc' => [10 => ['aid' => 123, 'code' => 'x-abc']],
+	 *    'def' => [20 => ['aid' => 123, 'code' => 'x-def'], 30 => ['aid' => 456, 'code' => 'x-def']]
+	 *  ]
+	 *  [
+	 *    'xid' => [
+	 *      10 => ['aid' => 123, 'code' => 'x-abc'],
+	 *      20 => ['aid' => 123, 'code' => 'x-def'],
+	 *      30 => ['aid' => 456, 'code' => 'x-def']
+	 *    ]
+	 *  ]
+	 *
+	 * In case the passed key doesn't exist in one or more items, these items
+	 * are stored in a sub-array using the passed string as key.
+	 *
+	 * @param  Closure|string $key Closure function with (item, idx) parameters returning the key or the key itself to group by
+	 * @return self New map with elements grouped by the given key
+	 */
+	public function groupBy( $key ) : self
+	{
+		$result = [];
+
+		foreach( $this->list as $idx => $item )
+		{
+			if( is_callable( $key ) ) {
+				$keyval = $key( $item, $idx );
+			} else {
+				$keyval = $item->{$key} ?? ( $item[$key] ?? $key );
+			}
+
+			$result[$keyval][$idx] = $item;
+		}
+
+		return new static( $result );
+	}
+
+
+	/**
 	 * Determines if a key or several keys exists in the map.
 	 *
 	 * If several keys are passed as array, all keys must exist in the map for
