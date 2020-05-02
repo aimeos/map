@@ -259,6 +259,35 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testCountBy()
+	{
+		$r = Map::from( [1, 'foo', 2, 'foo', 1] )->countBy();
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [1 => 2, 'foo' => 2, 2 => 1], $r->toArray() );
+	}
+
+
+	public function testCountByCallback()
+	{
+		$r = Map::from( ['a@gmail.com', 'b@yahoo.com', 'c@gmail.com'] )->countBy( function( $email ) {
+			return substr( strrchr( $email, '@' ), 1 );
+		} );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['gmail.com' => 2, 'yahoo.com' => 1], $r->toArray() );
+	}
+
+
+	public function testCountByFloat()
+	{
+		$r = Map::from( [1.11, 3.33, 3.33, 9.99] )->countBy();
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['1.11' => 1, '3.33' => 2, '9.99' => 1], $r->toArray() );
+	}
+
+
 	public function testDiff()
 	{
 		$m = new Map( ['id' => 1, 'first_word' => 'Hello'] );

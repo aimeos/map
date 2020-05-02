@@ -422,6 +422,39 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Counts how often the same values are in the map.
+	 *
+	 * Examples:
+	 *  Map::from( [1, 'foo', 2, 'foo', 1] )->countBy();
+	 *  Map::from( [1.11, 3.33, 3.33, 9.99] )->countBy();
+	 *  Map::from( ['a@gmail.com', 'b@yahoo.com', 'c@gmail.com'] )->countBy( function( $email ) {
+	 *    return substr( strrchr( $email, '@' ), 1 );
+	 *  } );
+	 *
+	 * Results:
+	 *  [1 => 2, 'foo' => 2, 2 => 1]
+	 *  ['1.11' => 1, '3.33' => 2, '9.99' => 1]
+	 *  ['gmail.com' => 2, 'yahoo.com' => 1]
+	 *
+	 * Counting values does only work for integers and strings because these are
+	 * the only types allowed as array keys. All elements are casted to strings
+	 * if no callback is passed. Custom callbacks need to make sure that only
+	 * string or integer values are returned!
+	 *
+	 * @param  callable|null $callback Function with (value, key) parameters which returns the value to use for counting
+	 * @return self New map with values as keys and their count as value
+	 */
+	public function countBy( callable $callback = null ) : self
+	{
+		$callback = $callback ?? function( $value ) {
+			return (string) $value;
+		};
+
+		return new static( array_count_values( array_map( $callback, $this->list ) ) );
+	}
+
+
+	/**
 	 * Returns the keys/values in the map whose values are not present in the passed elements in a new map.
 	 *
 	 * Examples:

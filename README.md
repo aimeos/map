@@ -110,6 +110,7 @@ will return:
 * [concat()](#concat) : Combines the elements
 * [copy()](#copy) : Creates a new copy
 * [count()](#count) : Returns the number of elements
+* [countBy()](#countBy) : Counts how often the same values are in the map
 * [diff()](#diff) : Returns the missing elements
 * [diffAssoc()](#diffassoc) : Returns the missing elements and checks keys
 * [diffKeys()](#diffkeys) : Returns the missing elements by keys
@@ -557,6 +558,36 @@ public function count() : int
 ```
 
 * @return int Number of elements
+
+
+### countBy()
+
+Counts how often the same values are in the map.
+
+```php
+public function countBy( callable $callback = null ) : self
+```
+
+* @param  callable&#124;null `$callback` Function with (value, key) parameters which returns the value to use for counting
+* @return self New map with values as keys and their count as value
+
+**Examples:**
+
+```php
+Map::from( [1, 'foo', 2, 'foo', 1] )->countBy();
+Map::from( [1.11, 3.33, 3.33, 9.99] )->countBy();
+Map::from( ['a@gmail.com', 'b@yahoo.com', 'c@gmail.com'] )->countBy( function( $email ) {
+    return substr( strrchr( $email, '@' ), 1 );
+} );
+```
+
+**Results:**
+
+```php
+[1 => 2, 'foo' => 2, 2 => 1]
+['1.11' => 1, '3.33' => 2, '9.99' => 1]
+['gmail.com' => 2, 'yahoo.com' => 1]
+```
 
 
 ### diff()
