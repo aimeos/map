@@ -976,7 +976,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * In case the passed key doesn't exist in one or more items, these items
 	 * are stored in a sub-array using the passed string as key.
 	 *
-	 * @param  Closure|string $key Closure function with (item, idx) parameters returning the key or the key itself to group by
+	 * @param  \Closure|string $key Closure function with (item, idx) parameters returning the key or the key itself to group by
 	 * @return self New map with elements grouped by the given key
 	 */
 	public function groupBy( $key ) : self

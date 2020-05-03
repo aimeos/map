@@ -1129,7 +1129,7 @@ orignal map entries too.
 public function groupBy( $key ) : self
 ```
 
-* @param  Closure|string $key Closure function with (item, idx) parameters returning the key or the key itself to group by
+* @param  \Closure|string $key Closure function with (item, idx) parameters returning the key or the key itself to group by
 * @return self New map with elements grouped by the given key
 
 **Examples:**
