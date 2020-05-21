@@ -16,6 +16,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$this->assertInstanceOf( Map::class, \map() );
 		$this->assertInstanceOf( Map::class, \map( [] ) );
 		$this->assertInstanceOf( Map::class, \map( 'a' ) );
+		$this->assertInstanceOf( Map::class, \map( new Map ) );
 	}
 
 
@@ -170,6 +171,13 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testCombine()
+	{
+		$r = Map::from( ['name', 'age'] )->combine( ['Tom', 29] );
+		$this->assertEquals( ['name' => 'Tom', 'age' => 29], $r->toArray() );
+	}
+
+
 	public function testConcatWithArray()
 	{
 		$first = new Map( [1, 2] );
@@ -249,6 +257,35 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	{
 		$m = new Map( ['foo', 'bar'] );
 		$this->assertCount( 2, $m );
+	}
+
+
+	public function testCountBy()
+	{
+		$r = Map::from( [1, 'foo', 2, 'foo', 1] )->countBy();
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [1 => 2, 'foo' => 2, 2 => 1], $r->toArray() );
+	}
+
+
+	public function testCountByCallback()
+	{
+		$r = Map::from( ['a@gmail.com', 'b@yahoo.com', 'c@gmail.com'] )->countBy( function( $email ) {
+			return substr( strrchr( $email, '@' ), 1 );
+		} );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['gmail.com' => 2, 'yahoo.com' => 1], $r->toArray() );
+	}
+
+
+	public function testCountByFloat()
+	{
+		$r = Map::from( [1.11, 3.33, 3.33, 9.99] )->countBy();
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['1.11' => 1, '3.33' => 2, '9.99' => 1], $r->toArray() );
 	}
 
 
@@ -471,6 +508,13 @@ Array
 	{
 		$map = new Map( ['foo' => 'one', 'bar' => 'two'] );
 		$this->assertFalse( $map->equals( ['foo' => 'one', 'bar' => 'two', 'baz' => 'three'], true ) );
+	}
+
+
+	public function testExcept()
+	{
+		$this->assertEquals( ['a' => 1, 'c' => 3], Map::from( ['a' => 1, 'b' => 2, 'c' => 3] )->except( 'b' )->toArray() );
+		$this->assertEquals( [2 => 'b'], Map::from( [1 => 'a', 2 => 'b', 3 => 'c'] )->except( [1, 3] )->toArray() );
 	}
 
 
@@ -718,6 +762,68 @@ Array
 		$result = $m->get( 1, function() { return rand( 10, 11 ); } );
 
 		$this->assertGreaterThanOrEqual( 10, $result );
+	}
+
+
+	public function testGroupBy()
+	{
+		$list = [
+			10 => ['aid' => 123, 'code' => 'x-abc'],
+			20 => ['aid' => 123, 'code' => 'x-def'],
+			30 => ['aid' => 456, 'code' => 'x-def']
+		];
+		$expected = [
+			123 => [10 => ['aid' => 123, 'code' => 'x-abc'], 20 => ['aid' => 123, 'code' => 'x-def']],
+			456 => [30 => ['aid' => 456, 'code' => 'x-def']]
+		];
+
+		$r = Map::from( $list )->groupBy( 'aid' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( $expected, $r->toArray() );
+	}
+
+
+	public function testGroupByCallback()
+	{
+		$list = [
+			10 => ['aid' => 123, 'code' => 'x-abc'],
+			20 => ['aid' => 123, 'code' => 'x-def'],
+			30 => ['aid' => 456, 'code' => 'x-def']
+		];
+		$expected = [
+			'abc' => [10 => ['aid' => 123, 'code' => 'x-abc']],
+			'def' => [20 => ['aid' => 123, 'code' => 'x-def'], 30 => ['aid' => 456, 'code' => 'x-def']]
+		];
+
+		$r = Map::from( $list )->groupBy( function( $item, $key ) {
+			return substr( $item['code'], -3 );
+		} );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( $expected, $r->toArray() );
+	}
+
+
+	public function testGroupByInvalid()
+	{
+		$list = [
+			10 => ['aid' => 123, 'code' => 'x-abc'],
+			20 => ['aid' => 123, 'code' => 'x-def'],
+			30 => ['aid' => 456, 'code' => 'x-def']
+		];
+		$expected = [
+			'xid' => [
+				10 => ['aid' => 123, 'code' => 'x-abc'],
+				20 => ['aid' => 123, 'code' => 'x-def'],
+				30 => ['aid' => 456, 'code' => 'x-def']
+			]
+		];
+
+		$r = Map::from( $list )->groupBy( 'xid' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( $expected, $r->toArray() );
 	}
 
 
@@ -979,6 +1085,15 @@ Array
 	}
 
 
+	public function testMergeRecursive()
+	{
+		$r = Map::from( ['a' => 1, 'b' => 2] )->merge( ['b' => 4, 'c' => 6], true );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['a' => 1, 'b' => [2, 4], 'c' => 6], $r->toArray() );
+	}
+
+
 	public function testMethod()
 	{
 		Map::method( 'foo', function() {
@@ -1092,6 +1207,13 @@ Array
 
 		$m->offsetUnset( 1 );
 		$this->assertFalse( isset( $m[1] ) );
+	}
+
+
+	public function testOnly()
+	{
+		$this->assertEquals( ['a' => 1], Map::from( ['a' => 1, 0 => 'b'] )->only( 'a' )->toArray() );
+		$this->assertEquals( [0 => 'b', 1 => 'c'], Map::from( ['a' => 1, 0 => 'b', 1 => 'c'] )->only( [0, 1] )->toArray() );
 	}
 
 

@@ -106,9 +106,11 @@ will return:
 * [clear()](#clear) : Removes all elements
 * [col()](#col) : Creates a key/value mapping
 * [collapse()](#collapse) : Collapses multi-dimensional elements
+* [combine()](#combine) : Combines the keys with the values
 * [concat()](#concat) : Combines the elements
 * [copy()](#copy) : Creates a new copy
 * [count()](#count) : Returns the number of elements
+* [countBy()](#countBy) : Counts how often the same values are in the map
 * [diff()](#diff) : Returns the missing elements
 * [diffAssoc()](#diffassoc) : Returns the missing elements and checks keys
 * [diffKeys()](#diffkeys) : Returns the missing elements by keys
@@ -116,6 +118,7 @@ will return:
 * [each()](#each) : Applies a callback to each element
 * [empty()](#empty) : Tests if map is empty
 * [equals()](#equals) : Tests if map contents are equal
+* [except()](#except) : Returns a new map without the passed element keys
 * [filter()](#filter) : Applies a filter to the map elements
 * [find()](#find) : Returns the first matching element
 * [first()](#first) : Returns the first element
@@ -125,6 +128,7 @@ will return:
 * [from()](#from) : Creates a new map from passed elements
 * [get()](#get) : Returns an element by key
 * [getIterator()](#getiterator) : Returns an iterator for the elements
+* [groupBy()](#groupBy) : Groups associative array elements or objects
 * [has()](#has) : Tests if a key exists
 * [in()](#in) : Tests if element is included
 * [includes()](#includes) : Tests if element is included
@@ -146,6 +150,7 @@ will return:
 * [offsetGet()](#offsetget) : Returns an element by key
 * [offsetSet()](#offsetset) : Overwrites an element
 * [offsetUnset()](#offsetunset) : Removes an element by key
+* [only()](#only) : Returns only those elements specified by the keys
 * [pipe()](#pipe) : Applies a callback to the map
 * [pop()](#pop) : Returns and removes the last element
 * [pull()](#pull) : Returns and removes an element by key
@@ -507,6 +512,30 @@ Map::from( ['foo'] )->concat( new Map( ['bar'] ));
 ```
 
 
+### combine()
+
+Combines the values of the map as keys with the passed elements as values.
+
+```php
+public function combine( iterable $values ) : self
+```
+
+* @param iterable `$values` Values of the new map
+* @return self New map
+
+**Examples:**
+
+```php
+Map::from( ['name', 'age'] )->combine( ['Tom', 29] );
+```
+
+**Results:**
+
+```php
+['name' => 'Tom', 'age' => 29]
+```
+
+
 ### copy()
 
 Creates a new map with the same elements.
@@ -530,6 +559,36 @@ public function count() : int
 ```
 
 * @return int Number of elements
+
+
+### countBy()
+
+Counts how often the same values are in the map.
+
+```php
+public function countBy( callable $callback = null ) : self
+```
+
+* @param  callable&#124;null `$callback` Function with (value, key) parameters which returns the value to use for counting
+* @return self New map with values as keys and their count as value
+
+**Examples:**
+
+```php
+Map::from( [1, 'foo', 2, 'foo', 1] )->countBy();
+Map::from( [1.11, 3.33, 3.33, 9.99] )->countBy();
+Map::from( ['a@gmail.com', 'b@yahoo.com', 'c@gmail.com'] )->countBy( function( $email ) {
+    return substr( strrchr( $email, '@' ), 1 );
+} );
+```
+
+**Results:**
+
+```php
+[1 => 2, 'foo' => 2, 2 => 1]
+['1.11' => 1, '3.33' => 2, '9.99' => 1]
+['gmail.com' => 2, 'yahoo.com' => 1]
+```
 
 
 ### diff()
@@ -788,6 +847,32 @@ Keys and values are compared by their string values:
 ```
 
 
+### except()
+
+Returns a new map without the passed element keys.
+
+```php
+public function except( $keys ) : self
+```
+
+* @param mixed|array `$keys` List of keys to remove
+* @return self New map
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 'b' => 2, 'c' => 3] )->except( 'b' );
+Map::from( [1 => 'a', 2 => 'b', 3 => 'c'] )->except( [1, 3] );
+```
+
+**Results:**
+
+```php
+['a' => 1, 'c' => 3]
+[2 => 'b']
+```
+
+
 ### filter()
 
 Runs a filter over each element of the map and returns a new map.
@@ -1030,6 +1115,68 @@ public function getIterator() : \Iterator
 ```
 foreach( Map::from( ['a', 'b'] ) as $value )
 ```
+
+
+### groupBy()
+
+Groups associative array elements or objects by the passed key or closure.
+
+Instead of overwriting items with the same keys like to the `col()` method does,
+`groupBy()` keeps all entries in sub-arrays. It's preserves the keys of the
+orignal map entries too.
+
+```php
+public function groupBy( $key ) : self
+```
+
+* @param  \Closure|string $key Closure function with (item, idx) parameters returning the key or the key itself to group by
+* @return self New map with elements grouped by the given key
+
+**Examples:**
+
+```php
+$list = [
+    10 => ['aid' => 123, 'code' => 'x-abc'],
+    20 => ['aid' => 123, 'code' => 'x-def'],
+    30 => ['aid' => 456, 'code' => 'x-def']
+];
+Map::from( $list )->groupBy( 'aid' );
+Map::from( $list )->groupBy( function( $item, $key ) {
+    return substr( $item['code'], -3 );
+} );
+Map::from( $list )->groupBy( 'xid' );
+```
+
+**Results:**
+
+[
+    123 => [
+        10 => ['aid' => 123, 'code' => 'x-abc'],
+        20 => ['aid' => 123, 'code' => 'x-def']
+    ],
+    456 => [
+        30 => ['aid' => 456, 'code' => 'x-def']
+    ]
+]
+[
+    'abc' => [
+        10 => ['aid' => 123, 'code' => 'x-abc']
+    ],
+    'def' => [
+        20 => ['aid' => 123, 'code' => 'x-def'],
+        30 => ['aid' => 456, 'code' => 'x-def']
+    ]
+]
+[
+    'xid' => [
+        10 => ['aid' => 123, 'code' => 'x-abc'],
+        20 => ['aid' => 123, 'code' => 'x-def']
+        30 => ['aid' => 456, 'code' => 'x-def']
+    ]
+]
+
+In case the passed key doesn't exist in one or more items, these items are stored
+in a sub-array using passed string as key.
 
 
 ### has()
@@ -1497,10 +1644,11 @@ Elements with the same non-numeric keys will be overwritten, elements with the
 same numeric keys will be added.
 
 ```php
-public function merge( iterable $elements ) : self
+public function merge( iterable $elements, bool $recursive = false ) : self
 ```
 
 * @param iterable `$elements` List of elements
+* @param bool $recursive TRUE to merge nested arrays too, FALSE for first level elements only
 * @return self Updated map for fluid interface
 
 **Examples:**
@@ -1508,6 +1656,7 @@ public function merge( iterable $elements ) : self
 ```php
 Map::from( ['a', 'b'] )->merge( ['b', 'c'] );
 Map::from( ['a' => 1, 'b' => 2] )->merge( ['b' => 4, 'c' => 6] );
+Map::from( ['a' => 1, 'b' => 2] )->merge( ['b' => 4, 'c' => 6], true );
 ```
 
 **Results:**
@@ -1515,6 +1664,7 @@ Map::from( ['a' => 1, 'b' => 2] )->merge( ['b' => 4, 'c' => 6] );
 ```php
 ['a', 'b', 'b', 'c']
 ['a' => 1, 'b' => 4, 'c' => 6]
+['a' => 1, 'b' => [2, 4], 'c' => 6]
 ```
 
 The method is similar to `replace()` but doesn't replace elements with the same
@@ -1645,6 +1795,32 @@ unset( $map['a'] );
 **Results:**
 
 The map will be empty
+
+
+### only()
+
+Returns a new map with only those elements specified by the given keys.
+
+```php
+public function only( $keys ) : self
+```
+
+* @param array|string|int `$keys` Keys of the elements that should be returned
+* @return self New map with only the elements specified by the keys
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 0 => 'b'] )->only( 'a' );
+Map::from( ['a' => 1, 0 => 'b', 1 => 'c'] )->only( [0, 1] );
+```
+
+**Results:**
+
+```php
+['a' => 1]
+[0 => 'b', 1 => 'c']
+```
 
 
 ### pipe()

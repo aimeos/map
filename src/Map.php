@@ -379,6 +379,24 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Combines the values of the map as keys with the passed elements as values.
+	 *
+	 * Examples:
+	 *  Map::from( ['name', 'age'] )->combine( ['Tom', 29] );
+	 *
+	 * Results:
+	 *  ['name' => 'Tom', 'age' => 29]
+	 *
+	 * @param iterable $values Values of the new map
+	 * @return self New map
+	 */
+	public function combine( iterable $values ) : self
+	{
+		return new static( array_combine( $this->list, $this->getArray( $values ) ) );
+	}
+
+
+	/**
 	 * Creates a new map with the same elements.
 	 *
 	 * Both maps share the same array until one of the map objects modifies the
@@ -400,6 +418,39 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function count() : int
 	{
 		return count( $this->list );
+	}
+
+
+	/**
+	 * Counts how often the same values are in the map.
+	 *
+	 * Examples:
+	 *  Map::from( [1, 'foo', 2, 'foo', 1] )->countBy();
+	 *  Map::from( [1.11, 3.33, 3.33, 9.99] )->countBy();
+	 *  Map::from( ['a@gmail.com', 'b@yahoo.com', 'c@gmail.com'] )->countBy( function( $email ) {
+	 *    return substr( strrchr( $email, '@' ), 1 );
+	 *  } );
+	 *
+	 * Results:
+	 *  [1 => 2, 'foo' => 2, 2 => 1]
+	 *  ['1.11' => 1, '3.33' => 2, '9.99' => 1]
+	 *  ['gmail.com' => 2, 'yahoo.com' => 1]
+	 *
+	 * Counting values does only work for integers and strings because these are
+	 * the only types allowed as array keys. All elements are casted to strings
+	 * if no callback is passed. Custom callbacks need to make sure that only
+	 * string or integer values are returned!
+	 *
+	 * @param  callable|null $callback Function with (value, key) parameters which returns the value to use for counting
+	 * @return self New map with values as keys and their count as value
+	 */
+	public function countBy( callable $callback = null ) : self
+	{
+		$callback = $callback ?? function( $value ) {
+			return (string) $value;
+		};
+
+		return new static( array_count_values( array_map( $callback, $this->list ) ) );
 	}
 
 
@@ -642,6 +693,26 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns a new map without the passed element keys.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 1, 'b' => 2, 'c' => 3] )->except( 'b' );
+	 *  Map::from( [1 => 'a', 2 => 'b', 3 => 'c'] )->except( [1, 3] );
+	 *
+	 * Results:
+	 *  ['a' => 1, 'c' => 3]
+	 *  [2 => 'b']
+	 *
+	 * @param mixed|array $keys List of keys to remove
+	 * @return self New map
+	 */
+	public function except( $keys ) : self
+	{
+		return $this->copy()->remove( $keys );
+	}
+
+
+	/**
 	 * Runs a filter over each element of the map and returns a new map.
 	 *
 	 * Examples:
@@ -863,6 +934,67 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function getIterator() : \Iterator
 	{
 		return new \ArrayIterator( $this->list );
+	}
+
+
+	/**
+	 * Groups associative array elements or objects by the passed key or closure.
+	 *
+	 * Instead of overwriting items with the same keys like to the col() method
+	 * does, groupBy() keeps all entries in sub-arrays. It's preserves the keys
+	 * of the orignal map entries too.
+	 *
+	 * Examples:
+	 *  $list = [
+	 *    10 => ['aid' => 123, 'code' => 'x-abc'],
+	 *    20 => ['aid' => 123, 'code' => 'x-def'],
+	 *    30 => ['aid' => 456, 'code' => 'x-def']
+	 *  ];
+	 *  Map::from( $list )->groupBy( 'aid' );
+	 *  Map::from( $list )->groupBy( function( $item, $key ) {
+	 *    return substr( $item['code'], -3 );
+	 *  } );
+	 *  Map::from( $list )->groupBy( 'xid' );
+	 *
+	 * Results:
+	 *  [
+	 *    123 => [10 => ['aid' => 123, 'code' => 'x-abc'], 20 => ['aid' => 123, 'code' => 'x-def']],
+	 *    456 => [30 => ['aid' => 456, 'code' => 'x-def']]
+	 *  ]
+	 *  [
+	 *    'abc' => [10 => ['aid' => 123, 'code' => 'x-abc']],
+	 *    'def' => [20 => ['aid' => 123, 'code' => 'x-def'], 30 => ['aid' => 456, 'code' => 'x-def']]
+	 *  ]
+	 *  [
+	 *    'xid' => [
+	 *      10 => ['aid' => 123, 'code' => 'x-abc'],
+	 *      20 => ['aid' => 123, 'code' => 'x-def'],
+	 *      30 => ['aid' => 456, 'code' => 'x-def']
+	 *    ]
+	 *  ]
+	 *
+	 * In case the passed key doesn't exist in one or more items, these items
+	 * are stored in a sub-array using the passed string as key.
+	 *
+	 * @param  \Closure|string $key Closure function with (item, idx) parameters returning the key or the key itself to group by
+	 * @return self New map with elements grouped by the given key
+	 */
+	public function groupBy( $key ) : self
+	{
+		$result = [];
+
+		foreach( $this->list as $idx => $item )
+		{
+			if( is_callable( $key ) ) {
+				$keyval = $key( $item, $idx );
+			} else {
+				$keyval = $item->{$key} ?? ( $item[$key] ?? $key );
+			}
+
+			$result[$keyval][$idx] = $item;
+		}
+
+		return new static( $result );
 	}
 
 
@@ -1326,21 +1458,29 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Examples:
 	 *  Map::from( ['a', 'b'] )->merge( ['b', 'c'] );
 	 *  Map::from( ['a' => 1, 'b' => 2] )->merge( ['b' => 4, 'c' => 6] );
+	 *  Map::from( ['a' => 1, 'b' => 2] )->merge( ['b' => 4, 'c' => 6], true );
 	 *
 	 * Results:
 	 *  ['a', 'b', 'b', 'c']
 	 *  ['a' => 1, 'b' => 4, 'c' => 6]
+	 *  ['a' => 1, 'b' => [2, 4], 'c' => 6]
 	 *
 	 * The method is similar to replace() but doesn't replace elements with
 	 * the same numeric keys. If you want to be sure that all passed elements
 	 * are added without replacing existing ones, use concat() instead.
 	 *
 	 * @param iterable $elements List of elements
+	 * @param bool $recursive TRUE to merge nested arrays too, FALSE for first level elements only
 	 * @return self Updated map for fluid interface
 	 */
-	public function merge( iterable $elements ) : self
+	public function merge( iterable $elements, bool $recursive = false ) : self
 	{
-		$this->list = array_merge( $this->list, $this->getArray( $elements ) );
+		if( $recursive ) {
+			$this->list = array_merge_recursive( $this->list, $this->getArray( $elements ) );
+		} else {
+			$this->list = array_merge( $this->list, $this->getArray( $elements ) );
+		}
+
 		return $this;
 	}
 
@@ -1423,6 +1563,26 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function offsetUnset( $key )
 	{
 		unset( $this->list[$key] );
+	}
+
+
+	/**
+	 * Returns a new map with only those elements specified by the given keys.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 1, 0 => 'b'] )->only( 'a' );
+	 *  Map::from( ['a' => 1, 0 => 'b', 1 => 'c'] )->only( [0, 1] );
+	 *
+	 * Results:
+	 *  ['a' => 1]
+	 *  [0 => 'b', 1 => 'c']
+	 *
+	 * @param array|string|int $keys Keys of the elements that should be returned
+	 * @return self New map with only the elements specified by the keys
+	 */
+	public function only( $keys ) : self
+	{
+		return new self( array_intersect_key( $this->list, array_flip( (array) $keys ) ) );
 	}
 
 
@@ -1582,7 +1742,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The first example will result in [2 => 'b'] while the second one resulting
 	 * in an empty list
 	 *
-	 * @param mixed|array $keys List of keys
+	 * @param mixed|array $keys List of keys to remove
 	 * @return self Same map for fluid interface
 	 */
 	public function remove( $keys ) : self
