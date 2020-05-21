@@ -16,6 +16,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$this->assertInstanceOf( Map::class, \map() );
 		$this->assertInstanceOf( Map::class, \map( [] ) );
 		$this->assertInstanceOf( Map::class, \map( 'a' ) );
+		$this->assertInstanceOf( Map::class, \map( new Map ) );
 	}
 
 
