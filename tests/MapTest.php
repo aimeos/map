@@ -1717,6 +1717,24 @@ Array
 	}
 
 
+	public function testTake()
+	{
+		$this->assertEquals( [1, 2], Map::from( [1, 2, 3, 4] )->take( 2 )->toArray() );
+	}
+
+
+	public function testTakeOffset()
+	{
+		$this->assertEquals( [1 => 2, 2 => 3], Map::from( [1, 2, 3, 4] )->take( 2, 1 )->toArray() );
+	}
+
+
+	public function testTakeNegativeOffset()
+	{
+		$this->assertEquals( [2 => 3, 3 => 4], Map::from( [1, 2, 3, 4] )->take( 2, -2 )->toArray() );
+	}
+
+
 	public function testToArray()
 	{
 		$m = new Map( ['name' => 'Hello'] );

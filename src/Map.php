@@ -2138,6 +2138,29 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns a new map with the given number of items.
+	 *
+	 * Examples:
+	 *  Map::from( [1, 2, 3, 4] )->take( 2 );
+	 *  Map::from( [1, 2, 3, 4] )->take( 2, 1 );
+	 *  Map::from( [1, 2, 3, 4] )->take( 2, -2 );
+	 *
+	 * Results:
+	 *  [1, 2]
+	 *  [2, 3]
+	 *  [3, 4]
+	 *
+	 * @param int $size Number of items to return
+	 * @param int $offset Number of items to skip
+	 * @return self New map
+	 */
+	public function take( int $size, int $offset = 0 ) : self
+	{
+		return new static( array_slice( $this->list, $offset, $size, true ) );
+	}
+
+
+	/**
 	 * Returns the elements as a plain array.
 	 *
 	 * @return array Plain array
