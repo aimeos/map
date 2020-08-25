@@ -693,6 +693,37 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Verifies that all elements pass the test of the given callback.
+	 *
+	 * Examples:
+	 *  Map::from( [0 => 'a', 1 => 'b'] )->every( function( $value, $key ) {
+	 *      return is_string( $value );
+	 *  } );
+	 *
+	 *  Map::from( [0 => 'a', 1 => 100] )->every( function( $value, $key ) {
+	 *      return is_string( $value );
+	 *  } );
+	 *
+	 * The first example will return TRUE because all values are a string while
+	 * the second example will return FALSE.
+	 *
+	 * @param \Closure $callback Function with (value, key) parameters and returns TRUE/FALSE
+	 * @return bool True if all elements pass the test, false if if fails for at least one element
+	 */
+	public function every( \Closure $callback ) : bool
+	{
+		foreach( $this->list as $key => $item )
+		{
+			if( $callback( $item, $key ) === false ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+
+	/**
 	 * Returns a new map without the passed element keys.
 	 *
 	 * Examples:
