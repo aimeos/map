@@ -1536,7 +1536,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		$pos = 0;
 		$result = [];
 
-		foreach( $this->list as $key => $item)
+		foreach( $this->list as $key => $item )
 		{
 			if( $pos++ % $step === $offset ) {
 				$result[$key] = $item;
