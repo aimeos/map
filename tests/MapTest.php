@@ -1547,6 +1547,12 @@ Array
 	}
 
 
+	public function testSkip()
+	{
+		$this->assertEquals( [2 => 3, 3 => 4], Map::from( [1, 2, 3, 4] )->skip( 2 )->toArray() );
+	}
+
+
 	public function testSliceOffset()
 	{
 		$map = ( new Map( [1, 2, 3, 4, 5, 6, 7, 8] ) )->slice( 3 );

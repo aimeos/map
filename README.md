@@ -167,6 +167,7 @@ will return:
 * [set()](#set) : Overwrites an element
 * [shift()](#shift) : Returns and removes the first element
 * [shuffle()](#shuffle) : Randomizes the element order
+* [skip()](#skip) : Skips the given number of items and return the rest
 * [slice()](#slice) : Returns a slice of the map
 * [some()](#some) : Tests if at least one element is included
 * [sort()](#sort) : Sorts elements
@@ -2254,6 +2255,30 @@ Map::from( [2 => 'a', 4 => 'b'] )->shuffle();
 **Results:**
 
 The map will contain "a" and "b" in random order and with new keys assigned
+
+
+### skip()
+
+Returns a new map with the given number of items skipped.
+
+```php
+public function skip( int $offset ) : self
+```
+
+* @param int $offset Number of items to skip
+* @return self New map
+
+**Examples:**
+
+```php
+Map::from( [1, 2, 3, 4] )->skip( 2 );
+```
+
+**Results:**
+
+```php
+[3, 4]
+```
 
 
 ### slice()
