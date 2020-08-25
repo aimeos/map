@@ -511,6 +511,18 @@ Array
 	}
 
 
+	public function testEvery()
+	{
+		$this->assertTrue( Map::from( [0 => 'a', 1 => 'b'] )->every( function( $value, $key ) {
+			return is_string( $value );
+		} ) );
+
+		$this->assertFalse( Map::from( [0 => 'a', 1 => 100] )->every( function( $value, $key ) {
+			return is_string( $value );
+		} ) );
+	}
+
+
 	public function testExcept()
 	{
 		$this->assertEquals( ['a' => 1, 'c' => 3], Map::from( ['a' => 1, 'b' => 2, 'c' => 3] )->except( 'b' )->toArray() );

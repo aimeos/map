@@ -118,6 +118,7 @@ will return:
 * [each()](#each) : Applies a callback to each element
 * [empty()](#empty) : Tests if map is empty
 * [equals()](#equals) : Tests if map contents are equal
+* [every()](#every) : Verifies that all elements pass the test of the given callback
 * [except()](#except) : Returns a new map without the passed element keys
 * [filter()](#filter) : Applies a filter to the map elements
 * [find()](#find) : Returns the first matching element
@@ -844,6 +845,37 @@ example will return `TRUE`
 Keys and values are compared by their string values:
 ```php
 (string) $item1 === (string) $item2
+```
+
+
+### every()
+
+Verifies that all elements pass the test of the given callback.
+
+```php
+public function every( \Closure $callback ) : bool
+```
+
+* @param \Closure `$callback` Function with (value, key) parameters and returns TRUE/FALSE
+* @return bool True if all elements pass the test, false if if fails for at least one element
+
+**Examples:**
+
+```php
+Map::from( [0 => 'a', 1 => 'b'] )->every( function( $value, $key ) {
+    return is_string( $value );
+} );
+
+Map::from( [0 => 'a', 1 => 100] )->every( function( $value, $key ) {
+    return is_string( $value );
+} );
+```
+
+**Results:**
+
+```php
+true
+false
 ```
 
 
