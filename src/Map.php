@@ -1517,6 +1517,37 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns every nth element from the map.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] )->nth( 2 );
+	 *  Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] )->nth( 2, 1 );
+	 *
+	 * Results:
+	 *  ['a', 'c', 'e']
+	 *  ['b', 'd', 'f']
+	 *
+	 * @param int $step Step width
+	 * @param int $offset Number of element to start from (0-based)
+	 * @return self New map
+	 */
+	public function nth( int $step, int $offset = 0 ) : self
+	{
+		$pos = 0;
+		$result = [];
+
+		foreach( $this->list as $key => $item)
+		{
+			if( $pos++ % $step === $offset ) {
+				$result[$key] = $item;
+			}
+		}
+
+		return new static( $result );
+	}
+
+
+	/**
 	 * Determines if an element exists at an offset.
 	 *
 	 * Examples:

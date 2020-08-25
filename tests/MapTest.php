@@ -1159,6 +1159,15 @@ Array
 	}
 
 
+	public function testNth()
+	{
+		$m = Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] );
+
+		$this->assertEquals( [0 => 'a', 2 => 'c', 4 => 'e'], $m->nth( 2 )->toArray() );
+		$this->assertEquals( [1 => 'b', 3 => 'd', 5 => 'f'], $m->nth( 2, 1 )->toArray() );
+	}
+
+
 	public function testOffsetAccess()
 	{
 		$m = new Map( ['name' => 'test'] );

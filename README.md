@@ -147,6 +147,7 @@ will return:
 * [map()](#map) : Applies a callback to each element and returns the results
 * [merge()](#merge) : Combines elements overwriting existing ones
 * [method()](#method) : Registers a custom method
+* [nth()](#nth) : Returns every nth element from the map
 * [offsetExists()](#offsetexists) : Checks if the key exists
 * [offsetGet()](#offsetget) : Returns an element by key
 * [offsetSet()](#offsetset) : Overwrites an element
@@ -1733,6 +1734,32 @@ Static calls yield an error because `$this->elements` isn't available:
 Map::foo( $arg1, $arg2 );
 ```
 
+
+### nth()
+
+Returns every nth element from the map.
+
+```php
+public function nth( int $step, int $offset = 0 ) : self
+```
+
+* @param int `$step` Step width
+* @param int `$offset` Number of element to start from (0-based)
+* @return self New map
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] )->nth( 2 );
+Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] )->nth( 2, 1 );
+```
+
+**Results:**
+
+```php
+['a', 'c', 'e']
+['b', 'd', 'f']
+```
 
 ### offsetExists()
 
