@@ -1990,6 +1990,24 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns a new map with the given number of items skipped.
+	 *
+	 * Examples:
+	 *  Map::from( [1, 2, 3, 4] )->skip( 2 );
+	 *
+	 * Results:
+	 *  [3, 4]
+	 *
+	 * @param int $offset Number of items to skip
+	 * @return self New map
+	 */
+	public function skip( int $offset ) : self
+	{
+		return new static( array_slice( $this->list, $offset, null, true ) );
+	}
+
+
+	/**
 	 * Returns a map with the slice from the original map.
 	 *
 	 * Examples:
