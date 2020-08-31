@@ -110,7 +110,7 @@ will return:
 * [concat()](#concat) : Combines the elements
 * [copy()](#copy) : Creates a new copy
 * [count()](#count) : Returns the number of elements
-* [countBy()](#countBy) : Counts how often the same values are in the map
+* [countBy()](#countby) : Counts how often the same values are in the map
 * [diff()](#diff) : Returns the missing elements
 * [diffAssoc()](#diffassoc) : Returns the missing elements and checks keys
 * [diffKeys()](#diffkeys) : Returns the missing elements by keys
@@ -129,7 +129,7 @@ will return:
 * [from()](#from) : Creates a new map from passed elements
 * [get()](#get) : Returns an element by key
 * [getIterator()](#getiterator) : Returns an iterator for the elements
-* [groupBy()](#groupBy) : Groups associative array elements or objects
+* [groupBy()](#groupby) : Groups associative array elements or objects
 * [has()](#has) : Tests if a key exists
 * [in()](#in) : Tests if element is included
 * [includes()](#includes) : Tests if element is included
@@ -738,7 +738,7 @@ public function dump( callable $callback = null ) : self
 **Examples:**
 
 ```php
-Map::from( ['a' => 'foo', 'b' => 'bar'] )->dump()->sort()->dump( 'var_dump' );
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->dump()->asort()->dump( 'var_dump' );
 ```
 
 **Results:**
@@ -1029,7 +1029,8 @@ public function flat( int $depth = null ) : self
 * @param int&#124;null `$depth` Number of levels to flatten multi-dimensional arrays
 * @return self New map with all sub-array elements added into it recursively, up to the specified depth
 
-Examples:
+**Examples:**
+
 ```php
 Map::from( [[0, 1], [2, 3]] )->flat();
 Map::from( [[0, 1], [[2, 3], 4]] )->flat();
@@ -1037,7 +1038,8 @@ Map::from( [[0, 1], [[2, 3], 4]] )->flat( 1 );
 Map::from( [[0, 1], Map::from( [[2, 3], 4] )] )->flat();
 ```
 
-Results:
+**Results:**
+
 ```php
 [0, 1, 2, 3]
 [0, 1, 2, 3, 4]
