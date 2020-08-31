@@ -1694,7 +1694,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * @param int $num Number of groups
 	 * @return self New map
 	 */
-	public function partition( $num ) : self
+	public function partition( int $num ) : self
 	{
 		if( empty( $this->list ) ) {
 			return new static();
@@ -2528,7 +2528,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *    [3, 'three', 'tres'],
 	 *  ]
 	 *
-	 * @param array|traversable|iterator $array1 List of values to merge with
+	 * @param array|\Traversable|\Iterator $array1 List of values to merge with
 	 * @return self New map of arrays
 	 */
 	public function zip( $items ) : self

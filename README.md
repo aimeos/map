@@ -2876,7 +2876,7 @@ Merges the values of all arrays at the corresponding index.
 public function zip( $array1, ... ) : self
 ```
 
-* @param array|traversable|iterator `$array1` List of values to merge with
+* @param array|\Traversable|\Iterator `$array1` List of values to merge with
 * @return self New map of arrays
 
 **Examples:**
