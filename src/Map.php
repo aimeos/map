@@ -601,6 +601,40 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns the duplicate values from the map.
+	 *
+	 * The keys in the result map are the same as in the original one. For nested
+	 * arrays, you have to pass the name of the column of the nested array which
+	 * should be used to check for duplicates.
+	 *
+	 * Examples:
+	 *  Map::from( [1, 2, '1', 3] )->duplicates()
+	 *  Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->duplicates( 'p' )
+	 *
+	 * Results:
+	 *  [2 => '1']
+	 *  [1 => ['p' => 1]]
+	 *
+	 * @param string|null $col Key of the nested array or object to check for
+	 * @return self New map
+	 */
+	public function duplicates( string $col = null ) : self
+	{
+		$result = [];
+		$unique = array_unique( $col !== null ? array_column( $this->list, $col ) : $this->list );
+
+		foreach( $this->list as $key => $value )
+		{
+			if( !array_key_exists( $key, $unique ) ) {
+				$result[$key] = $value;
+			}
+		}
+
+		return new static( $result );
+	}
+
+
+	/**
 	 * Executes a callback over each entry until FALSE is returned.
 	 *
 	 * Examples:

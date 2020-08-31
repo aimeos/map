@@ -402,6 +402,24 @@ Array
 	}
 
 
+	public function testDuplicates()
+	{
+		$r = Map::from( [1, 2, '1', 3] )->duplicates();
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [2 => '1'], $r->toArray() );
+	}
+
+
+	public function testDuplicatesColumn()
+	{
+		$r = Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->duplicates( 'p' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [1 => ['p' => 1]], $r->toArray() );
+	}
+
+
 	public function testEach()
 	{
 		$m = new Map( $original = [1, 2, 'foo' => 'bar', 'bam' => 'baz'] );

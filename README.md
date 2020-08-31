@@ -115,6 +115,7 @@ will return:
 * [diffAssoc()](#diffassoc) : Returns the missing elements and checks keys
 * [diffKeys()](#diffkeys) : Returns the missing elements by keys
 * [dump()](#dump) : Dumps the map content
+* [duplicates()](#duplicates) : Returns the duplicate values from the map
 * [each()](#each) : Applies a callback to each element
 * [empty()](#empty) : Tests if map is empty
 * [equals()](#equals) : Tests if map contents are equal
@@ -756,6 +757,36 @@ array(1) {
   string(3) "foo"
 }
 ```
+
+
+### duplicates()
+
+Returns the duplicate values from the map.
+
+```php
+public function duplicates( string $col = null ) : self
+```
+
+* @param string|null $col Key of the nested array or object to check for
+* @return self New map
+
+**Examples:**
+
+```php
+Map::from( [1, 2, '1', 3] )->duplicates()
+Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->duplicates( 'p' )
+```
+
+**Results:**
+
+```php
+[2 => '1']
+[1 => ['p' => 1]]
+```
+
+The keys in the result map are the same as in the original one. For nested
+arrays, you have to pass the name of the column of the nested array which
+should be used to check for duplicates.
 
 
 ### each()
