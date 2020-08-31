@@ -187,6 +187,7 @@ will return:
 * [usort()](#usort) : Sorts elements using callback
 * [values()](#values) : Returns all elements with new keys
 * [walk()](#walk) : Applies the given callback to all elements
+* [zip()](#zip) : Merges the values of all arrays at the corresponding index
 
 
 ## Method documentation
@@ -2865,6 +2866,34 @@ The last example changes the Map elements to:
 
 By default, Map elements which are arrays will be traversed recursively.
 To iterate over the Map elements only, pass FALSE as third parameter.
+
+
+### zip()
+
+Merges the values of all arrays at the corresponding index.
+
+```php
+public function zip( $array1, ... ) : self
+```
+
+* @param array|traversable|iterator `$array1` List of values to merge with
+* @return self New map of arrays
+
+**Examples:**
+
+```php
+Map::from( [1, 2, 3] )->zip( ['one', 'two', 'three'], ['uno', 'dos', 'tres'] );
+```
+
+**Results:**
+
+```php
+[
+    [1, 'one', 'uno'],
+    [2, 'two', 'dos'],
+    [3, 'three', 'tres'],
+]
+```
 
 
 

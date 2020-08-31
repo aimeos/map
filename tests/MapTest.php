@@ -1924,6 +1924,22 @@ Array
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertEquals( ['one', 'two', 3], $r->toArray() );
 	}
+
+
+	public function testZip()
+	{
+		$m = new Map( [1, 2, 3] );
+		$en = ['one', 'two', 'three'];
+		$es = ['uno', 'dos', 'tres'];
+
+		$expected = [
+			[1, 'one', 'uno'],
+			[2, 'two', 'dos'],
+			[3, 'three', 'tres'],
+		];
+
+		$this->assertEquals( $expected, $m->zip( $en, $es )->toArray() );
+	}
 }
 
 

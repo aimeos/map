@@ -2514,6 +2514,34 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Merges the values of all arrays at the corresponding index.
+	 *
+	 * Examples:
+	 *  $en = ['one', 'two', 'three'];
+	 *  $es = ['uno', 'dos', 'tres'];
+	 *  $m = new Map( [1, 2, 3] )->zip( $en, $es );
+	 *
+	 * Results:
+	 *  [
+	 *    [1, 'one', 'uno'],
+	 *    [2, 'two', 'dos'],
+	 *    [3, 'three', 'tres'],
+	 *  ]
+	 *
+	 * @param array|traversable|iterator $array1 List of values to merge with
+	 * @return self New map of arrays
+	 */
+	public function zip( $items ) : self
+	{
+		$args = array_map( function( $items ) {
+			return $this->getArray( $items );
+		}, func_get_args() );
+
+		return new static( array_map( null, $this->list, ...$args ) );
+	}
+
+
+	/**
 	 * Returns a plain array of the given elements.
 	 *
 	 * @param $elements List of elements or single value
