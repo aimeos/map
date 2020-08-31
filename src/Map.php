@@ -1683,6 +1683,38 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Breaks the list of elements into the given number of groups.
+	 *
+	 * Examples:
+	 *  Map::from( [1, 2, 3, 4, 5] )->partition( 3 );
+	 *
+	 * Results:
+	 *  [[1, 2], [3, 4], [5]]
+	 *
+	 * @param int $num Number of groups
+	 * @return self New map
+	 */
+	public function partition( $num ) : self
+	{
+		if( empty( $this->list ) ) {
+			return new static();
+		}
+
+		$start = 0;
+		$result = [];
+		$size = ceil( count( $this->list ) / $num );
+
+		for( $i = 0; $i < $num; $i++ )
+		{
+			$result[] = array_slice( $this->list, $start, $size, true );
+			$start += $size;
+		}
+
+		return new static( $result );
+	}
+
+
+	/**
 	 * Passes the map to the given callback and return the result.
 	 *
 	 * Examples:

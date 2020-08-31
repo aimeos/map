@@ -154,6 +154,7 @@ will return:
 * [offsetSet()](#offsetset) : Overwrites an element
 * [offsetUnset()](#offsetunset) : Removes an element by key
 * [only()](#only) : Returns only those elements specified by the keys
+* [partition()](#partition) : Breaks the list into the number of groups
 * [pipe()](#pipe) : Applies a callback to the map
 * [pop()](#pop) : Returns and removes the last element
 * [pull()](#pull) : Returns and removes an element by key
@@ -1914,6 +1915,30 @@ Map::from( ['a' => 1, 0 => 'b', 1 => 'c'] )->only( [0, 1] );
 ```php
 ['a' => 1]
 [0 => 'b', 1 => 'c']
+```
+
+
+### partition()
+
+Breaks the list of elements into the given number of groups.
+
+```php
+public function partition( $num ) : self
+```
+
+* @param int `$num` Number of groups
+* @return self New map
+
+**Examples:**
+
+```php
+Map::from( [1, 2, 3, 4, 5] )->partition( 3 );
+```
+
+**Results:**
+
+```php
+[[1, 2], [3, 4], [5]]
 ```
 
 

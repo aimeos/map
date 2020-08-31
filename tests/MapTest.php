@@ -1256,6 +1256,20 @@ Array
 	}
 
 
+	public function testPartition()
+	{
+		$expected = [[0 => 1, 1 => 2], [2 => 3, 3 => 4], [4 => 5]];
+
+		$this->assertEquals( $expected, Map::from( [1, 2, 3, 4, 5] )->partition( 3 )->toArray() );
+	}
+
+
+	public function testPartitionEmpty()
+	{
+		$this->assertEquals( [], Map::from( [] )->partition( 2 )->toArray() );
+	}
+
+
 	public function testPipe()
 	{
 		$map = new Map( [1, 2, 3] );
