@@ -107,7 +107,6 @@ will return:
 
 ### Create
 
-* [function is_map()](#is_map-function) : Tests if the variable is a map object
 * [function map()](#map-function) : Creates a new map from elements
 * [__construct()](#__construct) : Creates a new map
 * [copy()](#copy) : Creates a new copy
@@ -116,7 +115,6 @@ will return:
 
 ### Access
 
-* [duplicates()](#duplicates) : Returns the duplicate values from the map
 * [find()](#find) : Returns the first matching element
 * [first()](#first) : Returns the first element
 * [firstKey()](#firstkey) : Returns the first key
@@ -134,7 +132,6 @@ will return:
 
 * [concat()](#concat) : Combines the elements
 * [merge()](#merge) : Combines elements overwriting existing ones
-* [pad()](#pad) : Fills up the list to the given length with the value
 * [push()](#push) : Adds an element to the end
 * [set()](#set) : Overwrites an element
 * [union()](#union) : Combines the element without overwriting
@@ -186,6 +183,7 @@ will return:
 
 ### Test
 
+* [function is_map()](#is_map-function) : Tests if the variable is a map object
 * [each()](#each) : Applies a callback to each element
 * [empty()](#empty) : Tests if map is empty
 * [equals()](#equals) : Tests if map contents are equal
