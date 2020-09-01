@@ -20,8 +20,8 @@ composer req aimeos/map
     * [Add](#add)
     * [Aggregate](#aggregate)
     * [Debug](#debug)
-    * [Delete](#delete)
     * [Order](#order)
+    * [Shorten](#shorten)
     * [Test](#test)
     * [Transform](#transform)
     * [Misc](#misc)
@@ -126,9 +126,6 @@ will return:
 * [lastKey()](#lastkey) : Returns the last key
 * [random()](#random) : Returns random elements
 * [search()](#search) : Find the key of an element
-* [skip()](#skip) : Skips the given number of items and return the rest
-* [slice()](#slice) : Returns a slice of the map
-* [take()](#take) : Returns a new map with the given number of items
 * [toArray()](#toarray) : Returns the plain array
 * [unique()](#unique) : Returns unique elements
 * [values()](#values) : Returns all elements with new keys
@@ -152,7 +149,21 @@ will return:
 
 * [dump()](#dump) : Prints the map content
 
-### Delete
+### Order
+
+* [arsort()](#arsort) : Reverse sort elements with keys
+* [asort()](#asort) : Sort elements with keys
+* [krsort()](#krsort) : Reverse sort elements by keys
+* [ksort()](#ksort) : Sort elements by keys
+* [rsort()](#rsort) : Reverse sort elements
+* [reverse()](#reverse) : Reverses the array order
+* [shuffle()](#shuffle) : Randomizes the element order
+* [sort()](#sort) : Sorts elements
+* [uasort()](#uasort) : Sorts elements with keys using callback
+* [uksort()](#uksort) : Sorts elements by keys using callback
+* [usort()](#usort) : Sorts elements using callback
+
+### Shorten
 
 * [clear()](#clear) : Removes all elements
 * [diff()](#diff) : Returns the missing elements
@@ -169,21 +180,9 @@ will return:
 * [pull()](#pull) : Returns and removes an element by key
 * [remove()](#remove) : Removes an element by key
 * [shift()](#shift) : Returns and removes the first element
-* [splice()](#splice) : Replaces a slice by new elements
-
-### Order
-
-* [arsort()](#arsort) : Reverse sort elements with keys
-* [asort()](#asort) : Sort elements with keys
-* [krsort()](#krsort) : Reverse sort elements by keys
-* [ksort()](#ksort) : Sort elements by keys
-* [rsort()](#rsort) : Reverse sort elements
-* [reverse()](#reverse) : Reverses the array order
-* [shuffle()](#shuffle) : Randomizes the element order
-* [sort()](#sort) : Sorts elements
-* [uasort()](#uasort) : Sorts elements with keys using callback
-* [uksort()](#uksort) : Sorts elements by keys using callback
-* [usort()](#usort) : Sorts elements using callback
+* [skip()](#skip) : Skips the given number of items and return the rest
+* [slice()](#slice) : Returns a slice of the map
+* [take()](#take) : Returns a new map with the given number of items
 
 ### Test
 
@@ -213,6 +212,7 @@ will return:
 * [pipe()](#pipe) : Applies a callback to the map
 * [reduce()](#reduce) : Computes a value for the map content
 * [replace()](#replace) : Replaces elements recursively
+* [splice()](#splice) : Replaces a slice by new elements
 * [toJson()](#tojson) : Returns the elements in JSON format
 * [toUrl()](#tourl) : Creates a HTTP query string
 * [walk()](#walk) : Applies the given callback to all elements
