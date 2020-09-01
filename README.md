@@ -122,8 +122,11 @@ will return:
 * [keys()](#keys) : Returns the keys
 * [last()](#last) : Returns the last element
 * [lastKey()](#lastkey) : Returns the last key
+* [pop()](#pop) : Returns and removes the last element
+* [pull()](#pull) : Returns and removes an element by key
 * [random()](#random) : Returns random elements
 * [search()](#search) : Find the key of an element
+* [shift()](#shift) : Returns and removes the first element
 * [toArray()](#toarray) : Returns the plain array
 * [unique()](#unique) : Returns unique elements
 * [values()](#values) : Returns all elements with new keys
