@@ -15,17 +15,17 @@ composer req aimeos/map
 
 * [Why](#why)
 * [List of methods](#methods)
-    * [Create maps](#create-maps)
-    * [Access items](#access-items)
-    * [Add items](#add-items)
-    * [Aggregations](#aggregations)
-    * [Debugging](#debugging)
-    * [Remove items](#remove-items)
-    * [Sort items](#sort-items)
-    * [Test items](#test-items)
-    * [Transformations](#transformations)
+    * [Create](#create)
+    * [Access](#access)
+    * [Add](#add)
+    * [Aggregate](#aggregate)
+    * [Debug](#debug)
+    * [Delete](#delete)
+    * [Order](#order)
+    * [Test](#test)
+    * [Transform](#transform)
     * [Misc](#misc)
-* [Method documentation](#method-documentation)
+* [Documentation](#method-documentation)
 * [Custom methods](#custom-methods)
 * [Performance](#performance)
 
@@ -152,7 +152,7 @@ will return:
 
 * [dump()](#dump) : Prints the map content
 
-### Remove
+### Delete
 
 * [clear()](#clear) : Removes all elements
 * [diff()](#diff) : Returns the missing elements
@@ -171,7 +171,7 @@ will return:
 * [shift()](#shift) : Returns and removes the first element
 * [splice()](#splice) : Replaces a slice by new elements
 
-### Sort
+### Order
 
 * [arsort()](#arsort) : Reverse sort elements with keys
 * [asort()](#asort) : Sort elements with keys
