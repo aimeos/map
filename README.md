@@ -105,7 +105,7 @@ will return:
 
 ## Methods
 
-### Create maps
+### Create
 
 * [function is_map()](#is_map-function) : Tests if the variable is a map object
 * [function map()](#map-function) : Creates a new map from elements
@@ -114,7 +114,7 @@ will return:
 * [from()](#from) : Creates a new map from passed elements
 * [split()](#split) : Splits a string into map elements
 
-### Access items
+### Access
 
 * [duplicates()](#duplicates) : Returns the duplicate values from the map
 * [find()](#find) : Returns the first matching element
@@ -133,7 +133,7 @@ will return:
 * [unique()](#unique) : Returns unique elements
 * [values()](#values) : Returns all elements with new keys
 
-### Add items
+### Add
 
 * [concat()](#concat) : Combines the elements
 * [merge()](#merge) : Combines elements overwriting existing ones
@@ -143,16 +143,16 @@ will return:
 * [union()](#union) : Combines the element without overwriting
 * [unshift()](#unshift) : Adds an element at the beginning
 
-### Aggregations
+### Aggregate
 
 * [count()](#count) : Returns the number of elements
 * [countBy()](#countby) : Counts how often the same values are in the map
 
-### Debugging
+### Debug
 
 * [dump()](#dump) : Prints the map content
 
-### Remove items
+### Remove
 
 * [clear()](#clear) : Removes all elements
 * [diff()](#diff) : Returns the missing elements
@@ -171,7 +171,7 @@ will return:
 * [shift()](#shift) : Returns and removes the first element
 * [splice()](#splice) : Replaces a slice by new elements
 
-### Sort items
+### Sort
 
 * [arsort()](#arsort) : Reverse sort elements with keys
 * [asort()](#asort) : Sort elements with keys
@@ -185,7 +185,7 @@ will return:
 * [uksort()](#uksort) : Sorts elements by keys using callback
 * [usort()](#usort) : Sorts elements using callback
 
-### Test items
+### Test
 
 * [each()](#each) : Applies a callback to each element
 * [empty()](#empty) : Tests if map is empty
@@ -198,7 +198,7 @@ will return:
 * [isEmpty()](#isempty) : Tests if map is empty
 * [some()](#some) : Tests if at least one element is included
 
-### Transformations
+### Transform
 
 * [chunk()](#chunk) : Splits the map into chunks
 * [combine()](#combine) : Combines the keys with the values
