@@ -116,7 +116,6 @@ will return:
 
 ### Access items
 
-* [all()](#all) : Returns all map elements as plain array
 * [duplicates()](#duplicates) : Returns the duplicate values from the map
 * [find()](#find) : Returns the first matching element
 * [first()](#first) : Returns the first element
