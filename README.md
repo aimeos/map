@@ -15,6 +15,16 @@ composer req aimeos/map
 
 * [Why](#why)
 * [List of methods](#methods)
+    * [Create maps](#create-maps)
+    * [Access items](#access-items)
+    * [Add items](#add-items)
+    * [Aggregations](#aggregations)
+    * [Debugging](#debugging)
+    * [Remove items](#remove-items)
+    * [Sort items](#sort-items)
+    * [Test items](#test-items)
+    * [Transformations](#transformations)
+    * [Misc](#misc)
 * [Method documentation](#method-documentation)
 * [Custom methods](#custom-methods)
 * [Performance](#performance)
@@ -95,99 +105,131 @@ will return:
 
 ## Methods
 
+### Create maps
+
 * [function is_map()](#is_map-function) : Tests if the variable is a map object
 * [function map()](#map-function) : Creates a new map from elements
 * [__construct()](#__construct) : Creates a new map
-* [__call()](#__call) : Calls a custom method
-* [__callStatic()](#__callstatic) : Calls a custom method statically
-* [arsort()](#arsort) : Reverse sort elements with keys
-* [asort()](#asort) : Sort elements with keys
-* [chunk()](#chunk) : Splits the map into chunks
-* [clear()](#clear) : Removes all elements
-* [col()](#col) : Creates a key/value mapping
-* [collapse()](#collapse) : Collapses multi-dimensional elements
-* [combine()](#combine) : Combines the keys with the values
-* [concat()](#concat) : Combines the elements
 * [copy()](#copy) : Creates a new copy
+* [from()](#from) : Creates a new map from passed elements
+* [split()](#split) : Splits a string into map elements
+
+### Access items
+
+* [all()](#all) : Returns all map elements as plain array
+* [duplicates()](#duplicates) : Returns the duplicate values from the map
+* [find()](#find) : Returns the first matching element
+* [first()](#first) : Returns the first element
+* [firstKey()](#firstkey) : Returns the first key
+* [get()](#get) : Returns an element by key
+* [keys()](#keys) : Returns the keys
+* [last()](#last) : Returns the last element
+* [lastKey()](#lastkey) : Returns the last key
+* [random()](#random) : Returns random elements
+* [search()](#search) : Find the key of an element
+* [skip()](#skip) : Skips the given number of items and return the rest
+* [slice()](#slice) : Returns a slice of the map
+* [take()](#take) : Returns a new map with the given number of items
+* [toArray()](#toarray) : Returns the plain array
+* [unique()](#unique) : Returns unique elements
+* [values()](#values) : Returns all elements with new keys
+
+### Add items
+
+* [concat()](#concat) : Combines the elements
+* [merge()](#merge) : Combines elements overwriting existing ones
+* [pad()](#pad) : Fills up the list to the given length with the value
+* [push()](#push) : Adds an element to the end
+* [set()](#set) : Overwrites an element
+* [union()](#union) : Combines the element without overwriting
+* [unshift()](#unshift) : Adds an element at the beginning
+
+### Aggregations
+
 * [count()](#count) : Returns the number of elements
 * [countBy()](#countby) : Counts how often the same values are in the map
+
+### Debugging
+
+* [dump()](#dump) : Prints the map content
+
+### Remove items
+
+* [clear()](#clear) : Removes all elements
 * [diff()](#diff) : Returns the missing elements
 * [diffAssoc()](#diffassoc) : Returns the missing elements and checks keys
 * [diffKeys()](#diffkeys) : Returns the missing elements by keys
-* [dump()](#dump) : Dumps the map content
-* [duplicates()](#duplicates) : Returns the duplicate values from the map
+* [except()](#except) : Returns a new map without the passed element keys
+* [filter()](#filter) : Applies a filter to the map elements
+* [intersect()](#intersect) : Returns the shared elements
+* [intersectAssoc()](#intersectassoc) : Returns the shared elements and checks keys
+* [intersectKeys()](#intersectkeys) : Returns the shared elements by keys
+* [nth()](#nth) : Returns every nth element from the map
+* [only()](#only) : Returns only those elements specified by the keys
+* [pop()](#pop) : Returns and removes the last element
+* [pull()](#pull) : Returns and removes an element by key
+* [remove()](#remove) : Removes an element by key
+* [shift()](#shift) : Returns and removes the first element
+* [splice()](#splice) : Replaces a slice by new elements
+
+### Sort items
+
+* [arsort()](#arsort) : Reverse sort elements with keys
+* [asort()](#asort) : Sort elements with keys
+* [krsort()](#krsort) : Reverse sort elements by keys
+* [ksort()](#ksort) : Sort elements by keys
+* [rsort()](#rsort) : Reverse sort elements
+* [reverse()](#reverse) : Reverses the array order
+* [shuffle()](#shuffle) : Randomizes the element order
+* [sort()](#sort) : Sorts elements
+* [uasort()](#uasort) : Sorts elements with keys using callback
+* [uksort()](#uksort) : Sorts elements by keys using callback
+* [usort()](#usort) : Sorts elements using callback
+
+### Test items
+
 * [each()](#each) : Applies a callback to each element
 * [empty()](#empty) : Tests if map is empty
 * [equals()](#equals) : Tests if map contents are equal
 * [every()](#every) : Verifies that all elements pass the test of the given callback
-* [except()](#except) : Returns a new map without the passed element keys
-* [filter()](#filter) : Applies a filter to the map elements
-* [find()](#find) : Returns the first matching element
-* [first()](#first) : Returns the first element
-* [firstKey()](#firstkey) : Returns the first key
-* [flip()](#flip) : Exchanges keys with their values
-* [flat()](#flat) : Flattens multi-dimensional elements
-* [from()](#from) : Creates a new map from passed elements
-* [get()](#get) : Returns an element by key
-* [getIterator()](#getiterator) : Returns an iterator for the elements
-* [groupBy()](#groupby) : Groups associative array elements or objects
 * [has()](#has) : Tests if a key exists
 * [in()](#in) : Tests if element is included
 * [includes()](#includes) : Tests if element is included
-* [intersect()](#intersect) : Returns the shared elements
-* [intersectAssoc()](#intersectassoc) : Returns the shared elements and checks keys
-* [intersectKeys()](#intersectkeys) : Returns the shared elements by keys
 * [is()](#is) : Tests if the map consists of the same keys and values
 * [isEmpty()](#isempty) : Tests if map is empty
+* [some()](#some) : Tests if at least one element is included
+
+### Transformations
+
+* [chunk()](#chunk) : Splits the map into chunks
+* [combine()](#combine) : Combines the keys with the values
+* [col()](#col) : Creates a key/value mapping
+* [collapse()](#collapse) : Collapses multi-dimensional elements
+* [flip()](#flip) : Exchanges keys with their values
+* [flat()](#flat) : Flattens multi-dimensional elements
+* [groupBy()](#groupby) : Groups associative array elements or objects
 * [join()](#join) : Returns concatenated elements as string
-* [keys()](#keys) : Returns the keys
-* [krsort()](#krsort) : Reverse sort elements by keys
-* [ksort()](#ksort) : Sort elements by keys
-* [last()](#last) : Returns the last element
-* [lastKey()](#lastkey) : Returns the last key
 * [map()](#map) : Applies a callback to each element and returns the results
-* [merge()](#merge) : Combines elements overwriting existing ones
+* [partition()](#partition) : Breaks the list into the number of groups
+* [pipe()](#pipe) : Applies a callback to the map
+* [reduce()](#reduce) : Computes a value for the map content
+* [replace()](#replace) : Replaces elements recursively
+* [toJson()](#tojson) : Returns the elements in JSON format
+* [toUrl()](#tourl) : Creates a HTTP query string
+* [walk()](#walk) : Applies the given callback to all elements
+* [zip()](#zip) : Merges the values of all arrays at the corresponding index
+
+### Misc
+
+* [__call()](#__call) : Calls a custom method
+* [__callStatic()](#__callstatic) : Calls a custom method statically
+* [getIterator()](#getiterator) : Returns an iterator for the elements
 * [method()](#method) : Registers a custom method
-* [nth()](#nth) : Returns every nth element from the map
 * [offsetExists()](#offsetexists) : Checks if the key exists
 * [offsetGet()](#offsetget) : Returns an element by key
 * [offsetSet()](#offsetset) : Overwrites an element
 * [offsetUnset()](#offsetunset) : Removes an element by key
-* [only()](#only) : Returns only those elements specified by the keys
-* [partition()](#partition) : Breaks the list into the number of groups
-* [pipe()](#pipe) : Applies a callback to the map
-* [pop()](#pop) : Returns and removes the last element
-* [pull()](#pull) : Returns and removes an element by key
-* [push()](#push) : Adds an element to the end
-* [random()](#random) : Returns random elements
-* [reduce()](#reduce) : Computes a value for the map content
-* [remove()](#remove) : Removes an element by key
-* [replace()](#replace) : Replaces elements recursively
-* [reverse()](#reverse) : Reverses the array order
-* [rsort()](#rsort) : Reverse sort elements
-* [search()](#search) : Find the key of an element
-* [set()](#set) : Overwrites an element
-* [shift()](#shift) : Returns and removes the first element
-* [shuffle()](#shuffle) : Randomizes the element order
-* [skip()](#skip) : Skips the given number of items and return the rest
-* [slice()](#slice) : Returns a slice of the map
-* [some()](#some) : Tests if at least one element is included
-* [sort()](#sort) : Sorts elements
-* [split()](#split) : Splits a string into map elements
-* [splice()](#splice) : Replaces a slice by new elements
-* [take()](#take) : Returns a new map with the given number of items
-* [toArray()](#toarray) : Returns the plain array
-* [toJson()](#tojson) : Returns the elements in JSON format
-* [toUrl()](#tourl) : Creates a HTTP query string
-* [uasort()](#uasort) : Sorts elements with keys using callback
-* [uksort()](#uksort) : Sorts elements by keys using callback
-* [union()](#union) : Combines the element without overwriting
-* [unique()](#unique) : Returns unique elements
-* [unshift()](#unshift) : Adds an element at the beginning
-* [usort()](#usort) : Sorts elements using callback
-* [values()](#values) : Returns all elements with new keys
-* [walk()](#walk) : Applies the given callback to all elements
-* [zip()](#zip) : Merges the values of all arrays at the corresponding index
+
 
 
 ## Method documentation
