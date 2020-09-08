@@ -1972,20 +1972,26 @@ Breaks the list of elements into the given number of groups.
 public function partition( $num ) : self
 ```
 
-* @param int `$num` Number of groups
+* @param \Closure|int `$number` Function with (value, index) as arguments returning the bucket key or number of groups
 * @return self New map
 
 **Examples:**
 
 ```php
 Map::from( [1, 2, 3, 4, 5] )->partition( 3 );
+Map::from( [1, 2, 3, 4, 5] )->partition( function( $val, $idx ) {
+	return $idx % 3;
+} );
 ```
 
 **Results:**
 
 ```php
-[[1, 2], [3, 4], [5]]
+[[0 => 1, 1 => 2], [2 => 3, 3 => 4], [4 => 5]]
+[0 => [0 => 1, 3 => 4], 1 => [1 => 2, 4 => 5], 2 => [2 => 3]]
 ```
+
+The keys of the original map are preserved in the returned map.
 
 
 ### pipe()

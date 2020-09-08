@@ -1687,30 +1687,50 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * Examples:
 	 *  Map::from( [1, 2, 3, 4, 5] )->partition( 3 );
+	 *  Map::from( [1, 2, 3, 4, 5] )->partition( function( $val, $idx ) {
+	 *		return $idx % 3;
+	 *	} );
 	 *
 	 * Results:
-	 *  [[1, 2], [3, 4], [5]]
+	 *  [[0 => 1, 1 => 2], [2 => 3, 3 => 4], [4 => 5]]
+	 *  [0 => [0 => 1, 3 => 4], 1 => [1 => 2, 4 => 5], 2 => [2 => 3]]
 	 *
-	 * @param int $num Number of groups
+	 * The keys of the original map are preserved in the returned map.
+	 *
+	 * @param \Closure|int $number Function with (value, index) as arguments returning the bucket key or number of groups
 	 * @return self New map
 	 */
-	public function partition( int $num ) : self
+	public function partition( $number ) : self
 	{
 		if( empty( $this->list ) ) {
 			return new static();
 		}
 
-		$start = 0;
 		$result = [];
-		$size = ceil( count( $this->list ) / $num );
 
-		for( $i = 0; $i < $num; $i++ )
+		if( $number instanceof \Closure )
 		{
-			$result[] = array_slice( $this->list, $start, $size, true );
-			$start += $size;
+			foreach( $this->list as $idx => $item ) {
+				$result[$number( $item, $idx )][$idx] = $item;
+			}
+
+			return new static( $result );
+		}
+		elseif( is_int( $number ) )
+		{
+			$start = 0;
+			$size = ceil( count( $this->list ) / $number );
+
+			for( $i = 0; $i < $number; $i++ )
+			{
+				$result[] = array_slice( $this->list, $start, $size, true );
+				$start += $size;
+			}
+
+			return new static( $result );
 		}
 
-		return new static( $result );
+		throw new \InvalidArgumentException( 'Parameter is no closure or integer' );
 	}
 
 

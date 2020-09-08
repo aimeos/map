@@ -1264,6 +1264,16 @@ Array
 	}
 
 
+	public function testPartitionClosure()
+	{
+		$expected = [[0 => 1, 3 => 4], [1 => 2, 4 => 5], [2 => 3]];
+
+		$this->assertEquals( $expected, Map::from( [1, 2, 3, 4, 5] )->partition( function( $val, $idx ) {
+			return $idx % 3;
+		} )->toArray() );
+	}
+
+
 	public function testPartitionEmpty()
 	{
 		$this->assertEquals( [], Map::from( [] )->partition( 2 )->toArray() );
