@@ -132,6 +132,7 @@ will return:
 * [toArray()](#toarray) : Returns the plain array
 * [unique()](#unique) : Returns unique elements
 * [values()](#values) : Returns all elements with new keys
+* [where()](#where) : Filters the list of elements by a given condition
 
 ### Add
 
@@ -2910,6 +2911,65 @@ The last example changes the Map elements to:
 
 By default, Map elements which are arrays will be traversed recursively.
 To iterate over the Map elements only, pass FALSE as third parameter.
+
+
+### where()
+
+Filters the list of elements by a given condition.
+
+```php
+public function where( string $key, string $op, $value ) : self
+```
+
+* @param string `$key` Key of the array or object to used for comparison
+* @param string `$op` Operator used for comparison
+* @param mixed `$value` Value used for comparison
+
+**Examples:**
+
+```php
+Map::from( [
+  ['id' => 1, 'type' => 'name'],
+  ['id' => 2, 'type' => 'short'],
+] )->where( 'type', '==', 'name' );
+
+Map::from( [
+  ['id' => 3, 'price' => 10],
+  ['id' => 4, 'price' => 50],
+] )->where( 'price', '>', 20 );
+
+Map::from( [
+  ['id' => 3, 'price' => 10],
+  ['id' => 4, 'price' => 50],
+] )->where( 'price', 'in', [10, 25] );
+
+Map::from( [
+  ['id' => 3, 'price' => 10],
+  ['id' => 4, 'price' => 50],
+] )->where( 'price', '-', [10, 100] );
+```
+
+**Results:**
+
+```php
+[['id' => 1, 'type' => 'name']]
+[['id' => 4, 'price' => 50]]
+[['id' => 3, 'price' => 10]]
+[['id' => 3, 'price' => 10], ['id' => 4, 'price' => 50]]
+```
+
+Available operators are:
+
+* '==' : Equal
+* '===' : Equal and same type
+* '!=' : Not equal
+* '!==' : Not equal and same type
+* '<=' : Smaller than an equal
+* '>=' : Greater than an equal
+* '<' : Smaller
+* '>' : Greater
+* 'in' : Array of value which are in the list of values
+* '-' : Values between array of start and end value, e.g. [10, 100] (inclusive)
 
 
 ### zip()

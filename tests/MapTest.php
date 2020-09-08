@@ -1926,6 +1926,41 @@ Array
 	}
 
 
+	public function testWhere()
+	{
+		$m = Map::from( [['p' => 10], ['p' => 20], ['p' => 30]] );
+
+		$this->assertInstanceOf( Map::class, $m->where( 'p', '!=', null ) );
+		$this->assertEquals( [['p' => 10]], $m->where( 'p', '==', 10 )->toArray() );
+		$this->assertEquals( [], $m->where( 'p', '===', '10' )->toArray() );
+		$this->assertEquals( [1 => ['p' => 20], 2 => ['p' => 30]], $m->where( 'p', '!=', 10 )->toArray() );
+		$this->assertEquals( [['p' => 10], ['p' => 20], ['p' => 30]], $m->where( 'p', '!==', '10' )->toArray() );
+		$this->assertEquals( [1 => ['p' => 20], 2 => ['p' => 30]], $m->where( 'p', '>', 10 )->toArray() );
+		$this->assertEquals( [['p' => 10], ['p' => 20]], $m->where( 'p', '<', 30 )->toArray() );
+		$this->assertEquals( [['p' => 10], ['p' => 20]], $m->where( 'p', '<=', 20 )->toArray() );
+		$this->assertEquals( [1 => ['p' => 20], 2 => ['p' => 30]], $m->where( 'p', '>=', 20 )->toArray() );
+	}
+
+
+	public function testWhereBetween()
+	{
+		$m = Map::from( [['p' => 10], ['p' => 20], ['p' => 30]] );
+
+		$this->assertEquals( [['p' => 10], ['p' => 20]], $m->where( 'p', '-', [10, 20] )->toArray() );
+		$this->assertEquals( [['p' => 10]], $m->where( 'p', '-', [10] )->toArray() );
+		$this->assertEquals( [['p' => 10]], $m->where( 'p', '-', 10 )->toArray() );
+	}
+
+
+	public function testWhereIn()
+	{
+		$m = Map::from( [['p' => 10], ['p' => 20], ['p' => 30]] );
+
+		$this->assertEquals( [['p' => 10], 2 => ['p' => 30]], $m->where( 'p', 'in', [10, 30] )->toArray() );
+		$this->assertEquals( [['p' => 10]], $m->where( 'p', 'in', 10 )->toArray() );
+	}
+
+
 	public function testZip()
 	{
 		$m = new Map( [1, 2, 3] );

@@ -2514,6 +2514,84 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Filters the list of elements by a given condition.
+	 *
+	 * Examples:
+	 *  Map::from( [
+	 *    ['id' => 1, 'type' => 'name'],
+	 *    ['id' => 2, 'type' => 'short'],
+	 *  ] )->where( 'type', '==', 'name' );
+	 *
+	 *  Map::from( [
+	 *    ['id' => 3, 'price' => 10],
+	 *    ['id' => 4, 'price' => 50],
+	 *  ] )->where( 'price', '>', 20 );
+	 *
+	 *  Map::from( [
+	 *    ['id' => 3, 'price' => 10],
+	 *    ['id' => 4, 'price' => 50],
+	 *  ] )->where( 'price', 'in', [10, 25] );
+	 *
+	 *  Map::from( [
+	 *    ['id' => 3, 'price' => 10],
+	 *    ['id' => 4, 'price' => 50],
+	 *  ] )->where( 'price', '-', [10, 100] );
+	 *
+	 * Results:
+	 *  [['id' => 1, 'type' => 'name']]
+	 *  [['id' => 4, 'price' => 50]]
+	 *  [['id' => 3, 'price' => 10]]
+	 *  [['id' => 3, 'price' => 10], ['id' => 4, 'price' => 50]]
+	 *
+	 * Available operators are:
+	 * * '==' : Equal
+	 * * '===' : Equal and same type
+	 * * '!=' : Not equal
+	 * * '!==' : Not equal and same type
+	 * * '<=' : Smaller than an equal
+	 * * '>=' : Greater than an equal
+	 * * '<' : Smaller
+	 * * '>' : Greater
+	 * 'in' : Array of value which are in the list of values
+	 * '-' : Values between array of start and end value, e.g. [10, 100] (inclusive)
+	 *
+	 * @param string $key Key of the array or object to used for comparison
+	 * @param string $op Operator used for comparison
+	 * @param mixed $value Value used for comparison
+	 */
+	public function where( string $key, string $op, $value ) : self
+	{
+		return $this->filter( function( $item, $idx ) use ( $key, $op, $value ) {
+
+			$item = (array) $item;
+
+			if( array_key_exists( $key, $item ) )
+			{
+				$val = $item[$key];
+
+				switch( $op )
+				{
+					case '-':
+						$value = (array) $value;
+						return $val >= current( $value ) && $val <= end( $value );
+					case 'in': return in_array( $val, (array) $value );
+					case '<': return $val < $value;
+					case '>': return $val > $value;
+					case '<=': return $val <= $value;
+					case '>=': return $val >= $value;
+					case '===': return $val === $value;
+					case '!==': return $val !== $value;
+					case '!=': return $val != $value;
+					default: return $val == $value;
+				}
+			}
+
+			return false;
+		} );
+	}
+
+
+	/**
 	 * Merges the values of all arrays at the corresponding index.
 	 *
 	 * Examples:
