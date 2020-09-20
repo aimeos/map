@@ -1,8 +1,8 @@
 [![Build Status](https://travis-ci.org/aimeos/map.svg?branch=master)](https://travis-ci.org/aimeos/map)
 [![Coverage Status](https://coveralls.io/repos/github/aimeos/map/badge.svg?branch=master)](https://coveralls.io/github/aimeos/map?branch=master)
 [![License](https://poser.pugx.org/aimeos/map/license.svg)](https://packagist.org/packages/aimeos/map)
-[![Latest Stable Version](https://poser.pugx.org/aimeos/map/v/stable)](https://packagist.org/packages/aimeos/map) 
-[![Total Downloads](https://poser.pugx.org/aimeos/map/downloads)](https://packagist.org/packages/aimeos/map) 
+[![Latest Stable Version](https://poser.pugx.org/aimeos/map/v/stable)](https://packagist.org/packages/aimeos/map)
+[![Total Downloads](https://poser.pugx.org/aimeos/map/downloads)](https://packagist.org/packages/aimeos/map)
 
 # Working with PHP arrays easily
 
@@ -109,7 +109,7 @@ will return:
 
 ### Create
 
-* [function map()](#map-function) : Creates a new map from elements
+* [function map()](#map-function) : Creates a new map from passed elements
 * [__construct()](#__construct) : Creates a new map
 * [copy()](#copy) : Creates a new copy
 * [from()](#from) : Creates a new map from passed elements
@@ -117,35 +117,35 @@ will return:
 
 ### Access
 
-* [find()](#find) : Returns the first matching element
+* [find()](#find) : Returns the first/last matching element
 * [first()](#first) : Returns the first element
 * [firstKey()](#firstkey) : Returns the first key
 * [get()](#get) : Returns an element by key
-* [keys()](#keys) : Returns the keys
+* [keys()](#keys) : Returns all keys
 * [last()](#last) : Returns the last element
 * [lastKey()](#lastkey) : Returns the last key
 * [pop()](#pop) : Returns and removes the last element
 * [pull()](#pull) : Returns and removes an element by key
-* [random()](#random) : Returns random elements
+* [random()](#random) : Returns random elements preserving keys
 * [search()](#search) : Find the key of an element
 * [shift()](#shift) : Returns and removes the first element
 * [toArray()](#toarray) : Returns the plain array
-* [unique()](#unique) : Returns unique elements
+* [unique()](#unique) : Returns all unique elements preserving keys
 * [values()](#values) : Returns all elements with new keys
 * [where()](#where) : Filters the list of elements by a given condition
 
 ### Add
 
-* [concat()](#concat) : Combines the elements
+* [concat()](#concat) : Adds all elements with new keys
 * [merge()](#merge) : Combines elements overwriting existing ones
 * [push()](#push) : Adds an element to the end
 * [set()](#set) : Overwrites an element
-* [union()](#union) : Combines the element without overwriting
+* [union()](#union) : Adds the elements without overwriting existing ones
 * [unshift()](#unshift) : Adds an element at the beginning
 
 ### Aggregate
 
-* [count()](#count) : Returns the number of elements
+* [count()](#count) : Returns the total number of elements
 * [countBy()](#countby) : Counts how often the same values are in the map
 
 ### Debug
@@ -154,29 +154,29 @@ will return:
 
 ### Order
 
-* [arsort()](#arsort) : Reverse sort elements with keys
-* [asort()](#asort) : Sort elements with keys
+* [arsort()](#arsort) : Reverse sort elements preserving keys
+* [asort()](#asort) : Sort elements preserving keys
 * [krsort()](#krsort) : Reverse sort elements by keys
 * [ksort()](#ksort) : Sort elements by keys
-* [rsort()](#rsort) : Reverse sort elements
-* [reverse()](#reverse) : Reverses the array order
-* [shuffle()](#shuffle) : Randomizes the element order
-* [sort()](#sort) : Sorts elements
-* [uasort()](#uasort) : Sorts elements with keys using callback
+* [rsort()](#rsort) : Reverse sort elements using new keys
+* [reverse()](#reverse) : Reverses the array order preserving keys
+* [shuffle()](#shuffle) : Randomizes the element order using new keys
+* [sort()](#sort) : Sorts the elements assigning new keys
+* [uasort()](#uasort) : Sorts elements preserving keys using callback
 * [uksort()](#uksort) : Sorts elements by keys using callback
-* [usort()](#usort) : Sorts elements using callback
+* [usort()](#usort) : Sorts elements using callback assigning new keys
 
 ### Shorten
 
 * [clear()](#clear) : Removes all elements
-* [diff()](#diff) : Returns the missing elements
-* [diffAssoc()](#diffassoc) : Returns the missing elements and checks keys
-* [diffKeys()](#diffkeys) : Returns the missing elements by keys
+* [diff()](#diff) : Returns the elements missing in the given list
+* [diffAssoc()](#diffassoc) : Returns the elements missing in the given list and checks keys
+* [diffKeys()](#diffkeys) : Returns the elements missing in the given list by keys
 * [except()](#except) : Returns a new map without the passed element keys
-* [filter()](#filter) : Applies a filter to the map elements
-* [intersect()](#intersect) : Returns the shared elements
-* [intersectAssoc()](#intersectassoc) : Returns the shared elements and checks keys
-* [intersectKeys()](#intersectkeys) : Returns the shared elements by keys
+* [filter()](#filter) : Applies a filter to the all elements
+* [intersect()](#intersect) : Returns the elements shared
+* [intersectAssoc()](#intersectassoc) : Returns the elements shared and checks keys
+* [intersectKeys()](#intersectkeys) : Returns the elements shared by keys
 * [nth()](#nth) : Returns every nth element from the map
 * [only()](#only) : Returns only those elements specified by the keys
 * [pop()](#pop) : Returns and removes the last element
@@ -204,17 +204,17 @@ will return:
 ### Transform
 
 * [chunk()](#chunk) : Splits the map into chunks
-* [combine()](#combine) : Combines the keys with the values
+* [combine()](#combine) : Combines the map elements as keys with the given values
 * [col()](#col) : Creates a key/value mapping
-* [collapse()](#collapse) : Collapses multi-dimensional elements
+* [collapse()](#collapse) : Collapses multi-dimensional elements overwriting elements
 * [flip()](#flip) : Exchanges keys with their values
-* [flat()](#flat) : Flattens multi-dimensional elements
+* [flat()](#flat) : Flattens multi-dimensional elements without overwriting elements
 * [groupBy()](#groupby) : Groups associative array elements or objects
-* [join()](#join) : Returns concatenated elements as string
+* [join()](#join) : Returns concatenated elements as string with separator
 * [map()](#map) : Applies a callback to each element and returns the results
-* [partition()](#partition) : Breaks the list into the number of groups
-* [pipe()](#pipe) : Applies a callback to the map
-* [reduce()](#reduce) : Computes a value for the map content
+* [partition()](#partition) : Breaks the list into the given number of groups
+* [pipe()](#pipe) : Applies a callback to the whole map
+* [reduce()](#reduce) : Computes a single value from the map content
 * [replace()](#replace) : Replaces elements recursively
 * [splice()](#splice) : Replaces a slice by new elements
 * [toJson()](#tojson) : Returns the elements in JSON format
