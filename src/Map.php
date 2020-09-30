@@ -601,6 +601,40 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns the duplicate values from the map.
+	 *
+	 * The keys in the result map are the same as in the original one. For nested
+	 * arrays, you have to pass the name of the column of the nested array which
+	 * should be used to check for duplicates.
+	 *
+	 * Examples:
+	 *  Map::from( [1, 2, '1', 3] )->duplicates()
+	 *  Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->duplicates( 'p' )
+	 *
+	 * Results:
+	 *  [2 => '1']
+	 *  [1 => ['p' => 1]]
+	 *
+	 * @param string|null $col Key of the nested array or object to check for
+	 * @return self New map
+	 */
+	public function duplicates( string $col = null ) : self
+	{
+		$result = [];
+		$unique = array_unique( $col !== null ? array_column( $this->list, $col ) : $this->list );
+
+		foreach( $this->list as $key => $value )
+		{
+			if( !array_key_exists( $key, $unique ) ) {
+				$result[$key] = $value;
+			}
+		}
+
+		return new static( $result );
+	}
+
+
+	/**
 	 * Executes a callback over each entry until FALSE is returned.
 	 *
 	 * Examples:
@@ -1649,6 +1683,58 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Breaks the list of elements into the given number of groups.
+	 *
+	 * Examples:
+	 *  Map::from( [1, 2, 3, 4, 5] )->partition( 3 );
+	 *  Map::from( [1, 2, 3, 4, 5] )->partition( function( $val, $idx ) {
+	 *		return $idx % 3;
+	 *	} );
+	 *
+	 * Results:
+	 *  [[0 => 1, 1 => 2], [2 => 3, 3 => 4], [4 => 5]]
+	 *  [0 => [0 => 1, 3 => 4], 1 => [1 => 2, 4 => 5], 2 => [2 => 3]]
+	 *
+	 * The keys of the original map are preserved in the returned map.
+	 *
+	 * @param \Closure|int $number Function with (value, index) as arguments returning the bucket key or number of groups
+	 * @return self New map
+	 */
+	public function partition( $number ) : self
+	{
+		if( empty( $this->list ) ) {
+			return new static();
+		}
+
+		$result = [];
+
+		if( $number instanceof \Closure )
+		{
+			foreach( $this->list as $idx => $item ) {
+				$result[$number( $item, $idx )][$idx] = $item;
+			}
+
+			return new static( $result );
+		}
+		elseif( is_int( $number ) )
+		{
+			$start = 0;
+			$size = ceil( count( $this->list ) / $number );
+
+			for( $i = 0; $i < $number; $i++ )
+			{
+				$result[] = array_slice( $this->list, $start, $size, true );
+				$start += $size;
+			}
+
+			return new static( $result );
+		}
+
+		throw new \InvalidArgumentException( 'Parameter is no closure or integer' );
+	}
+
+
+	/**
 	 * Passes the map to the given callback and return the result.
 	 *
 	 * Examples:
@@ -2444,6 +2530,112 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		return $this;
+	}
+
+
+	/**
+	 * Filters the list of elements by a given condition.
+	 *
+	 * Examples:
+	 *  Map::from( [
+	 *    ['id' => 1, 'type' => 'name'],
+	 *    ['id' => 2, 'type' => 'short'],
+	 *  ] )->where( 'type', '==', 'name' );
+	 *
+	 *  Map::from( [
+	 *    ['id' => 3, 'price' => 10],
+	 *    ['id' => 4, 'price' => 50],
+	 *  ] )->where( 'price', '>', 20 );
+	 *
+	 *  Map::from( [
+	 *    ['id' => 3, 'price' => 10],
+	 *    ['id' => 4, 'price' => 50],
+	 *  ] )->where( 'price', 'in', [10, 25] );
+	 *
+	 *  Map::from( [
+	 *    ['id' => 3, 'price' => 10],
+	 *    ['id' => 4, 'price' => 50],
+	 *  ] )->where( 'price', '-', [10, 100] );
+	 *
+	 * Results:
+	 *  [['id' => 1, 'type' => 'name']]
+	 *  [['id' => 4, 'price' => 50]]
+	 *  [['id' => 3, 'price' => 10]]
+	 *  [['id' => 3, 'price' => 10], ['id' => 4, 'price' => 50]]
+	 *
+	 * Available operators are:
+	 * * '==' : Equal
+	 * * '===' : Equal and same type
+	 * * '!=' : Not equal
+	 * * '!==' : Not equal and same type
+	 * * '<=' : Smaller than an equal
+	 * * '>=' : Greater than an equal
+	 * * '<' : Smaller
+	 * * '>' : Greater
+	 * 'in' : Array of value which are in the list of values
+	 * '-' : Values between array of start and end value, e.g. [10, 100] (inclusive)
+	 *
+	 * @param string $key Key of the array or object to used for comparison
+	 * @param string $op Operator used for comparison
+	 * @param mixed $value Value used for comparison
+	 */
+	public function where( string $key, string $op, $value ) : self
+	{
+		return $this->filter( function( $item, $idx ) use ( $key, $op, $value ) {
+
+			$item = (array) $item;
+
+			if( array_key_exists( $key, $item ) )
+			{
+				$val = $item[$key];
+
+				switch( $op )
+				{
+					case '-':
+						$value = (array) $value;
+						return $val >= current( $value ) && $val <= end( $value );
+					case 'in': return in_array( $val, (array) $value );
+					case '<': return $val < $value;
+					case '>': return $val > $value;
+					case '<=': return $val <= $value;
+					case '>=': return $val >= $value;
+					case '===': return $val === $value;
+					case '!==': return $val !== $value;
+					case '!=': return $val != $value;
+					default: return $val == $value;
+				}
+			}
+
+			return false;
+		} );
+	}
+
+
+	/**
+	 * Merges the values of all arrays at the corresponding index.
+	 *
+	 * Examples:
+	 *  $en = ['one', 'two', 'three'];
+	 *  $es = ['uno', 'dos', 'tres'];
+	 *  $m = new Map( [1, 2, 3] )->zip( $en, $es );
+	 *
+	 * Results:
+	 *  [
+	 *    [1, 'one', 'uno'],
+	 *    [2, 'two', 'dos'],
+	 *    [3, 'three', 'tres'],
+	 *  ]
+	 *
+	 * @param array|\Traversable|\Iterator $array1 List of values to merge with
+	 * @return self New map of arrays
+	 */
+	public function zip( $items ) : self
+	{
+		$args = array_map( function( $items ) {
+			return $this->getArray( $items );
+		}, func_get_args() );
+
+		return new static( array_map( null, $this->list, ...$args ) );
 	}
 
 

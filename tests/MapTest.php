@@ -402,6 +402,24 @@ Array
 	}
 
 
+	public function testDuplicates()
+	{
+		$r = Map::from( [1, 2, '1', 3] )->duplicates();
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [2 => '1'], $r->toArray() );
+	}
+
+
+	public function testDuplicatesColumn()
+	{
+		$r = Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->duplicates( 'p' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [1 => ['p' => 1]], $r->toArray() );
+	}
+
+
 	public function testEach()
 	{
 		$m = new Map( $original = [1, 2, 'foo' => 'bar', 'bam' => 'baz'] );
@@ -1238,6 +1256,30 @@ Array
 	}
 
 
+	public function testPartition()
+	{
+		$expected = [[0 => 1, 1 => 2], [2 => 3, 3 => 4], [4 => 5]];
+
+		$this->assertEquals( $expected, Map::from( [1, 2, 3, 4, 5] )->partition( 3 )->toArray() );
+	}
+
+
+	public function testPartitionClosure()
+	{
+		$expected = [[0 => 1, 3 => 4], [1 => 2, 4 => 5], [2 => 3]];
+
+		$this->assertEquals( $expected, Map::from( [1, 2, 3, 4, 5] )->partition( function( $val, $idx ) {
+			return $idx % 3;
+		} )->toArray() );
+	}
+
+
+	public function testPartitionEmpty()
+	{
+		$this->assertEquals( [], Map::from( [] )->partition( 2 )->toArray() );
+	}
+
+
 	public function testPipe()
 	{
 		$map = new Map( [1, 2, 3] );
@@ -1891,6 +1933,57 @@ Array
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertEquals( ['one', 'two', 3], $r->toArray() );
+	}
+
+
+	public function testWhere()
+	{
+		$m = Map::from( [['p' => 10], ['p' => 20], ['p' => 30]] );
+
+		$this->assertInstanceOf( Map::class, $m->where( 'p', '!=', null ) );
+		$this->assertEquals( [['p' => 10]], $m->where( 'p', '==', 10 )->toArray() );
+		$this->assertEquals( [], $m->where( 'p', '===', '10' )->toArray() );
+		$this->assertEquals( [1 => ['p' => 20], 2 => ['p' => 30]], $m->where( 'p', '!=', 10 )->toArray() );
+		$this->assertEquals( [['p' => 10], ['p' => 20], ['p' => 30]], $m->where( 'p', '!==', '10' )->toArray() );
+		$this->assertEquals( [1 => ['p' => 20], 2 => ['p' => 30]], $m->where( 'p', '>', 10 )->toArray() );
+		$this->assertEquals( [['p' => 10], ['p' => 20]], $m->where( 'p', '<', 30 )->toArray() );
+		$this->assertEquals( [['p' => 10], ['p' => 20]], $m->where( 'p', '<=', 20 )->toArray() );
+		$this->assertEquals( [1 => ['p' => 20], 2 => ['p' => 30]], $m->where( 'p', '>=', 20 )->toArray() );
+	}
+
+
+	public function testWhereBetween()
+	{
+		$m = Map::from( [['p' => 10], ['p' => 20], ['p' => 30]] );
+
+		$this->assertEquals( [['p' => 10], ['p' => 20]], $m->where( 'p', '-', [10, 20] )->toArray() );
+		$this->assertEquals( [['p' => 10]], $m->where( 'p', '-', [10] )->toArray() );
+		$this->assertEquals( [['p' => 10]], $m->where( 'p', '-', 10 )->toArray() );
+	}
+
+
+	public function testWhereIn()
+	{
+		$m = Map::from( [['p' => 10], ['p' => 20], ['p' => 30]] );
+
+		$this->assertEquals( [['p' => 10], 2 => ['p' => 30]], $m->where( 'p', 'in', [10, 30] )->toArray() );
+		$this->assertEquals( [['p' => 10]], $m->where( 'p', 'in', 10 )->toArray() );
+	}
+
+
+	public function testZip()
+	{
+		$m = new Map( [1, 2, 3] );
+		$en = ['one', 'two', 'three'];
+		$es = ['uno', 'dos', 'tres'];
+
+		$expected = [
+			[1, 'one', 'uno'],
+			[2, 'two', 'dos'],
+			[3, 'three', 'tres'],
+		];
+
+		$this->assertEquals( $expected, $m->zip( $en, $es )->toArray() );
 	}
 }
 

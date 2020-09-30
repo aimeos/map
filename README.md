@@ -132,6 +132,7 @@ will return:
 * [toArray()](#toarray) : Returns the plain array
 * [unique()](#unique) : Returns all unique elements preserving keys
 * [values()](#values) : Returns all elements with new keys
+* [where()](#where) : Filters the list of elements by a given condition
 
 ### Add
 
@@ -219,6 +220,19 @@ will return:
 * [toJson()](#tojson) : Returns the elements in JSON format
 * [toUrl()](#tourl) : Creates a HTTP query string
 * [walk()](#walk) : Applies the given callback to all elements
+* [zip()](#zip) : Merges the values of all arrays at the corresponding index
+
+### Misc
+
+* [__call()](#__call) : Calls a custom method
+* [__callStatic()](#__callstatic) : Calls a custom method statically
+* [getIterator()](#getiterator) : Returns an iterator for the elements
+* [method()](#method) : Registers a custom method
+* [offsetExists()](#offsetexists) : Checks if the key exists
+* [offsetGet()](#offsetget) : Returns an element by key
+* [offsetSet()](#offsetset) : Overwrites an element
+* [offsetUnset()](#offsetunset) : Removes an element by key
+
 
 ### Misc
 
@@ -802,6 +816,36 @@ array(1) {
   string(3) "foo"
 }
 ```
+
+
+### duplicates()
+
+Returns the duplicate values from the map.
+
+```php
+public function duplicates( string $col = null ) : self
+```
+
+* @param string|null $col Key of the nested array or object to check for
+* @return self New map
+
+**Examples:**
+
+```php
+Map::from( [1, 2, '1', 3] )->duplicates()
+Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->duplicates( 'p' )
+```
+
+**Results:**
+
+```php
+[2 => '1']
+[1 => ['p' => 1]]
+```
+
+The keys in the result map are the same as in the original one. For nested
+arrays, you have to pass the name of the column of the nested array which
+should be used to check for duplicates.
 
 
 ### each()
@@ -1932,6 +1976,36 @@ Map::from( ['a' => 1, 0 => 'b', 1 => 'c'] )->only( [0, 1] );
 ```
 
 
+### partition()
+
+Breaks the list of elements into the given number of groups.
+
+```php
+public function partition( $num ) : self
+```
+
+* @param \Closure|int `$number` Function with (value, index) as arguments returning the bucket key or number of groups
+* @return self New map
+
+**Examples:**
+
+```php
+Map::from( [1, 2, 3, 4, 5] )->partition( 3 );
+Map::from( [1, 2, 3, 4, 5] )->partition( function( $val, $idx ) {
+	return $idx % 3;
+} );
+```
+
+**Results:**
+
+```php
+[[0 => 1, 1 => 2], [2 => 3, 3 => 4], [4 => 5]]
+[0 => [0 => 1, 3 => 4], 1 => [1 => 2, 4 => 5], 2 => [2 => 3]]
+```
+
+The keys of the original map are preserved in the returned map.
+
+
 ### pipe()
 
 Passes the map to the given callback and return the result.
@@ -2855,6 +2929,93 @@ The last example changes the Map elements to:
 
 By default, Map elements which are arrays will be traversed recursively.
 To iterate over the Map elements only, pass FALSE as third parameter.
+
+
+### where()
+
+Filters the list of elements by a given condition.
+
+```php
+public function where( string $key, string $op, $value ) : self
+```
+
+* @param string `$key` Key of the array or object to used for comparison
+* @param string `$op` Operator used for comparison
+* @param mixed `$value` Value used for comparison
+
+**Examples:**
+
+```php
+Map::from( [
+  ['id' => 1, 'type' => 'name'],
+  ['id' => 2, 'type' => 'short'],
+] )->where( 'type', '==', 'name' );
+
+Map::from( [
+  ['id' => 3, 'price' => 10],
+  ['id' => 4, 'price' => 50],
+] )->where( 'price', '>', 20 );
+
+Map::from( [
+  ['id' => 3, 'price' => 10],
+  ['id' => 4, 'price' => 50],
+] )->where( 'price', 'in', [10, 25] );
+
+Map::from( [
+  ['id' => 3, 'price' => 10],
+  ['id' => 4, 'price' => 50],
+] )->where( 'price', '-', [10, 100] );
+```
+
+**Results:**
+
+```php
+[['id' => 1, 'type' => 'name']]
+[['id' => 4, 'price' => 50]]
+[['id' => 3, 'price' => 10]]
+[['id' => 3, 'price' => 10], ['id' => 4, 'price' => 50]]
+```
+
+Available operators are:
+
+* '==' : Equal
+* '===' : Equal and same type
+* '!=' : Not equal
+* '!==' : Not equal and same type
+* '<=' : Smaller than an equal
+* '>=' : Greater than an equal
+* '<' : Smaller
+* '>' : Greater
+* 'in' : Array of value which are in the list of values
+* '-' : Values between array of start and end value, e.g. [10, 100] (inclusive)
+
+
+### zip()
+
+Merges the values of all arrays at the corresponding index.
+
+```php
+public function zip( $array1, ... ) : self
+```
+
+* @param array|\Traversable|\Iterator `$array1` List of values to merge with
+* @return self New map of arrays
+
+**Examples:**
+
+```php
+Map::from( [1, 2, 3] )->zip( ['one', 'two', 'three'], ['uno', 'dos', 'tres'] );
+```
+
+**Results:**
+
+```php
+[
+    [1, 'one', 'uno'],
+    [2, 'two', 'dos'],
+    [3, 'three', 'tres'],
+]
+```
 
 
 
