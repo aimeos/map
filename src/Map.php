@@ -317,7 +317,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Collapses all sub-array elements recursively to a new map.
+	 * Collapses all sub-array elements recursively to a new map overwriting existing keys.
 	 *
 	 * Examples:
 	 *  Map::from( [0 => ['a' => 0, 'b' => 1], 1 => ['c' => 2, 'd' => 3]] )->collapse();
@@ -357,7 +357,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Pushs all of the given elements onto the map without creating a new map.
+	 * Pushs all of the given elements onto the map with new keys without creating a new map.
 	 *
 	 * Examples:
 	 *  Map::from( ['foo'] )->concat( new Map( ['bar'] ));
@@ -411,7 +411,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Counts the number of elements in the map.
+	 * Counts the total number of elements in the map.
 	 *
 	 * @return int Number of elements
 	 */
@@ -778,7 +778,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Runs a filter over each element of the map and returns a new map.
+	 * Applies a filter to all elements of the map and returns a new map.
 	 *
 	 * Examples:
 	 *  Map::from( [2 => 'a', 6 => 'b', 13 => 'm', 30 => 'z'] )->filter( function( $value, $key ) {
@@ -806,7 +806,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Returns the first matching element where the callback returns TRUE.
+	 * Returns the first/last matching element where the callback returns TRUE.
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'c', 'e'] )->find( function( $value, $key ) {
@@ -897,7 +897,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Creates a new map with all sub-array elements added recursively
+	 * Creates a new map with all sub-array elements added recursively withput overwriting existing keys.
 	 *
 	 * Examples:
 	 *  Map::from( [[0, 1], [2, 3]] )->flat();
@@ -1352,7 +1352,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Returns the keys of the map elements in a new map object.
+	 * Returns the keys of the all elements in a new map object.
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'b'] );
@@ -1821,7 +1821,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Returns one or more random element from the map.
+	 * Returns one or more random element from the map incl. their keys.
 	 *
 	 * Examples:
 	 *  Map::from( [2, 4, 8, 16] )->random();
@@ -1934,7 +1934,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Reverses the element order without returning a new map.
+	 * Reverses the element order with keys without returning a new map.
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'b'] )->reverse();
@@ -1952,7 +1952,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Sorts all elements in reverse order without maintaining the key association.
+	 * Sorts all elements in reverse order using new keys.
 	 *
 	 * Examples:
 	 *  Map::from( ['a' => 1, 'b' => 0] )->rsort();
@@ -2155,7 +2155,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Sorts all elements without maintaining the key association.
+	 * Sorts all elements using new keys.
 	 *
 	 * Examples:
 	 *  Map::from( ['a' => 1, 'b' => 0] )->sort();
@@ -2356,7 +2356,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Builds a union of the elements and the given elements without returning a new map.
+	 * Builds a union of the elements and the given elements without overwriting existing ones.
 	 * Existing keys in the map will not be overwritten
 	 *
 	 * Examples:
@@ -2381,7 +2381,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Returns only unique elements from the map in a new map
+	 * Returns only unique elements from the map incl. their keys.
 	 *
 	 * Examples:
 	 *  Map::from( [0 => 'a', 1 => 'b', 2 => 'b', 3 => 'c'] )->unique();
@@ -2440,7 +2440,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Sorts all elements using a callback without maintaining the key association.
+	 * Sorts all elements using a callback using new keys.
 	 *
 	 * The given callback will be used to compare the values. The callback must accept
 	 * two parameters (item A and B) and must return -1 if item A is smaller than
