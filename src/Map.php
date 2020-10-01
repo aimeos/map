@@ -98,6 +98,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 		foreach( $this->list as $key => $item )
 		{
+			// todo: remove method_exists() in 2.x to show calling not-existing methods
 			if( is_object( $item ) && method_exists( $item, $name ) ) {
 				$result[$key] = $item->{$name}( ...$params );
 			}
@@ -2086,6 +2087,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param int $offset Number of items to skip
 	 * @return self New map
+	 * @todo 2.0: Allow closure for first parameter
 	 */
 	public function skip( int $offset ) : self
 	{
@@ -2239,6 +2241,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * @param int $size Number of items to return
 	 * @param int $offset Number of items to skip
 	 * @return self New map
+	 * @todo 2.0: Allow closure for first parameter
 	 */
 	public function take( int $size, int $offset = 0 ) : self
 	{
