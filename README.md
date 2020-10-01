@@ -160,7 +160,7 @@ will return:
 * [ksort()](#ksort) : Sort elements by keys
 * [rsort()](#rsort) : Reverse sort elements using new keys
 * [reverse()](#reverse) : Reverses the array order preserving keys
-* [shuffle()](#shuffle) : Randomizes the element order using new keys
+* [shuffle()](#shuffle) : Randomizes the element order
 * [sort()](#sort) : Sorts the elements assigning new keys
 * [uasort()](#uasort) : Sorts elements preserving keys using callback
 * [uksort()](#uksort) : Sorts elements by keys using callback
@@ -2352,20 +2352,24 @@ $map->shift();
 Shuffles the elements in the map without returning a new map.
 
 ```php
-public function shuffle() : self
+public function shuffle( bool $assoc = false ) : self
 ```
 
+* @param bool $assoc True to preserve keys, false to assign new keys
 * @return self Updated map for fluid interface
 
 **Examples:**
 
 ```php
 Map::from( [2 => 'a', 4 => 'b'] )->shuffle();
+Map::from( [2 => 'a', 4 => 'b'] )->shuffle( true );
 ```
 
 **Results:**
 
-The map will contain "a" and "b" in random order and with new keys assigned
+The map in the first example will contain "a" and "b" in random order and
+with new keys assigned. The second call will also return all values in
+random order but preserves the keys of the original list.
 
 
 ### skip()

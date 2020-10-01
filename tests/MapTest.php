@@ -1585,7 +1585,22 @@ Array
 
 		$this->assertInstanceOf( Map::class, $firstRandom );
 		$this->assertInstanceOf( Map::class, $secondRandom );
-		$this->assertNotEquals( $firstRandom, $secondRandom );
+		$this->assertNotEquals( $firstRandom->toArray(), $secondRandom->toArray() );
+	}
+
+
+	public function testShuffleAssoc()
+	{
+		$map = new Map( range( 0, 100, 10 ) );
+
+		$result = $map->copy()->shuffle( true );
+
+		$this->assertInstanceOf( Map::class, $result );
+		$this->assertFalse( $map->is( $result, true ) );
+
+		foreach( $map as $key => $value ) {
+			$this->assertEquals( $value, $result[$key] );
+		}
 	}
 
 

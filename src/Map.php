@@ -2063,15 +2063,36 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * Examples:
 	 *  Map::from( [2 => 'a', 4 => 'b'] )->shuffle();
+	 *  Map::from( [2 => 'a', 4 => 'b'] )->shuffle( true );
 	 *
 	 * Results:
-	 * The map will contain "a" and "b" in random order and with new keys assigned
+	 * The map in the first example will contain "a" and "b" in random order and
+	 * with new keys assigned. The second call will also return all values in
+	 * random order but preserves the keys of the original list.
 	 *
+	 * @param bool $assoc True to preserve keys, false to assign new keys
 	 * @return self Updated map for fluid interface
 	 */
-	public function shuffle() : self
+	public function shuffle( bool $assoc = false ) : self
 	{
-		shuffle( $this->list );
+		if( $assoc )
+		{
+			$keys = array_keys( $this->list );
+			shuffle( $keys );
+			$list = [];
+
+			foreach( $keys as $key ) {
+				$list[$key] = $this->list[$key];
+			}
+
+			$this->list = $list;
+		}
+		else
+		{
+			shuffle( $this->list );
+		}
+
+
 		return $this;
 	}
 
