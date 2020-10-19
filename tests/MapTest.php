@@ -1299,6 +1299,18 @@ Array
 	}
 
 
+	public function testPrefix()
+	{
+		$fcn = function( $item, $key ) {
+			return ( ord( $item ) + ord( $key ) ) . '-';
+		};
+
+		$this->assertEquals( ['1-a', '1-b'], Map::from( ['a', 'b'] )->prefix( '1-' )->toArray() );
+		$this->assertEquals( ['1-a', ['1-b']], Map::from( ['a', ['b']] )->prefix( '1-' )->toArray() );
+		$this->assertEquals( ['145-a', '147-b'], Map::from( ['a', 'b'] )->prefix( $fcn )->toArray() );
+	}
+
+
 	public function testPull()
 	{
 		$m = new Map( ['foo', 'bar'] );

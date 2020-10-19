@@ -1773,6 +1773,47 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Adds a prefix in front of each map entry.
+	 *
+	 * Nested arrays are walked recusively so all entries at all levels are prefixed.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'b'] )->prefix( '1-' );
+	 *  Map::from( ['a', ['b']] )->prefix( '1-' );
+	 *  Map::from( ['a', 'b'] )->prefix( function( $item, $key ) {
+	 *      return ( ord( $item ) + ord( $key ) ) . '-';
+	 *  } );
+	 *
+	 * Results:
+	 *  The first example returns ['1-a', '1-b'] while the second one will return
+	 *  ['1-a', ['1-b']]. The third example passing the closure will return
+	 *  ['145-a', '147-b'].
+	 *
+	 * @param \Closure|string $prefix Prefix string or anonymous function with ($item, $key) as parameters
+	 * @return self Updated map for fluid interface
+	 */
+	public function prefix( $prefix )
+	{
+		$fcn = function( $list, $prefix ) use ( &$fcn ) {
+
+			foreach( $list as $key => $item )
+			{
+				if( !is_scalar( $item ) ) {
+					$list[$key] = $fcn( $item, $prefix );
+				} else {
+					$list[$key] = ( is_callable( $prefix ) ? $prefix( $item, $key ) : $prefix ) . $item;
+				}
+			}
+
+			return $list;
+		};
+
+		$this->list = $fcn( $this->list, $prefix );
+		return $this;
+	}
+
+
+	/**
 	 * Returns and removes an element from the map by its key.
 	 *
 	 * Examples:

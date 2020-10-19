@@ -214,6 +214,7 @@ will return:
 * [map()](#map) : Applies a callback to each element and returns the results
 * [partition()](#partition) : Breaks the list into the given number of groups
 * [pipe()](#pipe) : Applies a callback to the whole map
+* [prefix()](#prefix) : Adds a prefix to each map entry
 * [reduce()](#reduce) : Computes a single value from the map content
 * [replace()](#replace) : Replaces elements recursively
 * [splice()](#splice) : Replaces a slice by new elements
@@ -2037,6 +2038,36 @@ Map::from( ['a', 'b'] )->pop();
 **Results:**
 
 "b" will be returned and the map only contains `['a']` afterwards
+
+
+### prefix
+
+Adds a prefix in front of each map entry.
+
+```php
+public function prefix( $prefix )
+```
+
+* @param \Closure|string `$prefix` Function with map as parameter which returns arbitrary result
+* @return self Updated map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b'] )->prefix( '1-' );
+Map::from( ['a', ['b']] )->prefix( '1-' );
+Map::from( ['a', 'b'] )->prefix( function( $item, $key ) {
+    return ( ord( $item ) + ord( $key ) ) . '-';
+} );
+```
+
+**Results:**
+
+The first example returns `['1-a', '1-b']` while the second one will return
+`['1-a', ['1-b']]`. The third example passing the closure will return
+`['145-a', '147-b']`.
+
+Nested arrays are walked recusively so all entries at all levels are prefixed.
 
 
 ### pull()
