@@ -2431,6 +2431,52 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Exchanges rows and columns for a two dimensional map.
+	 *
+	 * Examples:
+	 *  Map::from( [
+	 *    ['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
+	 *    ['name' => 'B', 2020 => 300, 2021 => 200, 2022 => 100],
+	 *    ['name' => 'C', 2020 => 400, 2021 => 300, 2022 => 200],
+	 *  ] )->transpose();
+	 *
+	 *  Map::from( [
+	 *    ['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
+	 *    ['name' => 'B', 2020 => 300, 2021 => 200],
+	 *    ['name' => 'C', 2020 => 400]
+	 *  ] );
+	 *
+	 * Results:
+	 *  [
+	 *    'name' => ['A', 'B', 'C'],
+	 *    2020 => [200, 300, 400],
+	 *    2021 => [100, 200, 300],
+	 *    2022 => [50, 100, 200]
+	 *  ]
+	 *
+	 *  [
+	 *    'name' => ['A', 'B', 'C'],
+	 *    2020 => [200, 300, 400],
+	 *    2021 => [100, 200],
+	 *    2022 => [50]
+	 *  ]
+	 *
+	 * @return self New map
+	 */
+	public function transpose() : self
+	{
+		$result = [];
+
+		foreach( $this->first( [] ) as $key => $col ) {
+			$result[$key] = array_column( $this->list, $key );
+		}
+
+		return new static( $result );
+	}
+
+
+
+	/**
 	 * Sorts all elements using a callback and maintains the key association.
 	 *
 	 * The given callback will be used to compare the values. The callback must accept

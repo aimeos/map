@@ -1860,6 +1860,44 @@ Array
 	}
 
 
+	public function testTranspose()
+	{
+		$m = Map::from( [
+			['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
+			['name' => 'B', 2020 => 300, 2021 => 200, 2022 => 100],
+			['name' => 'C', 2020 => 400, 2021 => 300, 2022 => 200],
+		] );
+
+		$expected = [
+			'name' => ['A', 'B', 'C'],
+			2020 => [200, 300, 400],
+			2021 => [100, 200, 300],
+			2022 => [50, 100, 200]
+		];
+
+		$this->assertEquals( $expected, $m->transpose()->toArray() );
+	}
+
+
+	public function testTransposeLength()
+	{
+		$m = Map::from( [
+			['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
+			['name' => 'B', 2020 => 300, 2021 => 200],
+			['name' => 'C', 2020 => 400]
+		] );
+
+		$expected = [
+			'name' => ['A', 'B', 'C'],
+			2020 => [200, 300, 400],
+			2021 => [100, 200],
+			2022 => [50]
+		];
+
+		$this->assertEquals( $expected, $m->transpose()->toArray() );
+	}
+
+
 	public function testUasort()
 	{
 		$m = ( new Map( ['a' => 'foo', 'c' => 'bar-10', 1 => 'bar-1'] ) )->uasort( function( $a, $b ) {

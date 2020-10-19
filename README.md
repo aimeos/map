@@ -222,6 +222,7 @@ will return:
 * [suffix()](#suffix) : Adds a suffix to each map entry
 * [toJson()](#tojson) : Returns the elements in JSON format
 * [toUrl()](#tourl) : Creates a HTTP query string
+* [transpose()](#transpose) : Exchanges rows and columns for a two dimensional map
 * [walk()](#walk) : Applies the given callback to all elements
 * [zip()](#zip) : Merges the values of all arrays at the corresponding index
 
@@ -2742,6 +2743,51 @@ Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
 ```php
 a=1&b=2
 a%5Bb%5D=abc&a%5Bc%5D=def&d=123
+```
+
+
+### transpose()
+
+Exchanges rows and columns for a two dimensional map.
+
+```php
+public function transpose() : self
+```
+
+* @return self New map
+
+**Examples:**
+
+```php
+Map::from( [
+  ['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
+  ['name' => 'B', 2020 => 300, 2021 => 200, 2022 => 100],
+  ['name' => 'C', 2020 => 400, 2021 => 300, 2022 => 200],
+] )->transpose();
+
+Map::from( [
+  ['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
+  ['name' => 'B', 2020 => 300, 2021 => 200],
+  ['name' => 'C', 2020 => 400]
+] );
+```
+
+**Results:**
+
+```php
+[
+  'name' => ['A', 'B', 'C'],
+  2020 => [200, 300, 400],
+  2021 => [100, 200, 300],
+  2022 => [50, 100, 200]
+]
+
+[
+  'name' => ['A', 'B', 'C'],
+  2020 => [200, 300, 400],
+  2021 => [100, 200],
+  2022 => [50]
+]
 ```
 
 
