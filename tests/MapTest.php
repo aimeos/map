@@ -1642,6 +1642,13 @@ Array
 	}
 
 
+	public function testSkipException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [] )->skip( [] );
+	}
+
+
 	public function testSliceOffset()
 	{
 		$map = ( new Map( [1, 2, 3, 4, 5, 6, 7, 8] ) )->slice( 3 );
@@ -1843,6 +1850,13 @@ Array
 		};
 
 		$this->assertEquals( [1 => 2, 2 => 3], Map::from( [1, 2, 3, 4] )->take( 2, $fcn )->toArray() );
+	}
+
+
+	public function testTakeException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [] )->take( 0, [] );
 	}
 
 
