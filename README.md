@@ -138,6 +138,7 @@ will return:
 
 * [concat()](#concat) : Adds all elements with new keys
 * [merge()](#merge) : Combines elements overwriting existing ones
+* [pad()](#pad) : Fill up to the specified length with the given value
 * [push()](#push) : Adds an element to the end
 * [set()](#set) : Overwrites an element
 * [union()](#union) : Adds the elements without overwriting existing ones
@@ -1964,6 +1965,41 @@ Map::from( ['a' => 1, 0 => 'b', 1 => 'c'] )->only( [0, 1] );
 ['a' => 1]
 [0 => 'b', 1 => 'c']
 ```
+
+
+## pad()
+
+Fill up to the specified length with the given value
+
+```php
+public function pad( int $size, $value = null ) : self
+```
+
+* @param int `$size` Total number of elements that should be in the list
+* @return self Updated map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( [1, 2, 3] )->pad( 5 );
+Map::from( [1, 2, 3] )->pad( -5 );
+Map::from( [1, 2, 3] )->pad( 5, '0' );
+Map::from( [1, 2, 3] )->pad( 2 );
+```
+
+**Results:**
+
+```php
+[1, 2, 3, null, null]
+[null, null, 1, 2, 3]
+[1, 2, 3, '0', '0']
+[1, 2, 3]
+```
+
+In case the given number is smaller than the number of element that are
+already in the list, the map is unchanged. If the size is positive, the
+new elements are padded on the right, if it's negative then the elements
+are padded on the left.
 
 
 ### partition()

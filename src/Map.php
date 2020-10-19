@@ -1684,6 +1684,35 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Fill up to the specified length with the given value
+	 *
+	 * In case the given number is smaller than the number of element that are
+	 * already in the list, the map is unchanged. If the size is positive, the
+	 * new elements are padded on the right, if it's negative then the elements
+	 * are padded on the left.
+	 *
+	 * Examples:
+	 *  Map::from( [1, 2, 3] )->pad( 5 );
+	 *  Map::from( [1, 2, 3] )->pad( -5 );
+	 *  Map::from( [1, 2, 3] )->pad( 5, '0' );
+	 *  Map::from( [1, 2, 3] )->pad( 2 );
+	 *
+	 * Results:
+	 *  [1, 2, 3, null, null]
+	 *  [null, null, 1, 2, 3]
+	 *  [1, 2, 3, '0', '0']
+	 *  [1, 2, 3]
+	 *
+	 * @param int `$size` Total number of elements that should be in the list
+	 * @return self New map
+	 */
+	public function pad( int $size, $value = null ) : self
+	{
+		return new static( array_pad( $this->list, $size, $value ) );
+	}
+
+
+	/**
 	 * Breaks the list of elements into the given number of groups.
 	 *
 	 * Examples:

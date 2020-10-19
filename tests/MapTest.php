@@ -1256,6 +1256,16 @@ Array
 	}
 
 
+	public function testPad()
+	{
+		$this->assertEquals( [1, 2, 3, null, null], Map::from( [1, 2, 3] )->pad( 5 )->toArray() );
+		$this->assertEquals( [null, null, 1, 2, 3], Map::from( [1, 2, 3] )->pad( -5 )->toArray() );
+
+		$this->assertEquals( [1, 2, 3, '0', '0'], Map::from( [1, 2, 3] )->pad( 5, '0' )->toArray() );
+		$this->assertEquals( [1, 2, 3], Map::from( [1, 2, 3] )->pad( 2 )->toArray() );
+	}
+
+
 	public function testPartition()
 	{
 		$expected = [[0 => 1, 1 => 2], [2 => 3, 3 => 4], [4 => 5]];
