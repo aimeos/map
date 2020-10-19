@@ -2446,23 +2446,29 @@ random order but preserves the keys of the original list.
 Returns a new map with the given number of items skipped.
 
 ```php
-public function skip( int $offset ) : self
+public function skip( $offset ) : self
 ```
 
-* @param int $offset Number of items to skip
+* @param \Closusre|int $offset Number of items to skip or function($item, $key) returning true for skipped items
 * @return self New map
 
 **Examples:**
 
 ```php
 Map::from( [1, 2, 3, 4] )->skip( 2 );
+Map::from( [1, 2, 3, 4] )->skip( function( $item, $key ) {
+    return $item < 4;
+} );
 ```
 
 **Results:**
 
 ```php
-[3, 4]
+[2 => 3, 3 => 4]
+[3 => 4]
 ```
+
+The keys of the items returned in the new map are the same as in the original one.
 
 
 ### slice()
@@ -2665,11 +2671,11 @@ Nested arrays are walked recusively so all entries at all levels are suffixed.
 Returns a new map with the given number of items.
 
 ```php
-public function take( int $size, int $offset = 0 ) : self
+public function take( int $size, $offset = 0 ) : self
 ```
 
 * @param int `$size` Number of items to return
-* @param int `$offset` Number of items to skip
+* @param \Closusre|int $offset Number of items to skip or function($item, $key) returning true for skipped items
 * @return self New map
 
 **Examples:**
@@ -2678,15 +2684,21 @@ public function take( int $size, int $offset = 0 ) : self
 Map::from( [1, 2, 3, 4] )->take( 2 );
 Map::from( [1, 2, 3, 4] )->take( 2, 1 );
 Map::from( [1, 2, 3, 4] )->take( 2, -2 );
+Map::from( [1, 2, 3, 4] )->take( 2, function( $item, $key ) {
+    return $item < 2;
+} );
 ```
 
 **Results:**
 
 ```php
-[1, 2]
-[2, 3]
-[3, 4]
+[0 => 1, 1 => 2]
+[1 => 2, 2 => 3]
+[2 => 3, 3 => 4]
+[1 => 2, 2 => 3]
 ```
+
+The keys of the items returned in the new map are the same as in the original one.
 
 
 ### toArray()

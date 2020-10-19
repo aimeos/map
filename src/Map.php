@@ -1703,7 +1703,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  [1, 2, 3, '0', '0']
 	 *  [1, 2, 3]
 	 *
-	 * @param int `$size` Total number of elements that should be in the list
+	 * @param int $size Total number of elements that should be in the list
 	 * @return self New map
 	 */
 	public function pad( int $size, $value = null ) : self
@@ -2170,19 +2170,44 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Returns a new map with the given number of items skipped.
 	 *
+	 * The keys of the items returned in the new map are the same as in the original one.
+	 *
 	 * Examples:
 	 *  Map::from( [1, 2, 3, 4] )->skip( 2 );
+	 *  Map::from( [1, 2, 3, 4] )->skip( function( $item, $key ) {
+	 *      return $item < 4;
+	 *  } );
 	 *
 	 * Results:
-	 *  [3, 4]
+	 *  [2 => 3, 3 => 4]
+	 *  [3 => 4]
 	 *
-	 * @param int $offset Number of items to skip
+	 * @param \Closusre|int $offset Number of items to skip or function($item, $key) returning true for skipped items
 	 * @return self New map
-	 * @todo 2.0: Allow closure for first parameter
 	 */
-	public function skip( int $offset ) : self
+	public function skip( $offset ) : self
 	{
-		return new static( array_slice( $this->list, $offset, null, true ) );
+		if( is_scalar( $offset ) ) {
+			return new static( array_slice( $this->list, (int) $offset, null, true ) );
+		}
+
+		if( is_callable( $offset ) )
+		{
+			$idx = 0;
+
+			foreach( $this->list as $key => $item )
+			{
+				if( !$offset( $item, $key ) ) {
+					break;
+				}
+
+				++$idx;
+			}
+
+			return new static( array_slice( $this->list, $idx, null, true ) );
+		}
+
+		throw new \InvalidArgumentException( 'Only an integer or a closure is allowed as first argument for skip()' );
 	}
 
 
@@ -2360,24 +2385,49 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Returns a new map with the given number of items.
 	 *
+	 * The keys of the items returned in the new map are the same as in the original one.
+	 *
 	 * Examples:
 	 *  Map::from( [1, 2, 3, 4] )->take( 2 );
 	 *  Map::from( [1, 2, 3, 4] )->take( 2, 1 );
 	 *  Map::from( [1, 2, 3, 4] )->take( 2, -2 );
+	 *  Map::from( [1, 2, 3, 4] )->take( 2, function( $item, $key ) {
+	 *      return $item < 2;
+	 *  } );
 	 *
 	 * Results:
-	 *  [1, 2]
-	 *  [2, 3]
-	 *  [3, 4]
+	 *  [0 => 1, 1 => 2]
+	 *  [1 => 2, 2 => 3]
+	 *  [2 => 3, 3 => 4]
+	 *  [1 => 2, 2 => 3]
 	 *
 	 * @param int $size Number of items to return
-	 * @param int $offset Number of items to skip
+	 * @param \Closusre|int $offset Number of items to skip or function($item, $key) returning true for skipped items
 	 * @return self New map
-	 * @todo 2.0: Allow closure for first parameter
 	 */
-	public function take( int $size, int $offset = 0 ) : self
+	public function take( int $size, $offset = 0 ) : self
 	{
-		return new static( array_slice( $this->list, $offset, $size, true ) );
+		if( is_scalar( $offset ) ) {
+			return new static( array_slice( $this->list, (int) $offset, $size, true ) );
+		}
+
+		if( is_callable( $offset ) )
+		{
+			$idx = 0;
+
+			foreach( $this->list as $key => $item )
+			{
+				if( !$offset( $item, $key ) ) {
+					break;
+				}
+
+				++$idx;
+			}
+
+			return new static( array_slice( $this->list, $idx, $size, true ) );
+		}
+
+		throw new \InvalidArgumentException( 'Only an integer or a closure is allowed as second argument for take()' );
 	}
 
 

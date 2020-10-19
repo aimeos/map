@@ -1632,6 +1632,16 @@ Array
 	}
 
 
+	public function testSkipFunction()
+	{
+		$fcn = function( $item, $key ) {
+			return $item < 4;
+		};
+
+		$this->assertEquals( [3 => 4], Map::from( [1, 2, 3, 4] )->skip( $fcn )->toArray() );
+	}
+
+
 	public function testSliceOffset()
 	{
 		$map = ( new Map( [1, 2, 3, 4, 5, 6, 7, 8] ) )->slice( 3 );
@@ -1823,6 +1833,16 @@ Array
 	public function testTakeNegativeOffset()
 	{
 		$this->assertEquals( [2 => 3, 3 => 4], Map::from( [1, 2, 3, 4] )->take( 2, -2 )->toArray() );
+	}
+
+
+	public function testTakeFunction()
+	{
+		$fcn = function( $item, $key ) {
+			return $item < 2;
+		};
+
+		$this->assertEquals( [1 => 2, 2 => 3], Map::from( [1, 2, 3, 4] )->take( 2, $fcn )->toArray() );
 	}
 
 
