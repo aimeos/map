@@ -2288,6 +2288,47 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Adds a suffix at the end of each map entry.
+	 *
+	 * Nested arrays are walked recusively so all entries at all levels are suffixed.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'b'] )->suffix( '-1' );
+	 *  Map::from( ['a', ['b']] )->suffix( '-1' );
+	 *  Map::from( ['a', 'b'] )->suffix( function( $item, $key ) {
+	 *      return '-' . ( ord( $item ) + ord( $key ) );
+	 *  } );
+	 *
+	 * Results:
+	 *  The first example returns ['a-1', 'b-1'] while the second one will return
+	 *  ['a-1', ['b-1']]. The third example passing the closure will return
+	 *  ['a-145', 'b-147'].
+	 *
+	 * @param \Closure|string $suffix Suffix string or anonymous function with ($item, $key) as parameters
+	 * @return self Updated map for fluid interface
+	 */
+	public function suffix( $suffix )
+	{
+		$fcn = function( $list, $suffix ) use ( &$fcn ) {
+
+			foreach( $list as $key => $item )
+			{
+				if( !is_scalar( $item ) ) {
+					$list[$key] = $fcn( $item, $suffix );
+				} else {
+					$list[$key] = $item . ( is_callable( $suffix ) ? $suffix( $item, $key ) : $suffix );
+				}
+			}
+
+			return $list;
+		};
+
+		$this->list = $fcn( $this->list, $suffix );
+		return $this;
+	}
+
+
+	/**
 	 * Returns a new map with the given number of items.
 	 *
 	 * Examples:

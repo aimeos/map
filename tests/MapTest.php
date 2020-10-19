@@ -1786,6 +1786,18 @@ Array
 	}
 
 
+	public function testSuffix()
+	{
+		$fcn = function( $item, $key ) {
+			return '-' . ( ord( $item ) + ord( $key ) );
+		};
+
+		$this->assertEquals( ['a-1', 'b-1'], Map::from( ['a', 'b'] )->suffix( '-1' )->toArray() );
+		$this->assertEquals( ['a-1', ['b-1']], Map::from( ['a', ['b']] )->suffix( '-1' )->toArray() );
+		$this->assertEquals( ['a-145', 'b-147'], Map::from( ['a', 'b'] )->suffix( $fcn )->toArray() );
+	}
+
+
 	public function testTake()
 	{
 		$this->assertEquals( [1, 2], Map::from( [1, 2, 3, 4] )->take( 2 )->toArray() );

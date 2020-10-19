@@ -218,6 +218,7 @@ will return:
 * [reduce()](#reduce) : Computes a single value from the map content
 * [replace()](#replace) : Replaces elements recursively
 * [splice()](#splice) : Replaces a slice by new elements
+* [suffix()](#suffix) : Adds a suffix to each map entry
 * [toJson()](#tojson) : Returns the elements in JSON format
 * [toUrl()](#tourl) : Creates a HTTP query string
 * [walk()](#walk) : Applies the given callback to all elements
@@ -2590,6 +2591,36 @@ Map::split( 'string', '' );
 ['a a', 'b b', 'c c']
 ['s', 't', 'r', 'i', 'n', 'g']
 ```
+
+
+### suffix
+
+Adds a suffix at the end of each map entry.
+
+```php
+public function suffix( $suffix )
+```
+
+* @param \Closure|string `$suffix` Function with map as parameter which returns arbitrary result
+* @return self Updated map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b'] )->suffix( '-1' );
+Map::from( ['a', ['b']] )->suffix( '-1' );
+Map::from( ['a', 'b'] )->suffix( function( $item, $key ) {
+    return '-' . ( ord( $item ) + ord( $key ) );
+} );
+```
+
+**Results:**
+
+The first example returns `['a-1', 'b-1']` while the second one will return
+`['a-1', ['b-1']]`. The third example passing the closure will return
+`['a-145', 'b-147']`.
+
+Nested arrays are walked recusively so all entries at all levels are suffixed.
 
 
 ### take()
