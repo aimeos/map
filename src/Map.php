@@ -597,7 +597,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function dump( callable $callback = null ) : self
 	{
 		$callback ? $callback( $this->list ) : print_r( $this->list );
-	    return $this;
+		return $this;
 	}
 
 
