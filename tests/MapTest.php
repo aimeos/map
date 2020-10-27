@@ -1290,6 +1290,13 @@ Array
 	}
 
 
+	public function testPartitionInvalid()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [1] )->partition( [] );
+	}
+
+
 	public function testPipe()
 	{
 		$map = new Map( [1, 2, 3] );
@@ -2089,6 +2096,12 @@ Array
 
 		$this->assertEquals( [['p' => 10], 2 => ['p' => 30]], $m->where( 'p', 'in', [10, 30] )->toArray() );
 		$this->assertEquals( [['p' => 10]], $m->where( 'p', 'in', 10 )->toArray() );
+	}
+
+
+	public function testWhereMissing()
+	{
+		$this->assertEquals( [], Map::from( [['p' => 10]] )->where( 'x', '==', [0] )->toArray() );
 	}
 
 
