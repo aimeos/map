@@ -1256,6 +1256,16 @@ Array
 	}
 
 
+	public function testPad()
+	{
+		$this->assertEquals( [1, 2, 3, null, null], Map::from( [1, 2, 3] )->pad( 5 )->toArray() );
+		$this->assertEquals( [null, null, 1, 2, 3], Map::from( [1, 2, 3] )->pad( -5 )->toArray() );
+
+		$this->assertEquals( [1, 2, 3, '0', '0'], Map::from( [1, 2, 3] )->pad( 5, '0' )->toArray() );
+		$this->assertEquals( [1, 2, 3], Map::from( [1, 2, 3] )->pad( 2 )->toArray() );
+	}
+
+
 	public function testPartition()
 	{
 		$expected = [[0 => 1, 1 => 2], [2 => 3, 3 => 4], [4 => 5]];
@@ -1296,6 +1306,18 @@ Array
 
 		$this->assertEquals( 'bar', $m->pop() );
 		$this->assertEquals( ['foo'], $m->toArray() );
+	}
+
+
+	public function testPrefix()
+	{
+		$fcn = function( $item, $key ) {
+			return ( ord( $item ) + ord( $key ) ) . '-';
+		};
+
+		$this->assertEquals( ['1-a', '1-b'], Map::from( ['a', 'b'] )->prefix( '1-' )->toArray() );
+		$this->assertEquals( ['1-a', ['1-b']], Map::from( ['a', ['b']] )->prefix( '1-' )->toArray() );
+		$this->assertEquals( ['145-a', '147-b'], Map::from( ['a', 'b'] )->prefix( $fcn )->toArray() );
 	}
 
 
@@ -1585,13 +1607,45 @@ Array
 
 		$this->assertInstanceOf( Map::class, $firstRandom );
 		$this->assertInstanceOf( Map::class, $secondRandom );
-		$this->assertNotEquals( $firstRandom, $secondRandom );
+		$this->assertNotEquals( $firstRandom->toArray(), $secondRandom->toArray() );
+	}
+
+
+	public function testShuffleAssoc()
+	{
+		$map = new Map( range( 0, 100, 10 ) );
+
+		$result = $map->copy()->shuffle( true );
+
+		$this->assertInstanceOf( Map::class, $result );
+		$this->assertFalse( $map->is( $result, true ) );
+
+		foreach( $map as $key => $value ) {
+			$this->assertEquals( $value, $result[$key] );
+		}
 	}
 
 
 	public function testSkip()
 	{
 		$this->assertEquals( [2 => 3, 3 => 4], Map::from( [1, 2, 3, 4] )->skip( 2 )->toArray() );
+	}
+
+
+	public function testSkipFunction()
+	{
+		$fcn = function( $item, $key ) {
+			return $item < 4;
+		};
+
+		$this->assertEquals( [3 => 4], Map::from( [1, 2, 3, 4] )->skip( $fcn )->toArray() );
+	}
+
+
+	public function testSkipException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [] )->skip( [] );
 	}
 
 
@@ -1759,6 +1813,18 @@ Array
 	}
 
 
+	public function testSuffix()
+	{
+		$fcn = function( $item, $key ) {
+			return '-' . ( ord( $item ) + ord( $key ) );
+		};
+
+		$this->assertEquals( ['a-1', 'b-1'], Map::from( ['a', 'b'] )->suffix( '-1' )->toArray() );
+		$this->assertEquals( ['a-1', ['b-1']], Map::from( ['a', ['b']] )->suffix( '-1' )->toArray() );
+		$this->assertEquals( ['a-145', 'b-147'], Map::from( ['a', 'b'] )->suffix( $fcn )->toArray() );
+	}
+
+
 	public function testTake()
 	{
 		$this->assertEquals( [1, 2], Map::from( [1, 2, 3, 4] )->take( 2 )->toArray() );
@@ -1774,6 +1840,23 @@ Array
 	public function testTakeNegativeOffset()
 	{
 		$this->assertEquals( [2 => 3, 3 => 4], Map::from( [1, 2, 3, 4] )->take( 2, -2 )->toArray() );
+	}
+
+
+	public function testTakeFunction()
+	{
+		$fcn = function( $item, $key ) {
+			return $item < 2;
+		};
+
+		$this->assertEquals( [1 => 2, 2 => 3], Map::from( [1, 2, 3, 4] )->take( 2, $fcn )->toArray() );
+	}
+
+
+	public function testTakeException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [] )->take( 0, [] );
 	}
 
 
@@ -1808,6 +1891,44 @@ Array
 	{
 		$url = Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
 		$this->assertEquals( 'a%5Bb%5D=abc&a%5Bc%5D=def&d=123', $url );
+	}
+
+
+	public function testTranspose()
+	{
+		$m = Map::from( [
+			['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
+			['name' => 'B', 2020 => 300, 2021 => 200, 2022 => 100],
+			['name' => 'C', 2020 => 400, 2021 => 300, 2022 => 200],
+		] );
+
+		$expected = [
+			'name' => ['A', 'B', 'C'],
+			2020 => [200, 300, 400],
+			2021 => [100, 200, 300],
+			2022 => [50, 100, 200]
+		];
+
+		$this->assertEquals( $expected, $m->transpose()->toArray() );
+	}
+
+
+	public function testTransposeLength()
+	{
+		$m = Map::from( [
+			['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
+			['name' => 'B', 2020 => 300, 2021 => 200],
+			['name' => 'C', 2020 => 400]
+		] );
+
+		$expected = [
+			'name' => ['A', 'B', 'C'],
+			2020 => [200, 300, 400],
+			2021 => [100, 200],
+			2022 => [50]
+		];
+
+		$this->assertEquals( $expected, $m->transpose()->toArray() );
 	}
 
 

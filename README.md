@@ -138,6 +138,7 @@ will return:
 
 * [concat()](#concat) : Adds all elements with new keys
 * [merge()](#merge) : Combines elements overwriting existing ones
+* [pad()](#pad) : Fill up to the specified length with the given value
 * [push()](#push) : Adds an element to the end
 * [set()](#set) : Overwrites an element
 * [union()](#union) : Adds the elements without overwriting existing ones
@@ -160,7 +161,7 @@ will return:
 * [ksort()](#ksort) : Sort elements by keys
 * [rsort()](#rsort) : Reverse sort elements using new keys
 * [reverse()](#reverse) : Reverses the array order preserving keys
-* [shuffle()](#shuffle) : Randomizes the element order using new keys
+* [shuffle()](#shuffle) : Randomizes the element order
 * [sort()](#sort) : Sorts the elements assigning new keys
 * [uasort()](#uasort) : Sorts elements preserving keys using callback
 * [uksort()](#uksort) : Sorts elements by keys using callback
@@ -214,11 +215,14 @@ will return:
 * [map()](#map) : Applies a callback to each element and returns the results
 * [partition()](#partition) : Breaks the list into the given number of groups
 * [pipe()](#pipe) : Applies a callback to the whole map
+* [prefix()](#prefix) : Adds a prefix to each map entry
 * [reduce()](#reduce) : Computes a single value from the map content
 * [replace()](#replace) : Replaces elements recursively
 * [splice()](#splice) : Replaces a slice by new elements
+* [suffix()](#suffix) : Adds a suffix to each map entry
 * [toJson()](#tojson) : Returns the elements in JSON format
 * [toUrl()](#tourl) : Creates a HTTP query string
+* [transpose()](#transpose) : Exchanges rows and columns for a two dimensional map
 * [walk()](#walk) : Applies the given callback to all elements
 * [zip()](#zip) : Merges the values of all arrays at the corresponding index
 
@@ -1976,6 +1980,41 @@ Map::from( ['a' => 1, 0 => 'b', 1 => 'c'] )->only( [0, 1] );
 ```
 
 
+## pad()
+
+Fill up to the specified length with the given value
+
+```php
+public function pad( int $size, $value = null ) : self
+```
+
+* @param int `$size` Total number of elements that should be in the list
+* @return self Updated map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( [1, 2, 3] )->pad( 5 );
+Map::from( [1, 2, 3] )->pad( -5 );
+Map::from( [1, 2, 3] )->pad( 5, '0' );
+Map::from( [1, 2, 3] )->pad( 2 );
+```
+
+**Results:**
+
+```php
+[1, 2, 3, null, null]
+[null, null, 1, 2, 3]
+[1, 2, 3, '0', '0']
+[1, 2, 3]
+```
+
+In case the given number is smaller than the number of element that are
+already in the list, the map is unchanged. If the size is positive, the
+new elements are padded on the right, if it's negative then the elements
+are padded on the left.
+
+
 ### partition()
 
 Breaks the list of elements into the given number of groups.
@@ -2049,6 +2088,36 @@ Map::from( ['a', 'b'] )->pop();
 **Results:**
 
 "b" will be returned and the map only contains `['a']` afterwards
+
+
+### prefix
+
+Adds a prefix in front of each map entry.
+
+```php
+public function prefix( $prefix )
+```
+
+* @param \Closure|string `$prefix` Function with map as parameter which returns arbitrary result
+* @return self Updated map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b'] )->prefix( '1-' );
+Map::from( ['a', ['b']] )->prefix( '1-' );
+Map::from( ['a', 'b'] )->prefix( function( $item, $key ) {
+    return ( ord( $item ) + ord( $key ) ) . '-';
+} );
+```
+
+**Results:**
+
+The first example returns `['1-a', '1-b']` while the second one will return
+`['1-a', ['1-b']]`. The third example passing the closure will return
+`['145-a', '147-b']`.
+
+Nested arrays are walked recusively so all entries at all levels are prefixed.
 
 
 ### pull()
@@ -2364,20 +2433,24 @@ $map->shift();
 Shuffles the elements in the map without returning a new map.
 
 ```php
-public function shuffle() : self
+public function shuffle( bool $assoc = false ) : self
 ```
 
+* @param bool $assoc True to preserve keys, false to assign new keys
 * @return self Updated map for fluid interface
 
 **Examples:**
 
 ```php
 Map::from( [2 => 'a', 4 => 'b'] )->shuffle();
+Map::from( [2 => 'a', 4 => 'b'] )->shuffle( true );
 ```
 
 **Results:**
 
-The map will contain "a" and "b" in random order and with new keys assigned
+The map in the first example will contain "a" and "b" in random order and
+with new keys assigned. The second call will also return all values in
+random order but preserves the keys of the original list.
 
 
 ### skip()
@@ -2385,23 +2458,29 @@ The map will contain "a" and "b" in random order and with new keys assigned
 Returns a new map with the given number of items skipped.
 
 ```php
-public function skip( int $offset ) : self
+public function skip( $offset ) : self
 ```
 
-* @param int $offset Number of items to skip
+* @param \Closusre|int $offset Number of items to skip or function($item, $key) returning true for skipped items
 * @return self New map
 
 **Examples:**
 
 ```php
 Map::from( [1, 2, 3, 4] )->skip( 2 );
+Map::from( [1, 2, 3, 4] )->skip( function( $item, $key ) {
+    return $item < 4;
+} );
 ```
 
 **Results:**
 
 ```php
-[3, 4]
+[2 => 3, 3 => 4]
+[3 => 4]
 ```
+
+The keys of the items returned in the new map are the same as in the original one.
 
 
 ### slice()
@@ -2569,16 +2648,46 @@ Map::split( 'string', '' );
 ```
 
 
+### suffix
+
+Adds a suffix at the end of each map entry.
+
+```php
+public function suffix( $suffix )
+```
+
+* @param \Closure|string `$suffix` Function with map as parameter which returns arbitrary result
+* @return self Updated map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b'] )->suffix( '-1' );
+Map::from( ['a', ['b']] )->suffix( '-1' );
+Map::from( ['a', 'b'] )->suffix( function( $item, $key ) {
+    return '-' . ( ord( $item ) + ord( $key ) );
+} );
+```
+
+**Results:**
+
+The first example returns `['a-1', 'b-1']` while the second one will return
+`['a-1', ['b-1']]`. The third example passing the closure will return
+`['a-145', 'b-147']`.
+
+Nested arrays are walked recusively so all entries at all levels are suffixed.
+
+
 ### take()
 
 Returns a new map with the given number of items.
 
 ```php
-public function take( int $size, int $offset = 0 ) : self
+public function take( int $size, $offset = 0 ) : self
 ```
 
 * @param int `$size` Number of items to return
-* @param int `$offset` Number of items to skip
+* @param \Closusre|int $offset Number of items to skip or function($item, $key) returning true for skipped items
 * @return self New map
 
 **Examples:**
@@ -2587,15 +2696,21 @@ public function take( int $size, int $offset = 0 ) : self
 Map::from( [1, 2, 3, 4] )->take( 2 );
 Map::from( [1, 2, 3, 4] )->take( 2, 1 );
 Map::from( [1, 2, 3, 4] )->take( 2, -2 );
+Map::from( [1, 2, 3, 4] )->take( 2, function( $item, $key ) {
+    return $item < 2;
+} );
 ```
 
 **Results:**
 
 ```php
-[1, 2]
-[2, 3]
-[3, 4]
+[0 => 1, 1 => 2]
+[1 => 2, 2 => 3]
+[2 => 3, 3 => 4]
+[1 => 2, 2 => 3]
 ```
+
+The keys of the items returned in the new map are the same as in the original one.
 
 
 ### toArray()
@@ -2652,6 +2767,51 @@ Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
 ```php
 a=1&b=2
 a%5Bb%5D=abc&a%5Bc%5D=def&d=123
+```
+
+
+### transpose()
+
+Exchanges rows and columns for a two dimensional map.
+
+```php
+public function transpose() : self
+```
+
+* @return self New map
+
+**Examples:**
+
+```php
+Map::from( [
+  ['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
+  ['name' => 'B', 2020 => 300, 2021 => 200, 2022 => 100],
+  ['name' => 'C', 2020 => 400, 2021 => 300, 2022 => 200],
+] )->transpose();
+
+Map::from( [
+  ['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
+  ['name' => 'B', 2020 => 300, 2021 => 200],
+  ['name' => 'C', 2020 => 400]
+] );
+```
+
+**Results:**
+
+```php
+[
+  'name' => ['A', 'B', 'C'],
+  2020 => [200, 300, 400],
+  2021 => [100, 200, 300],
+  2022 => [50, 100, 200]
+]
+
+[
+  'name' => ['A', 'B', 'C'],
+  2020 => [200, 300, 400],
+  2021 => [100, 200],
+  2022 => [50]
+]
 ```
 
 

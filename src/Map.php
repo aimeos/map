@@ -1684,6 +1684,35 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Fill up to the specified length with the given value
+	 *
+	 * In case the given number is smaller than the number of element that are
+	 * already in the list, the map is unchanged. If the size is positive, the
+	 * new elements are padded on the right, if it's negative then the elements
+	 * are padded on the left.
+	 *
+	 * Examples:
+	 *  Map::from( [1, 2, 3] )->pad( 5 );
+	 *  Map::from( [1, 2, 3] )->pad( -5 );
+	 *  Map::from( [1, 2, 3] )->pad( 5, '0' );
+	 *  Map::from( [1, 2, 3] )->pad( 2 );
+	 *
+	 * Results:
+	 *  [1, 2, 3, null, null]
+	 *  [null, null, 1, 2, 3]
+	 *  [1, 2, 3, '0', '0']
+	 *  [1, 2, 3]
+	 *
+	 * @param int $size Total number of elements that should be in the list
+	 * @return self New map
+	 */
+	public function pad( int $size, $value = null ) : self
+	{
+		return new static( array_pad( $this->list, $size, $value ) );
+	}
+
+
+	/**
 	 * Breaks the list of elements into the given number of groups.
 	 *
 	 * Examples:
@@ -1769,6 +1798,47 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function pop()
 	{
 		return array_pop( $this->list );
+	}
+
+
+	/**
+	 * Adds a prefix in front of each map entry.
+	 *
+	 * Nested arrays are walked recusively so all entries at all levels are prefixed.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'b'] )->prefix( '1-' );
+	 *  Map::from( ['a', ['b']] )->prefix( '1-' );
+	 *  Map::from( ['a', 'b'] )->prefix( function( $item, $key ) {
+	 *      return ( ord( $item ) + ord( $key ) ) . '-';
+	 *  } );
+	 *
+	 * Results:
+	 *  The first example returns ['1-a', '1-b'] while the second one will return
+	 *  ['1-a', ['1-b']]. The third example passing the closure will return
+	 *  ['145-a', '147-b'].
+	 *
+	 * @param \Closure|string $prefix Prefix string or anonymous function with ($item, $key) as parameters
+	 * @return self Updated map for fluid interface
+	 */
+	public function prefix( $prefix )
+	{
+		$fcn = function( $list, $prefix ) use ( &$fcn ) {
+
+			foreach( $list as $key => $item )
+			{
+				if( !is_scalar( $item ) ) {
+					$list[$key] = $fcn( $item, $prefix );
+				} else {
+					$list[$key] = ( is_callable( $prefix ) ? $prefix( $item, $key ) : $prefix ) . $item;
+				}
+			}
+
+			return $list;
+		};
+
+		$this->list = $fcn( $this->list, $prefix );
+		return $this;
 	}
 
 
@@ -2063,15 +2133,36 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * Examples:
 	 *  Map::from( [2 => 'a', 4 => 'b'] )->shuffle();
+	 *  Map::from( [2 => 'a', 4 => 'b'] )->shuffle( true );
 	 *
 	 * Results:
-	 * The map will contain "a" and "b" in random order and with new keys assigned
+	 * The map in the first example will contain "a" and "b" in random order and
+	 * with new keys assigned. The second call will also return all values in
+	 * random order but preserves the keys of the original list.
 	 *
+	 * @param bool $assoc True to preserve keys, false to assign new keys
 	 * @return self Updated map for fluid interface
 	 */
-	public function shuffle() : self
+	public function shuffle( bool $assoc = false ) : self
 	{
-		shuffle( $this->list );
+		if( $assoc )
+		{
+			$keys = array_keys( $this->list );
+			shuffle( $keys );
+			$list = [];
+
+			foreach( $keys as $key ) {
+				$list[$key] = $this->list[$key];
+			}
+
+			$this->list = $list;
+		}
+		else
+		{
+			shuffle( $this->list );
+		}
+
+
 		return $this;
 	}
 
@@ -2079,19 +2170,45 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Returns a new map with the given number of items skipped.
 	 *
+	 * The keys of the items returned in the new map are the same as in the original one.
+	 *
 	 * Examples:
 	 *  Map::from( [1, 2, 3, 4] )->skip( 2 );
+	 *  Map::from( [1, 2, 3, 4] )->skip( function( $item, $key ) {
+	 *      return $item < 4;
+	 *  } );
 	 *
 	 * Results:
-	 *  [3, 4]
+	 *  [2 => 3, 3 => 4]
+	 *  [3 => 4]
 	 *
-	 * @param int $offset Number of items to skip
+	 * @param \Closusre|int $offset Number of items to skip or function($item, $key) returning true for skipped items
 	 * @return self New map
 	 * @todo 2.0: Allow closure for first parameter
 	 */
-	public function skip( int $offset ) : self
+	public function skip( $offset ) : self
 	{
-		return new static( array_slice( $this->list, $offset, null, true ) );
+		if( is_scalar( $offset ) ) {
+			return new static( array_slice( $this->list, (int) $offset, null, true ) );
+		}
+
+		if( is_callable( $offset ) )
+		{
+			$idx = 0;
+
+			foreach( $this->list as $key => $item )
+			{
+				if( !$offset( $item, $key ) ) {
+					break;
+				}
+
+				++$idx;
+			}
+
+			return new static( array_slice( $this->list, $idx, null, true ) );
+		}
+
+		throw new \InvalidArgumentException( 'Only an integer or a closure is allowed as first argument for skip()' );
 	}
 
 
@@ -2226,26 +2343,93 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Adds a suffix at the end of each map entry.
+	 *
+	 * Nested arrays are walked recusively so all entries at all levels are suffixed.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'b'] )->suffix( '-1' );
+	 *  Map::from( ['a', ['b']] )->suffix( '-1' );
+	 *  Map::from( ['a', 'b'] )->suffix( function( $item, $key ) {
+	 *      return '-' . ( ord( $item ) + ord( $key ) );
+	 *  } );
+	 *
+	 * Results:
+	 *  The first example returns ['a-1', 'b-1'] while the second one will return
+	 *  ['a-1', ['b-1']]. The third example passing the closure will return
+	 *  ['a-145', 'b-147'].
+	 *
+	 * @param \Closure|string $suffix Suffix string or anonymous function with ($item, $key) as parameters
+	 * @return self Updated map for fluid interface
+	 */
+	public function suffix( $suffix )
+	{
+		$fcn = function( $list, $suffix ) use ( &$fcn ) {
+
+			foreach( $list as $key => $item )
+			{
+				if( !is_scalar( $item ) ) {
+					$list[$key] = $fcn( $item, $suffix );
+				} else {
+					$list[$key] = $item . ( is_callable( $suffix ) ? $suffix( $item, $key ) : $suffix );
+				}
+			}
+
+			return $list;
+		};
+
+		$this->list = $fcn( $this->list, $suffix );
+		return $this;
+	}
+
+
+	/**
 	 * Returns a new map with the given number of items.
+	 *
+	 * The keys of the items returned in the new map are the same as in the original one.
 	 *
 	 * Examples:
 	 *  Map::from( [1, 2, 3, 4] )->take( 2 );
 	 *  Map::from( [1, 2, 3, 4] )->take( 2, 1 );
 	 *  Map::from( [1, 2, 3, 4] )->take( 2, -2 );
+	 *  Map::from( [1, 2, 3, 4] )->take( 2, function( $item, $key ) {
+	 *      return $item < 2;
+	 *  } );
 	 *
 	 * Results:
-	 *  [1, 2]
-	 *  [2, 3]
-	 *  [3, 4]
+	 *  [0 => 1, 1 => 2]
+	 *  [1 => 2, 2 => 3]
+	 *  [2 => 3, 3 => 4]
+	 *  [1 => 2, 2 => 3]
 	 *
 	 * @param int $size Number of items to return
-	 * @param int $offset Number of items to skip
+	 * @param \Closusre|int $offset Number of items to skip or function($item, $key) returning true for skipped items
 	 * @return self New map
 	 * @todo 2.0: Allow closure for first parameter
 	 */
-	public function take( int $size, int $offset = 0 ) : self
+	public function take( int $size, $offset = 0 ) : self
 	{
-		return new static( array_slice( $this->list, $offset, $size, true ) );
+		if( is_scalar( $offset ) ) {
+			return new static( array_slice( $this->list, (int) $offset, $size, true ) );
+		}
+
+		if( is_callable( $offset ) )
+		{
+			$idx = 0;
+
+			foreach( $this->list as $key => $item )
+			{
+				if( !$offset( $item, $key ) ) {
+					break;
+				}
+
+				++$idx;
+			}
+
+			return new static( array_slice( $this->list, $idx, $size, true ) );
+		}
+
+		throw new \InvalidArgumentException( 'Only an integer or a closure is allowed as second argument for take()' );
 	}
 
 
@@ -2296,6 +2480,52 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	{
 		return http_build_query( $this->list, null, '&', PHP_QUERY_RFC3986 );
 	}
+
+
+	/**
+	 * Exchanges rows and columns for a two dimensional map.
+	 *
+	 * Examples:
+	 *  Map::from( [
+	 *    ['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
+	 *    ['name' => 'B', 2020 => 300, 2021 => 200, 2022 => 100],
+	 *    ['name' => 'C', 2020 => 400, 2021 => 300, 2022 => 200],
+	 *  ] )->transpose();
+	 *
+	 *  Map::from( [
+	 *    ['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
+	 *    ['name' => 'B', 2020 => 300, 2021 => 200],
+	 *    ['name' => 'C', 2020 => 400]
+	 *  ] );
+	 *
+	 * Results:
+	 *  [
+	 *    'name' => ['A', 'B', 'C'],
+	 *    2020 => [200, 300, 400],
+	 *    2021 => [100, 200, 300],
+	 *    2022 => [50, 100, 200]
+	 *  ]
+	 *
+	 *  [
+	 *    'name' => ['A', 'B', 'C'],
+	 *    2020 => [200, 300, 400],
+	 *    2021 => [100, 200],
+	 *    2022 => [50]
+	 *  ]
+	 *
+	 * @return self New map
+	 */
+	public function transpose() : self
+	{
+		$result = [];
+
+		foreach( $this->first( [] ) as $key => $col ) {
+			$result[$key] = array_column( $this->list, $key );
+		}
+
+		return new static( $result );
+	}
+
 
 
 	/**
