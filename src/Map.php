@@ -2459,6 +2459,35 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns the sum of all integer and float values in the map.
+	 *
+	 * For nested arrays, you have to pass the name of the column of the nested
+	 * array which should be used for comparison.
+	 *
+	 * Examples:
+	 *  Map::from( [1, 3, 5] )->sum();
+	 *  Map::from( [1, 'sum', 5] )->sum();
+	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' );
+	 *
+	 * Results:
+	 * The first line will return "9", the second one "6" and the last one "90".
+	 *
+	 * If you need a function to retrieve the sum of all values, then use:
+	 *  $sum = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) {
+	 *      return $result += $entry['v']['p'] ?? 0;
+	 *  }, 0 );
+	 *
+	 * @param string|null $col Key in the nested array or object to sum up
+	 * @return mixed Sum of all elements or 0 if there are no elements in the map
+	 */
+	public function sum( string $col = null ) : int
+	{
+		$list = $col !== null ? array_column( $this->list, $col ) : $this->list;
+		return array_sum( $list );
+	}
+
+
+	/**
 	 * Returns a new map with the given number of items.
 	 *
 	 * The keys of the items returned in the new map are the same as in the original one.

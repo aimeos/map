@@ -150,6 +150,7 @@ will return:
 * [countBy()](#countby) : Counts how often the same values are in the map
 * [max()](#max) : Returns the maximum value of all elements
 * [min()](#max) : Returns the minium value of all elements
+* [sum()](#sum) :. Returns the sum of all values in the map
 
 ### Debug
 
@@ -2743,6 +2744,41 @@ The first example returns `['a-1', 'b-1']` while the second one will return
 `['a-145', 'b-147']`.
 
 Nested arrays are walked recusively so all entries at all levels are suffixed.
+
+
+### sum()
+
+Returns the sum of all integer and float values in the map.
+
+For nested arrays, you have to pass the name of the column of the nested
+array which should be used for comparison.
+
+```php
+public function sum( string $col = null ) : int
+```
+
+* @param string|null $col Key in the nested array or object to sum up
+* @return mixed Sum of all elements or 0 if there are no elements in the map
+
+**Examples:**
+
+```php
+Map::from( [1, 3, 5] )->sum()
+Map::from( [1, 'sum', 5] )->sum()
+Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' )
+```
+
+**Results:**
+
+The first line will return "9", the second one "6" and the last one "90".
+
+If you need a function to retrieve the sum of all values, then use:
+
+```php
+$sum = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) {
+    return $result += $entry['v']['p'] ?? 0;
+}, 0 );
+```
 
 
 ### take()
