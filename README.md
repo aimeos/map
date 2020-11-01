@@ -149,6 +149,7 @@ will return:
 * [count()](#count) : Returns the total number of elements
 * [countBy()](#countby) : Counts how often the same values are in the map
 * [max()](#max) : Returns the maximum value of all elements
+* [min()](#max) : Returns the minium value of all elements
 
 ### Debug
 
@@ -1859,6 +1860,44 @@ Static calls yield an error because `$this->elements` isn't available:
 ```php
 Map::foo( $arg1, $arg2 );
 ```
+
+
+### min()
+
+Returns the minimum value of all elements.
+
+For nested arrays, you have to pass the name of the column of the nested
+array which should be used for comparison.
+
+```php
+public function min( string $col = null )
+```
+
+* @param string|null $col Key in the nested array or object to check for
+* @return mixed Minimum value or NULL if there are no elements in the map
+
+**Examples:**
+
+```php
+Map::from( [2, 3, 1, 5, 4] )->min()
+Map::from( ['baz', 'foo', 'bar'] )->min()
+Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' )
+```
+
+**Results:**
+
+The first line will return "1", the second one "bar" while the third one returns 10.
+
+If you need a function to retrieve the minimum of all values, then use:
+
+```php
+$sum = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) {
+    return min( $entry['v']['p'] ?? null, $result );
+} );
+```
+
+Be careful comparing elements of different types because this can have
+unpredictable results due to the [PHP comparison rules](https://www.php.net/manual/en/language.operators.comparison.php)
 
 
 ### nth()

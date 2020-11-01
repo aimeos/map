@@ -1590,6 +1590,44 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns the minimum value of all elements.
+	 *
+	 * For nested arrays, you have to pass the name of the column of the nested
+	 * array which should be used for comparison.
+	 *
+	 * Examples:
+	 *  Map::from( [2, 3, 1, 5, 4] )->min()
+	 *  Map::from( ['baz', 'foo', 'bar'] )->min()
+	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' )
+	 *
+	 * Results:
+	 * The first line will return "1", the second one "bar" while the third one
+	 * returns 10.
+	 *
+	 * If you need a function to retrieve the minimum of all values, then use:
+	 *  $max = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) {
+	 *      return min( $entry['v']['p'] ?? 0, $result );
+	 *  } );
+	 *
+	 * Be careful comparing elements of different types because this can have
+	 * unpredictable results due to the PHP comparison rules:
+	 * {@link https://www.php.net/manual/en/language.operators.comparison.php}
+	 *
+	 * @param string|null $col Key in the nested array or object to check for
+	 * @return mixed Minimum value or NULL if there are no elements in the map
+	 */
+	public function min( string $col = null )
+	{
+		if( empty( $this->list ) ) {
+			return null;
+		}
+
+		$list = $col !== null ? array_column( $this->list, $col ) : $this->list;
+		return min( $list );
+	}
+
+
+	/**
 	 * Returns every nth element from the map.
 	 *
 	 * Examples:

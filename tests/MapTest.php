@@ -1185,6 +1185,14 @@ Array
 	}
 
 
+	public function testMin()
+	{
+		$this->assertEquals( 1, Map::from( [2, 3, 1, 5, 4] )->min() );
+		$this->assertEquals( 'bar', Map::from( ['baz', 'foo', 'bar'] )->min() );
+		$this->assertEquals( 10, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' ) );
+	}
+
+
 	public function testNth()
 	{
 		$m = Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] );
