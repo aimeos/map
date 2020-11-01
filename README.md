@@ -2529,7 +2529,7 @@ Returns a new map with the given number of items skipped.
 public function skip( $offset ) : self
 ```
 
-* @param \Closusre|int $offset Number of items to skip or function($item, $key) returning true for skipped items
+* @param \Closure|int $offset Number of items to skip or function($item, $key) returning true for skipped items
 * @return self New map
 
 **Examples:**
@@ -2790,7 +2790,7 @@ public function take( int $size, $offset = 0 ) : self
 ```
 
 * @param int `$size` Number of items to return
-* @param \Closusre|int $offset Number of items to skip or function($item, $key) returning true for skipped items
+* @param \Closure|int $offset Number of items to skip or function($item, $key) returning true for skipped items
 * @return self New map
 
 **Examples:**

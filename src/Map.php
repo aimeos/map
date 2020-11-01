@@ -2258,7 +2258,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  [2 => 3, 3 => 4]
 	 *  [3 => 4]
 	 *
-	 * @param \Closusre|int $offset Number of items to skip or function($item, $key) returning true for skipped items
+	 * @param \Closure|int $offset Number of items to skip or function($item, $key) returning true for skipped items
 	 * @return self New map
 	 */
 	public function skip( $offset ) : self
@@ -2507,7 +2507,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  [1 => 2, 2 => 3]
 	 *
 	 * @param int $size Number of items to return
-	 * @param \Closusre|int $offset Number of items to skip or function($item, $key) returning true for skipped items
+	 * @param \Closure|int $offset Number of items to skip or function($item, $key) returning true for skipped items
 	 * @return self New map
 	 */
 	public function take( int $size, $offset = 0 ) : self
