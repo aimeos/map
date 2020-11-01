@@ -148,6 +148,7 @@ will return:
 
 * [count()](#count) : Returns the total number of elements
 * [countBy()](#countby) : Counts how often the same values are in the map
+* [max()](#max) : Returns the maximum value of all elements
 
 ### Debug
 
@@ -1753,6 +1754,45 @@ Map::from( ['a' => 2, 'b' => 4] )->map( function( $value, $key ) {
 ```php
 ['a' => 4, 'b' => 8]
 ```
+
+
+### max()
+
+Returns the maximum value of all elements.
+
+For nested arrays, you have to pass the name of the column of the nested
+array which should be used for comparison.
+
+```php
+public function max( string $col = null )
+```
+
+* @param string|null $col Key in the nested array or object to check for
+* @return mixed Maximum value or NULL if there are no elements in the map
+
+**Examples:**
+
+```php
+Map::from( [1, 3, 2, 5, 4] )->max()
+Map::from( ['bar', 'foo', 'baz'] )->max()
+Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' )
+```
+
+**Results:**
+
+The first line will return "5", the second one "foo" while the third one
+returns 50.
+
+If you need a function to retrieve the maximum of all values, then use:
+
+```php
+$sum = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) {
+    return max( $entry['v']['p'] ?? null, $result );
+} );
+```
+
+Be careful comparing elements of different types because this can have
+unpredictable results due to the [PHP comparison rules](https://www.php.net/manual/en/language.operators.comparison.php)
 
 
 ### merge()

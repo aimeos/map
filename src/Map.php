@@ -1516,6 +1516,44 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns the maximum value of all elements.
+	 *
+	 * For nested arrays, you have to pass the name of the column of the nested
+	 * array which should be used for comparison.
+	 *
+	 * Examples:
+	 *  Map::from( [1, 3, 2, 5, 4] )->max()
+	 *  Map::from( ['bar', 'foo', 'baz'] )->max()
+	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' )
+	 *
+	 * Results:
+	 * The first line will return "5", the second one "foo" while the third one
+	 * returns 50.
+	 *
+	 * If you need a function to retrieve the maximum of all values, then use:
+	 *  $max = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) {
+	 *      return max( $entry['v']['p'] ?? 0, $result );
+	 *  } );
+	 *
+	 * Be careful comparing elements of different types because this can have
+	 * unpredictable results due to the PHP comparison rules:
+	 * {@link https://www.php.net/manual/en/language.operators.comparison.php}
+	 *
+	 * @param string|null $col Key in the nested array or object to check for
+	 * @return mixed Maximum value or NULL if there are no elements in the map
+	 */
+	public function max( string $col = null )
+	{
+		if( empty( $this->list ) ) {
+			return null;
+		}
+
+		$list = $col !== null ? array_column( $this->list, $col ) : $this->list;
+		return max( $list );
+	}
+
+
+	/**
 	 * Merges the map with the given elements without returning a new map.
 	 *
 	 * Elements with the same non-numeric keys will be overwritten, elements

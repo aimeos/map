@@ -1095,6 +1095,14 @@ Array
 	}
 
 
+	public function testMax()
+	{
+		$this->assertEquals( 5, Map::from( [1, 3, 2, 5, 4] )->max() );
+		$this->assertEquals( 'foo', Map::from( ['bar', 'foo', 'baz'] )->max() );
+		$this->assertEquals( 50, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' ) );
+	}
+
+
 	public function testMergeArray()
 	{
 		$m = new Map( ['name' => 'Hello'] );
