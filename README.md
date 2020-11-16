@@ -113,6 +113,7 @@ will return:
 * [__construct()](#__construct) : Creates a new map
 * [copy()](#copy) : Creates a new copy
 * [from()](#from) : Creates a new map from passed elements
+* [fromJson()](#fromjson) : Creates a new map from a JSON string
 * [split()](#split) : Splits a string into map elements
 
 ### Access
@@ -1189,6 +1190,41 @@ Map::from( new ArrayObject() );
 A new map instance containing the list of elements. In case of an empty
 array or null, the map object will contain an empty list. If a map object
 is passed, it will be returned instead of creating a new instance.
+
+
+### fromJson()
+
+Creates a new map instance from a JSON string.
+
+```php
+public static function fromJson( string $json, int $options = JSON_BIGINT_AS_STRING ) : self
+```
+
+* @param int `$options` Combination of JSON_* constants
+* @return self Map from decoded JSON string
+
+**Examples:**
+
+```php
+Map::fromJson( '["a", "b"]' );
+Map::fromJson( '{"a": "b"}' );
+Map::fromJson( '""' );
+```
+
+**Results:**
+
+```php
+['a', 'b']
+['a' => 'b']
+['']
+```
+
+There are several options available for decoding the JSON string:
+[https://www.php.net/manual/en/function.json-decode.php](https://www.php.net/manual/en/function.json-decode.php)
+The parameter can be a single JSON_* constant or a bitmask of several
+constants combine by bitwise OR (|), e.g.:
+
+`JSON_BIGINT_AS_STRING|JSON_INVALID_UTF8_IGNORE`
 
 
 ### get()

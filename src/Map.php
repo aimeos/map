@@ -137,6 +137,39 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Creates a new map instance from a JSON string.
+	 *
+	 * Examples:
+	 *  Map::fromJson( '["a", "b"]' );
+	 *  Map::fromJson( '{"a": "b"}' );
+	 *  Map::fromJson( '""' );
+	 *
+	 * Results:
+	 *  ['a', 'b']
+	 *  ['a' => 'b']
+	 *  ['']
+	 *
+	 * There are several options available for decoding the JSON string:
+	 * {@link https://www.php.net/manual/en/function.json-decode.php}
+	 * The parameter can be a single JSON_* constant or a bitmask of several
+	 * constants combine by bitwise OR (|), e.g.:
+	 *
+	 *  JSON_BIGINT_AS_STRING|JSON_INVALID_UTF8_IGNORE
+	 *
+	 * @param int $options Combination of JSON_* constants
+	 * @return self Map from decoded JSON string
+	 */
+	public static function fromJson( string $json, int $options = JSON_BIGINT_AS_STRING ) : self
+	{
+		if( ( $result = json_decode( $json, $options ) ) !== null ) {
+			return new static( $result );
+		}
+
+		throw new \RuntimeException( 'Not a valid JSON string: ' . $json );
+	}
+
+
+	/**
 	 * Creates a new map with the string splitted by the delimiter.
 	 *
 	 * Examples:

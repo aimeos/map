@@ -740,6 +740,40 @@ Array
 	}
 
 
+	public function testFromJson()
+	{
+		$map = Map::fromJson( '["a", "b"]' );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertEquals( ['a', 'b'], $map->toArray() );
+	}
+
+
+	public function testFromJsonObject()
+	{
+		$map = Map::fromJson( '{"a": "b"}' );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertEquals( ['a' => 'b'], $map->toArray() );
+	}
+
+
+	public function testFromJsonEmpty()
+	{
+		$map = Map::fromJson( '""' );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertEquals( [''], $map->toArray() );
+	}
+
+
+	public function testFromJsonException()
+	{
+		$this->expectException( '\RuntimeException' );
+		Map::fromJson( '' );
+	}
+
+
 	public function testGetArray()
 	{
 		$map = new Map;
