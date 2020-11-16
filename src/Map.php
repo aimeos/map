@@ -1959,6 +1959,49 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns the numerical index of the value.
+	 *
+	 * Examples:
+	 *  Map::from( [4 => 'a', 8 => 'b'] )->pos( 'b' );
+	 *  Map::from( [4 => 'a', 8 => 'b'] )->pos( function( $item, $key ) {
+	 *      return $item === 'b';
+	 *  } );
+	 *
+	 * Results:
+	 * Both examples will return "1" because the value "b" is at the second position
+	 * and the returned index is zero based so the first item has the index "0".
+	 *
+	 * @param \Closure|mixed $value Value to search for or function with (item, key) parameters return TRUE if value is found
+	 * @return int Position of the found value (zero based)
+	 */
+	public function pos( $value ) : int
+	{
+		$pos = 0;
+
+		if( $value instanceof \Closure )
+		{
+			foreach( $this->list as $key => $item )
+			{
+				if( $value( $item, $key ) ) {
+					return $pos;
+				}
+
+				++$pos;
+			}
+		}
+
+		foreach( $this->list as $key => $item )
+		{
+			if( $item === $value ) {
+				return $pos;
+			}
+
+			++$pos;
+		}
+	}
+
+
+	/**
 	 * Adds a prefix in front of each map entry.
 	 *
 	 * Nested arrays are walked recusively so all entries at all levels are prefixed.
