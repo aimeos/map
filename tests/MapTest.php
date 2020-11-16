@@ -1375,6 +1375,17 @@ Array
 	}
 
 
+	public function testPos()
+	{
+		$m = new Map( [4 => 'a', 8 => 'b'] );
+
+		$this->assertEquals( 1, $m->pos( 'b' ) );
+		$this->assertEquals( 1, $m->pos( function( $item, $key ) {
+			return $item === 'b';
+		} ) );
+	}
+
+
 	public function testPrefix()
 	{
 		$fcn = function( $item, $key ) {

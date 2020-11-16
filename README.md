@@ -129,6 +129,7 @@ will return:
 * [last()](#last) : Returns the last element
 * [lastKey()](#lastkey) : Returns the last key
 * [pop()](#pop) : Returns and removes the last element
+* [pos()](#pos) : Returns the numerical index of the value
 * [pull()](#pull) : Returns and removes an element by key
 * [random()](#random) : Returns random elements preserving keys
 * [search()](#search) : Find the key of an element
@@ -2225,6 +2226,32 @@ Map::from( ['a', 'b'] )->pop();
 **Results:**
 
 "b" will be returned and the map only contains `['a']` afterwards
+
+
+### pos
+
+Returns the numerical index of the value.
+
+```php
+public function pos( $value ) : int
+```
+
+* @param \Closure|mixed $value Value to search for or function with (item, key) parameters return TRUE if value is found
+* @return int Position of the found value (zero based)
+
+**Examples:**
+
+```php
+Map::from( [4 => 'a', 8 => 'b'] )->pos( 'b' );
+Map::from( [4 => 'a', 8 => 'b'] )->pos( function( $item, $key ) {
+    return $item === 'b';
+} );
+```
+
+**Results:**
+
+Both examples will return "1" because the value "b" is at the second position
+and the returned index is zero based so the first item has the index "0".
 
 
 ### prefix
