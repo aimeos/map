@@ -109,6 +109,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns the elements as a plain array.
+	 *
+	 * @return array Plain array
+	 */
+	public function __toArray() : array
+	{
+		return $this->list;
+	}
+
+
+	/**
 	 * Creates a new map instance if the value isn't one already.
 	 *
 	 * Examples:
