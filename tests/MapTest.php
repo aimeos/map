@@ -28,7 +28,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
-	public function testCall()
+	public function testMagicCall()
 	{
 		$m = new Map( ['a' => new TestMapObject(), 'b' => new TestMapObject()] );
 		$this->assertEquals( ['a' => 1, 'b' => 2], $m->setId( null )->getCode()->toArray() );
@@ -68,6 +68,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertInstanceOf( Map::class, $m );
 		$this->assertEquals( ['c' => 'bar-10', 1 => 'bar-1', 'a' => 'foo'], $m->toArray() );
+	}
+
+
+	public function testCall()
+	{
+		$m = new Map( ['a' => new TestMapObject(), 'b' => new TestMapObject()] );
+
+		$this->assertEquals( ['a' => 'p1', 'b' => 'p2'], $m->call( 'get', ['prop'] )->toArray() );
+		$this->assertEquals( ['a' => ['prop' => 'p3'], 'b' => ['prop' => 'p4']], $m->call( 'toArray' )->toArray() );
 	}
 
 
@@ -2188,14 +2197,25 @@ Array
 class TestMapObject
 {
 	private static $num = 1;
+	private static $prop = 1;
+
+	public function get( $prop )
+	{
+		return 'p' . self::$prop++;
+	}
+
+	public function getCode()
+	{
+		return self::$num++;
+	}
 
 	public function setId( $id )
 	{
 		return $this;
 	}
 
-	public function getCode()
+	public function toArray()
 	{
-		return self::$num++;
+		return ['prop' => 'p' . self::$prop++];
 	}
 }

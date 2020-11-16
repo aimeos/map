@@ -293,6 +293,43 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Calls the given method on all items and returns the result.
+	 *
+	 * This method can call methods on the map entries that are also implemented
+	 * by the map object itself and are therefore not reachable when using the
+	 * magic __call() method.
+	 *
+	 * Examples:
+	 *  $item = new MyClass(); // implements methods get() and toArray()
+	 *  Map::from( [$item, $item] )->call( 'get', ['myprop'] );
+	 *  Map::from( [$item, $item] )->call( 'toArray' );
+	 *
+	 * Results:
+	 * The first example will return ['...', '...'] while the second one returns [[...], [...]].
+	 *
+	 * If some entries are not objects, they will be skipped. The map keys from the
+	 * original map are preserved in the returned map.
+	 *
+	 * @param string $name Method name
+	 * @param array $params List of parameters
+	 * @return self Map with results from all elements
+	 */
+	public function call( string $name, array $params = [] ) : self
+	{
+		$result = [];
+
+		foreach( $this->list as $key => $item )
+		{
+			if( is_object( $item ) ) {
+				$result[$key] = $item->{$name}( ...$params );
+			}
+		}
+
+		return new self( $result );
+	}
+
+
+	/**
 	 * Chunks the map into arrays with the given number of elements.
 	 *
 	 * Examples:

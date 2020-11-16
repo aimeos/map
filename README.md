@@ -118,6 +118,9 @@ will return:
 
 ### Access
 
+* [__call()](#__call) : Calls a custom method
+* [__callStatic()](#__callstatic) : Calls a custom method statically
+* [call()](#call) : Calls the given method on all items
 * [find()](#find) : Returns the first/last matching element
 * [first()](#first) : Returns the first element
 * [firstKey()](#firstkey) : Returns the first key
@@ -232,8 +235,6 @@ will return:
 
 ### Misc
 
-* [__call()](#__call) : Calls a custom method
-* [__callStatic()](#__callstatic) : Calls a custom method statically
 * [getIterator()](#getiterator) : Returns an iterator for the elements
 * [method()](#method) : Registers a custom method
 * [offsetExists()](#offsetexists) : Checks if the key exists
@@ -429,6 +430,38 @@ The parameter modifies how the values are compared. Possible parameter values ar
 - SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
 The keys are preserved using this method and no new map is created.
+
+
+### call()
+
+Calls the given method on all items and returns the result.
+
+```php
+public function call( string $name, array $params = [] ) : self
+```
+
+* @param string $name Method name
+* @param array $params List of parameters
+* @return self Map with results from all elements
+
+**Examples:**
+
+```
+$item = new MyClass(); // implements methods get() and toArray()
+Map::from( [$item, $item] )->call( 'get', ['myprop'] );
+Map::from( [$item, $item] )->call( 'toArray' );
+```
+
+**Results:**
+
+The first example will return `['...', '...']` while the second one returns `[[...], [...]]`.
+
+This method can call methods on the map entries that are also implemented
+by the map object itself and are therefore not reachable when using the
+magic __call() method.
+
+If some entries are not objects, they will be skipped. The keys from the
+original map are preserved in the returned in the new map.
 
 
 ### chunk()
