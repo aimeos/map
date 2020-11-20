@@ -238,18 +238,6 @@ will return:
 * [offsetUnset()](#offsetunset) : Removes an element by key
 
 
-### Misc
-
-* [__call()](#__call) : Calls a custom method
-* [__callStatic()](#__callstatic) : Calls a custom method statically
-* [getIterator()](#getiterator) : Returns an iterator for the elements
-* [method()](#method) : Registers a custom method
-* [offsetExists()](#offsetexists) : Checks if the key exists
-* [offsetGet()](#offsetget) : Returns an element by key
-* [offsetSet()](#offsetset) : Overwrites an element
-* [offsetUnset()](#offsetunset) : Removes an element by key
-
-
 
 ## Method documentation
 
