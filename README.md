@@ -113,10 +113,14 @@ will return:
 * [__construct()](#__construct) : Creates a new map
 * [copy()](#copy) : Creates a new copy
 * [from()](#from) : Creates a new map from passed elements
+* [fromJson()](#fromjson) : Creates a new map from a JSON string
 * [split()](#split) : Splits a string into map elements
 
 ### Access
 
+* [__call()](#__call) : Calls a custom method
+* [__callStatic()](#__callstatic) : Calls a custom method statically
+* [call()](#call) : Calls the given method on all items
 * [find()](#find) : Returns the first/last matching element
 * [first()](#first) : Returns the first element
 * [firstKey()](#firstkey) : Returns the first key
@@ -125,6 +129,7 @@ will return:
 * [last()](#last) : Returns the last element
 * [lastKey()](#lastkey) : Returns the last key
 * [pop()](#pop) : Returns and removes the last element
+* [pos()](#pos) : Returns the numerical index of the value
 * [pull()](#pull) : Returns and removes an element by key
 * [random()](#random) : Returns random elements preserving keys
 * [search()](#search) : Find the key of an element
@@ -148,6 +153,9 @@ will return:
 
 * [count()](#count) : Returns the total number of elements
 * [countBy()](#countby) : Counts how often the same values are in the map
+* [max()](#max) : Returns the maximum value of all elements
+* [min()](#max) : Returns the minium value of all elements
+* [sum()](#sum) :. Returns the sum of all values in the map
 
 ### Debug
 
@@ -228,8 +236,6 @@ will return:
 
 ### Misc
 
-* [__call()](#__call) : Calls a custom method
-* [__callStatic()](#__callstatic) : Calls a custom method statically
 * [getIterator()](#getiterator) : Returns an iterator for the elements
 * [method()](#method) : Registers a custom method
 * [offsetExists()](#offsetexists) : Checks if the key exists
@@ -425,6 +431,38 @@ The parameter modifies how the values are compared. Possible parameter values ar
 - SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
 The keys are preserved using this method and no new map is created.
+
+
+### call()
+
+Calls the given method on all items and returns the result.
+
+```php
+public function call( string $name, array $params = [] ) : self
+```
+
+* @param string $name Method name
+* @param array $params List of parameters
+* @return self Map with results from all elements
+
+**Examples:**
+
+```
+$item = new MyClass(); // implements methods get() and toArray()
+Map::from( [$item, $item] )->call( 'get', ['myprop'] );
+Map::from( [$item, $item] )->call( 'toArray' );
+```
+
+**Results:**
+
+The first example will return `['...', '...']` while the second one returns `[[...], [...]]`.
+
+This method can call methods on the map entries that are also implemented
+by the map object itself and are therefore not reachable when using the
+magic __call() method.
+
+If some entries are not objects, they will be skipped. The keys from the
+original map are preserved in the returned in the new map.
 
 
 ### chunk()
@@ -1188,6 +1226,41 @@ array or null, the map object will contain an empty list. If a map object
 is passed, it will be returned instead of creating a new instance.
 
 
+### fromJson()
+
+Creates a new map instance from a JSON string.
+
+```php
+public static function fromJson( string $json, int $options = JSON_BIGINT_AS_STRING ) : self
+```
+
+* @param int `$options` Combination of JSON_* constants
+* @return self Map from decoded JSON string
+
+**Examples:**
+
+```php
+Map::fromJson( '["a", "b"]' );
+Map::fromJson( '{"a": "b"}' );
+Map::fromJson( '""' );
+```
+
+**Results:**
+
+```php
+['a', 'b']
+['a' => 'b']
+['']
+```
+
+There are several options available for decoding the JSON string:
+[https://www.php.net/manual/en/function.json-decode.php](https://www.php.net/manual/en/function.json-decode.php)
+The parameter can be a single JSON_* constant or a bitmask of several
+constants combine by bitwise OR (|), e.g.:
+
+`JSON_BIGINT_AS_STRING|JSON_INVALID_UTF8_IGNORE`
+
+
 ### get()
 
 Returns an element from the map by key.
@@ -1755,6 +1828,45 @@ Map::from( ['a' => 2, 'b' => 4] )->map( function( $value, $key ) {
 ```
 
 
+### max()
+
+Returns the maximum value of all elements.
+
+For nested arrays, you have to pass the name of the column of the nested
+array which should be used for comparison.
+
+```php
+public function max( string $col = null )
+```
+
+* @param string|null $col Key in the nested array or object to check for
+* @return mixed Maximum value or NULL if there are no elements in the map
+
+**Examples:**
+
+```php
+Map::from( [1, 3, 2, 5, 4] )->max()
+Map::from( ['bar', 'foo', 'baz'] )->max()
+Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' )
+```
+
+**Results:**
+
+The first line will return "5", the second one "foo" while the third one
+returns 50.
+
+If you need a function to retrieve the maximum of all values, then use:
+
+```php
+$sum = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) {
+    return max( $entry['v']['p'] ?? null, $result );
+} );
+```
+
+Be careful comparing elements of different types because this can have
+unpredictable results due to the [PHP comparison rules](https://www.php.net/manual/en/language.operators.comparison.php)
+
+
 ### merge()
 
 Merges the map with the given elements without returning a new map.
@@ -1819,6 +1931,44 @@ Static calls yield an error because `$this->elements` isn't available:
 ```php
 Map::foo( $arg1, $arg2 );
 ```
+
+
+### min()
+
+Returns the minimum value of all elements.
+
+For nested arrays, you have to pass the name of the column of the nested
+array which should be used for comparison.
+
+```php
+public function min( string $col = null )
+```
+
+* @param string|null $col Key in the nested array or object to check for
+* @return mixed Minimum value or NULL if there are no elements in the map
+
+**Examples:**
+
+```php
+Map::from( [2, 3, 1, 5, 4] )->min()
+Map::from( ['baz', 'foo', 'bar'] )->min()
+Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' )
+```
+
+**Results:**
+
+The first line will return "1", the second one "bar" while the third one returns 10.
+
+If you need a function to retrieve the minimum of all values, then use:
+
+```php
+$sum = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) {
+    return min( $entry['v']['p'] ?? null, $result );
+} );
+```
+
+Be careful comparing elements of different types because this can have
+unpredictable results due to the [PHP comparison rules](https://www.php.net/manual/en/language.operators.comparison.php)
 
 
 ### nth()
@@ -2076,6 +2226,32 @@ Map::from( ['a', 'b'] )->pop();
 **Results:**
 
 "b" will be returned and the map only contains `['a']` afterwards
+
+
+### pos
+
+Returns the numerical index of the value.
+
+```php
+public function pos( $value ) : int
+```
+
+* @param \Closure|mixed $value Value to search for or function with (item, key) parameters return TRUE if value is found
+* @return int Position of the found value (zero based)
+
+**Examples:**
+
+```php
+Map::from( [4 => 'a', 8 => 'b'] )->pos( 'b' );
+Map::from( [4 => 'a', 8 => 'b'] )->pos( function( $item, $key ) {
+    return $item === 'b';
+} );
+```
+
+**Results:**
+
+Both examples will return "1" because the value "b" is at the second position
+and the returned index is zero based so the first item has the index "0".
 
 
 ### prefix
@@ -2449,7 +2625,7 @@ Returns a new map with the given number of items skipped.
 public function skip( $offset ) : self
 ```
 
-* @param \Closusre|int $offset Number of items to skip or function($item, $key) returning true for skipped items
+* @param \Closure|int $offset Number of items to skip or function($item, $key) returning true for skipped items
 * @return self New map
 
 **Examples:**
@@ -2666,6 +2842,41 @@ The first example returns `['a-1', 'b-1']` while the second one will return
 Nested arrays are walked recusively so all entries at all levels are suffixed.
 
 
+### sum()
+
+Returns the sum of all integer and float values in the map.
+
+For nested arrays, you have to pass the name of the column of the nested
+array which should be used for comparison.
+
+```php
+public function sum( string $col = null ) : int
+```
+
+* @param string|null $col Key in the nested array or object to sum up
+* @return mixed Sum of all elements or 0 if there are no elements in the map
+
+**Examples:**
+
+```php
+Map::from( [1, 3, 5] )->sum()
+Map::from( [1, 'sum', 5] )->sum()
+Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' )
+```
+
+**Results:**
+
+The first line will return "9", the second one "6" and the last one "90".
+
+If you need a function to retrieve the sum of all values, then use:
+
+```php
+$sum = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) {
+    return $result += $entry['v']['p'] ?? 0;
+}, 0 );
+```
+
+
 ### take()
 
 Returns a new map with the given number of items.
@@ -2675,7 +2886,7 @@ public function take( int $size, $offset = 0 ) : self
 ```
 
 * @param int `$size` Number of items to return
-* @param \Closusre|int $offset Number of items to skip or function($item, $key) returning true for skipped items
+* @param \Closure|int $offset Number of items to skip or function($item, $key) returning true for skipped items
 * @return self New map
 
 **Examples:**

@@ -28,7 +28,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
-	public function testCall()
+	public function testMagicCall()
 	{
 		$m = new Map( ['a' => new TestMapObject(), 'b' => new TestMapObject()] );
 		$this->assertEquals( ['a' => 1, 'b' => 2], $m->setId( null )->getCode()->toArray() );
@@ -68,6 +68,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertInstanceOf( Map::class, $m );
 		$this->assertEquals( ['c' => 'bar-10', 1 => 'bar-1', 'a' => 'foo'], $m->toArray() );
+	}
+
+
+	public function testCall()
+	{
+		$m = new Map( ['a' => new TestMapObject(), 'b' => new TestMapObject()] );
+
+		$this->assertEquals( ['a' => 'p1', 'b' => 'p2'], $m->call( 'get', ['prop'] )->toArray() );
+		$this->assertEquals( ['a' => ['prop' => 'p3'], 'b' => ['prop' => 'p4']], $m->call( 'toArray' )->toArray() );
 	}
 
 
@@ -740,6 +749,40 @@ Array
 	}
 
 
+	public function testFromJson()
+	{
+		$map = Map::fromJson( '["a", "b"]' );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertEquals( ['a', 'b'], $map->toArray() );
+	}
+
+
+	public function testFromJsonObject()
+	{
+		$map = Map::fromJson( '{"a": "b"}' );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertEquals( ['a' => 'b'], $map->toArray() );
+	}
+
+
+	public function testFromJsonEmpty()
+	{
+		$map = Map::fromJson( '""' );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertEquals( [''], $map->toArray() );
+	}
+
+
+	public function testFromJsonException()
+	{
+		$this->expectException( '\RuntimeException' );
+		Map::fromJson( '' );
+	}
+
+
 	public function testGetArray()
 	{
 		$map = new Map;
@@ -1095,6 +1138,14 @@ Array
 	}
 
 
+	public function testMax()
+	{
+		$this->assertEquals( 5, Map::from( [1, 3, 2, 5, 4] )->max() );
+		$this->assertEquals( 'foo', Map::from( ['bar', 'foo', 'baz'] )->max() );
+		$this->assertEquals( 50, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' ) );
+	}
+
+
 	public function testMergeArray()
 	{
 		$m = new Map( ['name' => 'Hello'] );
@@ -1174,6 +1225,14 @@ Array
 	{
 		$this->expectException(\BadMethodCallException::class);
 		Map::bar();
+	}
+
+
+	public function testMin()
+	{
+		$this->assertEquals( 1, Map::from( [2, 3, 1, 5, 4] )->min() );
+		$this->assertEquals( 'bar', Map::from( ['baz', 'foo', 'bar'] )->min() );
+		$this->assertEquals( 10, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' ) );
 	}
 
 
@@ -1290,6 +1349,13 @@ Array
 	}
 
 
+	public function testPartitionInvalid()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [1] )->partition( [] );
+	}
+
+
 	public function testPipe()
 	{
 		$map = new Map( [1, 2, 3] );
@@ -1306,6 +1372,17 @@ Array
 
 		$this->assertEquals( 'bar', $m->pop() );
 		$this->assertEquals( ['foo'], $m->toArray() );
+	}
+
+
+	public function testPos()
+	{
+		$m = new Map( [4 => 'a', 8 => 'b'] );
+
+		$this->assertEquals( 1, $m->pos( 'b' ) );
+		$this->assertEquals( 1, $m->pos( function( $item, $key ) {
+			return $item === 'b';
+		} ) );
 	}
 
 
@@ -1825,6 +1902,18 @@ Array
 	}
 
 
+	public function testSum()
+	{
+		$fcn = function( $item, $key ) {
+			return '-' . ( ord( $item ) + ord( $key ) );
+		};
+
+		$this->assertEquals( 9, Map::from( [1, 3, 5] )->sum() );
+		$this->assertEquals( 6, Map::from( [1, 'sum', 5] )->sum() );
+		$this->assertEquals( 90, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' ) );
+	}
+
+
 	public function testTake()
 	{
 		$this->assertEquals( [1, 2], Map::from( [1, 2, 3, 4] )->take( 2 )->toArray() );
@@ -2092,6 +2181,12 @@ Array
 	}
 
 
+	public function testWhereMissing()
+	{
+		$this->assertEquals( [], Map::from( [['p' => 10]] )->where( 'x', '==', [0] )->toArray() );
+	}
+
+
 	public function testZip()
 	{
 		$m = new Map( [1, 2, 3] );
@@ -2113,14 +2208,25 @@ Array
 class TestMapObject
 {
 	private static $num = 1;
+	private static $prop = 1;
+
+	public function get( $prop )
+	{
+		return 'p' . self::$prop++;
+	}
+
+	public function getCode()
+	{
+		return self::$num++;
+	}
 
 	public function setId( $id )
 	{
 		return $this;
 	}
 
-	public function getCode()
+	public function toArray()
 	{
-		return self::$num++;
+		return ['prop' => 'p' . self::$prop++];
 	}
 }

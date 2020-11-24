@@ -109,6 +109,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns the elements as a plain array.
+	 *
+	 * @return array Plain array
+	 */
+	public function __toArray() : array
+	{
+		return $this->list;
+	}
+
+
+	/**
 	 * Creates a new map instance if the value isn't one already.
 	 *
 	 * Examples:
@@ -133,6 +144,39 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		return new static( $elements );
+	}
+
+
+	/**
+	 * Creates a new map instance from a JSON string.
+	 *
+	 * Examples:
+	 *  Map::fromJson( '["a", "b"]' );
+	 *  Map::fromJson( '{"a": "b"}' );
+	 *  Map::fromJson( '""' );
+	 *
+	 * Results:
+	 *  ['a', 'b']
+	 *  ['a' => 'b']
+	 *  ['']
+	 *
+	 * There are several options available for decoding the JSON string:
+	 * {@link https://www.php.net/manual/en/function.json-decode.php}
+	 * The parameter can be a single JSON_* constant or a bitmask of several
+	 * constants combine by bitwise OR (|), e.g.:
+	 *
+	 *  JSON_BIGINT_AS_STRING|JSON_INVALID_UTF8_IGNORE
+	 *
+	 * @param int $options Combination of JSON_* constants
+	 * @return self Map from decoded JSON string
+	 */
+	public static function fromJson( string $json, int $options = JSON_BIGINT_AS_STRING ) : self
+	{
+		if( ( $result = json_decode( $json, true, 512, $options ) ) !== null ) {
+			return new static( $result );
+		}
+
+		throw new \RuntimeException( 'Not a valid JSON string: ' . $json );
 	}
 
 
@@ -245,6 +289,43 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	{
 		asort( $this->list, $options );
 		return $this;
+	}
+
+
+	/**
+	 * Calls the given method on all items and returns the result.
+	 *
+	 * This method can call methods on the map entries that are also implemented
+	 * by the map object itself and are therefore not reachable when using the
+	 * magic __call() method.
+	 *
+	 * Examples:
+	 *  $item = new MyClass(); // implements methods get() and toArray()
+	 *  Map::from( [$item, $item] )->call( 'get', ['myprop'] );
+	 *  Map::from( [$item, $item] )->call( 'toArray' );
+	 *
+	 * Results:
+	 * The first example will return ['...', '...'] while the second one returns [[...], [...]].
+	 *
+	 * If some entries are not objects, they will be skipped. The map keys from the
+	 * original map are preserved in the returned map.
+	 *
+	 * @param string $name Method name
+	 * @param array $params List of parameters
+	 * @return self Map with results from all elements
+	 */
+	public function call( string $name, array $params = [] ) : self
+	{
+		$result = [];
+
+		foreach( $this->list as $key => $item )
+		{
+			if( is_object( $item ) ) {
+				$result[$key] = $item->{$name}( ...$params );
+			}
+		}
+
+		return new self( $result );
 	}
 
 
@@ -597,7 +678,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function dump( callable $callback = null ) : self
 	{
 		$callback ? $callback( $this->list ) : print_r( $this->list );
-	    return $this;
+		return $this;
 	}
 
 
@@ -1516,6 +1597,44 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns the maximum value of all elements.
+	 *
+	 * For nested arrays, you have to pass the name of the column of the nested
+	 * array which should be used for comparison.
+	 *
+	 * Examples:
+	 *  Map::from( [1, 3, 2, 5, 4] )->max()
+	 *  Map::from( ['bar', 'foo', 'baz'] )->max()
+	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' )
+	 *
+	 * Results:
+	 * The first line will return "5", the second one "foo" while the third one
+	 * returns 50.
+	 *
+	 * If you need a function to retrieve the maximum of all values, then use:
+	 *  $max = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) {
+	 *      return max( $entry['v']['p'] ?? 0, $result );
+	 *  } );
+	 *
+	 * Be careful comparing elements of different types because this can have
+	 * unpredictable results due to the PHP comparison rules:
+	 * {@link https://www.php.net/manual/en/language.operators.comparison.php}
+	 *
+	 * @param string|null $col Key in the nested array or object to check for
+	 * @return mixed Maximum value or NULL if there are no elements in the map
+	 */
+	public function max( string $col = null )
+	{
+		if( empty( $this->list ) ) {
+			return null;
+		}
+
+		$list = $col !== null ? array_column( $this->list, $col ) : $this->list;
+		return max( $list );
+	}
+
+
+	/**
 	 * Merges the map with the given elements without returning a new map.
 	 *
 	 * Elements with the same non-numeric keys will be overwritten, elements
@@ -1548,6 +1667,44 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		return $this;
+	}
+
+
+	/**
+	 * Returns the minimum value of all elements.
+	 *
+	 * For nested arrays, you have to pass the name of the column of the nested
+	 * array which should be used for comparison.
+	 *
+	 * Examples:
+	 *  Map::from( [2, 3, 1, 5, 4] )->min()
+	 *  Map::from( ['baz', 'foo', 'bar'] )->min()
+	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' )
+	 *
+	 * Results:
+	 * The first line will return "1", the second one "bar" while the third one
+	 * returns 10.
+	 *
+	 * If you need a function to retrieve the minimum of all values, then use:
+	 *  $max = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) {
+	 *      return min( $entry['v']['p'] ?? 0, $result );
+	 *  } );
+	 *
+	 * Be careful comparing elements of different types because this can have
+	 * unpredictable results due to the PHP comparison rules:
+	 * {@link https://www.php.net/manual/en/language.operators.comparison.php}
+	 *
+	 * @param string|null $col Key in the nested array or object to check for
+	 * @return mixed Minimum value or NULL if there are no elements in the map
+	 */
+	public function min( string $col = null )
+	{
+		if( empty( $this->list ) ) {
+			return null;
+		}
+
+		$list = $col !== null ? array_column( $this->list, $col ) : $this->list;
+		return min( $list );
 	}
 
 
@@ -1798,6 +1955,49 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function pop()
 	{
 		return array_pop( $this->list );
+	}
+
+
+	/**
+	 * Returns the numerical index of the value.
+	 *
+	 * Examples:
+	 *  Map::from( [4 => 'a', 8 => 'b'] )->pos( 'b' );
+	 *  Map::from( [4 => 'a', 8 => 'b'] )->pos( function( $item, $key ) {
+	 *      return $item === 'b';
+	 *  } );
+	 *
+	 * Results:
+	 * Both examples will return "1" because the value "b" is at the second position
+	 * and the returned index is zero based so the first item has the index "0".
+	 *
+	 * @param \Closure|mixed $value Value to search for or function with (item, key) parameters return TRUE if value is found
+	 * @return int Position of the found value (zero based)
+	 */
+	public function pos( $value ) : int
+	{
+		$pos = 0;
+
+		if( $value instanceof \Closure )
+		{
+			foreach( $this->list as $key => $item )
+			{
+				if( $value( $item, $key ) ) {
+					return $pos;
+				}
+
+				++$pos;
+			}
+		}
+
+		foreach( $this->list as $key => $item )
+		{
+			if( $item === $value ) {
+				return $pos;
+			}
+
+			++$pos;
+		}
 	}
 
 
@@ -2182,7 +2382,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  [2 => 3, 3 => 4]
 	 *  [3 => 4]
 	 *
-	 * @param \Closusre|int $offset Number of items to skip or function($item, $key) returning true for skipped items
+	 * @param \Closure|int $offset Number of items to skip or function($item, $key) returning true for skipped items
 	 * @return self New map
 	 * @todo 2.0: Allow closure for first parameter
 	 */
@@ -2384,6 +2584,35 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns the sum of all integer and float values in the map.
+	 *
+	 * For nested arrays, you have to pass the name of the column of the nested
+	 * array which should be used for comparison.
+	 *
+	 * Examples:
+	 *  Map::from( [1, 3, 5] )->sum();
+	 *  Map::from( [1, 'sum', 5] )->sum();
+	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' );
+	 *
+	 * Results:
+	 * The first line will return "9", the second one "6" and the last one "90".
+	 *
+	 * If you need a function to retrieve the sum of all values, then use:
+	 *  $sum = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) {
+	 *      return $result += $entry['v']['p'] ?? 0;
+	 *  }, 0 );
+	 *
+	 * @param string|null $col Key in the nested array or object to sum up
+	 * @return mixed Sum of all elements or 0 if there are no elements in the map
+	 */
+	public function sum( string $col = null ) : int
+	{
+		$list = $col !== null ? array_column( $this->list, $col ) : $this->list;
+		return array_sum( $list );
+	}
+
+
+	/**
 	 * Returns a new map with the given number of items.
 	 *
 	 * The keys of the items returned in the new map are the same as in the original one.
@@ -2403,7 +2632,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  [1 => 2, 2 => 3]
 	 *
 	 * @param int $size Number of items to return
-	 * @param \Closusre|int $offset Number of items to skip or function($item, $key) returning true for skipped items
+	 * @param \Closure|int $offset Number of items to skip or function($item, $key) returning true for skipped items
 	 * @return self New map
 	 * @todo 2.0: Allow closure for first parameter
 	 */
