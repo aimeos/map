@@ -231,6 +231,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns the elements as a plain array.
+	 *
+	 * @return array Plain array
+	 */
+	public function all() : array
+	{
+		return $this->list;
+	}
+
+
+	/**
 	 * Sorts all elements in reverse order and maintains the key association.
 	 *
 	 * Examples:
