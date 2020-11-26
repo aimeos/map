@@ -2716,7 +2716,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param callable $callback Function receiving ($map) parameter
 	 * @return self Same map for fluid interface
-	*/
+	 */
 	public function tap( callable $callback ) : self
 	{
 		$callback( clone $this );
