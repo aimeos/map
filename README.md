@@ -161,6 +161,7 @@ will return:
 ### Debug
 
 * [dump()](#dump) : Prints the map content
+* [dd()](#dd) : Prints the map content and terminates the script
 
 ### Order
 
@@ -695,6 +696,39 @@ Map::from( ['a@gmail.com', 'b@yahoo.com', 'c@gmail.com'] )->countBy( function( $
 ['1.11' => 1, '3.33' => 2, '9.99' => 1]
 ['gmail.com' => 2, 'yahoo.com' => 1]
 ```
+
+
+### dd()
+
+Dumps the map content and terminates the script.
+
+The dd() method is very helpful to see what are the map elements passed
+between two map methods in a method call chain. It stops execution of the
+script afterwards to avoid further output.
+
+```php
+public function dd( callable $callback = null ) : self
+```
+
+* @param callable `$callback` Function receiving the map elements as parameter (optional)
+
+**Examples:**
+
+```php
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->sort()->dd()->first();
+```
+
+**Results:**
+
+```php
+Array
+(
+    [0] => bar
+    [1] => foo
+)
+```
+
+The `first()` method isn't executed at all.
 
 
 ### diff()

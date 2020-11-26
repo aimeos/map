@@ -548,6 +548,32 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Dumps the map content and terminates the script.
+	 *
+	 * The dd() method is very helpful to see what are the map elements passed
+	 * between two map methods in a method call chain. It stops execution of the
+	 * script afterwards to avoid further output.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 'foo', 'b' => 'bar'] )->sort()->dd();
+	 *
+	 * Results:
+	 *  Array
+	 *  (
+	 *      [0] => bar
+	 *      [1] => foo
+	 *  )
+	 *
+	 * @param callable $callback Function receiving the map elements as parameter (optional)
+	 */
+	public function dd( callable $callback = null ) : self
+	{
+		$this->dump( $callback );
+		exit( 1 );
+	}
+
+
+	/**
 	 * Returns the keys/values in the map whose values are not present in the passed elements in a new map.
 	 *
 	 * Examples:
