@@ -1983,6 +1983,16 @@ Array
 	}
 
 
+	public function testTap()
+	{
+		$map = new Map( [1, 2, 3] );
+
+		$this->assertEquals( 3, $map->tap( function( $map ) {
+			return $map->clear();
+		} )->count() );
+	}
+
+
 	public function testToArray()
 	{
 		$m = new Map( ['name' => 'Hello'] );
