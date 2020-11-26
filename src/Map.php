@@ -2698,6 +2698,33 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Passes a clone of the map to the given callback.
+	 *
+	 * Use it to "tap" into a chain of methods to check the state between two
+	 * method calls. The original map is not altered by anything done in the
+	 * callback.
+	 *
+	 * Examples:
+	 *  Map::from( [3, 2, 1] )->rsort()->tap( function( $map ) {
+	 *    print_r( $map->remove( 0 )->toArray() );
+	 *  } )->first();
+	 *
+	 * Results:
+	 * It will sort the list in reverse order(`[1, 2, 3]`) while keeping the keys,
+	 * then prints the items without the first (`[2, 3]`) in the function passed
+	 * to `tap()` and returns the first item ("1") at the end.
+	 *
+	 * @param callable $callback Function receiving ($map) parameter
+	 * @return self Same map for fluid interface
+	*/
+	public function tap( callable $callback ) : self
+	{
+		$callback( clone $this );
+		return $this;
+	}
+
+
+	/**
 	 * Returns the elements as a plain array.
 	 *
 	 * @return array Plain array
