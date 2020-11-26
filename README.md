@@ -120,6 +120,7 @@ will return:
 
 * [__call()](#__call) : Calls a custom method
 * [__callStatic()](#__callstatic) : Calls a custom method statically
+* [all()](#all) : Returns the plain array
 * [call()](#call) : Calls the given method on all items
 * [find()](#find) : Returns the first/last matching element
 * [first()](#first) : Returns the first element
@@ -359,6 +360,17 @@ public static function __callStatic( string $name, array $params )
 Map::method( 'foo', function( $arg1, $arg2 ) {} );
 Map::foo( $arg1, $arg2 );
 ```
+
+
+### all()
+
+Returns the elements as a plain array.
+
+```php
+public function all() : array
+```
+
+* @return array Plain array
 
 
 ### arsort()

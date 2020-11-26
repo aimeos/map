@@ -35,6 +35,13 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testAll()
+	{
+		$m = new Map( ['name' => 'Hello'] );
+		$this->assertEquals( ['name' => 'Hello'], $m->all() );
+	}
+
+
 	public function testArsortNummeric()
 	{
 		$m = ( new Map( [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2] ) )->arsort();
