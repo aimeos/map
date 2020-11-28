@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/aimeos/map.svg?branch=master)](https://travis-ci.org/aimeos/map)
-[![Coverage Status](https://coveralls.io/repos/github/aimeos/map/badge.svg?branch=master)](https://coveralls.io/github/aimeos/map?branch=master)
+[![Build Status](https://circleci.com/gh/aimeos/map.svg?style=shield)](https://circleci.com/gh/aimeos/map)
+[![Coverage Status](https://coveralls.io/repos/github/aimeos/map/badge.svg)](https://coveralls.io/github/aimeos/map)
 [![License](https://poser.pugx.org/aimeos/map/license.svg)](https://packagist.org/packages/aimeos/map)
 [![Latest Stable Version](https://poser.pugx.org/aimeos/map/v/stable)](https://packagist.org/packages/aimeos/map)
 [![Total Downloads](https://poser.pugx.org/aimeos/map/downloads)](https://packagist.org/packages/aimeos/map)
