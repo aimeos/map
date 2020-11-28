@@ -2120,11 +2120,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			throw new \InvalidArgumentException( 'Requested number of elements must be greater or equal than 1' );
 		}
 
-		if( empty( $this->list ) || ( $keys = @array_rand( $this->list, $max ) ) === null
-			&& ( $keys = array_rand( $this->list, count( $this->list ) ) ) === null
-		) {
+		if( empty( $this->list ) ) {
 			return new self();
 		}
+
+		if( ( $num = count( $this->list ) ) < $max ) {
+			$max = $num;
+		}
+
+		$keys = array_rand( $this->list, $max );
 
 		return new self( array_intersect_key( $this->list, array_flip( (array) $keys ) ) );
 	}
