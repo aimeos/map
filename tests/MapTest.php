@@ -1386,6 +1386,14 @@ Array
 	}
 
 
+	public function testPosNotFound()
+	{
+		$m = new Map( [] );
+
+		$this->assertNull( $m->pos( 'b' ) );
+	}
+
+
 	public function testPrefix()
 	{
 		$fcn = function( $item, $key ) {

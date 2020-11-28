@@ -1972,9 +1972,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * and the returned index is zero based so the first item has the index "0".
 	 *
 	 * @param \Closure|mixed $value Value to search for or function with (item, key) parameters return TRUE if value is found
-	 * @return int Position of the found value (zero based)
+	 * @return int|null Position of the found value (zero based) or NULL if not found
 	 */
-	public function pos( $value ) : int
+	public function pos( $value ) : ?int
 	{
 		$pos = 0;
 
@@ -1998,6 +1998,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 			++$pos;
 		}
+
+		return null;
 	}
 
 
