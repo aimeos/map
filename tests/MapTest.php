@@ -35,6 +35,13 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testMagicToArray()
+	{
+		$m = new Map( ['name' => 'Hello'] );
+		$this->assertEquals( ['name' => 'Hello'], $m->__toArray() );
+	}
+
+
 	public function testArsortNummeric()
 	{
 		$m = ( new Map( [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2] ) )->arsort();
@@ -1146,6 +1153,12 @@ Array
 	}
 
 
+	public function testMaxEmpty()
+	{
+		$this->assertNull( Map::from( [] )->max() );
+	}
+
+
 	public function testMergeArray()
 	{
 		$m = new Map( ['name' => 'Hello'] );
@@ -1233,6 +1246,12 @@ Array
 		$this->assertEquals( 1, Map::from( [2, 3, 1, 5, 4] )->min() );
 		$this->assertEquals( 'bar', Map::from( ['baz', 'foo', 'bar'] )->min() );
 		$this->assertEquals( 10, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' ) );
+	}
+
+
+	public function testMinEmpty()
+	{
+		$this->assertNull( Map::from( [] )->min() );
 	}
 
 
