@@ -20,7 +20,7 @@ jobs:
       - run: ./vendor/bin/phpunit
   "php-7.2":
     docker:
-      - image: circleci/php:7.2
+      - image: cimg/php:7.2
     steps:
       - checkout
       - restore_cache:
@@ -33,7 +33,7 @@ jobs:
       - run: ./vendor/bin/phpunit
   "php-7.3":
     docker:
-      - image: circleci/php:7.3
+      - image: cimg/php:7.3
     steps:
       - checkout
       - restore_cache:
@@ -46,8 +46,9 @@ jobs:
       - run: ./vendor/bin/phpunit
   "php-7.4":
     docker:
-      - image: circleci/php:7.4
+      - image: cimg/php:7.4
     steps:
+      - run: sudo apt-get update && sudo apt-get install -y php7.4-xdebug
       - checkout
       - restore_cache:
           keys:
