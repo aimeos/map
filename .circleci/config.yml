@@ -12,10 +12,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-{{ checksum "composer.json" }}
+            - php71-{{ checksum "composer.json" }}
       - run: composer update -n --prefer-dist
       - save_cache:
-          key: deps-{{ checksum "composer.json" }}
+          key: php71-{{ checksum "composer.json" }}
           paths: [./vendor]
       - run: ./vendor/bin/phpunit
   "php-7.2":
@@ -25,10 +25,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-{{ checksum "composer.json" }}
+            - php72-{{ checksum "composer.json" }}
       - run: composer update -n --prefer-dist
       - save_cache:
-          key: deps-{{ checksum "composer.json" }}
+          key: php72-{{ checksum "composer.json" }}
           paths: [./vendor]
       - run: ./vendor/bin/phpunit
   "php-7.3":
@@ -38,10 +38,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-{{ checksum "composer.json" }}
+            - php73-{{ checksum "composer.json" }}
       - run: composer update -n --prefer-dist
       - save_cache:
-          key: deps-{{ checksum "composer.json" }}
+          key: php73-{{ checksum "composer.json" }}
           paths: [./vendor]
       - run: ./vendor/bin/phpunit
   "php-7.4":
@@ -51,10 +51,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - deps-{{ checksum "composer.json" }}
+            - php74-{{ checksum "composer.json" }}
       - run: composer update -n --prefer-dist
       - save_cache:
-          key: deps-{{ checksum "composer.json" }}
+          key: php74-{{ checksum "composer.json" }}
           paths: [./vendor]
       - run: ./vendor/bin/phpunit --coverage-clover=coverage.xml
       - run: ./vendor/bin/php-coveralls -o coveralls.json -x coverage.xml -vvv
