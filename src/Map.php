@@ -231,6 +231,32 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns the elements after the given one.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 1, 'b' => 0] )->after( 1 );
+	 *  Map::from( [0 => 'b', 1 => 'a'] )->after( 'b' );
+	 *  Map::from( ['a', 'c', 'b'] )->after( function( $item, $key ) {
+	 *      return $item >= 'c';
+	 *  } );
+	 *
+	 * Results:
+	 *  ['b' => 0]
+	 *  [1 => 'a']
+	 *  [2 => 'b']
+	 *
+	 * The keys are preserved using this method.
+	 *
+	 * @param mixed $value Value or function with (item, key) parameters
+	 * @return self New map with the elements after the given one
+	 */
+	public function after( $value ) : self
+	{
+		return new self( array_slice( $this->list, $this->pos( $value ) + 1, null, true ) );
+	}
+
+
+	/**
 	 * Returns the elements as a plain array.
 	 *
 	 * @return array Plain array
@@ -300,6 +326,32 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	{
 		asort( $this->list, $options );
 		return $this;
+	}
+
+
+	/**
+	 * Returns the elements before the given one.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 1, 'b' => 0] )->before( 0 );
+	 *  Map::from( [0 => 'b', 1 => 'a'] )->before( 'a' );
+	 *  Map::from( ['a', 'c', 'b'] )->before( function( $item, $key ) {
+	 *      return $key >= 1;
+	 *  } );
+	 *
+	 * Results:
+	 *  ['a' => 1]
+	 *  [0 => 'b']
+	 *  [0 => 'a']
+	 *
+	 * The keys are preserved using this method.
+	 *
+	 * @param mixed $value Value or function with (item, key) parameters
+	 * @return self New map with the elements before the given one
+	 */
+	public function before( $value ) : self
+	{
+		return new self( array_slice( $this->list, 0, $this->pos( $value ), true ) );
 	}
 
 

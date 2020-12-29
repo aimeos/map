@@ -42,6 +42,17 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testAfter()
+	{
+		$this->assertEquals( ['b' => 0], Map::from( ['a' => 1, 'b' => 0] )->after( 1 )->toArray() );
+		$this->assertEquals( [1 => 'a'], Map::from( [0 => 'b', 1 => 'a'] )->after( 'b' )->toArray() );
+
+		$this->assertEquals( [2 => 'b'], Map::from( ['a', 'c', 'b'] )->after( function( $item, $key ) {
+			return $item >= 'c';
+		} )->toArray() );
+	}
+
+
 	public function testAll()
 	{
 		$m = new Map( ['name' => 'Hello'] );
@@ -82,6 +93,17 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertInstanceOf( Map::class, $m );
 		$this->assertEquals( ['c' => 'bar-10', 1 => 'bar-1', 'a' => 'foo'], $m->toArray() );
+	}
+
+
+	public function testBefore()
+	{
+		$this->assertEquals( ['a' => 1], Map::from( ['a' => 1, 'b' => 0] )->before( 0 )->toArray() );
+		$this->assertEquals( [0 => 'b'], Map::from( [0 => 'b', 1 => 'a'] )->before( 'a' )->toArray() );
+
+		$this->assertEquals( [0 => 'a'], Map::from( ['a', 'c', 'b'] )->before( function( $item, $key ) {
+			return $key >= 1;
+		} )->toArray() );
 	}
 
 
