@@ -42,6 +42,17 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testAfter()
+	{
+		$this->assertEquals( ['b' => 0], Map::from( ['a' => 1, 'b' => 0] )->after( 1 )->toArray() );
+		$this->assertEquals( [1 => 'a'], Map::from( [0 => 'b', 1 => 'a'] )->after( 'b' )->toArray() );
+
+		$this->assertEquals( [2 => 'b'], Map::from( ['a', 'c', 'b'] )->after( function( $item, $key ) {
+			return $item >= 'c';
+		} )->toArray() );
+	}
+
+
 	public function testAll()
 	{
 		$m = new Map( ['name' => 'Hello'] );

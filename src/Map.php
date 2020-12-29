@@ -231,6 +231,32 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns the elements after the given one.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 1, 'b' => 0] )->after( 1 );
+	 *  Map::from( [0 => 'b', 1 => 'a'] )->after( 'b' );
+	 *  Map::from( ['a', 'c', 'b'] )->after( function( $item, $key ) {
+	 *      return $item >= 'c';
+	 *  } );
+	 *
+	 * Results:
+	 *  ['b' => 0]
+	 *  [1 => 'a']
+	 *  [2 => 'b']
+	 *
+	 * The keys are preserved using this method.
+	 *
+	 * @param mixed $value Value or function with (item, key) parameters
+	 * @return self New map with the elements after the given one
+	 */
+	public function after( $value ) : self
+	{
+		return new self( array_slice( $this->list, $this->pos( $value ) + 1, null, true ) );
+	}
+
+
+	/**
 	 * Returns the elements as a plain array.
 	 *
 	 * @return array Plain array

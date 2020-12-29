@@ -180,6 +180,7 @@ will return:
 
 ### Shorten
 
+* [after()](#after) : Returns the elements after the given one
 * [clear()](#clear) : Removes all elements
 * [diff()](#diff) : Returns the elements missing in the given list
 * [diffAssoc()](#diffassoc) : Returns the elements missing in the given list and checks keys
@@ -362,6 +363,38 @@ public static function __callStatic( string $name, array $params )
 Map::method( 'foo', function( $arg1, $arg2 ) {} );
 Map::foo( $arg1, $arg2 );
 ```
+
+
+### after()
+
+Returns the elements after the given one.
+
+```php
+public function after( $value ) : self
+```
+
+* @param mixed $value Value or function with (item, key) parameters
+* @return self New map with the elements after the given one
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 'b' => 0] )->after( 1 );
+Map::from( [0 => 'b', 1 => 'a'] )->after( 'b' );
+Map::from( ['a', 'c', 'b'] )->after( function( $item, $key ) {
+    return $item >= 'c';
+} );
+```
+
+**Results:**
+
+```php
+['b' => 0]
+[1 => 'a']
+[2 => 'b']
+```
+
+The keys are preserved using this method.
 
 
 ### all()
