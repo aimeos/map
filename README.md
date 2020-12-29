@@ -181,6 +181,7 @@ will return:
 ### Shorten
 
 * [after()](#after) : Returns the elements after the given one
+* [before()](#before) : Returns the elements before the given one
 * [clear()](#clear) : Removes all elements
 * [diff()](#diff) : Returns the elements missing in the given list
 * [diffAssoc()](#diffassoc) : Returns the elements missing in the given list and checks keys
@@ -478,6 +479,38 @@ The parameter modifies how the values are compared. Possible parameter values ar
 - SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
 The keys are preserved using this method and no new map is created.
+
+
+### before()
+
+Returns the elements before the given one.
+
+```php
+public function before( $value ) : self
+```
+
+* @param mixed $value Value or function with (item, key) parameters
+* @return self New map with the elements before the given one
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 'b' => 0] )->before( 0 );
+Map::from( [0 => 'b', 1 => 'a'] )->before( 'a' );
+Map::from( ['a', 'c', 'b'] )->before( function( $item, $key ) {
+    return $key >= 1;
+} );
+```
+
+**Results:**
+
+```php
+['a' => 1]
+[0 => 'b']
+[0 => 'a']
+```
+
+The keys are preserved using this method.
 
 
 ### call()

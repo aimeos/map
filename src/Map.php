@@ -330,6 +330,32 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns the elements before the given one.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 1, 'b' => 0] )->before( 0 );
+	 *  Map::from( [0 => 'b', 1 => 'a'] )->before( 'a' );
+	 *  Map::from( ['a', 'c', 'b'] )->before( function( $item, $key ) {
+	 *      return $key >= 1;
+	 *  } );
+	 *
+	 * Results:
+	 *  ['a' => 1]
+	 *  [0 => 'b']
+	 *  [0 => 'a']
+	 *
+	 * The keys are preserved using this method.
+	 *
+	 * @param mixed $value Value or function with (item, key) parameters
+	 * @return self New map with the elements before the given one
+	 */
+	public function before( $value ) : self
+	{
+		return new self( array_slice( $this->list, 0, $this->pos( $value ), true ) );
+	}
+
+
+	/**
 	 * Calls the given method on all items and returns the result.
 	 *
 	 * This method can call methods on the map entries that are also implemented

@@ -96,6 +96,17 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testBefore()
+	{
+		$this->assertEquals( ['a' => 1], Map::from( ['a' => 1, 'b' => 0] )->before( 0 )->toArray() );
+		$this->assertEquals( [0 => 'b'], Map::from( [0 => 'b', 1 => 'a'] )->before( 'a' )->toArray() );
+
+		$this->assertEquals( [0 => 'a'], Map::from( ['a', 'c', 'b'] )->before( function( $item, $key ) {
+			return $key >= 1;
+		} )->toArray() );
+	}
+
+
 	public function testCall()
 	{
 		$m = new Map( ['a' => new TestMapObject(), 'b' => new TestMapObject()] );
