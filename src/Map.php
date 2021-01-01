@@ -231,6 +231,42 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Creates a new map by invoking the closure the given number of times.
+	 *
+	 * Examples:
+	 *  Map::times( 3, function( $num ) {
+	 *    return $num * 10;
+	 *  } );
+	 *  Map::times( 3, function( $num, &$key ) {
+	 *    $key = $num * 2;
+	 *    return $num * 5;
+	 *  } );
+	 *  Map::times( 2, function( $num ) {
+	 *    return new \stdClass();
+	 *  } );
+	 *
+	 * Results:
+	 *  [0 => 0, 1 => 10, 2 => 20]
+	 *  [0 => 0, 2 => 5, 4 => 10]
+	 *  [0 => new \stdClass(), 1 => new \stdClass()]
+	 *
+	 * @param int $num Number of times the function is called
+	 * @param \Closure $callback Function with (value, key) parameters and returns new value
+	 */
+	public static function times( int $num, \Closure $callback )
+	{
+		$list = [];
+
+		for( $i = 0; $i < $num; $i++ ) {
+			$key = $i;
+			$list[$key] = $callback( $i, $key );
+		}
+
+		return new self( $list );
+	}
+
+
+	/**
 	 * Returns the elements after the given one.
 	 *
 	 * Examples:

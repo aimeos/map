@@ -2015,6 +2015,31 @@ Array
 	}
 
 
+	public function testTimes()
+	{
+		$this->assertEquals( [0 => 0, 1 => 10, 2 => 20], Map::times( 3, function( $num ) {
+			return $num * 10;
+		} )->toArray() );
+	}
+
+
+	public function testTimesKeys()
+	{
+		$this->assertEquals( [0 => 0, 2 => 5, 4 => 10], Map::times( 3, function( $num, &$key ) {
+			$key = $num * 2;
+			return $num * 5;
+	   } )->toArray() );
+	}
+
+
+	public function testTimesObjects()
+	{
+		$this->assertEquals( [0 => new \stdClass(), 1 => new \stdClass()], Map::times( 2, function( $num ) {
+			return new \stdClass();
+		} )->toArray() );
+	}
+
+
 	public function testToArray()
 	{
 		$m = new Map( ['name' => 'Hello'] );

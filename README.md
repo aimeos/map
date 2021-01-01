@@ -115,6 +115,7 @@ will return:
 * [from()](#from) : Creates a new map from passed elements
 * [fromJson()](#fromjson) : Creates a new map from a JSON string
 * [split()](#split) : Splits a string into map elements
+* [times()](#times) : Creates a new map by invoking the closure a number of times
 
 ### Access
 
@@ -3055,6 +3056,41 @@ Map::from( [3, 2, 1] )->rsort()->tap( function( $map ) {
 It will sort the list in reverse order(`[1, 2, 3]`) while keeping the keys,
 then prints the items without the first (`[2, 3]`) in the function passed
 to `tap()` and returns the first item ("1") at the end.
+
+
+### times()
+
+Creates a new map by invoking the closure the given number of times.
+
+```php
+public static function times( int $num, \Closure $callback )
+```
+
+* @param int $num Number of times the function is called
+* @param \Closure $callback Function with (value, key) parameters and returns new value
+
+**Examples:**
+
+```php
+Map::times( 3, function( $num ) {
+    return $num * 10;
+} );
+Map::times( 3, function( $num, &$key ) {
+    $key = $num * 2;
+    return $num * 5;
+} );
+Map::times( 2, function( $num ) {
+    return new \stdClass();
+} );
+```
+
+**Results:**
+
+```php
+[0 => 0, 1 => 10, 2 => 20]
+[0 => 0, 2 => 5, 4 => 10]
+[0 => new \stdClass(), 1 => new \stdClass()]
+```
 
 
 ### toArray()
