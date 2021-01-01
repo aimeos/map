@@ -969,7 +969,7 @@ Returns the duplicate values from the map.
 public function duplicates( string $col = null ) : self
 ```
 
-* @param string|null $col Key of the nested array or object to check for
+* @param string&#124;null $col Key of the nested array or object to check for
 * @return self New map
 
 **Examples:**
@@ -1123,7 +1123,7 @@ Returns a new map without the passed element keys.
 public function except( $keys ) : self
 ```
 
-* @param mixed|array `$keys` List of keys to remove
+* @param mixed&#124;array `$keys` List of keys to remove
 * @return self New map
 
 **Examples:**
@@ -1369,7 +1369,7 @@ Map::fromJson( '""' );
 There are several options available for decoding the JSON string:
 [https://www.php.net/manual/en/function.json-decode.php](https://www.php.net/manual/en/function.json-decode.php)
 The parameter can be a single JSON_* constant or a bitmask of several
-constants combine by bitwise OR (|), e.g.:
+constants combine by bitwise OR (&#124;), e.g.:
 
 `JSON_BIGINT_AS_STRING|JSON_INVALID_UTF8_IGNORE`
 
@@ -1434,7 +1434,7 @@ orignal map entries too.
 public function groupBy( $key ) : self
 ```
 
-* @param  \Closure|string $key Closure function with (item, idx) parameters returning the key or the key itself to group by
+* @param  \Closure&#124;string $key Closure function with (item, idx) parameters returning the key or the key itself to group by
 * @return self New map with elements grouped by the given key
 
 **Examples:**
@@ -1952,7 +1952,7 @@ array which should be used for comparison.
 public function max( string $col = null )
 ```
 
-* @param string|null $col Key in the nested array or object to check for
+* @param string&#124;null $col Key in the nested array or object to check for
 * @return mixed Maximum value or NULL if there are no elements in the map
 
 **Examples:**
@@ -2057,7 +2057,7 @@ array which should be used for comparison.
 public function min( string $col = null )
 ```
 
-* @param string|null $col Key in the nested array or object to check for
+* @param string&#124;null $col Key in the nested array or object to check for
 * @return mixed Minimum value or NULL if there are no elements in the map
 
 **Examples:**
@@ -2213,7 +2213,7 @@ Returns a new map with only those elements specified by the given keys.
 public function only( $keys ) : self
 ```
 
-* @param array|string|int `$keys` Keys of the elements that should be returned
+* @param array&#124;string&#124;int `$keys` Keys of the elements that should be returned
 * @return self New map with only the elements specified by the keys
 
 **Examples:**
@@ -2274,7 +2274,7 @@ Breaks the list of elements into the given number of groups.
 public function partition( $num ) : self
 ```
 
-* @param \Closure|int `$number` Function with (value, index) as arguments returning the bucket key or number of groups
+* @param \Closure&#124;int `$number` Function with (value, index) as arguments returning the bucket key or number of groups
 * @return self New map
 
 **Examples:**
@@ -2349,7 +2349,7 @@ Returns the numerical index of the value.
 public function pos( $value ) : int
 ```
 
-* @param \Closure|mixed $value Value to search for or function with (item, key) parameters return TRUE if value is found
+* @param \Closure&#124;mixed $value Value to search for or function with (item, key) parameters return TRUE if value is found
 * @return int Position of the found value (zero based)
 
 **Examples:**
@@ -2375,7 +2375,7 @@ Adds a prefix in front of each map entry.
 public function prefix( $prefix )
 ```
 
-* @param \Closure|string `$prefix` Function with map as parameter which returns arbitrary result
+* @param \Closure&#124;string `$prefix` Function with map as parameter which returns arbitrary result
 * @return self Updated map for fluid interface
 
 **Examples:**
@@ -2738,7 +2738,7 @@ Returns a new map with the given number of items skipped.
 public function skip( $offset ) : self
 ```
 
-* @param \Closure|int $offset Number of items to skip or function($item, $key) returning true for skipped items
+* @param \Closure&#124;int $offset Number of items to skip or function($item, $key) returning true for skipped items
 * @return self New map
 
 **Examples:**
@@ -2933,7 +2933,7 @@ Adds a suffix at the end of each map entry.
 public function suffix( $suffix )
 ```
 
-* @param \Closure|string `$suffix` Function with map as parameter which returns arbitrary result
+* @param \Closure&#124;string `$suffix` Function with map as parameter which returns arbitrary result
 * @return self Updated map for fluid interface
 
 **Examples:**
@@ -2966,7 +2966,7 @@ array which should be used for comparison.
 public function sum( string $col = null ) : int
 ```
 
-* @param string|null $col Key in the nested array or object to sum up
+* @param string&#124;null $col Key in the nested array or object to sum up
 * @return mixed Sum of all elements or 0 if there are no elements in the map
 
 **Examples:**
@@ -2999,7 +2999,7 @@ public function take( int $size, $offset = 0 ) : self
 ```
 
 * @param int `$size` Number of items to return
-* @param \Closure|int $offset Number of items to skip or function($item, $key) returning true for skipped items
+* @param \Closure&#124;int $offset Number of items to skip or function($item, $key) returning true for skipped items
 * @return self New map
 
 **Examples:**
@@ -3500,7 +3500,7 @@ Merges the values of all arrays at the corresponding index.
 public function zip( $array1, ... ) : self
 ```
 
-* @param array|\Traversable|\Iterator `$array1` List of values to merge with
+* @param array&#124;\Traversable&#124;\Iterator `$array1` List of values to merge with
 * @return self New map of arrays
 
 **Examples:**
