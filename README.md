@@ -1454,6 +1454,7 @@ Map::from( $list )->groupBy( 'xid' );
 
 **Results:**
 
+```php
 [
     123 => [
         10 => ['aid' => 123, 'code' => 'x-abc'],
@@ -1479,6 +1480,7 @@ Map::from( $list )->groupBy( 'xid' );
         30 => ['aid' => 456, 'code' => 'x-def']
     ]
 ]
+```
 
 In case the passed key doesn't exist in one or more items, these items are stored
 in a sub-array using passed string as key.
@@ -2231,7 +2233,7 @@ Map::from( ['a' => 1, 0 => 'b', 1 => 'c'] )->only( [0, 1] );
 ```
 
 
-## pad()
+### pad()
 
 Fill up to the specified length with the given value
 
