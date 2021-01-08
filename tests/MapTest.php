@@ -1012,9 +1012,27 @@ Array
 		$m = new Map( ['id' => 1, 'first' => 'Hello', 'second' => 'World'] );
 
 		$this->assertTrue( $m->has( 'first' ) );
-		$this->assertTrue( $m->has( ['first', 'second'] ) );
 		$this->assertFalse( $m->has( 'third' ) );
+	}
+
+
+	public function testHasMultiple()
+	{
+		$m = new Map( ['id' => 1, 'first' => 'Hello', 'second' => 'World'] );
+
+		$this->assertTrue( $m->has( ['first', 'second'] ) );
 		$this->assertFalse( $m->has( ['first', 'third'] ) );
+	}
+
+
+	public function testHasPath()
+	{
+		$m = new Map( ['a' => ['b' => ['c' => 'Y']]] );
+
+		$this->assertTrue( $m->has( 'a/b/c' ) );
+		$this->assertFalse( $m->has( 'a/b/c/d' ) );
+		$this->assertTrue( $m->has( ['a', 'a/b', 'a/b/c'] ) );
+		$this->assertFalse( $m->has( ['a', 'a/b', 'a/b/c', 'a/b/c/d'] ) );
 	}
 
 

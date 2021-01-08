@@ -1516,14 +1516,14 @@ in a sub-array using passed string as key.
 
 Determines if a key or several keys exists in the map.
 
-If several keys are passed as array, all keys must exist in the map for
-`TRUE` to be returned.
+If several keys are passed as array, all keys must exist in the map to
+return `TRUE`.
 
 ```php
 public function has( $key ) : bool
 ```
 
-* @param mixed&#124;array `$key` Key of the requested item
+* @param mixed&#124;array `$key` Key or path to the requested item
 * @return bool `TRUE` if key is available in map, `FALSE` if not
 
 **Examples:**
@@ -1531,6 +1531,7 @@ public function has( $key ) : bool
 ```php
 Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'a' );
 Map::from( ['a' => 'X', 'b' => 'Y'] )->has( ['a', 'b'] );
+Map::from( ['a' => ['b' => ['c' => 'Y']]] )->has( 'a/b/c' );
 Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'c' );
 Map::from( ['a' => 'X', 'b' => 'Y'] )->has( ['a', 'c'] );
 Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'X' );
@@ -1538,7 +1539,12 @@ Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'X' );
 
 **Results:**
 
-The first and second example will return `TRUE` while the other ones will return `FALSE`
+The first three examples will return `TRUE` while the other ones will return `FALSE`.
+
+This does also work for multi-dimensional arrays by passing the keys
+of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
+to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
+public properties of objects or objects implementing `__isset()` and `__get()` methods.
 
 
 ### in()

@@ -1343,15 +1343,21 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * If several keys are passed as array, all keys must exist in the map for
 	 * TRUE to be returned.
 	 *
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
+	 *
 	 * Examples:
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'a' );
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->has( ['a', 'b'] );
+	 *  Map::from( ['a' => ['b' => ['c' => 'Y']]] )->has( 'a/b/c' );
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'c' );
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->has( ['a', 'c'] );
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'X' );
 	 *
 	 * Results:
-	 * The first and second example will return TRUE while the other ones will return FALSE
+	 * The first three examples will return TRUE while the other ones will return FALSE
 	 *
 	 * @param mixed|array $key Key of the requested item or list of keys
 	 * @return bool TRUE if key or keys are available in map, FALSE if not
@@ -1360,7 +1366,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	{
 		foreach( (array) $key as $entry )
 		{
-			if( array_key_exists( $entry, $this->list ) === false ) {
+			if( array_key_exists( $entry, $this->list ) === false
+				&& ( $v = $this->getValue( $this->list, explode( self::$sep, $entry ) ) ) === null
+			) {
 				return false;
 			}
 		}
