@@ -501,28 +501,59 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Returns the values of a single column/property from an array of arrays or list of elements in a new map.
+	 * Returns the values of a single column/property from an array of arrays or objects in a new map.
+	 *
+	 * This does also work to map values from multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
 	 * Examples:
 	 *  Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( 'val' );
 	 *  Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( 'val', 'id' );
 	 *  Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( null, 'id' );
+	 *  Map::from( [['foo' => ['bar' => 'one', 'baz' => 'two']]] )->col( 'foo/baz', 'foo/bar' );
+	 *  Map::from( [['foo' => ['bar' => 'one']]] )->col( 'foo/baz', 'foo/bar' );
+	 *  Map::from( [['foo' => ['baz' => 'two']]] )->col( 'foo/baz', 'foo/bar' );
 	 *
 	 * Results:
 	 *  ['v1', 'v2']
 	 *  ['i1' => 'v1', 'i2' => 'v2']
 	 *  ['i1' => ['id' => 'i1', 'val' => 'v1'], 'i2' => ['id' => 'i2', 'val' => 'v2']]
+	 *  ['one' => 'two']
+	 *  ['one' => null]
+	 *  ['two']
 	 *
-	 * If $indexcol is omitted, the result will be indexed from 0-n.
+	 * If $indexcol is omitted, it's value is NULL or not set, the result will be indexed from 0-n.
 	 * The col() method works for objects implementing the __isset() and __get() methods too.
 	 *
-	 * @param string|null $valuecol Name of the value property
-	 * @param string|null $indexcol Name of the index property
+	 * @param string|null $valuecol Name or path of the value property
+	 * @param string|null $indexcol Name or path of the index property
 	 * @return self New instance with mapped entries
 	 */
 	public function col( string $valuecol = null, string $indexcol = null ) : self
 	{
-		return new static( array_column( $this->list, $valuecol, $indexcol ) );
+		$vparts = explode( self::$sep, $valuecol );
+		$iparts = explode( self::$sep, $indexcol );
+
+		if( count( $vparts ) === 1 && count( $iparts ) === 1 ) {
+			return new static( array_column( $this->list, $valuecol, $indexcol ) );
+		}
+
+		$list = [];
+
+		foreach( $this->list as $item )
+		{
+			$v = $valuecol ? $this->getValue( $item, $vparts ) : $item;
+
+			if( $indexcol !== null && ( $key = $this->getValue( $item, $iparts ) ) !== null ) {
+				$list[(string) $key] = $v;
+			} else {
+				$list[] = $v;
+			}
+		}
+
+		return new static( $list );
 	}
 
 

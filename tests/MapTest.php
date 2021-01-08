@@ -147,30 +147,70 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testCol()
 	{
 		$map = new Map( [['foo' => 'one', 'bar' => 'two']] );
-		$secondMap = $map->col( 'bar' );
+		$r = $map->col( 'bar' );
 
-		$this->assertInstanceOf( Map::class, $secondMap );
-		$this->assertEquals( [0 => 'two'], $secondMap->toArray() );
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [0 => 'two'], $r->toArray() );
 	}
 
 
 	public function testColIndex()
 	{
 		$map = new Map( [['foo' => 'one', 'bar' => 'two']] );
-		$secondMap = $map->col( 'bar', 'foo' );
+		$r = $map->col( 'bar', 'foo' );
 
-		$this->assertInstanceOf( Map::class, $secondMap );
-		$this->assertEquals( ['one' => 'two'], $secondMap->toArray() );
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['one' => 'two'], $r->toArray() );
+	}
+
+
+	public function testColIndexNull()
+	{
+		$map = new Map( [['bar' => 'two']] );
+		$r = $map->col( 'bar', 'foo' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['two'], $r->toArray() );
 	}
 
 
 	public function testColIndexOnly()
 	{
 		$map = new Map( [['foo' => 'one', 'bar' => 'two']] );
-		$secondMap = $map->col( null, 'foo' );
+		$r = $map->col( null, 'foo' );
 
-		$this->assertInstanceOf( Map::class, $secondMap );
-		$this->assertEquals( ['one' => ['foo' => 'one', 'bar' => 'two']], $secondMap->toArray() );
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['one' => ['foo' => 'one', 'bar' => 'two']], $r->toArray() );
+	}
+
+
+	public function testColRecursive()
+	{
+		$map = new Map( [['foo' => ['bar' => 'one', 'baz' => 'two']]] );
+		$r = $map->col( 'foo/baz', 'foo/bar' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['one' => 'two'], $r->toArray() );
+	}
+
+
+	public function testColRecursiveNull()
+	{
+		$map = new Map( [['foo' => ['bar' => 'one']]] );
+		$r = $map->col( 'foo/baz', 'foo/bar' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['one' => null], $r->toArray() );
+	}
+
+
+	public function testColRecursiveIndexNull()
+	{
+		$map = new Map( [['foo' => ['baz' => 'two']]] );
+		$r = $map->col( 'foo/baz', 'foo/bar' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['two'], $r->toArray() );
 	}
 
 
