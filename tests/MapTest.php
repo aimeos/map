@@ -889,7 +889,29 @@ Array
 	}
 
 
-	public function testGetWithNullReturnsNull()
+	public function testGet()
+	{
+		$map = new Map( ['a' => 1, 'b' => 2, 'c' => 3] );
+		$this->assertEquals( 2, $map->get( 'b' ) );
+	}
+
+
+	public function testGetPath()
+	{
+		$this->assertEquals( 'Y', Map::from( ['a' => ['b' => ['c' => 'Y']]] )->get( 'a/b/c' ) );
+	}
+
+
+	public function testGetPathObject()
+	{
+		$obj = new \stdClass;
+		$obj->b = 'X';
+
+		$this->assertEquals( 'X', Map::from( ['a' => $obj] )->get( 'a/b' ) );
+	}
+
+
+	public function testGetWithNull()
 	{
 		$map = new Map( [1, 2, 3] );
 		$this->assertNull( $map->get( null ) );
@@ -901,7 +923,7 @@ Array
 		$m = new Map;
 
 		$this->expectException( \RuntimeException::class );
-		$result = $m->get( 'Y', new \RuntimeException( 'error' ) );
+		$m->get( 'Y', new \RuntimeException( 'error' ) );
 	}
 
 
