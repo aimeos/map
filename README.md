@@ -990,6 +990,7 @@ public function duplicates( string $col = null ) : self
 ```php
 Map::from( [1, 2, '1', 3] )->duplicates()
 Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->duplicates( 'p' )
+Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i/p' )
 ```
 
 **Results:**
@@ -997,11 +998,17 @@ Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->duplicates( 'p' )
 ```php
 [2 => '1']
 [1 => ['p' => 1]]
+[1 => ['i' => ['p' => '1']]]
 ```
 
 The keys in the result map are the same as in the original one. For nested
 arrays, you have to pass the name of the column of the nested array which
 should be used to check for duplicates.
+
+This does also work for multi-dimensional arrays by passing the keys
+of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
+to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
+public properties of objects or objects implementing `__isset()` and `__get()` methods.
 
 
 ### each()

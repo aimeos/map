@@ -874,30 +874,27 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * arrays, you have to pass the name of the column of the nested array which
 	 * should be used to check for duplicates.
 	 *
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
+	 *
 	 * Examples:
 	 *  Map::from( [1, 2, '1', 3] )->duplicates()
 	 *  Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->duplicates( 'p' )
+	 *  Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i/p' )
 	 *
 	 * Results:
 	 *  [2 => '1']
-	 *  [1 => ['p' => 1]]
+	 *  [1 => ['i' => ['p' => '1']]]
 	 *
-	 * @param string|null $col Key of the nested array or object to check for
+	 * @param string|null $col Key or path of the nested array or object to check for
 	 * @return self New map
 	 */
 	public function duplicates( string $col = null ) : self
 	{
-		$result = [];
-		$unique = array_unique( $col !== null ? array_column( $this->list, $col ) : $this->list );
-
-		foreach( $this->list as $key => $value )
-		{
-			if( !array_key_exists( $key, $unique ) ) {
-				$result[$key] = $value;
-			}
-		}
-
-		return new static( $result );
+		$list = ( $col !== null ? $this->col( $col )->toArray() : $this->list );
+		return new static( array_diff_key( $this->list, array_unique( $list ) ) );
 	}
 
 

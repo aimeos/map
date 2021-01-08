@@ -505,6 +505,15 @@ Array
 	}
 
 
+	public function testDuplicatesPath()
+	{
+		$r = Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i/p' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [1 => ['i' => ['p' => '1']]], $r->toArray() );
+	}
+
+
 	public function testEach()
 	{
 		$m = new Map( $original = [1, 2, 'foo' => 'bar', 'bam' => 'baz'] );
