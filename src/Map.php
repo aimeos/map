@@ -16,6 +16,7 @@ namespace Aimeos;
 class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 {
 	protected static $methods = [];
+	protected static $sep = '/';
 	protected $list = [];
 
 
@@ -181,6 +182,57 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Registers a custom method that has access to the class properties if called non-static.
+	 *
+	 * Examples:
+	 *  Map::method( 'foo', function( $arg1, $arg2 ) {
+	 *      return $this->list;
+	 *  } );
+	 *
+	 * Dynamic calls have access to the class properties:
+	 *  (new Map( ['bar'] ))->foo( $arg1, $arg2 );
+	 *
+	 * Static calls yield an error because $this->elements isn't available:
+	 *  Map::foo( $arg1, $arg2 );
+	 *
+	 * @param string $name Method name
+	 * @param \Closure $function Anonymous method
+	 */
+	public static function method( string $name, \Closure $function )
+	{
+		static::$methods[$name] = $function;
+	}
+
+
+	/**
+	 * Sets or returns the seperator for paths to values in multi-dimensional arrays or objects
+	 *
+	 * Examples:
+	 *  Map::sep( '.' );
+	 *  Map::from( ['foo' => ['bar' => 'baz']] )->get( 'foo.bar' );
+	 *  Map::sep();
+	 *
+	 * Results:
+	 *  '/'
+	 *  'baz'
+	 *  '.'
+	 *
+	 * @param string|null $delimiter Separator character, e.g. "." for "key.to.value" instaed of "key/to/value"
+	 * @return string Separator used up to now
+	 */
+	public static function sep( ?string $delimiter = null ) : string
+	{
+		$old = self::$sep;
+
+		if( $delimiter ) {
+			self::$sep = $delimiter;
+		}
+
+		return $old;
+	}
+
+
+	/**
 	 * Creates a new map with the string splitted by the delimiter.
 	 *
 	 * Examples:
@@ -204,29 +256,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		return new static( str_split( $str ) );
-	}
-
-
-	/**
-	 * Registers a custom method that has access to the class properties if called non-static.
-	 *
-	 * Examples:
-	 *  Map::method( 'foo', function( $arg1, $arg2 ) {
-	 *      return $this->list;
-	 *  } );
-	 *
-	 * Dynamic calls have access to the class properties:
-	 *  (new Map( ['bar'] ))->foo( $arg1, $arg2 );
-	 *
-	 * Static calls yield an error because $this->elements isn't available:
-	 *  Map::foo( $arg1, $arg2 );
-	 *
-	 * @param string $name Method name
-	 * @param \Closure $function Anonymous method
-	 */
-	public static function method( string $name, \Closure $function )
-	{
-		static::$methods[$name] = $function;
 	}
 
 
@@ -3299,6 +3328,30 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 				$result[] = $entry;
 			}
 		}
+	}
+
+
+	/**
+	 * Returns a configuration value from an array.
+	 *
+	 * @param array|object $entry The array or object to look at
+	 * @param array $parts Path parts to look for inside the array or object
+	 * @return mixed Found value or null if no value is available
+	 */
+	protected function getValue( $entry, array $parts )
+	{
+		foreach( $parts as $part )
+		{
+			if( ( is_array( $entry ) || $entry instanceof \ArrayAccess ) && isset( $entry[$part] ) ) {
+				$entry = $entry[$part];
+			} elseif( is_object( $entry ) && isset( $entry->{$part} ) ) {
+				$entry = $entry->{$part};
+			} else {
+				return null;
+			}
+		}
+
+		return $entry;
 	}
 
 

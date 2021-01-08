@@ -1691,6 +1691,15 @@ Array
 	}
 
 
+	public function testSep()
+	{
+		$this->assertEquals( '/', Map::sep() );
+		$this->assertEquals( '/', Map::sep( '.' ) );
+		$this->assertEquals( '.', Map::sep( '/' ) );
+		$this->assertEquals( '/', Map::sep() );
+	}
+
+
 	public function testSet()
 	{
 		$map = Map::from( [] );

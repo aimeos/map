@@ -248,6 +248,7 @@ will return:
 * [offsetGet()](#offsetget) : Returns an element by key
 * [offsetSet()](#offsetset) : Overwrites an element
 * [offsetUnset()](#offsetunset) : Removes an element by key
+* [sep()](#sep) : Sets or returns the seperator for paths in multi-dimensional arrays
 
 
 
@@ -2642,6 +2643,37 @@ Map::from( [1, 2, 3] )->search( '2', true );
 
 The first example will return 1 (array index) while the second one will
 return `NULL` because the types doesn't match (int vs. string)
+
+
+### sep()
+
+Sets another seperator for paths to values in multi-dimensional arrays or objects.
+
+**Caution:** Paths passed to methods of all existing and new Map objects will use
+the new path separator until a new call to `Map::sep()` is made!
+
+```php
+public static function sep( ?string $delimiter = null ) : string
+```
+
+* @param string `$delimiter` Separator character, e.g. "." for "key.to.value" instaed of "key/to/value"
+* @return string Separator used up to now
+
+**Examples:**
+
+```php
+Map::sep( '.' );
+Map::from( ['foo' => ['bar' => 'baz']] )->get( 'foo.bar' );
+Map::sep();
+```
+
+**Results:**
+
+```php
+'/'
+'baz'
+'.'
+```
 
 
 ### set()
