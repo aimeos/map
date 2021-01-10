@@ -895,12 +895,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  [2 => '1']
 	 *  [1 => ['i' => ['p' => '1']]]
 	 *
-	 * @param string|null $col Key or path of the nested array or object to check for
+	 * @param string|null $key Key or path of the nested array or object to check for
 	 * @return self New map
 	 */
-	public function duplicates( string $col = null ) : self
+	public function duplicates( string $key = null ) : self
 	{
-		$list = ( $col !== null ? $this->col( $col )->toArray() : $this->list );
+		$list = ( $key !== null ? $this->col( $key )->toArray() : $this->list );
 		return new static( array_diff_key( $this->list, array_unique( $list ) ) );
 	}
 
@@ -2113,7 +2113,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		elseif( is_int( $number ) )
 		{
 			$start = 0;
-			$size = ceil( count( $this->list ) / $number );
+			$size = (int) ceil( count( $this->list ) / $number );
 
 			for( $i = 0; $i < $number; $i++ )
 			{
@@ -2530,7 +2530,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function set( $key, $value ) : self
 	{
-		$this->list[$key] = $value;
+		$this->list[(string) $key] = $value;
 		return $this;
 	}
 
@@ -3365,7 +3365,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Returns a plain array of the given elements.
 	 *
-	 * @param $elements List of elements or single value
+	 * @param mixed $elements List of elements or single value
 	 * @return array Plain array
 	 */
 	protected function getArray( $elements ) : array
@@ -3374,7 +3374,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			return $elements;
 		}
 
-		if( $elements instanceof self ) {
+		if( $elements instanceof self || is_object( $elements ) && method_exists( $elements, 'toArray' ) ) {
 			return $elements->toArray();
 		}
 
@@ -3439,7 +3439,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * @param float $depth Number of levels to flatten in multi-dimensional arrays
 	 * @return array Single level array with all elements
 	 */
-	protected function kflatten( iterable $entries, array &$result, float $depth )
+	protected function kflatten( iterable $entries, array &$result, float $depth  )
 	{
 		foreach( $entries as $key => $entry )
 		{

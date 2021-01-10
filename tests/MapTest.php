@@ -2074,10 +2074,6 @@ Array
 
 	public function testSum()
 	{
-		$fcn = function( $item, $key ) {
-			return '-' . ( ord( $item ) + ord( $key ) );
-		};
-
 		$this->assertEquals( 9, Map::from( [1, 3, 5] )->sum() );
 		$this->assertEquals( 6, Map::from( [1, 'sum', 5] )->sum() );
 		$this->assertEquals( 90, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' ) );
