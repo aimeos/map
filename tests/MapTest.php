@@ -164,6 +164,16 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testColIndexDuplicate()
+	{
+		$map = new Map( [['id' => 'ix', 'val' => 'v1'], ['id' => 'ix', 'val' => 'v2']] );
+		$r = $map->col( null, 'id' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['ix' => ['id' => 'ix', 'val' => 'v2']], $r->toArray() );
+	}
+
+
 	public function testColIndexNull()
 	{
 		$map = new Map( [['bar' => 'two']] );

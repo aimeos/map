@@ -609,6 +609,7 @@ public function col( string $valuecol = null, string $indexcol = null ) : self
 Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( 'val' );
 Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( 'val', 'id' );
 Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( null, 'id' );
+Map::from( [['id' => 'ix', 'val' => 'v1'], ['id' => 'ix', 'val' => 'v2']] )->col( null, 'id' );
 Map::from( [['foo' => ['bar' => 'one', 'baz' => 'two']]] )->col( 'foo/baz', 'foo/bar' );
 Map::from( [['foo' => ['bar' => 'one']]] )->col( 'foo/baz', 'foo/bar' );
 Map::from( [['foo' => ['baz' => 'two']]] )->col( 'foo/baz', 'foo/bar' );
@@ -620,13 +621,15 @@ Map::from( [['foo' => ['baz' => 'two']]] )->col( 'foo/baz', 'foo/bar' );
 ['v1', 'v2']
 ['i1' => 'v1', 'i2' => 'v2']
 ['i1' => ['id' => 'i1', 'val' => 'v1'], 'i2' => ['id' => 'i2', 'val' => 'v2']]
+['ix' => ['id' => 'ix', 'val' => 'v2']]
 ['one' => 'two']
 ['one' => null]
 ['two']
 ```
 
 If $indexcol is omitted, it's value is NULL or not set, the result will be indexed from 0-n.
-The col() method works for objects implementing the __isset() and __get() methods too.
+Items with the same value for $indexcol will overwrite previous items and only the last one
+will be part of the resulting map.
 
 This does also work to map values from multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
