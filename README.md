@@ -811,6 +811,36 @@ Array
 The `first()` method isn't executed at all.
 
 
+### delimiter()
+
+Sets or returns the seperator for paths to values in multi-dimensional arrays or objects.
+
+The static method only changes the separator for new maps created afterwards.
+Already existing maps will continue to use the previous separator. To change
+the separator of an existing map, use the [sep()](#sep) method instead.
+
+```php
+public static function delimiter( ?string $char = null ) : string
+```
+
+* @param string `$char` Separator character, e.g. "." for "key.to.value" instaed of "key/to/value"
+* @return string Separator used up to now
+
+**Examples:**
+
+```php
+Map::delimiter( '.' );
+Map::from( ['foo' => ['bar' => 'baz']] )->get( 'foo.bar' );
+```
+
+**Results:**
+
+```php
+'/'
+'baz'
+```
+
+
 ### diff()
 
 Returns the keys/values in the map whose values are not present in the passed elements in a new map.
@@ -2677,32 +2707,29 @@ return `NULL` because the types doesn't match (int vs. string)
 
 ### sep()
 
-Sets another seperator for paths to values in multi-dimensional arrays or objects.
+Sets the seperator for paths to values in multi-dimensional arrays or objects.
 
-**Caution:** Paths passed to methods of all existing and new Map objects will use
-the new path separator until a new call to `Map::sep()` is made!
+This method only changes the separator for the current map instance. To
+change the separator for all maps created afterwards, use the static
+[Map::delimiter()](#delimiter) method instead.
 
 ```php
-public static function sep( ?string $delimiter = null ) : string
+public static function sep( string $char ) : self
 ```
 
-* @param string `$delimiter` Separator character, e.g. "." for "key.to.value" instaed of "key/to/value"
-* @return string Separator used up to now
+* @param string `$char` Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
+* @return self Same map for fluid interface
 
 **Examples:**
 
 ```php
-Map::sep( '.' );
-Map::from( ['foo' => ['bar' => 'baz']] )->get( 'foo.bar' );
-Map::sep();
+Map::from( ['foo' => ['bar' => 'baz']] )->sep( '.' )->get( 'foo.bar' );
 ```
 
 **Results:**
 
 ```php
-'/'
 'baz'
-'.'
 ```
 
 

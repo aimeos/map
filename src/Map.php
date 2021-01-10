@@ -16,8 +16,9 @@ namespace Aimeos;
 class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 {
 	protected static $methods = [];
-	protected static $sep = '/';
+	protected static $delim = '/';
 	protected $list = [];
+	protected $sep;
 
 
 	/**
@@ -31,6 +32,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function __construct( $elements = [] )
 	{
 		$this->list = $this->getArray( $elements );
+		$this->sep = self::$delim;
 	}
 
 
@@ -121,6 +123,36 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Sets or returns the seperator for paths to values in multi-dimensional arrays or objects.
+	 *
+	 * The static method only changes the separator for new maps created afterwards.
+	 * Already existing maps will continue to use the previous separator. To change
+	 * the separator of an existing map, use the sep() method instead.
+	 *
+	 * Examples:
+	 *  Map::delimiter( '.' );
+	 *  Map::from( ['foo' => ['bar' => 'baz']] )->get( 'foo.bar' );
+	 *
+	 * Results:
+	 *  '/'
+	 *  'baz'
+	 *
+	 * @param string|null $char Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
+	 * @return string Separator used up to now
+	 */
+	public static function delimiter( ?string $char = null ) : string
+	{
+		$old = self::$delim;
+
+		if( $char ) {
+			self::$delim = $char;
+		}
+
+		return $old;
+	}
+
+
+	/**
 	 * Creates a new map instance if the value isn't one already.
 	 *
 	 * Examples:
@@ -201,34 +233,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public static function method( string $name, \Closure $function )
 	{
 		static::$methods[$name] = $function;
-	}
-
-
-	/**
-	 * Sets or returns the seperator for paths to values in multi-dimensional arrays or objects
-	 *
-	 * Examples:
-	 *  Map::sep( '.' );
-	 *  Map::from( ['foo' => ['bar' => 'baz']] )->get( 'foo.bar' );
-	 *  Map::sep();
-	 *
-	 * Results:
-	 *  '/'
-	 *  'baz'
-	 *  '.'
-	 *
-	 * @param string|null $delimiter Separator character, e.g. "." for "key.to.value" instaed of "key/to/value"
-	 * @return string Separator used up to now
-	 */
-	public static function sep( ?string $delimiter = null ) : string
-	{
-		$old = self::$sep;
-
-		if( $delimiter ) {
-			self::$sep = $delimiter;
-		}
-
-		return $old;
 	}
 
 
@@ -533,8 +537,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function col( string $valuecol = null, string $indexcol = null ) : self
 	{
-		$vparts = explode( self::$sep, $valuecol );
-		$iparts = explode( self::$sep, $indexcol );
+		$vparts = explode( $this->sep, $valuecol );
+		$iparts = explode( $this->sep, $indexcol );
 
 		if( count( $vparts ) === 1 && count( $iparts ) === 1 ) {
 			return new static( array_column( $this->list, $valuecol, $indexcol ) );
@@ -1246,7 +1250,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			return $this->list[$key];
 		}
 
-		if( ( $v = $this->getValue( $this->list, explode( self::$sep, $key ) ) ) !== null ) {
+		if( ( $v = $this->getValue( $this->list, explode( $this->sep, $key ) ) ) !== null ) {
 			return $v;
 		}
 
@@ -1367,7 +1371,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		foreach( (array) $key as $entry )
 		{
 			if( array_key_exists( $entry, $this->list ) === false
-				&& ( $v = $this->getValue( $this->list, explode( self::$sep, $entry ) ) ) === null
+				&& $this->getValue( $this->list, explode( $this->sep, $entry ) ) === null
 			) {
 				return false;
 			}
@@ -2481,6 +2485,29 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		return null;
+	}
+
+
+	/**
+	 * Sets the seperator for paths to values in multi-dimensional arrays or objects.
+	 *
+	 * This method only changes the separator for the current map instance. To
+	 * change the separator for all maps created afterwards, use the static
+	 * delimiter() method instead.
+	 *
+	 * Examples:
+	 *  Map::from( ['foo' => ['bar' => 'baz']] )->sep( '.' )->get( 'foo.bar' );
+	 *
+	 * Results:
+	 *  'baz'
+	 *
+	 * @param string|null $char Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
+	 * @return self Same map for fluid interface
+	 */
+	public function sep( string $char ) : self
+	{
+		$this->sep = $char;
+		return $this;
 	}
 
 
