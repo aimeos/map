@@ -2038,12 +2038,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  ['a' => 1]
 	 *  [0 => 'b', 1 => 'c']
 	 *
-	 * @param array|string|int $keys Keys of the elements that should be returned
+	 * @param iterable|array|string|int $keys Keys of the elements that should be returned
 	 * @return self New map with only the elements specified by the keys
 	 */
 	public function only( $keys ) : self
 	{
-		return new self( array_intersect_key( $this->list, array_flip( (array) $keys ) ) );
+		return $this->intersectKeys( array_flip( $this->getArray( $keys ) ) );
 	}
 
 
@@ -2374,12 +2374,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The first example will result in [2 => 'b'] while the second one resulting
 	 * in an empty list
 	 *
-	 * @param mixed|array $keys List of keys to remove
+	 * @param iterable|array|string|int $keys List of keys to remove
 	 * @return self Same map for fluid interface
 	 */
 	public function remove( $keys ) : self
 	{
-		foreach( (array) $keys as $key ) {
+		foreach( $this->getArray( $keys ) as $key ) {
 			unset( $this->list[$key] );
 		}
 

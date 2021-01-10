@@ -2280,7 +2280,7 @@ Returns a new map with only those elements specified by the given keys.
 public function only( $keys ) : self
 ```
 
-* @param array&#124;string&#124;int `$keys` Keys of the elements that should be returned
+* @param iterable&#124;array&#124;string&#124;int `$keys` Keys of the elements that should be returned
 * @return self New map with only the elements specified by the keys
 
 **Examples:**
@@ -2578,7 +2578,7 @@ Removes one or more elements from the map by its keys without returning a new ma
 public function remove( $keys ) : self
 ```
 
-* @param string&#124;int&#124;iterable `$keys` List of keys
+* @param iterable&#124;array&#124;string&#124;int `$keys` List of keys
 * @return self Same map for fluid interface
 
 **Examples:**
