@@ -693,7 +693,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function countBy( callable $callback = null ) : self
 	{
-		$callback = $callback ?? function( $value ) {
+		$callback = $callback ?: function( $value ) {
 			return (string) $value;
 		};
 
@@ -1332,8 +1332,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		{
 			if( is_callable( $key ) ) {
 				$keyval = $key( $item, $idx );
+			} elseif( is_object( $item ) && isset( $item->{$key} ) ) {
+				$keyval = $item->{$key};
+			} elseif( is_array( $item ) && isset( $item[$key] ) ) {
+				$keyval = $item[$key];
 			} else {
-				$keyval = $item->{$key} ?? ( $item[$key] ?? $key );
+				$keyval = $key;
 			}
 
 			$result[$keyval][$idx] = $item;
