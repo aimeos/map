@@ -101,8 +101,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 		foreach( $this->list as $key => $item )
 		{
-			// todo: remove method_exists() in 2.x to show calling not-existing methods
-			if( is_object( $item ) && method_exists( $item, $name ) ) {
+			if( is_object( $item ) ) {
 				$result[$key] = $item->{$name}( ...$params );
 			}
 		}
