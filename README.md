@@ -2903,7 +2903,7 @@ Similar for the length:
 Creates a new map with the string splitted by the delimiter.
 
 ```php
-public static function split( string $delimiter, string $str ) : self
+public static function split( string $str, string $delimiter = ',' ) : self
 ```
 
 * @param string `$str` String to split
