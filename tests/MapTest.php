@@ -386,10 +386,10 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testDelimiter()
 	{
-		$this->assertEquals( '/', Map::delimiter() );
-		$this->assertEquals( '/', Map::delimiter( '.' ) );
+		$this->assertEquals( '.', Map::delimiter() );
 		$this->assertEquals( '.', Map::delimiter( '/' ) );
-		$this->assertEquals( '/', Map::delimiter() );
+		$this->assertEquals( '/', Map::delimiter( '.' ) );
+		$this->assertEquals( '.', Map::delimiter() );
 	}
 
 
@@ -1801,7 +1801,7 @@ Array
 
 	public function testSep()
 	{
-		$this->assertEquals( 'baz', Map::from( ['foo' => ['bar' => 'baz']] )->sep( '.' )->get( 'foo.bar' ) );
+		$this->assertEquals( 'baz', Map::from( ['foo' => ['bar' => 'baz']] )->sep( '/' )->get( 'foo/bar' ) );
 	}
 
 

@@ -16,7 +16,7 @@ namespace Aimeos;
 class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 {
 	protected static $methods = [];
-	protected static $delim = '/';
+	protected static $delim = '.';
 	protected $list = [];
 	protected $sep;
 
@@ -129,14 +129,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * the separator of an existing map, use the sep() method instead.
 	 *
 	 * Examples:
-	 *  Map::delimiter( '.' );
-	 *  Map::from( ['foo' => ['bar' => 'baz']] )->get( 'foo.bar' );
+	 *  Map::delimiter( '/' );
+	 *  Map::from( ['foo' => ['bar' => 'baz']] )->get( 'foo/bar' );
 	 *
 	 * Results:
-	 *  '/'
+	 *  '.'
 	 *  'baz'
 	 *
-	 * @param string|null $char Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
+	 * @param string|null $char Separator character, e.g. "." for "ey/to/value" instead of "key.to.value"
 	 * @return string Separator used up to now
 	 */
 	public static function delimiter( ?string $char = null ) : string
@@ -2498,12 +2498,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * delimiter() method instead.
 	 *
 	 * Examples:
-	 *  Map::from( ['foo' => ['bar' => 'baz']] )->sep( '.' )->get( 'foo.bar' );
+	 *  Map::from( ['foo' => ['bar' => 'baz']] )->sep( '/' )->get( 'foo/bar' );
 	 *
 	 * Results:
 	 *  'baz'
 	 *
-	 * @param string|null $char Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
+	 * @param string|null $char Separator character, e.g. "/" for "key/to/value" instead of "key.to.value"
 	 * @return self Same map for fluid interface
 	 */
 	public function sep( string $char ) : self

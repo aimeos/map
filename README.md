@@ -826,20 +826,20 @@ the separator of an existing map, use the [sep()](#sep) method instead.
 public static function delimiter( ?string $char = null ) : string
 ```
 
-* @param string `$char` Separator character, e.g. "." for "key.to.value" instaed of "key/to/value"
+* @param string `$char` Separator character, e.g. "/" for "key/to/value" instaed of "key.to.value"
 * @return string Separator used up to now
 
 **Examples:**
 
 ```php
-Map::delimiter( '.' );
-Map::from( ['foo' => ['bar' => 'baz']] )->get( 'foo.bar' );
+Map::delimiter( '/' );
+Map::from( ['foo' => ['bar' => 'baz']] )->get( 'foo/bar' );
 ```
 
 **Results:**
 
 ```php
-'/'
+'.'
 'baz'
 ```
 
@@ -2720,13 +2720,13 @@ change the separator for all maps created afterwards, use the static
 public static function sep( string $char ) : self
 ```
 
-* @param string `$char` Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
+* @param string `$char` Separator character, e.g. "/" for "key/to/value" instead of "key.to.value"
 * @return self Same map for fluid interface
 
 **Examples:**
 
 ```php
-Map::from( ['foo' => ['bar' => 'baz']] )->sep( '.' )->get( 'foo.bar' );
+Map::from( ['foo' => ['bar' => 'baz']] )->sep( '/' )->get( 'foo/bar' );
 ```
 
 **Results:**
