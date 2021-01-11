@@ -136,7 +136,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  '.'
 	 *  'baz'
 	 *
-	 * @param string|null $char Separator character, e.g. "." for "ey/to/value" instead of "key.to.value"
+	 * @param string|null $char Separator character, e.g. "/" for "key/to/value" instead of "key.to.value"
 	 * @return string Separator used up to now
 	 */
 	public static function delimiter( ?string $char = null ) : string
@@ -506,19 +506,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Returns the values of a single column/property from an array of arrays or objects in a new map.
 	 *
-	 * This does also work to map values from multi-dimensional arrays by passing the keys
-	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
-	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
-	 * public properties of objects or objects implementing __isset() and __get() methods.
-	 *
 	 * Examples:
 	 *  Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( 'val' );
 	 *  Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( 'val', 'id' );
 	 *  Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( null, 'id' );
 	 *  Map::from( [['id' => 'ix', 'val' => 'v1'], ['id' => 'ix', 'val' => 'v2']] )->col( null, 'id' );
-	 *  Map::from( [['foo' => ['bar' => 'one', 'baz' => 'two']]] )->col( 'foo/baz', 'foo/bar' );
-	 *  Map::from( [['foo' => ['bar' => 'one']]] )->col( 'foo/baz', 'foo/bar' );
-	 *  Map::from( [['foo' => ['baz' => 'two']]] )->col( 'foo/baz', 'foo/bar' );
+	 *  Map::from( [['foo' => ['bar' => 'one', 'baz' => 'two']]] )->col( 'foo.baz', 'foo.bar' );
+	 *  Map::from( [['foo' => ['bar' => 'one']]] )->col( 'foo.baz', 'foo.bar' );
+	 *  Map::from( [['foo' => ['baz' => 'two']]] )->col( 'foo.baz', 'foo.bar' );
 	 *
 	 * Results:
 	 *  ['v1', 'v2']
@@ -532,6 +527,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * If $indexcol is omitted, it's value is NULL or not set, the result will be indexed from 0-n.
 	 * Items with the same value for $indexcol will overwrite previous items and only the last
 	 * one will be part of the resulting map.
+	 *
+	 * This does also work to map values from multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("." by default), e.g. "key1.key2.key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
 	 * @param string|null $valuecol Name or path of the value property
 	 * @param string|null $indexcol Name or path of the index property
@@ -880,19 +880,19 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * arrays, you have to pass the name of the column of the nested array which
 	 * should be used to check for duplicates.
 	 *
-	 * This does also work for multi-dimensional arrays by passing the keys
-	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
-	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
-	 * public properties of objects or objects implementing __isset() and __get() methods.
-	 *
 	 * Examples:
 	 *  Map::from( [1, 2, '1', 3] )->duplicates()
 	 *  Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->duplicates( 'p' )
-	 *  Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i/p' )
+	 *  Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i.p' )
 	 *
 	 * Results:
 	 *  [2 => '1']
 	 *  [1 => ['i' => ['p' => '1']]]
+	 *
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("." by default), e.g. "key1.key2.key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
 	 * @param string|null $key Key or path of the nested array or object to check for
 	 * @return self New map
@@ -1224,15 +1224,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Returns an element from the map by key.
 	 *
-	 * This does also work for multi-dimensional arrays by passing the keys
-	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
-	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
-	 * public properties of objects or objects implementing __isset() and __get() methods.
-	 *
 	 * Examples:
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->get( 'a' );
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->get( 'c', 'Z' );
-	 *  Map::from( ['a' => ['b' => ['c' => 'Y']]] )->get( 'a/b/c' );
+	 *  Map::from( ['a' => ['b' => ['c' => 'Y']]] )->get( 'a.b.c' );
 	 *  Map::from( [] )->get( 'Y', new \Exception( 'error' ) );
 	 *  Map::from( [] )->get( function() { return rand(); } );
 	 *
@@ -1241,6 +1236,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * example will throw the exception passed if the map contains no elements. In
 	 * the fifth example, a random value generated by the closure function will be
 	 * returned.
+	 *
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("." by default), e.g. "key1.key2.key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
 	 * @param mixed $key Key or path to the requested item
 	 * @param mixed $default Default value if no element matches
@@ -1349,21 +1349,21 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * If several keys are passed as array, all keys must exist in the map for
 	 * TRUE to be returned.
 	 *
-	 * This does also work for multi-dimensional arrays by passing the keys
-	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
-	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
-	 * public properties of objects or objects implementing __isset() and __get() methods.
-	 *
 	 * Examples:
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'a' );
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->has( ['a', 'b'] );
-	 *  Map::from( ['a' => ['b' => ['c' => 'Y']]] )->has( 'a/b/c' );
+	 *  Map::from( ['a' => ['b' => ['c' => 'Y']]] )->has( 'a.b.c' );
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'c' );
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->has( ['a', 'c'] );
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'X' );
 	 *
 	 * Results:
 	 * The first three examples will return TRUE while the other ones will return FALSE
+	 *
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("." by default), e.g. "key1.key2.key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
 	 * @param mixed|array $key Key of the requested item or list of keys
 	 * @return bool TRUE if key or keys are available in map, FALSE if not

@@ -197,7 +197,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testColRecursive()
 	{
 		$map = new Map( [['foo' => ['bar' => 'one', 'baz' => 'two']]] );
-		$r = $map->col( 'foo/baz', 'foo/bar' );
+		$r = $map->col( 'foo.baz', 'foo.bar' );
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertEquals( ['one' => 'two'], $r->toArray() );
@@ -207,7 +207,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testColRecursiveNull()
 	{
 		$map = new Map( [['foo' => ['bar' => 'one']]] );
-		$r = $map->col( 'foo/baz', 'foo/bar' );
+		$r = $map->col( 'foo.baz', 'foo.bar' );
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertEquals( ['one' => null], $r->toArray() );
@@ -217,7 +217,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testColRecursiveIndexNull()
 	{
 		$map = new Map( [['foo' => ['baz' => 'two']]] );
-		$r = $map->col( 'foo/baz', 'foo/bar' );
+		$r = $map->col( 'foo.baz', 'foo.bar' );
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertEquals( ['two'], $r->toArray() );
@@ -526,7 +526,7 @@ Array
 
 	public function testDuplicatesPath()
 	{
-		$r = Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i/p' );
+		$r = Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i.p' );
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertEquals( [1 => ['i' => ['p' => '1']]], $r->toArray() );
@@ -926,7 +926,7 @@ Array
 
 	public function testGetPath()
 	{
-		$this->assertEquals( 'Y', Map::from( ['a' => ['b' => ['c' => 'Y']]] )->get( 'a/b/c' ) );
+		$this->assertEquals( 'Y', Map::from( ['a' => ['b' => ['c' => 'Y']]] )->get( 'a.b.c' ) );
 	}
 
 
@@ -935,7 +935,7 @@ Array
 		$obj = new \stdClass;
 		$obj->b = 'X';
 
-		$this->assertEquals( 'X', Map::from( ['a' => $obj] )->get( 'a/b' ) );
+		$this->assertEquals( 'X', Map::from( ['a' => $obj] )->get( 'a.b' ) );
 	}
 
 
@@ -1048,10 +1048,10 @@ Array
 	{
 		$m = new Map( ['a' => ['b' => ['c' => 'Y']]] );
 
-		$this->assertTrue( $m->has( 'a/b/c' ) );
-		$this->assertFalse( $m->has( 'a/b/c/d' ) );
-		$this->assertTrue( $m->has( ['a', 'a/b', 'a/b/c'] ) );
-		$this->assertFalse( $m->has( ['a', 'a/b', 'a/b/c', 'a/b/c/d'] ) );
+		$this->assertTrue( $m->has( 'a.b.c' ) );
+		$this->assertFalse( $m->has( 'a.b.c.d' ) );
+		$this->assertTrue( $m->has( ['a', 'a.b', 'a.b.c'] ) );
+		$this->assertFalse( $m->has( ['a', 'a.b', 'a.b.c', 'a.b.c.d'] ) );
 	}
 
 
