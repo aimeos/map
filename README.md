@@ -83,7 +83,7 @@ If your map elements are objects, you can call their methods for each object and
 the result as new map just like in jQuery:
 
 ```php
-// MyClass implements setId() (returning $this) and getCode() (initialized by constructor)
+// MyClass implements setStatus() (returning $this) and getCode() (initialized by constructor)
 
 $map = Map::from( ['a' => new MyClass( 'x' ), 'b' => new MyClass( 'y' )] );
 $map->setStatus( 1 )->getCode()->toArray();
