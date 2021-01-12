@@ -1530,16 +1530,16 @@ Map::from( $list )->groupBy( 'xid' );
     ]
 ]
 [
-    'xid' => [
+    '' => [
         10 => ['aid' => 123, 'code' => 'x-abc'],
-        20 => ['aid' => 123, 'code' => 'x-def']
+        20 => ['aid' => 123, 'code' => 'x-def'],
         30 => ['aid' => 456, 'code' => 'x-def']
     ]
 ]
 ```
 
 In case the passed key doesn't exist in one or more items, these items are stored
-in a sub-array using passed string as key.
+in a sub-array using an empty string as key.
 
 
 ### has()
@@ -3836,4 +3836,30 @@ map( ['one' => 1] )->equals( ['one' => 1], true );
 
 // 2.x
 map( ['one' => 1] )->is( ['one' => 1] );
+```
+
+#### groupBy() semantic change
+
+If the key passed to `groupBy()` didn't exist, the items have been grouped using
+the given key. Now, an empty string is used as key to offer easier checking and
+sorting of the keys.
+
+```php
+Map::from( [
+    10 => ['aid' => 123, 'code' => 'x-abc'],
+] )->groupBy( 'xid' );
+
+// 1.x
+[
+    'xid' => [
+        10 => ['aid' => 123, 'code' => 'x-abc']
+    ]
+]
+
+// 2.x
+[
+    '' => [
+        10 => ['aid' => 123, 'code' => 'x-abc']
+    ]
+]
 ```

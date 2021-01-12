@@ -1306,7 +1306,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *    'def' => [20 => ['aid' => 123, 'code' => 'x-def'], 30 => ['aid' => 456, 'code' => 'x-def']]
 	 *  ]
 	 *  [
-	 *    'xid' => [
+	 *    '' => [
 	 *      10 => ['aid' => 123, 'code' => 'x-abc'],
 	 *      20 => ['aid' => 123, 'code' => 'x-def'],
 	 *      30 => ['aid' => 456, 'code' => 'x-def']
@@ -1314,7 +1314,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  ]
 	 *
 	 * In case the passed key doesn't exist in one or more items, these items
-	 * are stored in a sub-array using the passed string as key.
+	 * are stored in a sub-array using an empty string as key.
 	 *
 	 * @param  \Closure|string $key Closure function with (item, idx) parameters returning the key or the key itself to group by
 	 * @return self New map with elements grouped by the given key
@@ -1327,12 +1327,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		{
 			if( is_callable( $key ) ) {
 				$keyval = $key( $item, $idx );
+			} elseif( ( is_array( $item ) || $item instanceof \ArrayAccess ) && isset( $item[$key] ) ) {
+				$keyval = $item[$key];
 			} elseif( is_object( $item ) && isset( $item->{$key} ) ) {
 				$keyval = $item->{$key};
-			} elseif( is_array( $item ) && isset( $item[$key] ) ) {
-				$keyval = $item[$key];
 			} else {
-				$keyval = $key;
+				$keyval = '';
 			}
 
 			$result[$keyval][$idx] = $item;

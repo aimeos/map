@@ -1008,7 +1008,7 @@ Array
 			30 => ['aid' => 456, 'code' => 'x-def']
 		];
 		$expected = [
-			'xid' => [
+			'' => [
 				10 => ['aid' => 123, 'code' => 'x-abc'],
 				20 => ['aid' => 123, 'code' => 'x-def'],
 				30 => ['aid' => 456, 'code' => 'x-def']
