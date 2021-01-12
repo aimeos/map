@@ -967,31 +967,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The method differs to is() in the fact that it doesn't care about the keys
 	 * by default. The elements are only loosely compared and the keys are ignored.
 	 *
-	 * If the second parameter is TRUE, keys are compared too:
-	 *
-	 *  Map::from( [0 => 'a'] )->equals( [1 => 'a'], true );
-	 *  Map::from( [1 => 'a'] )->equals( [0 => 'a'], true );
-	 *  Map::from( [0 => 'a'] )->equals( [0 => 'a'], true );
-	 *
-	 * The first and second example above will also return FALSE and only the third
-	 * example will return TRUE
-	 *
-	 * Keys and values are compared by their string values:
+	 * Values are compared by their string values:
 	 * (string) $item1 === (string) $item2
 	 *
 	 * @param iterable $elements List of elements to test against
-	 * @param bool $assoc TRUE to compare keys too, FALSE to compare only values
 	 * @return bool TRUE if both are equal, FALSE if not
-	 * @todo 2.0 Remove the $assoc parameter because is() can be used instead
 	 */
-	public function equals( iterable $elements, bool $assoc = false ) : bool
+	public function equals( iterable $elements ) : bool
 	{
 		$elements = $this->getArray( $elements );
-
-		if( $assoc ) {
-			return $this->list == $elements;
-		}
-
 		return array_diff( $this->list, $elements ) === [] && array_diff( $elements, $this->list ) === [];
 	}
 

@@ -605,15 +605,6 @@ Array
 	}
 
 
-	public function testEqualsKeys()
-	{
-		$map = new Map( ['foo' => 1, 'bar' => '2'] );
-
-		$this->assertTrue( $map->equals( ['foo' => '1', 'bar' => 2], true ) );
-		$this->assertFalse( $map->equals( ['0' => 1, '1' => '2'], true ) );
-	}
-
-
 	public function testEqualsLess()
 	{
 		$map = new Map( ['foo' => 'one', 'bar' => 'two'] );
@@ -632,13 +623,6 @@ Array
 	{
 		$map = new Map( ['foo' => 'one', 'bar' => 'two'] );
 		$this->assertFalse( $map->equals( ['foo' => 'one', 'bar' => 'two', 'baz' => 'three'] ) );
-	}
-
-
-	public function testEqualsMoreKeys()
-	{
-		$map = new Map( ['foo' => 'one', 'bar' => 'two'] );
-		$this->assertFalse( $map->equals( ['foo' => 'one', 'bar' => 'two', 'baz' => 'three'], true ) );
 	}
 
 

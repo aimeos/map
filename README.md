@@ -1120,18 +1120,7 @@ The first and second example will return `FALSE`, the third example will return 
 The method differs to is() in the fact that it doesn't care about the keys
 by default. The elements are only loosely compared and the keys are ignored.
 
-If the second parameter is `TRUE`, keys are compared too:
-
-```php
-Map::from( [0 => 'a'] )->equals( [1 => 'a'], true );
-Map::from( [1 => 'a'] )->equals( [0 => 'a'], true );
-Map::from( [0 => 'a'] )->equals( [0 => 'a'], true );
-```
-
-The first and second example above will also return `FALSE` and only the third
-example will return `TRUE`
-
-Keys and values are compared by their string values:
+Values are compared by their string values:
 ```php
 (string) $item1 === (string) $item2
 ```
@@ -3834,4 +3823,17 @@ Map::from( ['a', 'c', 'e'] )->find( function( $value, $key ) {
 Map::from( ['a', 'c', 'e'] )->find( function( $value, $key ) {
     return $value >= 'b';
 }, 'not found', true );
+```
+
+#### Second equals() parameter
+
+The second parameter of the `equals()` method (`$assoc`) to compare keys too has been
+removed. Use the `is()` method instead:
+
+```php
+// 1.x
+map( ['one' => 1] )->equals( ['one' => 1], true );
+
+// 2.x
+map( ['one' => 1] )->is( ['one' => 1] );
 ```
