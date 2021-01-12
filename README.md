@@ -3788,3 +3788,25 @@ an iterative way, you should use `reverse()` and `pop()`/`push()` instead of
 $map->reverse()->pop(); // use pop() until it returns NULL
 $map->push( 'z' )->push( 'y' )->push( 'x' )->reverse(); // use push() for adding
 ```
+
+
+## Upgrade guide
+
+### 1.x -> 2.x
+
+#### jQuery style method calls
+
+You can call methods of objects in a map like this:
+
+```php
+// MyClass implements setStatus() (returning $this) and getCode() (initialized by constructor)
+
+$map = Map::from( ['a' => new MyClass( 'x' ), 'b' => new MyClass( 'y' )] );
+$map->setStatus( 1 )->getCode()->toArray();
+```
+
+Before, it was checked if the objects really implement `setStatus()` and `getCode()`.
+
+This isn't the case any more to avoid returning an empty map if the method name is
+wrong or the called method is implemented using the `__call()` magic method. Now, PHP
+generates a fatal error if the method isn't implemented by all objects.
