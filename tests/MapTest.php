@@ -706,18 +706,30 @@ Array
 		$m = new Map( ['foo', 'bar', 'baz', 'boo'] );
 		$result = $m->find( function( $value, $key ) {
 			return !strncmp( $value, 'ba', 2 );
-		}, true );
+		}, null, true );
 		$this->assertEquals( 'baz', $result );
 	}
 
 
-	public function testFindNone()
+	public function testFindDefault()
 	{
 		$m = new Map( ['foo', 'bar', 'baz'] );
 		$result = $m->find( function( $value ) {
 			return false;
-		} );
-		$this->assertNull( $result );
+		}, 'none' );
+		$this->assertEquals( 'none', $result );
+	}
+
+
+	public function testFindException()
+	{
+		$m = new Map( ['foo', 'bar', 'baz'] );
+
+		$this->expectException( \RuntimeException::class );
+
+		$result = $m->find( function( $value ) {
+			return false;
+		}, new \RuntimeException( 'error' ) );
 	}
 
 

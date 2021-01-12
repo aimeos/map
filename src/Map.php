@@ -1084,17 +1084,24 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  } );
 	 *  Map::from( ['a', 'c', 'e'] )->find( function( $value, $key ) {
 	 *      return $value >= 'b';
-	 *  }, true );
+	 *  }, null, true );
+	 *  Map::from( [] )->find( function( $value, $key ) {
+	 *      return $value >= 'b';
+	 *  }, 'none' );
+	 *  Map::from( [] )->find( function( $value, $key ) {
+	 *      return $value >= 'b';
+	 *  }, new \Exception( 'error' ) );
 	 *
 	 * Results:
 	 * The first example will return 'c' while the second will return 'e' (last element).
+	 * The third one will return "none" and the last one will throw the exception.
 	 *
 	 * @param \Closure $callback Function with (value, key) parameters and returns TRUE/FALSE
+	 * @param mixed $default Default value or exception if the map contains no elements
 	 * @param bool $reverse TRUE to test elements from back to front, FALSE for front to back (default)
-	 * @return mixed|null First matching value or NULL
-	 * @todo 2.0: Insert the default value (incl. exception and callback) as second parameter
+	 * @return mixed First matching value, passed default value or an exception
 	 */
-	public function find( \Closure $callback, bool $reverse = false )
+	public function find( \Closure $callback, $default = null, bool $reverse = false )
 	{
 		foreach( ( $reverse ? array_reverse( $this->list ) : $this->list ) as $key => $value )
 		{
@@ -1103,7 +1110,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			}
 		}
 
-		return null;
+		if( $default instanceof \Throwable ) {
+			throw $default;
+		}
+
+		return $default;
 	}
 
 

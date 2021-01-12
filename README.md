@@ -1231,12 +1231,13 @@ removed if their value converted to boolean is `FALSE`:
 Returns the first matching element where the callback returns TRUE.
 
 ```php
-public function find( \Closure $callback, bool $reverse = false )
+public function find( \Closure $callback, $default = null, bool $reverse = false )
 ```
 
 * @param \Closure `$callback` Function with (value, key) parameters and returns TRUE/FALSE
+* @param mixed `$default` Default value or exception if the map contains no elements
 * @param bool `$reverse` TRUE to test elements from back to front, FALSE for front to back (default)
-* @return mixed&#124;null First matching value or NULL
+* @return mixed&#124;null First matching value, passed default value or an exception
 
 **Examples:**
 
@@ -1247,11 +1248,18 @@ Map::from( ['a', 'c', 'e'] )->find( function( $value, $key ) {
 Map::from( ['a', 'c', 'e'] )->find( function( $value, $key ) {
     return $value >= 'b';
 }, true );
+Map::from( [] )->find( function( $value, $key ) {
+    return $value >= 'b';
+}, 'none' );
+Map::from( [] )->find( function( $value, $key ) {
+    return $value >= 'b';
+}, new \Exception( 'error' ) );
 ```
 
 **Results:**
 
 The first example will return 'c' while the second will return 'e' (last element).
+The third one will return "none" and the last one will throw the exception.
 
 
 ### first()
@@ -3810,3 +3818,20 @@ Before, it was checked if the objects really implement `setStatus()` and `getCod
 This isn't the case any more to avoid returning an empty map if the method name is
 wrong or the called method is implemented using the `__call()` magic method. Now, PHP
 generates a fatal error if the method isn't implemented by all objects.
+
+#### New find() argument
+
+A default value or exception object can be passed to the `find()` method now as second
+argument. The `$reverse` argument has been moved to the third position.
+
+```php
+// 1.x
+Map::from( ['a', 'c', 'e'] )->find( function( $value, $key ) {
+    return $value >= 'b';
+}, true );
+
+// 2.x
+Map::from( ['a', 'c', 'e'] )->find( function( $value, $key ) {
+    return $value >= 'b';
+}, 'not found', true );
+```
