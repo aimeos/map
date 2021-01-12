@@ -2188,14 +2188,15 @@ public function offsetExists( $key )
 **Examples:**
 
 ```php
-$map = Map::from( ['a' => 1, 'b' => 3] );
+$map = Map::from( ['a' => 1, 'b' => 3, 'c' => null] );
 isset( $map['b'] );
 isset( $map['c'] );
+isset( $map['d'] );
 ```
 
 **Results:**
 
-The first `isset()` will return `TRUE` while the second one will return `FALSE`
+The first `isset()` will return `TRUE` while the second and third one will return FALSE
 
 
 ### offsetGet()
@@ -3862,4 +3863,19 @@ Map::from( [
         10 => ['aid' => 123, 'code' => 'x-abc']
     ]
 ]
+```
+
+### offsetExists() semantic change
+
+To be consistent with typical PHP behavior, the `offsetExists()` method use `isset()`
+instead of `array_key_exists()` now. This changes the behavior when dealing with NULL values.
+
+```php
+$m = Map::from( ['foo' => null] );
+
+// 1.x
+isset( $m['foo'] ); // true
+
+// 2.x
+isset( $m['foo'] ); // false
 ```

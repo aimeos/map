@@ -1416,11 +1416,12 @@ Array
 
 	public function testOffsetExists()
 	{
-		$m = new Map( ['foo', 'bar'] );
+		$m = new Map( ['foo', 'bar', 'baz' => null] );
 
 		$this->assertTrue( $m->offsetExists( 0 ) );
 		$this->assertTrue( $m->offsetExists( 1 ) );
 		$this->assertFalse( $m->offsetExists( 1000 ) );
+		$this->assertFalse( $m->offsetExists( 'baz' ) );
 	}
 
 

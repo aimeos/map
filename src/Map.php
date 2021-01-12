@@ -1948,19 +1948,20 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Determines if an element exists at an offset.
 	 *
 	 * Examples:
-	 *  $map = Map::from( ['a' => 1, 'b' => 3] );
+	 *  $map = Map::from( ['a' => 1, 'b' => 3, 'c' => null] );
 	 *  isset( $map['b'] );
 	 *  isset( $map['c'] );
+	 *  isset( $map['d'] );
 	 *
 	 * Results:
-	 *  The first isset() will return TRUE while the second one will return FALSE
+	 *  The first isset() will return TRUE while the second and third one will return FALSE
 	 *
 	 * @param mixed $key Key to check for
 	 * @return bool TRUE if key exists, FALSE if not
 	 */
 	public function offsetExists( $key )
 	{
-		return array_key_exists( $key, $this->list );
+		return isset( $this->list[$key] );
 	}
 
 
