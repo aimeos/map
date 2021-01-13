@@ -3854,7 +3854,7 @@ Map::from( ['a', 'c', 'e'] )->find( function( $value, $key ) {
 // 2.x
 Map::from( ['a', 'c', 'e'] )->find( function( $value, $key ) {
     return $value >= 'b';
-}, 'not found', true );
+}, null, true );
 ```
 
 #### groupBy() semantic change
