@@ -3826,10 +3826,23 @@ This isn't the case any more to avoid returning an empty map if the method name 
 wrong or the called method is implemented using the `__call()` magic method. Now, PHP
 generates a fatal error if the method isn't implemented by all objects.
 
+#### Second equals() parameter
+
+The second parameter of the [`equals()`](#equals) method (`$assoc`) to compare keys
+too has been removed. Use the [`is()`](#is) method instead:
+
+```php
+// 1.x
+map( ['one' => 1] )->equals( ['one' => 1], true );
+
+// 2.x
+map( ['one' => 1] )->is( ['one' => 1] );
+```
+
 #### New find() argument
 
-A default value or exception object can be passed to the `find()` method now as second
-argument. The `$reverse` argument has been moved to the third position.
+A default value or exception object can be passed to the [`find()`](#find) method now
+as second argument. The `$reverse` argument has been moved to the third position.
 
 ```php
 // 1.x
@@ -3843,23 +3856,10 @@ Map::from( ['a', 'c', 'e'] )->find( function( $value, $key ) {
 }, 'not found', true );
 ```
 
-#### Second equals() parameter
-
-The second parameter of the `equals()` method (`$assoc`) to compare keys too has been
-removed. Use the `is()` method instead:
-
-```php
-// 1.x
-map( ['one' => 1] )->equals( ['one' => 1], true );
-
-// 2.x
-map( ['one' => 1] )->is( ['one' => 1] );
-```
-
 #### groupBy() semantic change
 
-If the key passed to `groupBy()` didn't exist, the items have been grouped using
-the given key. Now, an empty string is used as key to offer easier checking and
+If the key passed to [`groupBy()`](#groupby) didn't exist, the items have been grouped
+using the given key. Now, an empty string is used as key to offer easier checking and
 sorting of the keys.
 
 ```php
@@ -3882,10 +3882,11 @@ Map::from( [
 ]
 ```
 
-### offsetExists() semantic change
+#### offsetExists() semantic change
 
-To be consistent with typical PHP behavior, the `offsetExists()` method use `isset()`
-instead of `array_key_exists()` now. This changes the behavior when dealing with NULL values.
+To be consistent with typical PHP behavior, the [`offsetExists()`](#offsetexists) method
+use `isset()` instead of `array_key_exists()` now. This changes the behavior when dealing
+with NULL values.
 
 ```php
 $m = Map::from( ['foo' => null] );
