@@ -112,9 +112,9 @@ will return:
 * [function map()](#map-function) : Creates a new map from passed elements
 * [__construct()](#__construct) : Creates a new map
 * [copy()](#copy) : Creates a new copy
+* [explode()](#explode) : Splits a string into a map of elements
 * [from()](#from) : Creates a new map from passed elements
 * [fromJson()](#fromjson) : Creates a new map from a JSON string
-* [split()](#split) : Splits a string into map elements
 * [times()](#times) : Creates a new map by invoking the closure a number of times
 
 ### Access
@@ -1181,6 +1181,48 @@ Map::from( [1 => 'a', 2 => 'b', 3 => 'c'] )->except( [1, 3] );
 ['a' => 1, 'c' => 3]
 [2 => 'b']
 ```
+
+
+### explode()
+
+Creates a new map with the string splitted by the delimiter.
+
+```php
+public static function explode( string $delimiter , string $string , int $limit = PHP_INT_MAX ) : self
+```
+
+* @param string `$delimiter` Delimiter character, string or empty string
+* @param string `$string` String to split
+* @param int `$limit` Maximum number of element with the last element containing the rest of the string
+* @return self New map with splitted parts
+
+**Examples:**
+
+```php
+Map::explode( ',', 'a,b,c' );
+Map::explode( '<-->', 'a a<-->b b<-->c c' );
+Map::explode( '', 'string' );
+Map::explode( '|', 'a|b|c', 2 );
+Map::explode( '', 'string', 2 );
+Map::explode( '|', 'a|b|c|d', -2 );
+Map::explode( '', 'string', -3 );
+```
+
+**Results:**
+
+```php
+['a', 'b', 'c']
+['a a', 'b b', 'c c']
+['s', 't', 'r', 'i', 'n', 'g']
+['s', 't', 'r', 'i', 'n', 'g']
+['a', 'b|c']
+['s', 't', 'ring']
+['a', 'b']
+['s', 't', 'r']
+```
+
+A limit of "0" is treated the same as "1". If limit is negative, the rest of
+the string is dropped and not part of the returned map.
 
 
 ### filter()
@@ -2989,35 +3031,6 @@ Similar for the length:
 - If it is omitted, then the sequence will have everything from offset up until the end
 
 
-### split()
-
-Creates a new map with the string splitted by the delimiter.
-
-```php
-public static function split( string $str, string $delimiter = ',' ) : self
-```
-
-* @param string `$str` String to split
-* @param string `$delimiter` Delimiter character or string
-* @return self New map with splitted parts
-
-**Examples:**
-
-```php
-Map::split( 'a,b,c' );
-Map::split( 'a a<-->b b<-->c c', '<-->' );
-Map::split( 'string', '' );
-```
-
-**Results:**
-
-```php
-['a', 'b', 'c']
-['a a', 'b b', 'c c']
-['s', 't', 'r', 'i', 'n', 'g']
-```
-
-
 ### suffix
 
 Adds a suffix at the end of each map entry.
@@ -3878,4 +3891,18 @@ isset( $m['foo'] ); // true
 
 // 2.x
 isset( $m['foo'] ); // false
+```
+
+#### Renamed split() method
+
+The static `Map::split()` method has been renamed to [`Map::explode()`](#explode) and
+the argument order has changed. This avoids conflicts with the Laravel split() method
+and is in line with the PHP `explode()` method.
+
+```php
+// 1.x
+Map::split( 'a,b,c', ',' );
+
+// 2.x
+Map::explode( ',', 'a,b,c' );
 ```

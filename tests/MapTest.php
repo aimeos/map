@@ -645,6 +645,78 @@ Array
 	}
 
 
+	public function testExplode()
+	{
+		$map = Map::explode( ',', 'a,b,c' );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertEquals( ['a', 'b', 'c'], $map->toArray() );
+	}
+
+
+	public function testExplodeString()
+	{
+		$map = Map::explode( '<-->', 'a a<-->b b<-->c c' );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertEquals( ['a a', 'b b', 'c c'], $map->toArray() );
+	}
+
+
+	public function testExplodeSplit()
+	{
+		$map = Map::explode( '', 'string' );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertEquals( ['s', 't', 'r', 'i', 'n', 'g'], $map->toArray() );
+	}
+
+
+	public function testExplodeSplitSize()
+	{
+		$map = Map::explode( '', 'string', 6 );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertEquals( ['s', 't', 'r', 'i', 'n', 'g'], $map->toArray() );
+	}
+
+
+	public function testExplodeLength()
+	{
+		$map = Map::explode( '|', 'a|b|c', 2 );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertEquals( ['a', 'b|c'], $map->toArray() );
+	}
+
+
+	public function testExplodeSplitLength()
+	{
+		$map = Map::explode( '', 'string', 2 );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertEquals( ['s', 't', 'ring'], $map->toArray() );
+	}
+
+
+	public function testExplodeNegativeLength()
+	{
+		$map = Map::explode( '|', 'a|b|c|d', -2 );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertEquals( ['a', 'b'], $map->toArray() );
+	}
+
+
+	public function testExplodeSplitNegativeLength()
+	{
+		$map = Map::explode( '', 'string', -3 );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertEquals( ['s', 't', 'r'], $map->toArray() );
+	}
+
+
 	public function testFilter()
 	{
 		$m = new Map( [['id' => 1, 'name' => 'Hello'], ['id' => 2, 'name' => 'World']] );
@@ -2027,33 +2099,6 @@ Array
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertEquals( ['foo', 'bar'], $m->toArray() );
-	}
-
-
-	public function testSplit()
-	{
-		$map = Map::split( 'a,b,c' );
-
-		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( ['a', 'b', 'c'], $map->toArray() );
-	}
-
-
-	public function testSplitMultiple()
-	{
-		$map = Map::split( 'a a<-->b b<-->c c', '<-->' );
-
-		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( ['a a', 'b b', 'c c'], $map->toArray() );
-	}
-
-
-	public function testSplitString()
-	{
-		$map = Map::split(  'string', '' );
-
-		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( ['s', 't', 'r', 'i', 'n', 'g'], $map->toArray() );
 	}
 
 

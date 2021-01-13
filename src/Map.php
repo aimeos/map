@@ -152,6 +152,54 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Creates a new map with the string splitted by the delimiter.
+	 *
+	 * Examples:
+	 *  Map::explode( ',', 'a,b,c' );
+	 *  Map::explode( '<-->', 'a a<-->b b<-->c c' );
+	 *  Map::explode( '', 'string' );
+	 *  Map::explode( '|', 'a|b|c', 2 );
+	 *  Map::explode( '', 'string', 2 );
+	 *  Map::explode( '|', 'a|b|c|d', -2 );
+	 *  Map::explode( '', 'string', -3 );
+	 *
+	 * Results:
+	 *  ['a', 'b', 'c']
+	 *  ['a a', 'b b', 'c c']
+	 *  ['s', 't', 'r', 'i', 'n', 'g']
+	 *  ['a', 'b|c']
+	 *  ['s', 't', 'ring']
+	 *  ['a', 'b']
+	 *  ['s', 't', 'r']
+	 *
+	 * A limit of "0" is treated the same as "1". If limit is negative, the rest of
+	 * the string is dropped and not part of the returned map.
+	 *
+	 * @param string $delimiter Delimiter character, string or empty string
+	 * @param string $string String to split
+	 * @param int $limit Maximum number of element with the last element containing the rest of the string
+	 * @return self New map with splitted parts
+	 */
+	public static function explode( string $delimiter , string $string , int $limit = PHP_INT_MAX ) : self
+	{
+		if( $delimiter !== '' ) {
+			return new static( explode( $delimiter, $string, $limit ) );
+		}
+
+		$limit = $limit ?: 1;
+		$m = new static( str_split( $string ) );
+
+		if( $limit < 1 ) {
+			return $m->slice( 0, $limit );
+		} elseif( $limit < $m->count() ) {
+			return $m->slice( 0, $limit )->push( join( '', $m->slice( $limit )->toArray() ) );
+		}
+
+		return $m;
+	}
+
+
+	/**
 	 * Creates a new map instance if the value isn't one already.
 	 *
 	 * Examples:
@@ -232,33 +280,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public static function method( string $name, \Closure $function )
 	{
 		static::$methods[$name] = $function;
-	}
-
-
-	/**
-	 * Creates a new map with the string splitted by the delimiter.
-	 *
-	 * Examples:
-	 *  Map::split( 'a,b,c' );
-	 *  Map::split( 'a a<-->b b<-->c c', '<-->' );
-	 *  Map::split( 'string', '' );
-	 *
-	 * Results:
-	 *  ['a', 'b', 'c']
-	 *  ['a a', 'b b', 'c c']
-	 *  ['s', 't', 'r', 'i', 'n', 'g']
-	 *
-	 * @param string $delimiter Delimiter character or string
-	 * @param string $str String to split
-	 * @return self New map with splitted parts
-	 */
-	public static function split( string $str, string $delimiter = ',' ) : self
-	{
-		if( $delimiter !== '' ) {
-			return new static( explode( $delimiter, $str ) );
-		}
-
-		return new static( str_split( $str ) );
 	}
 
 
