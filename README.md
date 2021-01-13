@@ -242,13 +242,14 @@ will return:
 
 ### Misc
 
+* [delimiter()](#delimiter) : Sets or returns the seperator for paths to multi-dimensional arrays
 * [getIterator()](#getiterator) : Returns an iterator for the elements
 * [method()](#method) : Registers a custom method
 * [offsetExists()](#offsetexists) : Checks if the key exists
 * [offsetGet()](#offsetget) : Returns an element by key
 * [offsetSet()](#offsetset) : Overwrites an element
 * [offsetUnset()](#offsetunset) : Removes an element by key
-* [sep()](#sep) : Sets or returns the seperator for paths in multi-dimensional arrays
+* [sep()](#sep) : Sets the seperator for paths to multi-dimensional arrays in the current map
 
 
 
