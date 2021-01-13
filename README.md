@@ -30,6 +30,7 @@ composer req aimeos/map
 * [Documentation](#method-documentation)
 * [Custom methods](#custom-methods)
 * [Performance](#performance)
+* [Upgrade guide](#upgrade-guide)
 
 ## Why
 
