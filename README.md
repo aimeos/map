@@ -2934,27 +2934,31 @@ Similar for the length:
 
 ### some()
 
-Tests if at least one of the elements in the list is part of the map.
+Tests if at least one element passes the test or is part of the map.
 
 ```php
-public function some( iterable $list, bool $strict = false ) : bool
+public function some( $values, bool $strict = false ) : bool
 ```
 
-* @param iterable `$list` List of elements to test the map agains
+* @param \Closure|iterable|mixed `$values` Anonymous function with (item, key) parameter, element or list of elements to test against
 * @param bool `$strict` TRUE to check the type too, using FALSE '1' and 1 will be the same
 * @return bool TRUE if at least one element is available in map, FALSE if the map contains none of them
 
 **Examples:**
 
 ```php
+Map::from( ['a', 'b'] )->some( 'a' );
 Map::from( ['a', 'b'] )->some( ['a', 'c'] );
+Map::from( ['a', 'b'] )->some( function( $item, $key ) {
+    return $item === 'a'
+} );
 Map::from( ['a', 'b'] )->some( ['c', 'd'] );
 Map::from( ['1', '2'] )->some( [2], true );
 ```
 
 **Results:**
 
-The first example will return TRUE while the second and third one will return FALSE
+The first three examples will return TRUE while the fourth and fifth will return FALSE
 
 
 ### sort()

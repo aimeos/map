@@ -2701,27 +2701,49 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Tests if at least one of the elements in the list is part of the map.
+	 * Tests if at least one element passes the test or is part of the map.
 	 *
 	 * Examples:
+	 *  Map::from( ['a', 'b'] )->some( 'a' );
 	 *  Map::from( ['a', 'b'] )->some( ['a', 'c'] );
+	 *  Map::from( ['a', 'b'] )->some( function( $item, $key ) {
+	 *    return $item === 'a'
+	 *  } );
 	 *  Map::from( ['a', 'b'] )->some( ['c', 'd'] );
 	 *  Map::from( ['1', '2'] )->some( [2], true );
 	 *
 	 * Results:
-	 * The first example will return TRUE while the second and third one will return FALSE
+	 * The first three examples will return TRUE while the fourth and fifth will return FALSE
 	 *
-	 * @param iterable $list List of elements to test the map agains
+	 * @param \Closure|iterable|mixed $values Anonymous function with (item, key) parameter, element or list of elements to test against
 	 * @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
 	 * @return bool TRUE if at least one element is available in map, FALSE if the map contains none of them
 	 */
-	public function some( iterable $list, bool $strict = false ) : bool
+	public function some( $values, bool $strict = false ) : bool
 	{
-		foreach( $list as $entry )
+		if( is_iterable( $values ) )
 		{
-			if( in_array( $entry, $this->list, $strict ) === true ) {
-				return true;
+			foreach( $values as $entry )
+			{
+				if( in_array( $entry, $this->list, $strict ) === true ) {
+					return true;
+				}
 			}
+
+			return false;
+		}
+		elseif( is_callable( $values ) )
+		{
+			foreach( $this->list as $key => $item )
+			{
+				if( $values( $item, $key ) ) {
+					return true;
+				}
+			}
+		}
+		elseif( in_array( $values, $this->list, $strict ) === true )
+		{
+			return true;
 		}
 
 		return false;

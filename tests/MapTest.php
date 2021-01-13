@@ -2021,15 +2021,40 @@ Array
 
 	public function testSome()
 	{
-		$this->assertTrue( Map::from( ['a', 'b'] )->some( ['a', 'c'] ) );
-		$this->assertFalse( Map::from( ['a', 'b'] )->some( ['c', 'd'] ) );
+		$this->assertTrue( Map::from( ['a', 'b'] )->some( 'a' ) );
+		$this->assertFalse( Map::from( ['a', 'b'] )->some( 'c' ) );
 	}
 
 
 	public function testSomeStrict()
 	{
+		$this->assertTrue( Map::from( ['1', '2'] )->some( '2', true ) );
+		$this->assertFalse( Map::from( ['1', '2'] )->some( 2, true ) );
+	}
+
+
+	public function testSomeList()
+	{
+		$this->assertTrue( Map::from( ['a', 'b'] )->some( ['a', 'c'] ) );
+		$this->assertFalse( Map::from( ['a', 'b'] )->some( ['c', 'd'] ) );
+	}
+
+
+	public function testSomeListStrict()
+	{
 		$this->assertTrue( Map::from( ['1', '2'] )->some( ['2'], true ) );
 		$this->assertFalse( Map::from( ['1', '2'] )->some( [2], true ) );
+	}
+
+
+	public function testSomeCallback()
+	{
+		$fcn = function( $item, $key ) {
+			return $item === 'a';
+		};
+
+		$this->assertTrue( Map::from( ['a', 'b'] )->some( $fcn ) );
+		$this->assertFalse( Map::from( ['c', 'd'] )->some( $fcn ) );
 	}
 
 
