@@ -557,7 +557,7 @@ Map::from( [0 => 'b', 1 => 'a'] )->before( 'a' );
 Map::from( ['a', 'c', 'b'] )->before( function( $item, $key ) {
     return $key >= 1;
 } );
-[0 => 'a']
+// [0 => 'a']
 ```
 
 
@@ -581,7 +581,7 @@ The keys from the original map are preserved in the returned in the new map.
 
 **Examples:**
 
-```
+```php
 $item = new MyClass( ['myprop' => 'val'] ); // implements methods get() and toArray()
 
 Map::from( [$item, $item] )->call( 'get', ['myprop'] );
@@ -1084,13 +1084,13 @@ Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i.p' )
 
 ### each()
 
-Executes a callback over each entry until `FALSE` is returned.
+Executes a callback over each entry until FALSE is returned.
 
 ```php
 public function each( \Closure $callback ) : self
 ```
 
-* @param \Closure `$callback` Function with (value, key) parameters and returns `TRUE`/`FALSE`
+* @param \Closure `$callback` Function with (value, key) parameters and returns TRUE/FALSE
 * @return self Same map for fluid interface
 
 **Examples:**
@@ -1104,7 +1104,7 @@ Map::from( [0 => 'a', 1 => 'b'] )->each( function( $value, $key ) use ( &$result
 // $result = [0 => 'A']
 ```
 
-The `$result` array will contain `[0 => 'A']` because `FALSE` is returned
+The `$result` array will contain `[0 => 'A']` because FALSE is returned
 after the first entry and all other entries are then skipped.
 
 
@@ -1140,7 +1140,7 @@ public function equals( iterable $elements ) : bool
 ```
 
 * @param iterable `$elements` List of elements to test against
-* @return bool `TRUE` if both are equal, `FALSE` if not
+* @return bool TRUE if both are equal, FALSE if not
 
 The method differs to [`is()`](#is) in the fact that it doesn't care about the keys
 by default. The elements are only loosely compared and the keys are ignored.
@@ -1262,11 +1262,11 @@ Runs a filter over each element of the map and returns a new map.
 public function filter( callable $callback = null ) : self
 ```
 
-* @param  callable&#124;null `$callback` Function with (item) parameter and returns `TRUE`/`FALSE`
+* @param  callable&#124;null `$callback` Function with (item) parameter and returns TRUE/FALSE
 * @return self New map
 
 If no callback is passed, all values which are empty, null or false will be
-removed if their value converted to boolean is `FALSE`:
+removed if their value converted to boolean is FALSE:
 ```php
 (bool) $value === false
 ```
@@ -1355,7 +1355,7 @@ Returns the first key from the map.
 public function firstKey()
 ```
 
-* @return mixed First key of map or `NULL` if empty
+* @return mixed First key of map or NULL if empty
 
 **Examples:**
 
@@ -1463,10 +1463,10 @@ public static function fromJson( string $json, int $options = JSON_BIGINT_AS_STR
 * @param int `$options` Combination of JSON_* constants
 * @return self Map from decoded JSON string
 
-There are several options available for decoding the JSON string:
-[https://www.php.net/manual/en/function.json-decode.php](https://www.php.net/manual/en/function.json-decode.php)
-The parameter can be a single JSON_* constant or a bitmask of several
-constants combine by bitwise OR (&#124;), e.g.:
+There are several options available for decoding the JSON string which are described in
+the [PHP json_decode() manual](https://www.php.net/manual/en/function.json-decode.php).
+The parameter can be a single JSON_* constant or a bitmask of several constants combine
+by bitwise OR (&#124;), e.g.:
 
 ```php
 JSON_BIGINT_AS_STRING|JSON_INVALID_UTF8_IGNORE
@@ -1629,10 +1629,10 @@ public function has( $key ) : bool
 ```
 
 * @param mixed&#124;array `$key` Key or path to the requested item
-* @return bool `TRUE` if key is available in map, `FALSE` if not
+* @return bool TRUE if key is available in map, FALSE if not
 
 If several keys are passed as array, all keys must exist in the map to
-return `TRUE`.
+return TRUE.
 
 This does also work to map values from multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("." by default), e.g. `key1.key2.key3`
@@ -1671,8 +1671,8 @@ public function in( $element, bool $strict = false ) : bool
 ```
 
 * @param mixed&#124;array `$element` Element or elements to search for in the map
-* @param bool `$strict` `TRUE` to check the type too, using `FALSE` '1' and 1 will be the same
-* @return bool `TRUE` if all elements are available in map, `FALSE` if not
+* @param bool `$strict` TRUE to check the type too, using FALSE '1' and 1 will be the same
+* @return bool TRUE if all elements are available in map, FALSE if not
 
 **Examples:**
 
@@ -1784,7 +1784,7 @@ public function intersectAssoc( iterable $elements, callable $callback = null ) 
 
 ```php
 Map::from( ['a' => 'foo', 'b' => 'bar'] )->intersectAssoc( new Map( ['foo', 'b' => 'bar'] ) );
-['a' => 'foo']
+// ['a' => 'foo']
 ```
 
 If a callback is passed, the given function will be used to compare the values.
@@ -1878,7 +1878,7 @@ Determines if the map is empty or not.
 public function isEmpty() : bool
 ```
 
-* @return bool `TRUE` if map is empty, `FALSE` if not
+* @return bool TRUE if map is empty, FALSE if not
 
 The method is equivalent to [`empty()`](#empty).
 
@@ -1905,7 +1905,7 @@ public function join( $glue = '' ) : string
 * @return string String of concatenated map elements
 
 Objects that implement __toString() does also work, otherwise (and in case
-of arrays) a PHP notice is generated. `NULL` and `FALSE` values are treated as
+of arrays) a PHP notice is generated. NULL and FALSE values are treated as
 empty strings.
 
 **Examples:**
@@ -2040,7 +2040,7 @@ Returns the last key from the map.
 public function lastKey()
 ```
 
-* @return mixed Last key of map or `NULL` if empty
+* @return mixed Last key of map or NULL if empty
 
 **Examples:**
 
@@ -2253,7 +2253,7 @@ public function offsetExists( $key )
 ```
 
 * @param mixed `$key` Key to check for
-* @return bool `TRUE` if key exists, `FALSE` if not
+* @return bool TRUE if key exists, FALSE if not
 
 **Examples:**
 
@@ -2434,7 +2434,7 @@ public function pipe( \Closure $callback )
 Map::from( ['a', 'b'] )->pipe( function( $map ) {
     return strrev( $map->join( '-' ) );
 } );
-// "b-a
+// 'b-a'
 ```
 
 
@@ -2722,7 +2722,7 @@ public function search( $value, $strict = true )
 ```
 
 * @param mixed `$value` Item to search for
-* @param bool `$strict` `TRUE` if type of the element should be checked too
+* @param bool `$strict` TRUE if type of the element should be checked too
 * @return mixed&#124;null Value from map or null if not found
 
 **Examples:**
@@ -3192,8 +3192,8 @@ public function toJson( int $options = 0 ) : string
 * @param int `$options` Combination of JSON_* constants
 * @return string Array encoded as JSON string
 
-There are several options available to modify the JSON output:
-[https://www.php.net/manual/en/function.json-encode.php](https://www.php.net/manual/en/function.json-encode.php)
+There are several options available to modify the JSON string which are described in
+the [PHP json_encode() manual](https://www.php.net/manual/en/function.json-encode.php).
 The parameter can be a single JSON_* constant or a bitmask of several constants
 combine by bitwise OR (&#124;), e.g.:
 
@@ -3232,7 +3232,7 @@ Map::from( ['a' => 1, 'b' => 2] )->toUrl();
 // a=1&b=2
 
 Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
-a%5Bb%5D=abc&a%5Bc%5D=def&d=123
+// a%5Bb%5D=abc&a%5Bc%5D=def&d=123
 ```
 
 
@@ -3376,7 +3376,7 @@ public function unique() : self
 
 * @return self New map
 
-Two elements are condidered equal if comparing their string representions returns `TRUE`:
+Two elements are condidered equal if comparing their string representions returns TRUE:
 
 ```php
 (string) $elem1 === (string) $elem2
@@ -3556,25 +3556,42 @@ Map::from( [
   ['id' => 1, 'type' => 'name'],
   ['id' => 2, 'type' => 'short'],
 ] )->where( 'type', '==', 'name' );
-// [['id' => 1, 'type' => 'name']]
+/*
+[
+    ['id' => 1, 'type' => 'name']
+]
+*/
 
 Map::from( [
   ['id' => 3, 'price' => 10],
   ['id' => 4, 'price' => 50],
 ] )->where( 'price', '>', 20 );
-// [['id' => 4, 'price' => 50]]
+/*
+[
+    ['id' => 4, 'price' => 50]
+]
+*/
 
 Map::from( [
   ['id' => 3, 'price' => 10],
   ['id' => 4, 'price' => 50],
 ] )->where( 'price', 'in', [10, 25] );
-// [['id' => 3, 'price' => 10]]
+/*
+[
+    ['id' => 3, 'price' => 10]
+]
+*/
 
 Map::from( [
   ['id' => 3, 'price' => 10],
   ['id' => 4, 'price' => 50],
 ] )->where( 'price', '-', [10, 100] );
-// [['id' => 3, 'price' => 10], ['id' => 4, 'price' => 50]]
+/*
+[
+    ['id' => 3, 'price' => 10],
+    ['id' => 4, 'price' => 50]
+]
+*/
 ```
 
 
