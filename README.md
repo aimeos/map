@@ -203,6 +203,7 @@ will return:
 <a href="#some">some</a>
 <a href="#sort">sort</a>
 <a href="#splice">splice</a>
+<a href="#split">split</a>
 <a href="#suffix">suffix</a>
 <a href="#sum">sum</a>
 <a href="#take">take</a>
