@@ -128,11 +128,11 @@ will return:
 <a href="#combine">combine</a>
 <a href="#copy">copy</a>
 <a href="#count">count</a>
-<a href="#countBy">countBy</a>
+<a href="#countby">countBy</a>
 <a href="#dd">dd</a>
 <a href="#diff">diff</a>
-<a href="#diffAssoc">diffAssoc</a>
-<a href="#diffKeys">diffKeys</a>
+<a href="#diffassoc">diffAssoc</a>
+<a href="#diffkeys">diffKeys</a>
 <a href="#dump">dump</a>
 <a href="#duplicates">duplicates</a>
 <a href="#each">each</a>
@@ -143,35 +143,38 @@ will return:
 <a href="#filter">filter</a>
 <a href="#find">find</a>
 <a href="#first">first</a>
-<a href="#firstKey">firstKey</a>
+<a href="#firstkey">firstKey</a>
 <a href="#flat">flat</a>
 <a href="#flip">flip</a>
+<a href="#from">from</a>
+<a href="#fromjson">fromJson</a>
 <a href="#get">get</a>
-<a href="#getIterator">getIterator</a>
-<a href="#groupBy">groupBy</a>
+<a href="#getiterator">getIterator</a>
+<a href="#groupby">groupBy</a>
 <a href="#has">has</a>
 <a href="#in">in</a>
 <a href="#includes">includes</a>
 <a href="#intersect">intersect</a>
-<a href="#intersectAssoc">intersectAssoc</a>
-<a href="#intersectKeys">intersectKeys</a>
+<a href="#intersectassoc">intersectAssoc</a>
+<a href="#intersectkeys">intersectKeys</a>
 <a href="#is">is</a>
-<a href="#isEmpty">isEmpty</a>
+<a href="#isempty">isEmpty</a>
 <a href="#join">join</a>
 <a href="#keys">keys</a>
 <a href="#krsort">krsort</a>
 <a href="#ksort">ksort</a>
 <a href="#last">last</a>
-<a href="#lastKey">lastKey</a>
+<a href="#lastkey">lastKey</a>
 <a href="#map">map</a>
 <a href="#max">max</a>
 <a href="#merge">merge</a>
+<a href="#method">method</a>
 <a href="#min">min</a>
 <a href="#nth">nth</a>
-<a href="#offsetExists">offsetExists</a>
-<a href="#offsetGet">offsetGet</a>
-<a href="#offsetSet">offsetSet</a>
-<a href="#offsetUnset">offsetUnset</a>
+<a href="#offsetexists">offsetExists</a>
+<a href="#offsetget">offsetGet</a>
+<a href="#offsetset">offsetSet</a>
+<a href="#offsetunset">offsetUnset</a>
 <a href="#only">only</a>
 <a href="#pad">pad</a>
 <a href="#partition">partition</a>
@@ -196,13 +199,14 @@ will return:
 <a href="#some">some</a>
 <a href="#sort">sort</a>
 <a href="#splice">splice</a>
+<a href="#split">split</a>
 <a href="#suffix">suffix</a>
 <a href="#sum">sum</a>
 <a href="#take">take</a>
 <a href="#tap">tap</a>
-<a href="#toArray">toArray</a>
-<a href="#toJson">toJson</a>
-<a href="#toUrl">toUrl</a>
+<a href="#toarray">toArray</a>
+<a href="#tojson">toJson</a>
+<a href="#tourl">toUrl</a>
 <a href="#transpose">transpose</a>
 <a href="#uasort">uasort</a>
 <a href="#uksort">uksort</a>
@@ -270,8 +274,8 @@ will return:
 
 ### Debug
 
-* [dump()](#dump) : Prints the map content
 * [dd()](#dd) : Prints the map content and terminates the script
+* [dump()](#dump) : Prints the map content
 * [tap()](#tap) : Passes a clone of the map to the given callback
 
 ### Order
@@ -280,8 +284,8 @@ will return:
 * [asort()](#asort) : Sort elements preserving keys
 * [krsort()](#krsort) : Reverse sort elements by keys
 * [ksort()](#ksort) : Sort elements by keys
-* [rsort()](#rsort) : Reverse sort elements using new keys
 * [reverse()](#reverse) : Reverses the array order preserving keys
+* [rsort()](#rsort) : Reverse sort elements using new keys
 * [shuffle()](#shuffle) : Randomizes the element order
 * [sort()](#sort) : Sorts the elements assigning new keys
 * [uasort()](#uasort) : Sorts elements preserving keys using callback
@@ -328,11 +332,11 @@ will return:
 ### Transform
 
 * [chunk()](#chunk) : Splits the map into chunks
-* [combine()](#combine) : Combines the map elements as keys with the given values
 * [col()](#col) : Creates a key/value mapping
 * [collapse()](#collapse) : Collapses multi-dimensional elements overwriting elements
-* [flip()](#flip) : Exchanges keys with their values
+* [combine()](#combine) : Combines the map elements as keys with the given values
 * [flat()](#flat) : Flattens multi-dimensional elements without overwriting elements
+* [flip()](#flip) : Exchanges keys with their values
 * [groupBy()](#groupby) : Groups associative array elements or objects
 * [join()](#join) : Returns concatenated elements as string with separator
 * [map()](#map) : Applies a callback to each element and returns the results
