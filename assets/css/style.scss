@@ -4,11 +4,10 @@
 @import "jekyll-theme-cayman";
 
 
-columns {
-	column-count: 3;
-	-moz-column-count: 3;
-	-webkit-column-count: 3;
-	column-gap: 2em;
-	-moz-column-gap: 2em;
-	-webkit-column-gap: 2em;
+columns a {
+	display: inline-block;
+	min-width: 32.5%;
+	width: 15rem;
+	padding: 0 1rem;
+	line-height: 1.8em;
 }
