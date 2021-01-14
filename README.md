@@ -113,7 +113,7 @@ will return:
 <a href="#map-function">function map</a>
 <a href="#is_map-function">function is_map</a>
 <a href="#__call">__call</a>
-<a href="#__callStatic">__callStatic</a>
+<a href="#__callstatic">__callStatic</a>
 <a href="#__construct">__construct</a>
 <a href="#after">after</a>
 <a href="#all">all</a>
