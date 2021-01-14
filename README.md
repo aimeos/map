@@ -345,9 +345,6 @@ new Map( new ArrayObject() );
 
 Handles dynamic calls to custom methods for the class.
 
-Calls a custom method added by Map::method(). The called method
-has access to the internal array by using `$this->items`.
-
 ```php
 public function __call( string $name, array $params )
 ```
@@ -356,14 +353,17 @@ public function __call( string $name, array $params )
 * @param array `$params` List of parameters
 * @return mixed Result from called function
 
+Calls a custom method added by Map::method(). The called method
+has access to the internal array by using `$this->items`.
+
 **Examples:**
 
 ```php
 Map::method( 'case', function( $case = CASE_LOWER ) {
     return new self( array_change_key_case( $this->items, $case ) );
 } );
-Map::from( ['a' => 'bar'] )->case( CASE_UPPER );
 
+Map::from( ['a' => 'bar'] )->case( CASE_UPPER );
 // ['A' => 'bar']
 ```
 
@@ -389,9 +389,6 @@ types and one of them doesn't implement the called method, an error will be thro
 
 Handles static calls to custom methods for the class.
 
-Calls a custom method added by Map::method() statically. The called method
-has no access to the internal array because no object is available.
-
 ```php
 public static function __callStatic( string $name, array $params )
 ```
@@ -400,6 +397,9 @@ public static function __callStatic( string $name, array $params )
 * @param array `$params` List of parameters
 * @return mixed Result from called function
 * @throws \BadMethodCallException
+
+Calls a custom method added by Map::method() statically. The called method
+has no access to the internal array because no object is available.
 
 **Examples:**
 
@@ -413,14 +413,14 @@ Map::foo( $arg1, $arg2 );
 
 Returns the elements after the given one.
 
-The keys are preserved using this method.
-
 ```php
 public function after( $value ) : self
 ```
 
 * @param mixed $value Value or function with (item, key) parameters
 * @return self New map with the elements after the given one
+
+The keys are preserved using this method.
 
 **Examples:**
 
@@ -460,14 +460,14 @@ Map::from( ['a'] )->all();
 
 Sorts all elements in reverse order and maintains the key association.
 
-The keys are preserved using this method and no new map is created.
-
 ```php
 public function arsort( int $options = SORT_REGULAR ) : self
 ```
 
 * @param int `$options` Sort options for `arsort()`
 * @return self Updated map for fluid interface
+
+The keys are preserved using this method and no new map is created.
 
 The `$options` parameter modifies how the values are compared. Possible parameter values are:
 - SORT_REGULAR : compare elements normally (don't change types)
@@ -498,14 +498,14 @@ Map::from( [0 => 'C', 1 => 'b'] )->arsort( SORT_STRING|SORT_FLAG_CASE );
 
 Sorts all elements and maintains the key association.
 
-The keys are preserved using this method and no new map is created.
-
 ```php
 public function asort( int $options = SORT_REGULAR ) : self
 ```
 
 * @param int `$options` Sort options for `asort()`
 * @return self Updated map for fluid interface
+
+The keys are preserved using this method and no new map is created.
 
 The parameter modifies how the values are compared. Possible parameter values are:
 - SORT_REGULAR : compare elements normally (don't change types)
@@ -543,25 +543,22 @@ public function before( $value ) : self
 * @param mixed $value Value or function with (item, key) parameters
 * @return self New map with the elements before the given one
 
+The keys are preserved using this method.
+
 **Examples:**
 
 ```php
 Map::from( ['a' => 1, 'b' => 0] )->before( 0 );
+// ['a' => 1]
+
 Map::from( [0 => 'b', 1 => 'a'] )->before( 'a' );
+// [0 => 'b']
+
 Map::from( ['a', 'c', 'b'] )->before( function( $item, $key ) {
     return $key >= 1;
 } );
-```
-
-**Results:**
-
-```php
-['a' => 1]
-[0 => 'b']
 [0 => 'a']
 ```
-
-The keys are preserved using this method.
 
 
 ### call()
@@ -576,24 +573,23 @@ public function call( string $name, array $params = [] ) : self
 * @param array $params List of parameters
 * @return self Map with results from all elements
 
+This method can call methods on the map entries that are also implemented
+by the map object itself and are therefore not reachable when using the
+magic __call() method. If some entries are not objects, they will be skipped.
+
+The keys from the original map are preserved in the returned in the new map.
+
 **Examples:**
 
 ```
-$item = new MyClass(); // implements methods get() and toArray()
+$item = new MyClass( ['myprop' => 'val'] ); // implements methods get() and toArray()
+
 Map::from( [$item, $item] )->call( 'get', ['myprop'] );
+// ['val', 'val']
+
 Map::from( [$item, $item] )->call( 'toArray' );
+// [['myprop' => 'val'], ['myprop' => 'val']]
 ```
-
-**Results:**
-
-The first example will return `['...', '...']` while the second one returns `[[...], [...]]`.
-
-This method can call methods on the map entries that are also implemented
-by the map object itself and are therefore not reachable when using the
-magic __call() method.
-
-If some entries are not objects, they will be skipped. The keys from the
-original map are preserved in the returned in the new map.
 
 
 ### chunk()
@@ -609,24 +605,20 @@ public function chunk( int $size, bool $preserve = false ) : self
 * @return self New map with elements chunked in sub-arrays
 * @throws \InvalidArgumentException If size is smaller than 1
 
-**Examples:**
-
-```php
-Map::from( [0, 1, 2, 3, 4] )->chunk( 3 );
-Map::from( ['a' => 0, 'b' => 1, 'c' => 2] )->chunk( 2 );
-```
-
-**Results:**
-
-```php
-[[0, 1, 2], [3, 4]]
-[['a' => 0, 'b' => 1], ['c' => 2]]
-```
-
 The last chunk may contain less elements than the given number.
 
 The sub-arrays of the returned map are plain PHP arrays. If you need Map
 objects, then wrap them with `Map::from()` when you iterate over the map.
+
+**Examples:**
+
+```php
+Map::from( [0, 1, 2, 3, 4] )->chunk( 3 );
+// [[0, 1, 2], [3, 4]]
+
+Map::from( ['a' => 0, 'b' => 1, 'c' => 2] )->chunk( 2 );
+// [['a' => 0, 'b' => 1], ['c' => 2]]
+```
 
 
 ### clear()
@@ -638,6 +630,13 @@ public function clear() : self
 ```
 
 * @return self Same map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( [0, 1] )->clear();
+// internal : []
+```
 
 
 ### col()
@@ -652,30 +651,6 @@ public function col( string $valuecol = null, string $indexcol = null ) : self
 * @param string&#124;null `$indexcol` Name or path of the index property
 * @return self New instance with mapped entries
 
-**Examples:**
-
-```php
-Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( 'val' );
-Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( 'val', 'id' );
-Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( null, 'id' );
-Map::from( [['id' => 'ix', 'val' => 'v1'], ['id' => 'ix', 'val' => 'v2']] )->col( null, 'id' );
-Map::from( [['foo' => ['bar' => 'one', 'baz' => 'two']]] )->col( 'foo.baz', 'foo.bar' );
-Map::from( [['foo' => ['bar' => 'one']]] )->col( 'foo.baz', 'foo.bar' );
-Map::from( [['foo' => ['baz' => 'two']]] )->col( 'foo.baz', 'foo.bar' );
-```
-
-**Results:**
-
-```php
-['v1', 'v2']
-['i1' => 'v1', 'i2' => 'v2']
-['i1' => ['id' => 'i1', 'val' => 'v1'], 'i2' => ['id' => 'i2', 'val' => 'v2']]
-['ix' => ['id' => 'ix', 'val' => 'v2']]
-['one' => 'two']
-['one' => null]
-['two']
-```
-
 If $indexcol is omitted, it's value is NULL or not set, the result will be indexed from 0-n.
 Items with the same value for $indexcol will overwrite previous items and only the last one
 will be part of the resulting map.
@@ -684,6 +659,31 @@ This does also work to map values from multi-dimensional arrays by passing the k
 of the arrays separated by the delimiter ("." by default), e.g. `key1.key2.key3`
 to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
 public properties of objects or objects implementing `__isset()` and `__get()` methods.
+
+**Examples:**
+
+```php
+Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( 'val' );
+// ['v1', 'v2']
+
+Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( 'val', 'id' );
+// ['i1' => 'v1', 'i2' => 'v2']
+
+Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( null, 'id' );
+// ['i1' => ['id' => 'i1', 'val' => 'v1'], 'i2' => ['id' => 'i2', 'val' => 'v2']]
+
+Map::from( [['id' => 'ix', 'val' => 'v1'], ['id' => 'ix', 'val' => 'v2']] )->col( null, 'id' );
+// ['ix' => ['id' => 'ix', 'val' => 'v2']]
+
+Map::from( [['foo' => ['bar' => 'one', 'baz' => 'two']]] )->col( 'foo.baz', 'foo.bar' );
+// ['one' => 'two']
+
+Map::from( [['foo' => ['bar' => 'one']]] )->col( 'foo.baz', 'foo.bar' );
+// ['one' => null]
+
+Map::from( [['foo' => ['baz' => 'two']]] )->col( 'foo.baz', 'foo.bar' );
+// ['two']
+```
 
 
 ### collapse()
@@ -697,34 +697,32 @@ public function collapse( int $depth = null ) : self
 * @param int&#124;null `$depth` Number of levels to collapse for multi-dimensional arrays or NULL for all
 * @return self New map with all sub-array elements added into it recursively, up to the specified depth
 
-**Examples:**
-
-```php
-Map::from( [0 => ['a' => 0, 'b' => 1], 1 => ['c' => 2, 'd' => 3]] )->collapse();
-Map::from( [0 => ['a' => 0, 'b' => 1], 1 => ['a' => 2]] )->collapse();
-Map::from( [0 => [0 => 0, 1 => 1], 1 => [0 => ['a' => 2, 0 => 3], 1 => 4]] )->collapse();
-Map::from( [0 => [0 => 0, 'a' => 1], 1 => [0 => ['b' => 2, 0 => 3], 1 => 4]] )->collapse( 1 );
-Map::from( [0 => [0 => 0, 'a' => 1], 1 => Map::from( [0 => ['b' => 2, 0 => 3], 1 => 4] )] )->collapse();
-```
-
-**Results:**
-
-```php
-['a' => 0, 'b' => 1, 'c' => 2, 'd' => 3]
-['a' => 2, 'b' => 1]
-[0 => 3, 1 => 4, 'a' => 2]
-[0 => ['b' => 2, 0 => 3], 1 => 4, 'a' => 1]
-[0 => 3, 'a' => 1, 'b' => 2, 1 => 4]
-```
-
 The keys are preserved and already existing elements will be overwritten. This
-is also true for numeric keys!
+is also true for numeric keys! This method is similar than flat() but replaces
+already existing elements.
 
 A value smaller than 1 for depth will return the same map elements. Collapsing
 does also work if elements implement the "Traversable" interface (which the Map
 object does).
 
-This method is similar than flat() but replaces already existing elements.
+**Examples:**
+
+```php
+Map::from( [0 => ['a' => 0, 'b' => 1], 1 => ['c' => 2, 'd' => 3]] )->collapse();
+// ['a' => 0, 'b' => 1, 'c' => 2, 'd' => 3]
+
+Map::from( [0 => ['a' => 0, 'b' => 1], 1 => ['a' => 2]] )->collapse();
+// ['a' => 2, 'b' => 1]
+
+Map::from( [0 => [0 => 0, 1 => 1], 1 => [0 => ['a' => 2, 0 => 3], 1 => 4]] )->collapse();
+// [0 => 3, 1 => 4, 'a' => 2]
+
+Map::from( [0 => [0 => 0, 'a' => 1], 1 => [0 => ['b' => 2, 0 => 3], 1 => 4]] )->collapse( 1 );
+// [0 => ['b' => 2, 0 => 3], 1 => 4, 'a' => 1]
+
+Map::from( [0 => [0 => 0, 'a' => 1], 1 => Map::from( [0 => ['b' => 2, 0 => 3], 1 => 4] )] )->collapse();
+// [0 => 3, 'a' => 1, 'b' => 2, 1 => 4]
+```
 
 
 ### concat()
@@ -741,13 +739,11 @@ public function concat( iterable $elements ) : self
 **Examples:**
 
 ```php
-Map::from( ['foo'] )->concat( new Map( ['bar'] ));
-```
+Map::from( ['foo'] )->concat( ['bar'] );
+// ['foo', 'bar']
 
-**Results:**
-
-```php
-['foo', 'bar']
+Map::from( ['foo'] )->concat( new Map( ['bar' => 'baz'] ) );
+// ['foo', 'baz']
 ```
 
 
@@ -766,12 +762,7 @@ public function combine( iterable $values ) : self
 
 ```php
 Map::from( ['name', 'age'] )->combine( ['Tom', 29] );
-```
-
-**Results:**
-
-```php
-['name' => 'Tom', 'age' => 29]
+// ['name' => 'Tom', 'age' => 29]
 ```
 
 
@@ -779,14 +770,23 @@ Map::from( ['name', 'age'] )->combine( ['Tom', 29] );
 
 Creates a new map with the same elements.
 
-Both maps share the same array until one of the map objects modifies the
-array. Then, the array is copied and the copy is modfied (copy on write).
-
 ```php
 public function copy() : self
 ```
 
 * @return self New map
+
+Both maps share the same array until one of the map objects modifies the
+array. Then, the array is copied and the copy is modfied (copy on write).
+
+**Examples:**
+
+```php
+$m = Map::from( ['foo', 'bar'] );
+
+$m2 = $m->copy();
+// internal: ['foo', 'bar'] both two maps
+```
 
 
 ### count()
@@ -798,6 +798,13 @@ public function count() : int
 ```
 
 * @return int Number of elements
+
+**Examples:**
+
+```php
+Map::from( ['foo', 'bar'] )->count();
+// 2
+```
 
 
 ### countBy()
@@ -815,18 +822,15 @@ public function countBy( callable $callback = null ) : self
 
 ```php
 Map::from( [1, 'foo', 2, 'foo', 1] )->countBy();
+// [1 => 2, 'foo' => 2, 2 => 1]
+
 Map::from( [1.11, 3.33, 3.33, 9.99] )->countBy();
+// ['1.11' => 1, '3.33' => 2, '9.99' => 1]
+
 Map::from( ['a@gmail.com', 'b@yahoo.com', 'c@gmail.com'] )->countBy( function( $email ) {
     return substr( strrchr( $email, '@' ), 1 );
 } );
-```
-
-**Results:**
-
-```php
-[1 => 2, 'foo' => 2, 2 => 1]
-['1.11' => 1, '3.33' => 2, '9.99' => 1]
-['gmail.com' => 2, 'yahoo.com' => 1]
+// ['gmail.com' => 2, 'yahoo.com' => 1]
 ```
 
 
@@ -834,30 +838,27 @@ Map::from( ['a@gmail.com', 'b@yahoo.com', 'c@gmail.com'] )->countBy( function( $
 
 Dumps the map content and terminates the script.
 
-The dd() method is very helpful to see what are the map elements passed
-between two map methods in a method call chain. It stops execution of the
-script afterwards to avoid further output.
-
 ```php
 public function dd( callable $callback = null ) : self
 ```
 
 * @param callable `$callback` Function receiving the map elements as parameter (optional)
 
+The dd() method is very helpful to see what are the map elements passed
+between two map methods in a method call chain. It stops execution of the
+script afterwards to avoid further output.
+
 **Examples:**
 
 ```php
 Map::from( ['a' => 'foo', 'b' => 'bar'] )->sort()->dd()->first();
-```
-
-**Results:**
-
-```php
+/*
 Array
 (
     [0] => bar
     [1] => foo
 )
+*/
 ```
 
 The `first()` method isn't executed at all.
@@ -867,10 +868,6 @@ The `first()` method isn't executed at all.
 
 Sets or returns the seperator for paths to values in multi-dimensional arrays or objects.
 
-The static method only changes the separator for new maps created afterwards.
-Already existing maps will continue to use the previous separator. To change
-the separator of an existing map, use the [sep()](#sep) method instead.
-
 ```php
 public static function delimiter( ?string $char = null ) : string
 ```
@@ -878,18 +875,18 @@ public static function delimiter( ?string $char = null ) : string
 * @param string `$char` Separator character, e.g. "/" for "key/to/value" instaed of "key.to.value"
 * @return string Separator used up to now
 
+The static method only changes the separator for new maps created afterwards.
+Already existing maps will continue to use the previous separator. To change
+the separator of an existing map, use the [sep()](#sep) method instead.
+
 **Examples:**
 
 ```php
 Map::delimiter( '/' );
+// '.'
+
 Map::from( ['foo' => ['bar' => 'baz']] )->get( 'foo/bar' );
-```
-
-**Results:**
-
-```php
-'.'
-'baz'
+// 'baz'
 ```
 
 
@@ -909,12 +906,7 @@ public function diff( iterable $elements, callable $callback = null ) : self
 
 ```php
 Map::from( ['a' => 'foo', 'b' => 'bar'] )->diff( ['bar'] );
-```
-
-**Results:**
-
-```php
-['a' => 'foo']
+// ['a' => 'foo']
 ```
 
 If a callback is passed, the given function will be used to compare the values.
@@ -924,10 +916,15 @@ greater than value B. Both, a method name and an anonymous function can be passe
 
 ```php
 Map::from( [0 => 'a'] )->diff( [0 => 'A'], 'strcasecmp' );
+// []
+
 Map::from( ['b' => 'a'] )->diff( ['B' => 'A'], 'strcasecmp' );
+// []
+
 Map::from( ['b' => 'a'] )->diff( ['c' => 'A'], function( $valA, $valB ) {
     return strtolower( $valA ) <=> strtolower( $valB );
 } );
+// []
 ```
 
 All examples will return an empty map because both contain the same values
@@ -950,31 +947,30 @@ public function diffAssoc( iterable $elements, callable $callback = null ) : sel
 
 ```php
 Map::from( ['a' => 'foo', 'b' => 'bar'] )->diffAssoc( new Map( ['foo', 'b' => 'bar'] ) );
-```
-
-**Results:**
-
-```php
-['a' => 'foo']
+// ['a' => 'foo']
 ```
 
 If a callback is passed, the given function will be used to compare the values.
-The function must accept two parameters (value A and B) and must return
+The function must accept two parameters (valA, valB) and must return
 -1 if value A is smaller than value B, 0 if both are equal and 1 if value A is
 greater than value B. Both, a method name and an anonymous function can be passed:
 
 ```php
 Map::from( [0 => 'a'] )->diffAssoc( [0 => 'A'], 'strcasecmp' );
+// []
+
 Map::from( ['b' => 'a'] )->diffAssoc( ['B' => 'A'], 'strcasecmp' );
+// []
+
 Map::from( ['b' => 'a'] )->diffAssoc( ['c' => 'A'], function( $valA, $valB ) {
     return strtolower( $valA ) <=> strtolower( $valB );
 } );
+// ['b' => 'a']
 ```
 
-The first example will return an empty map because both contain the same
-values when compared case insensitive. The second and third example will return
-an empty map because 'A' is part of the passed array but the keys doesn't match
-("b" vs. "B" and "b" vs. "c").
+The first and second example will return an empty map because both contain the
+same values when compared case insensitive. In the third example, the keys doesn't
+match ("b" vs. "c").
 
 
 ### diffKeys()
@@ -993,12 +989,7 @@ public function diffKeys( iterable $elements, callable $callback = null ) : self
 
 ```php
 Map::from( ['a' => 'foo', 'b' => 'bar'] )->diffKeys( new Map( ['foo', 'b' => 'baz'] ) );
-```
-
-**Results:**
-
-```php
-['a' => 'foo']
+// ['a' => 'foo']
 ```
 
 If a callback is passed, the given function will be used to compare the keys.
@@ -1008,10 +999,15 @@ greater than key B. Both, a method name and an anonymous function can be passed:
 
 ```php
 Map::from( [0 => 'a'] )->diffKeys( [0 => 'A'], 'strcasecmp' );
+// []
+
 Map::from( ['b' => 'a'] )->diffKeys( ['B' => 'X'], 'strcasecmp' );
+// []
+
 Map::from( ['b' => 'a'] )->diffKeys( ['c' => 'a'], function( $keyA, $keyB ) {
     return strtolower( $keyA ) <=> strtolower( $keyB );
 } );
+// ['b' => 'a']
 ```
 
 The first and second example will return an empty map because both contain
@@ -1023,9 +1019,6 @@ the same keys when compared case insensitive. The third example will return
 
 Dumps the map content using the given function (print_r by default).
 
-The `dump()` method is very helpful to see what are the map elements passed
-between two map methods in a method call chain.
-
 ```php
 public function dump( callable $callback = null ) : self
 ```
@@ -1033,26 +1026,27 @@ public function dump( callable $callback = null ) : self
 * @param callable `$callback` Function receiving the map elements as parameter (optional)
 * @return self Same map for fluid interface
 
+The `dump()` method is very helpful to see what are the map elements passed
+between two map methods in a method call chain.
+
 **Examples:**
 
 ```php
 Map::from( ['a' => 'foo', 'b' => 'bar'] )->dump()->asort()->dump( 'var_dump' );
-```
-
-**Results:**
-
-```php
+/*
 Array
 (
     [a] => foo
     [b] => bar
 )
+
 array(1) {
   ["b"]=>
   string(3) "bar"
   ["a"]=>
   string(3) "foo"
 }
+*/
 ```
 
 
@@ -1067,30 +1061,25 @@ public function duplicates( string $col = null ) : self
 * @param string&#124;null $col Key of the nested array or object to check for
 * @return self New map
 
-**Examples:**
-
-```php
-Map::from( [1, 2, '1', 3] )->duplicates()
-Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->duplicates( 'p' )
-Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i.p' )
-```
-
-**Results:**
-
-```php
-[2 => '1']
-[1 => ['p' => 1]]
-[1 => ['i' => ['p' => '1']]]
-```
-
-The keys in the result map are the same as in the original one. For nested
-arrays, you have to pass the name of the column of the nested array which
-should be used to check for duplicates.
-
 This does also work to map values from multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("." by default), e.g. `key1.key2.key3`
 to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
 public properties of objects or objects implementing `__isset()` and `__get()` methods.
+
+The keys in the result map are preserved.
+
+**Examples:**
+
+```php
+Map::from( [1, 2, '1', 3] )->duplicates()
+// [2 => '1']
+
+Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->duplicates( 'p' )
+// [1 => ['p' => 1]]
+
+Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i.p' )
+// [1 => ['i' => ['p' => '1']]]
+```
 
 
 ### each()
@@ -1112,6 +1101,7 @@ Map::from( [0 => 'a', 1 => 'b'] )->each( function( $value, $key ) use ( &$result
     $result[$key] = strtoupper( $value );
     return false;
 } );
+// $result = [0 => 'A']
 ```
 
 The `$result` array will contain `[0 => 'A']` because `FALSE` is returned
@@ -1128,18 +1118,17 @@ public function empty() : bool
 
 * @return bool TRUE if map is empty, FALSE if not
 
+The method is equivalent to isEmpty().
+
 **Examples:**
 
 ```php
 Map::from( [] )->empty();
+// true
+
 Map::from( ['a'] )->empty();
+// false
 ```
-
-**Results:**
-
-The first example returns TRUE while the second returns FALSE
-
-The method is equivalent to isEmpty().
 
 
 ### equals()
@@ -1147,31 +1136,31 @@ The method is equivalent to isEmpty().
 Tests if the passed elements are equal to the elements in the map.
 
 ```php
-public function equals( iterable $elements, $assoc = false ) : bool
+public function equals( iterable $elements ) : bool
 ```
 
 * @param iterable `$elements` List of elements to test against
-* @param bool `$assoc` `TRUE` to compare keys too, `FALSE` to compare only values
 * @return bool `TRUE` if both are equal, `FALSE` if not
 
-**Examples:**
-
-```php
-Map::from( ['a'] )->equals( ['a', 'b'] );
-Map::from( ['a', 'b'] )->equals( ['b'] );
-Map::from( ['a', 'b'] )->equals( ['b', 'a'] );
-```
-
-**Results:**
-
-The first and second example will return `FALSE`, the third example will return `TRUE`
-
-The method differs to is() in the fact that it doesn't care about the keys
+The method differs to [`is()`](#is) in the fact that it doesn't care about the keys
 by default. The elements are only loosely compared and the keys are ignored.
 
 Values are compared by their string values:
 ```php
 (string) $item1 === (string) $item2
+```
+
+**Examples:**
+
+```php
+Map::from( ['a'] )->equals( ['a', 'b'] );
+// false
+
+Map::from( ['a', 'b'] )->equals( ['b'] );
+// false
+
+Map::from( ['a', 'b'] )->equals( ['b', 'a'] );
+// true
 ```
 
 
@@ -1192,17 +1181,12 @@ public function every( \Closure $callback ) : bool
 Map::from( [0 => 'a', 1 => 'b'] )->every( function( $value, $key ) {
     return is_string( $value );
 } );
+// true
 
 Map::from( [0 => 'a', 1 => 100] )->every( function( $value, $key ) {
     return is_string( $value );
 } );
-```
-
-**Results:**
-
-```php
-true
-false
+// false
 ```
 
 
@@ -1221,14 +1205,10 @@ public function except( $keys ) : self
 
 ```php
 Map::from( ['a' => 1, 'b' => 2, 'c' => 3] )->except( 'b' );
+// ['a' => 1, 'c' => 3]
+
 Map::from( [1 => 'a', 2 => 'b', 3 => 'c'] )->except( [1, 3] );
-```
-
-**Results:**
-
-```php
-['a' => 1, 'c' => 3]
-[2 => 'b']
+// [2 => 'b']
 ```
 
 
@@ -1245,33 +1225,33 @@ public static function explode( string $delimiter , string $string , int $limit 
 * @param int `$limit` Maximum number of element with the last element containing the rest of the string
 * @return self New map with splitted parts
 
+A limit of "0" is treated the same as "1". If limit is negative, the rest of
+the string is dropped and not part of the returned map.
+
 **Examples:**
 
 ```php
 Map::explode( ',', 'a,b,c' );
+// ['a', 'b', 'c']
+
 Map::explode( '<-->', 'a a<-->b b<-->c c' );
+// ['a a', 'b b', 'c c']
+
 Map::explode( '', 'string' );
+// ['s', 't', 'r', 'i', 'n', 'g']
+
 Map::explode( '|', 'a|b|c', 2 );
+// ['a', 'b|c']
+
 Map::explode( '', 'string', 2 );
+// ['s', 't', 'ring']
+
 Map::explode( '|', 'a|b|c|d', -2 );
+// ['a', 'b']
+
 Map::explode( '', 'string', -3 );
+// ['s', 't', 'r']
 ```
-
-**Results:**
-
-```php
-['a', 'b', 'c']
-['a a', 'b b', 'c c']
-['s', 't', 'r', 'i', 'n', 'g']
-['s', 't', 'r', 'i', 'n', 'g']
-['a', 'b|c']
-['s', 't', 'ring']
-['a', 'b']
-['s', 't', 'r']
-```
-
-A limit of "0" is treated the same as "1". If limit is negative, the rest of
-the string is dropped and not part of the returned map.
 
 
 ### filter()
@@ -1285,24 +1265,19 @@ public function filter( callable $callback = null ) : self
 * @param  callable&#124;null `$callback` Function with (item) parameter and returns `TRUE`/`FALSE`
 * @return self New map
 
+If no callback is passed, all values which are empty, null or false will be
+removed if their value converted to boolean is `FALSE`:
+```php
+(bool) $value === false
+```
+
 **Examples:**
 
 ```php
 Map::from( [2 => 'a', 6 => 'b', 13 => 'm', 30 => 'z'] )->filter( function( $value, $key ) {
     return `$key` < 10 && `$value` < 'n';
 } );
-```
-
-**Results:**
-
-```php
-['a', 'b']
-```
-
-If no callback is passed, all values which are empty, null or false will be
-removed if their value converted to boolean is `FALSE`:
-```php
-(bool) $value === false
+// ['a', 'b']
 ```
 
 
@@ -1325,21 +1300,23 @@ public function find( \Closure $callback, $default = null, bool $reverse = false
 Map::from( ['a', 'c', 'e'] )->find( function( $value, $key ) {
     return $value >= 'b';
 } );
+// 'c'
+
 Map::from( ['a', 'c', 'e'] )->find( function( $value, $key ) {
     return $value >= 'b';
-}, true );
+}, null, true );
+// 'e' because $reverse = true
+
 Map::from( [] )->find( function( $value, $key ) {
     return $value >= 'b';
 }, 'none' );
+// 'none'
+
 Map::from( [] )->find( function( $value, $key ) {
     return $value >= 'b';
 }, new \Exception( 'error' ) );
+// throws \Exception
 ```
-
-**Results:**
-
-The first example will return 'c' while the second will return 'e' (last element).
-The third one will return "none" and the last one will throw the exception.
 
 
 ### first()
@@ -1357,17 +1334,17 @@ public function first( $default = null )
 
 ```php
 Map::from( ['a', 'b'] )->first();
+// 'a'
+
 Map::from( [] )->first( 'x' );
+// 'x'
+
 Map::from( [] )->first( new \Exception( 'error' ) );
+// throws \Exception
+
 Map::from( [] )->first( function() { return rand(); } );
+// random integer
 ```
-
-**Results:**
-
-The first example will return 'a' and the second one 'x'. The third example
-will throw the exception passed if the map contains no elements. In the
-fourth example, a random value generated by the closure function will be
-returned.
 
 
 ### firstKey()
@@ -1384,12 +1361,11 @@ public function firstKey()
 
 ```php
 Map::from( ['a' => 1, 'b' => 2] )->lastKey();
+// 'a'
+
 Map::from( [] )->lastKey();
+// null
 ```
-
-**Results:**
-
-The first example will return 'a' and the second one `NULL`.
 
 
 ### flat()
@@ -1403,30 +1379,28 @@ public function flat( int $depth = null ) : self
 * @param int&#124;null `$depth` Number of levels to flatten multi-dimensional arrays
 * @return self New map with all sub-array elements added into it recursively, up to the specified depth
 
-**Examples:**
-
-```php
-Map::from( [[0, 1], [2, 3]] )->flat();
-Map::from( [[0, 1], [[2, 3], 4]] )->flat();
-Map::from( [[0, 1], [[2, 3], 4]] )->flat( 1 );
-Map::from( [[0, 1], Map::from( [[2, 3], 4] )] )->flat();
-```
-
-**Results:**
-
-```php
-[0, 1, 2, 3]
-[0, 1, 2, 3, 4]
-[0, 1, [2, 3], 4]
-[0, 1, 2, 3, 4]
-```
-
 The keys are not preserved and the new map elements will be numbered from
 0-n. A value smaller than 1 for depth will return the same map elements
 indexed from 0-n. Flattening does also work if elements implement the
 "Traversable" interface (which the Map object does).
 
 This method is similar than collapse() but doesn't replace existing elements.
+
+**Examples:**
+
+```php
+Map::from( [[0, 1], [2, 3]] )->flat();
+// [0, 1, 2, 3]
+
+Map::from( [[0, 1], [[2, 3], 4]] )->flat();
+// [0, 1, 2, 3, 4]
+
+Map::from( [[0, 1], [[2, 3], 4]] )->flat( 1 );
+// [0, 1, [2, 3], 4]
+
+Map::from( [[0, 1], Map::from( [[2, 3], 4] )] )->flat();
+// [0, 1, 2, 3, 4]
+```
 
 
 ### flip()
@@ -1443,12 +1417,7 @@ public function flip() : self
 
 ```php
 Map::from( ['a' => 'X', 'b' => 'Y'] )->flip();
-```
-
-**Results:**
-
-```php
-['X' => 'a', 'Y' => 'b']
+// ['X' => 'a', 'Y' => 'b']
 ```
 
 
@@ -1467,17 +1436,20 @@ public static function from( $elements = [] ) : self
 
 ```php
 Map::from( [] );
+// internal: []
+
 Map::from( null );
+// internal: []
+
 Map::from( 'a' );
+// internal: ['a']
+
 Map::from( new Map() );
+// internal: []
+
 Map::from( new ArrayObject() );
+// internal: []
 ```
-
-**Results:**
-
-A new map instance containing the list of elements. In case of an empty
-array or null, the map object will contain an empty list. If a map object
-is passed, it will be returned instead of creating a new instance.
 
 
 ### fromJson()
@@ -1491,28 +1463,27 @@ public static function fromJson( string $json, int $options = JSON_BIGINT_AS_STR
 * @param int `$options` Combination of JSON_* constants
 * @return self Map from decoded JSON string
 
-**Examples:**
-
-```php
-Map::fromJson( '["a", "b"]' );
-Map::fromJson( '{"a": "b"}' );
-Map::fromJson( '""' );
-```
-
-**Results:**
-
-```php
-['a', 'b']
-['a' => 'b']
-['']
-```
-
 There are several options available for decoding the JSON string:
 [https://www.php.net/manual/en/function.json-decode.php](https://www.php.net/manual/en/function.json-decode.php)
 The parameter can be a single JSON_* constant or a bitmask of several
 constants combine by bitwise OR (&#124;), e.g.:
 
-`JSON_BIGINT_AS_STRING|JSON_INVALID_UTF8_IGNORE`
+```php
+JSON_BIGINT_AS_STRING|JSON_INVALID_UTF8_IGNORE
+```
+
+**Examples:**
+
+```php
+Map::fromJson( '["a", "b"]' );
+// ['a', 'b']
+
+Map::fromJson( '{"a": "b"}' );
+// ['a' => 'b']
+
+Map::fromJson( '""' );
+['']
+```
 
 
 ### get()
@@ -1527,34 +1498,34 @@ public function get( $key, $default = null )
 * @param mixed `$default` Default value if no element matches
 * @return mixed Value from map or default value
 
-**Examples:**
-
-```php
-Map::from( ['a' => 'X', 'b' => 'Y'] )->get( 'a' );
-Map::from( ['a' => 'X', 'b' => 'Y'] )->get( 'c', 'Z' );
-Map::from( ['a' => ['b' => ['c' => 'Y']]] )->get( 'a.b.c' );
-Map::from( [] )->get( new \Exception( 'error' ) );
-Map::from( [] )->get( function() { return rand(); } );
-```
-
-**Results:**
-
-The first example will return 'X', the second 'Z' and the third 'Y'. The forth
-example will throw the exception passed if the map contains no elements. In
-the fifth example, a random value generated by the closure function will be
-returned.
-
 This does also work to map values from multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("." by default), e.g. `key1.key2.key3`
 to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
 public properties of objects or objects implementing `__isset()` and `__get()` methods.
 
+**Examples:**
+
+```php
+Map::from( ['a' => 'X', 'b' => 'Y'] )->get( 'a' );
+// 'X'
+
+Map::from( ['a' => 'X', 'b' => 'Y'] )->get( 'c', 'Z' );
+// 'Z'
+
+Map::from( ['a' => ['b' => ['c' => 'Y']]] )->get( 'a.b.c' );
+// 'Y'
+
+Map::from( [] )->get( new \Exception( 'error' ) );
+// throws \Exception
+
+Map::from( [] )->get( function() { return rand(); } );
+// random integer
+```
+
 
 ### getIterator()
 
 Returns an iterator for the elements.
-
-This method will be used by e.g. foreach() to loop over all entries:
 
 ```php
 public function getIterator() : \Iterator
@@ -1562,10 +1533,14 @@ public function getIterator() : \Iterator
 
 * @return \Iterator Over map elements
 
+This method will be used by e.g. foreach() to loop over all entries.
+
 **Examples:**
 
 ```
-foreach( Map::from( ['a', 'b'] ) as $value )
+foreach( Map::from( ['a', 'b'] ) as $value ) {
+    // ...
+}
 ```
 
 
@@ -1573,16 +1548,16 @@ foreach( Map::from( ['a', 'b'] ) as $value )
 
 Groups associative array elements or objects by the passed key or closure.
 
-Instead of overwriting items with the same keys like to the `col()` method does,
-`groupBy()` keeps all entries in sub-arrays. It's preserves the keys of the
-orignal map entries too.
-
 ```php
 public function groupBy( $key ) : self
 ```
 
 * @param  \Closure&#124;string $key Closure function with (item, idx) parameters returning the key or the key itself to group by
 * @return self New map with elements grouped by the given key
+
+Instead of overwriting items with the same keys like to the `col()` method does,
+`groupBy()` keeps all entries in sub-arrays. It's preserves the keys of the
+orignal map entries too.
 
 **Examples:**
 
@@ -1592,16 +1567,9 @@ $list = [
     20 => ['aid' => 123, 'code' => 'x-def'],
     30 => ['aid' => 456, 'code' => 'x-def']
 ];
+
 Map::from( $list )->groupBy( 'aid' );
-Map::from( $list )->groupBy( function( $item, $key ) {
-    return substr( $item['code'], -3 );
-} );
-Map::from( $list )->groupBy( 'xid' );
-```
-
-**Results:**
-
-```php
+/*
 [
     123 => [
         10 => ['aid' => 123, 'code' => 'x-abc'],
@@ -1611,6 +1579,12 @@ Map::from( $list )->groupBy( 'xid' );
         30 => ['aid' => 456, 'code' => 'x-def']
     ]
 ]
+*/
+
+Map::from( $list )->groupBy( function( $item, $key ) {
+    return substr( $item['code'], -3 );
+} );
+/*
 [
     'abc' => [
         10 => ['aid' => 123, 'code' => 'x-abc']
@@ -1620,6 +1594,21 @@ Map::from( $list )->groupBy( 'xid' );
         30 => ['aid' => 456, 'code' => 'x-def']
     ]
 ]
+*/
+```
+
+In case the passed key doesn't exist in one or more items, these items are stored
+in a sub-array using an empty string as key:
+
+```php
+$list = [
+    10 => ['aid' => 123, 'code' => 'x-abc'],
+    20 => ['aid' => 123, 'code' => 'x-def'],
+    30 => ['aid' => 456, 'code' => 'x-def']
+];
+
+Map::from( $list )->groupBy( 'xid' );
+/*
 [
     '' => [
         10 => ['aid' => 123, 'code' => 'x-abc'],
@@ -1627,18 +1616,13 @@ Map::from( $list )->groupBy( 'xid' );
         30 => ['aid' => 456, 'code' => 'x-def']
     ]
 ]
+*/
 ```
-
-In case the passed key doesn't exist in one or more items, these items are stored
-in a sub-array using an empty string as key.
 
 
 ### has()
 
 Determines if a key or several keys exists in the map.
-
-If several keys are passed as array, all keys must exist in the map to
-return `TRUE`.
 
 ```php
 public function has( $key ) : bool
@@ -1647,25 +1631,35 @@ public function has( $key ) : bool
 * @param mixed&#124;array `$key` Key or path to the requested item
 * @return bool `TRUE` if key is available in map, `FALSE` if not
 
-**Examples:**
-
-```php
-Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'a' );
-Map::from( ['a' => 'X', 'b' => 'Y'] )->has( ['a', 'b'] );
-Map::from( ['a' => ['b' => ['c' => 'Y']]] )->has( 'a.b.c' );
-Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'c' );
-Map::from( ['a' => 'X', 'b' => 'Y'] )->has( ['a', 'c'] );
-Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'X' );
-```
-
-**Results:**
-
-The first three examples will return `TRUE` while the other ones will return `FALSE`.
+If several keys are passed as array, all keys must exist in the map to
+return `TRUE`.
 
 This does also work to map values from multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("." by default), e.g. `key1.key2.key3`
 to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
 public properties of objects or objects implementing `__isset()` and `__get()` methods.
+
+**Examples:**
+
+```php
+Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'a' );
+// true
+
+Map::from( ['a' => 'X', 'b' => 'Y'] )->has( ['a', 'b'] );
+// false
+
+Map::from( ['a' => ['b' => ['c' => 'Y']]] )->has( 'a.b.c' );
+// true
+
+Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'c' );
+// false
+
+Map::from( ['a' => 'X', 'b' => 'Y'] )->has( ['a', 'c'] );
+// false
+
+Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'X' );
+// false
+```
 
 
 ### in()
@@ -1684,15 +1678,20 @@ public function in( $element, bool $strict = false ) : bool
 
 ```php
 Map::from( ['a', 'b'] )->in( 'a' );
+// true
+
 Map::from( ['a', 'b'] )->in( ['a', 'b'] );
+// true
+
 Map::from( ['a', 'b'] )->in( 'x' );
+// false
+
 Map::from( ['a', 'b'] )->in( ['a', 'x'] );
+// false
+
 Map::from( ['1', '2'] )->in( 2, true );
+// false
 ```
-
-**Results:**
-
-The first and second example will return `TRUE` while the other ones will return `FALSE`
 
 
 ## includes()
@@ -1707,22 +1706,27 @@ public function includes( $element, bool $strict = false ) : bool
 * @param bool `$strict` TRUE to check the type too, using FALSE '1' and 1 will be the same
 * @return bool TRUE if all elements are available in map, FALSE if not
 
+This method is an alias for [`in()`](#in). For performance reasons, `in()` should be preferred
+because it uses one method call less than `includes()`.
+
 **Examples:**
 
 ```php
 Map::from( ['a', 'b'] )->includes( 'a' );
+// true
+
 Map::from( ['a', 'b'] )->includes( ['a', 'b'] );
+// true
+
 Map::from( ['a', 'b'] )->includes( 'x' );
+// false
+
 Map::from( ['a', 'b'] )->includes( ['a', 'x'] );
+// false
+
 Map::from( ['1', '2'] )->includes( 2, true );
+// false
 ```
-
-**Results:**
-
-The first and second example will return TRUE while the other ones will return FALSE
-
-This method is an alias for `in()`. For performance reasons, `in()` should be preferred
-because it uses one method call less than `includes()`.
 
 
 ### intersect()
@@ -1741,29 +1745,27 @@ public function intersect( iterable $elements, callable $callback = null ) : sel
 
 ```php
 Map::from( ['a' => 'foo', 'b' => 'bar'] )->intersect( ['bar'] );
+// ['b' => 'bar']
 ```
 
-**Results:**
-
-```php
-['b' => 'bar']
-```
 
 If a callback is passed, the given function will be used to compare the values.
-The function must accept two parameters (value A and B) and must return
+The function must accept two parameters (vaA, valB) and must return
 -1 if value A is smaller than value B, 0 if both are equal and 1 if value A is
 greater than value B. Both, a method name and an anonymous function can be passed:
 
 ```php
 Map::from( [0 => 'a'] )->intersect( [0 => 'A'], 'strcasecmp' );
+// ['a']
+
 Map::from( ['b' => 'a'] )->intersect( ['B' => 'A'], 'strcasecmp' );
+// ['a']
+
 Map::from( ['b' => 'a'] )->intersect( ['c' => 'A'], function( $valA, $valB ) {
     return strtolower( $valA ) <=> strtolower( $valB );
 } );
+// ['a']
 ```
-
-All examples will return a map containing ['a'] because both contain the same
-values when compared case insensitive.
 
 
 ### intersectAssoc()
@@ -1782,30 +1784,26 @@ public function intersectAssoc( iterable $elements, callable $callback = null ) 
 
 ```php
 Map::from( ['a' => 'foo', 'b' => 'bar'] )->intersectAssoc( new Map( ['foo', 'b' => 'bar'] ) );
-```
-
-**Results:**
-
-```php
 ['a' => 'foo']
 ```
 
 If a callback is passed, the given function will be used to compare the values.
-The function must accept two parameters (value A and B) and must return
+The function must accept two parameters (valA, valB) and must return
 -1 if value A is smaller than value B, 0 if both are equal and 1 if value A is
 greater than value B. Both, a method name and an anonymous function can be passed:
 
 ```php
 Map::from( [0 => 'a'] )->intersectAssoc( [0 => 'A'], 'strcasecmp' );
+// [0 => 'a']
+
 Map::from( ['b' => 'a'] )->intersectAssoc( ['B' => 'A'], 'strcasecmp' );
+// ['b' => 'a']
+
 Map::from( ['b' => 'a'] )->intersectAssoc( ['c' => 'A'], function( $valA, $valB ) {
     return strtolower( $valA ) <=> strtolower( $valB );
 } );
+// []
 ```
-
-The first example will return [0 => 'a'] because both contain the same
-values when compared case insensitive. The second and third example will return
-an empty map because the keys doesn't match ("b" vs. "B" and "b" vs. "c").
 
 
 ### intersectKeys()
@@ -1824,12 +1822,7 @@ public function intersectKeys( iterable $elements, callable $callback = null ) :
 
 ```php
 Map::from( ['a' => 'foo', 'b' => 'bar'] )->intersectKeys( new Map( ['foo', 'b' => 'baz'] ) );
-```
-
-**Results:**
-
-```php
-['b' => 'bar']
+// ['b' => 'bar']
 ```
 
 If a callback is passed, the given function will be used to compare the keys.
@@ -1839,16 +1832,16 @@ greater than key B. Both, a method name and an anonymous function can be passed:
 
 ```php
 Map::from( [0 => 'a'] )->intersectKeys( [0 => 'A'], 'strcasecmp' );
+// [0 => 'a']
+
 Map::from( ['b' => 'a'] )->intersectKeys( ['B' => 'X'], 'strcasecmp' );
+// ['b' => 'a']
+
 Map::from( ['b' => 'a'] )->intersectKeys( ['c' => 'a'], function( $keyA, $keyB ) {
     return strtolower( $keyA ) <=> strtolower( $keyB );
 } );
+// []
 ```
-
-The first example will return a map with [0 => 'a'] and the second one will
-return a map with ['b' => 'a'] because both contain the same keys when compared
-case insensitive. The third example will return an empty map because the keys
-doesn't match ("b" vs. "c").
 
 
 ### is()
@@ -1864,14 +1857,17 @@ public function is( iterable $list, bool $strict = false ) : bool
 * @param bool TRUE if given list is equal, FALSE if not
 
 **Examples:**
+
 ```php
 Map::from( ['a', 'b'] )->is( ['b', 'a'] );
-Map::from( ['a', 'b'] )->is( ['b', 'a'], true );
-Map::from( [1, 2] )->is( ['1', '2'] );
-```
+// true
 
-**Results:**
-The first example returns TRUE while the second and third one returns FALSE
+Map::from( ['a', 'b'] )->is( ['b', 'a'], true );
+// false
+
+Map::from( [1, 2] )->is( ['1', '2'] );
+// false
+```
 
 
 ### isEmpty()
@@ -1884,27 +1880,22 @@ public function isEmpty() : bool
 
 * @return bool `TRUE` if map is empty, `FALSE` if not
 
+The method is equivalent to [`empty()`](#empty).
+
 **Examples:**
 
 ```php
 Map::from( [] )->isEmpty();
+// true
+
 Map::from( ['a'] )-isEmpty();
+// false
 ```
-
-**Results:**
-
-The first example returns `TRUE` while the second returns `FALSE`
-
-The method is equivalent to empty().
 
 
 ### join()
 
 Concatenates the string representation of all elements.
-
-Objects that implement __toString() does also work, otherwise (and in case
-of arrays) a PHP notice is generated. `NULL` and `FALSE` values are treated as
-empty strings.
 
 ```php
 public function join( $glue = '' ) : string
@@ -1913,16 +1904,19 @@ public function join( $glue = '' ) : string
 * @param string `$glue` Character or string added between elements
 * @return string String of concatenated map elements
 
+Objects that implement __toString() does also work, otherwise (and in case
+of arrays) a PHP notice is generated. `NULL` and `FALSE` values are treated as
+empty strings.
+
 **Examples:**
 
 ```php
 Map::from( ['a', 'b', false] )->join();
+// 'ab'
+
 Map::from( ['a', 'b', null, false] )->join( '-' );
+// 'a-b--'
 ```
-
-**Results:**
-
-The first example will return "ab" while the second one will return "a-b--"
 
 
 ### keys()
@@ -1939,13 +1933,11 @@ public function keys() : self
 
 ```php
 Map::from( ['a', 'b'] );
+// [0, 1]
+
 Map::from( ['a' => 0, 'b' => 1] );
+// ['a', 'b']
 ```
-
-**Results:**
-
-The first example returns a map containing `[0, 1]` while the second one will
-return a map with `['a', 'b']`.
 
 
 ### krsort()
@@ -1959,20 +1951,6 @@ public function krsort( int $options = SORT_REGULAR ) : self
 * @param int `$options` Sort options for `krsort()`
 * @return self Updated map for fluid interface
 
-**Examples:**
-
-```php
-Map::from( ['b' => 0, 'a' => 1] )->krsort();
-Map::from( [1 => 'a', 0 => 'b'] )->krsort();
-```
-
-**Results:**
-
-```php
-['a' => 1, 'b' => 0]
-[0 => 'b', 1 => 'a']
-```
-
 The parameter modifies how the keys are compared. Possible values are:
 - SORT_REGULAR : compare elements normally (don't change types)
 - SORT_NUMERIC : compare elements numerically
@@ -1982,6 +1960,16 @@ The parameter modifies how the keys are compared. Possible values are:
 - SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
 The keys are preserved using this method and no new map is created.
+
+**Examples:**
+
+```php
+Map::from( ['b' => 0, 'a' => 1] )->krsort();
+// ['a' => 1, 'b' => 0]
+
+Map::from( [1 => 'a', 0 => 'b'] )->krsort();
+// [0 => 'b', 1 => 'a']
+```
 
 
 ### ksort()
@@ -1995,20 +1983,6 @@ public function ksort( int $options = SORT_REGULAR ) : self
 * @param int `$options` Sort options for `ksort()`
 * @return self Updated map for fluid interface
 
-**Examples:**
-
-```php
-Map::from( ['b' => 0, 'a' => 1] )->ksort();
-Map::from( [1 => 'a', 0 => 'b'] )->ksort();
-```
-
-**Results:**
-
-```php
-['a' => 1, 'b' => 0]
-[0 => 'b', 1 => 'a']
-```
-
 The parameter modifies how the keys are compared. Possible values are:
 - SORT_REGULAR : compare elements normally (don't change types)
 - SORT_NUMERIC : compare elements numerically
@@ -2018,6 +1992,16 @@ The parameter modifies how the keys are compared. Possible values are:
 - SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
 The keys are preserved using this method and no new map is created.
+
+**Examples:**
+
+```php
+Map::from( ['b' => 0, 'a' => 1] )->ksort();
+// ['a' => 1, 'b' => 0]
+
+Map::from( [1 => 'a', 0 => 'b'] )->ksort();
+// [0 => 'b', 1 => 'a']
+```
 
 
 ### last()
@@ -2035,17 +2019,17 @@ public function last( $default = null )
 
 ```php
 Map::from( ['a', 'b'] )->last();
+// 'b'
+
 Map::from( [] )->last( 'x' );
+// 'x'
+
 Map::from( [] )->last( new \Exception( 'error' ) );
+// throws \Exception
+
 Map::from( [] )->last( function() { return rand(); } );
+// random integer
 ```
-
-**Results:**
-
-The first example will return 'b' and the second one 'x'. The third example
-will throw the exception passed if the map contains no elements. In the
-fourth example, a random value generated by the closure function will be
-returned.
 
 
 ### lastKey()
@@ -2062,12 +2046,11 @@ public function lastKey()
 
 ```php
 Map::from( ['a' => 1, 'b' => 2] )->lastKey();
+// 'b'
+
 Map::from( [] )->lastKey();
+// null
 ```
-
-**Results:**
-
-The first example will return 'b' and the second one `NULL`.
 
 
 ### map()
@@ -2087,21 +2070,13 @@ public function map( callable $callback ) : self
 Map::from( ['a' => 2, 'b' => 4] )->map( function( $value, $key ) {
     return $value * 2;
 } );
-```
-
-**Results:**
-
-```php
-['a' => 4, 'b' => 8]
+// ['a' => 4, 'b' => 8]
 ```
 
 
 ### max()
 
 Returns the maximum value of all elements.
-
-For nested arrays, you have to pass the name of the column of the nested
-array which should be used for comparison.
 
 ```php
 public function max( string $col = null )
@@ -2110,18 +2085,24 @@ public function max( string $col = null )
 * @param string&#124;null $col Key in the nested array or object to check for
 * @return mixed Maximum value or NULL if there are no elements in the map
 
+For nested arrays, you have to pass the name of the column of the nested
+array which should be used for comparison.
+
+Be careful comparing elements of different types because this can have
+unpredictable results due to the [PHP comparison rules](https://www.php.net/manual/en/language.operators.comparison.php)
+
 **Examples:**
 
 ```php
-Map::from( [1, 3, 2, 5, 4] )->max()
-Map::from( ['bar', 'foo', 'baz'] )->max()
-Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' )
+Map::from( [1, 3, 2, 5, 4] )->max();
+// 5
+
+Map::from( ['bar', 'foo', 'baz'] )->max();
+// 'foo'
+
+Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' );
+// 50
 ```
-
-**Results:**
-
-The first line will return "5", the second one "foo" while the third one
-returns 50.
 
 If you need a function to retrieve the maximum of all values, then use:
 
@@ -2131,16 +2112,10 @@ $sum = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) 
 } );
 ```
 
-Be careful comparing elements of different types because this can have
-unpredictable results due to the [PHP comparison rules](https://www.php.net/manual/en/language.operators.comparison.php)
-
 
 ### merge()
 
 Merges the map with the given elements without returning a new map.
-
-Elements with the same non-numeric keys will be overwritten, elements with the
-same numeric keys will be added.
 
 ```php
 public function merge( iterable $elements, bool $recursive = false ) : self
@@ -2150,25 +2125,25 @@ public function merge( iterable $elements, bool $recursive = false ) : self
 * @param bool $recursive TRUE to merge nested arrays too, FALSE for first level elements only
 * @return self Updated map for fluid interface
 
+Elements with the same non-numeric keys will be overwritten, elements with the
+same numeric keys will be added.
+
+The method is similar to [`replace()`](#replace) but doesn't replace elements with the same
+numeric keys. If you want to be sure that all passed elements are added without
+replacing existing ones, use [`concat()`](#concat) instead.
+
 **Examples:**
 
 ```php
 Map::from( ['a', 'b'] )->merge( ['b', 'c'] );
+// ['a', 'b', 'b', 'c']
+
 Map::from( ['a' => 1, 'b' => 2] )->merge( ['b' => 4, 'c' => 6] );
+// ['a' => 1, 'b' => 4, 'c' => 6]
+
 Map::from( ['a' => 1, 'b' => 2] )->merge( ['b' => 4, 'c' => 6], true );
+// ['a' => 1, 'b' => [2, 4], 'c' => 6]
 ```
-
-**Results:**
-
-```php
-['a', 'b', 'b', 'c']
-['a' => 1, 'b' => 4, 'c' => 6]
-['a' => 1, 'b' => [2, 4], 'c' => 6]
-```
-
-The method is similar to `replace()` but doesn't replace elements with the same
-numeric keys. If you want to be sure that all passed elements are added without
-replacing existing ones, use `concat()` instead.
 
 
 ### method()
@@ -2186,27 +2161,31 @@ public static function method( string $name, \Closure $function )
 
 ```php
 Map::method( 'foo', function( $arg1, $arg2 ) {
-    return $this->elements;
+    return array_merge( $this->elements, [$arg1, $arg2] );
 } );
+
+(Map::from( ['bar'] ))->foo( 'foo', 'baz' );
+// ['bar', 'foo', 'baz']
+
+Map::foo( 'foo', 'baz' );
+// error because `$this->elements` isn't available
 ```
 
-Dynamic calls have access to the class properties:
-```php
-(new Map( ['bar'] ))->foo( $arg1, $arg2 );
-```
+Static calls can't access `$this->elements` but can operate on the parameter values:
 
-Static calls yield an error because `$this->elements` isn't available:
 ```php
-Map::foo( $arg1, $arg2 );
+Map::method( 'bar', function( $arg1, $arg2 ) {
+    return new static( [$arg1, $arg2] );
+} );
+
+Map::foo( 'foo', 'baz' );
+// ['foo', 'baz']
 ```
 
 
 ### min()
 
 Returns the minimum value of all elements.
-
-For nested arrays, you have to pass the name of the column of the nested
-array which should be used for comparison.
 
 ```php
 public function min( string $col = null )
@@ -2215,17 +2194,24 @@ public function min( string $col = null )
 * @param string&#124;null $col Key in the nested array or object to check for
 * @return mixed Minimum value or NULL if there are no elements in the map
 
+For nested arrays, you have to pass the name of the column of the nested
+array which should be used for comparison.
+
+Be careful comparing elements of different types because this can have
+unpredictable results due to the [PHP comparison rules](https://www.php.net/manual/en/language.operators.comparison.php)
+
 **Examples:**
 
 ```php
-Map::from( [2, 3, 1, 5, 4] )->min()
-Map::from( ['baz', 'foo', 'bar'] )->min()
-Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' )
+Map::from( [2, 3, 1, 5, 4] )->min();
+// 1
+
+Map::from( ['baz', 'foo', 'bar'] )->min();
+// 'bar'
+
+Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' );
+// 10
 ```
-
-**Results:**
-
-The first line will return "1", the second one "bar" while the third one returns 10.
 
 If you need a function to retrieve the minimum of all values, then use:
 
@@ -2234,9 +2220,6 @@ $sum = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) 
     return min( $entry['v']['p'] ?? null, $result );
 } );
 ```
-
-Be careful comparing elements of different types because this can have
-unpredictable results due to the [PHP comparison rules](https://www.php.net/manual/en/language.operators.comparison.php)
 
 
 ### nth()
@@ -2255,14 +2238,10 @@ public function nth( int $step, int $offset = 0 ) : self
 
 ```php
 Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] )->nth( 2 );
+// ['a', 'c', 'e']
+
 Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] )->nth( 2, 1 );
-```
-
-**Results:**
-
-```php
-['a', 'c', 'e']
-['b', 'd', 'f']
+// ['b', 'd', 'f']
 ```
 
 ### offsetExists()
@@ -2280,14 +2259,16 @@ public function offsetExists( $key )
 
 ```php
 $map = Map::from( ['a' => 1, 'b' => 3, 'c' => null] );
+
 isset( $map['b'] );
+// true
+
 isset( $map['c'] );
+// false
+
 isset( $map['d'] );
+// false
 ```
-
-**Results:**
-
-The first `isset()` will return `TRUE` while the second and third one will return FALSE
 
 
 ### offsetGet()
@@ -2305,12 +2286,10 @@ public function offsetGet( $key )
 
 ```php
 $map = Map::from( ['a' => 1, 'b' => 3] );
+
 $map['b'];
+// 3
 ```
-
-**Results:**
-
-`$map['b']` will return 3
 
 
 ### offsetSet()
@@ -2328,14 +2307,12 @@ public function offsetSet( $key, $value )
 
 ```php
 $map = Map::from( ['a' => 1] );
+
 $map['b'] = 2;
+// ['a' => 1, 'b' => 2]
+
 $map[0] = 4;
-```
-
-**Results:**
-
-```php
-['a' => 1, 'b' => 2, 0 => 4]
+// ['a' => 1, 'b' => 2, 0 => 4]
 ```
 
 
@@ -2353,12 +2330,10 @@ public function offsetUnset( $key )
 
 ```php
 $map = Map::from( ['a' => 1] );
+
 unset( $map['a'] );
+// []
 ```
-
-**Results:**
-
-The map will be empty
 
 
 ### only()
@@ -2376,14 +2351,10 @@ public function only( $keys ) : self
 
 ```php
 Map::from( ['a' => 1, 0 => 'b'] )->only( 'a' );
+// ['a' => 1]
+
 Map::from( ['a' => 1, 0 => 'b', 1 => 'c'] )->only( [0, 1] );
-```
-
-**Results:**
-
-```php
-['a' => 1]
-[0 => 'b', 1 => 'c']
+// [0 => 'b', 1 => 'c']
 ```
 
 
@@ -2398,28 +2369,26 @@ public function pad( int $size, $value = null ) : self
 * @param int `$size` Total number of elements that should be in the list
 * @return self Updated map for fluid interface
 
-**Examples:**
-
-```php
-Map::from( [1, 2, 3] )->pad( 5 );
-Map::from( [1, 2, 3] )->pad( -5 );
-Map::from( [1, 2, 3] )->pad( 5, '0' );
-Map::from( [1, 2, 3] )->pad( 2 );
-```
-
-**Results:**
-
-```php
-[1, 2, 3, null, null]
-[null, null, 1, 2, 3]
-[1, 2, 3, '0', '0']
-[1, 2, 3]
-```
-
 In case the given number is smaller than the number of element that are
 already in the list, the map is unchanged. If the size is positive, the
 new elements are padded on the right, if it's negative then the elements
 are padded on the left.
+
+**Examples:**
+
+```php
+Map::from( [1, 2, 3] )->pad( 5 );
+// [1, 2, 3, null, null]
+
+Map::from( [1, 2, 3] )->pad( -5 );
+// [null, null, 1, 2, 3]
+
+Map::from( [1, 2, 3] )->pad( 5, '0' );
+// [1, 2, 3, '0', '0']
+
+Map::from( [1, 2, 3] )->pad( 2 );
+// [1, 2, 3]
+```
 
 
 ### partition()
@@ -2433,23 +2402,19 @@ public function partition( $num ) : self
 * @param \Closure&#124;int `$number` Function with (value, index) as arguments returning the bucket key or number of groups
 * @return self New map
 
+The keys of the original map are preserved in the returned map.
+
 **Examples:**
 
 ```php
 Map::from( [1, 2, 3, 4, 5] )->partition( 3 );
+// [[0 => 1, 1 => 2], [2 => 3, 3 => 4], [4 => 5]]
+
 Map::from( [1, 2, 3, 4, 5] )->partition( function( $val, $idx ) {
 	return $idx % 3;
 } );
+// [0 => [0 => 1, 3 => 4], 1 => [1 => 2, 4 => 5], 2 => [2 => 3]]
 ```
-
-**Results:**
-
-```php
-[[0 => 1, 1 => 2], [2 => 3, 3 => 4], [4 => 5]]
-[0 => [0 => 1, 3 => 4], 1 => [1 => 2, 4 => 5], 2 => [2 => 3]]
-```
-
-The keys of the original map are preserved in the returned map.
 
 
 ### pipe()
@@ -2469,11 +2434,8 @@ public function pipe( \Closure $callback )
 Map::from( ['a', 'b'] )->pipe( function( $map ) {
     return strrev( $map->join( '-' ) );
 } );
+// "b-a
 ```
-
-**Results:**
-
-"b-a" will be returned
 
 
 ### pop()
@@ -2490,11 +2452,8 @@ public function pop()
 
 ```php
 Map::from( ['a', 'b'] )->pop();
+// 'b', map contains ['a']
 ```
-
-**Results:**
-
-"b" will be returned and the map only contains `['a']` afterwards
 
 
 ### pos
@@ -2512,12 +2471,13 @@ public function pos( $value ) : int
 
 ```php
 Map::from( [4 => 'a', 8 => 'b'] )->pos( 'b' );
+// 1
+
 Map::from( [4 => 'a', 8 => 'b'] )->pos( function( $item, $key ) {
     return $item === 'b';
 } );
+// 1
 ```
-
-**Results:**
 
 Both examples will return "1" because the value "b" is at the second position
 and the returned index is zero based so the first item has the index "0".
@@ -2534,23 +2494,22 @@ public function prefix( $prefix )
 * @param \Closure&#124;string `$prefix` Function with map as parameter which returns arbitrary result
 * @return self Updated map for fluid interface
 
+Nested arrays are walked recusively so all entries at all levels are prefixed.
+
 **Examples:**
 
 ```php
 Map::from( ['a', 'b'] )->prefix( '1-' );
+// ['1-a', '1-b']
+
 Map::from( ['a', ['b']] )->prefix( '1-' );
+// ['1-a', ['1-b']]
+
 Map::from( ['a', 'b'] )->prefix( function( $item, $key ) {
     return ( ord( $item ) + ord( $key ) ) . '-';
 } );
+// ['145-a', '147-b']
 ```
-
-**Results:**
-
-The first example returns `['1-a', '1-b']` while the second one will return
-`['1-a', ['1-b']]`. The third example passing the closure will return
-`['145-a', '147-b']`.
-
-Nested arrays are walked recusively so all entries at all levels are prefixed.
 
 
 ### pull()
@@ -2569,13 +2528,11 @@ public function pull( $key, $default = null )
 
 ```php
 Map::from( ['a', 'b', 'c'] )->pull( 1 );
+// 'b', map contains ['a', 'c']
+
 Map::from( ['a', 'b', 'c'] )->pull( 'x', 'none' );
+// 'none', map contains ['a', 'b', 'c']
 ```
-
-**Results:**
-
-The first example will return "b" and the map contains `['a', 'c']` afterwards.
-The second one will return "none" and the map content stays untouched.
 
 
 ### push()
@@ -2593,12 +2550,7 @@ public function push( $value ) : self
 
 ```php
 Map::from( ['a', 'b'] )->push( 'aa' );
-```
-
-**Results:**
-
-```php
-['a', 'b', 'aa']
+// ['a', 'b', 'aa']
 ```
 
 
@@ -2614,29 +2566,28 @@ public function random( int $max = 1 ) : self
 * @return self New map with key/element pairs from original map in random order
 * @throws \InvalidArgumentException If requested number of elements is less than 1
 
+The less elements are in the map, the less random the order will be, especially
+if the maximum number of values is high or close to the number of elements.
+
+The keys of the original map are preserved in the returned map.
+
 **Examples:**
 
 ```php
-*  Map::from( [2, 4, 8, 16] )->random();
-*  Map::from( [2, 4, 8, 16] )->random( 2 );
-*  Map::from( [2, 4, 8, 16] )->random( 5 );
+Map::from( [2, 4, 8, 16] )->random();
+// [2 => 8] or any other key/value pair
+
+Map::from( [2, 4, 8, 16] )->random( 2 );
+// [3 => 16, 0 => 2] or any other key/value pair
+
+Map::from( [2, 4, 8, 16] )->random( 5 );
+// [0 => 2,  1 => 4, 2 => 8, 3 => 16] in random order
 ```
-
-**Results:**
-
-The first example will return a map including `[0 => 8]` or any other value,
-the second one will return a map with `[0 => 16, 1 => 2]` or any other values
-and the third example will return a map of the whole list in random order. The
-less elements are in the map, the less random the order will be, especially if
-the maximum number of values is high or close to the number of elements.
-
-The keys of the original map are preserved in the returned map.
 
 
 ### reduce()
 
 Iteratively reduces the array to a single value using a callback function.
-Afterwards, the map will be empty.
 
 ```php
 public function reduce( callable $callback, $initial = null )
@@ -2646,17 +2597,16 @@ public function reduce( callable $callback, $initial = null )
 * @param mixed `$initial` Initial value when computing the result
 * @return mixed Value computed by the callback function
 
+Afterwards, the map will be empty.
+
 **Examples:**
 
 ```php
 Map::from( [2, 8] )->reduce( function( $result, $value ) {
     return $result += $value;
 }, 10 );
+// 20 because 10 + 2 + 8 and map equals []
 ```
-
-**Results:**
-
-"20" will be returned because the sum is computed by 10 (initial value) + 2 + 8
 
 
 ### remove()
@@ -2674,13 +2624,11 @@ public function remove( $keys ) : self
 
 ```php
 Map::from( ['a' => 1, 2 => 'b'] )->remove( 'a' );
+// [2 => 'b']
+
 Map::from( ['a' => 1, 2 => 'b'] )->remove( [2, 'a'] );
+// []
 ```
-
-**Results:**
-
-The first example will result in `[2 => 'b']` while the second one resulting
-in an empty list
 
 
 ### replace()
@@ -2695,22 +2643,18 @@ public function replace( iterable $elements, bool $recursive = true ) : self
 * @param bool `$recursive` TRUE to replace recursively (default), FALSE to replace elements only
 * @return self Updated map for fluid interface
 
+The method is similar to [`merge()`](#merge) but also replaces elements with numeric keys.
+These would be added by `merge()` with a new numeric key.
+
 **Examples:**
 
 ```php
 Map::from( ['a' => 1, 2 => 'b'] )->replace( ['a' => 2] );
+// ['a' => 2, 2 => 'b']
+
 Map::from( ['a' => 1, 'b' => ['c' => 3, 'd' => 4]] )->replace( ['b' => ['c' => 9]] );
+// ['a' => 1, 'b' => ['c' => 9, 'd' => 4]]
 ```
-
-**Results:**
-
-```php
-['a' => 2, 2 => 'b']
-['a' => 1, 'b' => ['c' => 9, 'd' => 4]]
-```
-
-The method is similar to `merge()` but also replaces elements with numeric keys.
-These would be added by `merge()` with a new numeric key.
 
 
 ### reverse()
@@ -2727,12 +2671,7 @@ public function reverse() : self
 
 ```php
 Map::from( ['a', 'b'] )->reverse();
-```
-
-**Results:**
-
-```php
-['b', 'a']
+// ['b', 'a']
 ```
 
 
@@ -2747,20 +2686,6 @@ public function rsort( int $options = SORT_REGULAR ) : self
 * @param int `$options` Sort options for `rsort()`
 * @return self Updated map for fluid interface
 
-**Examples:**
-
-```php
-Map::from( ['a' => 1, 'b' => 0] )->rsort();
-Map::from( [0 => 'b', 1 => 'a'] )->rsort();
-```
-
-**Results:**
-
-```php
-[0 => 1, 1 => 0]
-[0 => 'b', 1 => 'a']
-```
-
 The parameter modifies how the values are compared. Possible parameter values are:
 - SORT_REGULAR : compare elements normally (don't change types)
 - SORT_NUMERIC : compare elements numerically
@@ -2769,7 +2694,23 @@ The parameter modifies how the values are compared. Possible parameter values ar
 - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 - SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
-The keys aren't preserved and elements get a new index. No new map is created
+The keys are NOT preserved and elements get a new index. No new map is created.
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 'b' => 0] )->rsort();
+// [0 => 1, 1 => 0]
+
+Map::from( [0 => 'b', 1 => 'a'] )->rsort();
+// [0 => 'b', 1 => 'a']
+
+Map::from( [0 => 'C', 1 => 'b'] )->rsort();
+// [0 => 'b', 1 => 'C']
+
+Map::from( [0 => 'C', 1 => 'b'] )->rsort( SORT_STRING|SORT_FLAG_CASE );
+// [0 => 'C', 1 => 'b'] because 'C' -> 'c' and 'c' > 'b'
+```
 
 
 ### search()
@@ -2788,22 +2729,16 @@ public function search( $value, $strict = true )
 
 ```php
 Map::from( ['a', 'b', 'c'] )->search( 'b' );
+// 1
+
 Map::from( [1, 2, 3] )->search( '2', true );
+// null because the types doesn't match (int vs. string)
 ```
-
-**Results:**
-
-The first example will return 1 (array index) while the second one will
-return `NULL` because the types doesn't match (int vs. string)
 
 
 ### sep()
 
 Sets the seperator for paths to values in multi-dimensional arrays or objects.
-
-This method only changes the separator for the current map instance. To
-change the separator for all maps created afterwards, use the static
-[Map::delimiter()](#delimiter) method instead.
 
 ```php
 public static function sep( string $char ) : self
@@ -2812,16 +2747,15 @@ public static function sep( string $char ) : self
 * @param string `$char` Separator character, e.g. "/" for "key/to/value" instead of "key.to.value"
 * @return self Same map for fluid interface
 
+This method only changes the separator for the current map instance. To
+change the separator for all maps created afterwards, use the static
+[Map::delimiter()](#delimiter) method instead.
+
 **Examples:**
 
 ```php
 Map::from( ['foo' => ['bar' => 'baz']] )->sep( '/' )->get( 'foo/bar' );
-```
-
-**Results:**
-
-```php
-'baz'
+// 'baz'
 ```
 
 
@@ -2841,12 +2775,11 @@ public function set( $key, $value ) : self
 
 ```php
 Map::from( ['a'] )->set( 1, 'b' );
+// [0 => 'a', 1 => 'b']
+
 Map::from( ['a'] )->set( 0, 'b' );
+// [0 => 'b']
 ```
-
-**Results:**
-
-The first example results in `['a', 'b']` while the second one produces `['b']`
 
 
 ### shift()
@@ -2863,20 +2796,18 @@ public function shift()
 
 ```php
 Map::from( ['a', 'b'] )->shift();
+// 'a'
+
 Map::from( [] )->shift();
+// null
 ```
-
-**Results:**
-
-The first example returns "a" and shortens the map to ['b'] only while the
-second example will return `NULL`
 
 **Performance note:**
 
-The bigger the list, the higher the performance impact because shift()
-reindexes all existing elements. Usually, it's better to reverse() the list
-and pop() entries from the list afterwards if a significant number of elements
-should be removed from the list:
+The bigger the list, the higher the performance impact because `shift()`
+reindexes all existing elements. Usually, it's better to [`reverse()`](#reverse)
+the list and [`pop()`](#pop) entries from the list afterwards if a significant
+number of elements should be removed from the list:
 
 ```php
 $map->reverse()->pop();
@@ -2904,14 +2835,11 @@ public function shuffle( bool $assoc = false ) : self
 
 ```php
 Map::from( [2 => 'a', 4 => 'b'] )->shuffle();
+// ['a', 'b'] in random order with new keys
+
 Map::from( [2 => 'a', 4 => 'b'] )->shuffle( true );
+// [2 => 'a', 4 => 'b'] in random order with keys preserved
 ```
-
-**Results:**
-
-The map in the first example will contain "a" and "b" in random order and
-with new keys assigned. The second call will also return all values in
-random order but preserves the keys of the original list.
 
 
 ### skip()
@@ -2925,23 +2853,19 @@ public function skip( $offset ) : self
 * @param \Closure&#124;int $offset Number of items to skip or function($item, $key) returning true for skipped items
 * @return self New map
 
+The keys of the items returned in the new map are the same as in the original one.
+
 **Examples:**
 
 ```php
 Map::from( [1, 2, 3, 4] )->skip( 2 );
+// [2 => 3, 3 => 4]
+
 Map::from( [1, 2, 3, 4] )->skip( function( $item, $key ) {
     return $item < 4;
 } );
+// [3 => 4]
 ```
-
-**Results:**
-
-```php
-[2 => 3, 3 => 4]
-[3 => 4]
-```
-
-The keys of the items returned in the new map are the same as in the original one.
 
 
 ### slice()
@@ -2956,20 +2880,6 @@ public function slice( int $offset, int $length = null ) : self
 * @param int `$length` Number of elements to return
 * @return self New map
 
-**Examples:**
-
-```php
-Map::from( ['a', 'b', 'c'] )->slice( 1 );
-Map::from( ['a', 'b', 'c'] )->slice( 1, 1 );
-Map::from( ['a', 'b', 'c', 'd'] )->slice( -2, -1 );
-```
-
-**Results:**
-
-The first example will return `['b', 'c']` and the second one `['b']` only.
-The third example returns `['c']` because the slice starts at the second
-last value and ends before the last value.
-
 The rules for offsets are:
 - If offset is non-negative, the sequence will start at that offset
 - If offset is negative, the sequence will start that far from the end
@@ -2979,6 +2889,19 @@ Similar for the length:
 - If the array is shorter than the length, then only the available array elements will be present
 - If length is given and is negative then the sequence will stop that many elements from the end
 - If it is omitted, then the sequence will have everything from offset up until the end
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b', 'c'] )->slice( 1 );
+// ['b', 'c']
+
+Map::from( ['a', 'b', 'c'] )->slice( 1, 1 );
+// ['b']
+
+Map::from( ['a', 'b', 'c', 'd'] )->slice( -2, -1 );
+// ['c']
+```
 
 
 ### some()
@@ -2997,17 +2920,22 @@ public function some( $values, bool $strict = false ) : bool
 
 ```php
 Map::from( ['a', 'b'] )->some( 'a' );
+// true
+
 Map::from( ['a', 'b'] )->some( ['a', 'c'] );
+// true
+
 Map::from( ['a', 'b'] )->some( function( $item, $key ) {
     return $item === 'a'
 } );
+// true
+
 Map::from( ['a', 'b'] )->some( ['c', 'd'] );
+// false
+
 Map::from( ['1', '2'] )->some( [2], true );
+// false
 ```
-
-**Results:**
-
-The first three examples will return TRUE while the fourth and fifth will return FALSE
 
 
 ### sort()
@@ -3021,20 +2949,6 @@ public function sort( int $options = SORT_REGULAR ) : self
 * @param int `$options` Sort options for `sort()`
 * @return self Updated map for fluid interface
 
-**Examples:**
-
-```php
-Map::from( ['a' => 1, 'b' => 0] )->sort();
-Map::from( [0 => 'b', 1 => 'a'] )->sort();
-```
-
-**Results:**
-
-```php
-[0 => 0, 1 => 1]
-[0 => 'a', 1 => 'b']
-```
-
 The parameter modifies how the values are compared. Possible parameter values are:
 - SORT_REGULAR : compare elements normally (don't change types)
 - SORT_NUMERIC : compare elements numerically
@@ -3043,7 +2957,17 @@ The parameter modifies how the values are compared. Possible parameter values ar
 - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 - SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
-The keys aren't preserved and elements get a new index. No new map is created.
+The keys are NOT preserved and elements get a new index. No new map is created.
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 'b' => 0] )->sort();
+// [0 => 0, 1 => 1]
+
+Map::from( [0 => 'b', 1 => 'a'] )->sort();
+// [0 => 'a', 1 => 'b']
+```
 
 
 ### splice()
@@ -3059,20 +2983,6 @@ public function splice( int $offset, int $length = null, $replacement = [] ) : s
 * @param mixed `$replacement` List of elements to insert
 * @return self New map
 
-**Examples:**
-
-```php
-Map::from( ['a', 'b', 'c'] )->splice( 1 );
-Map::from( ['a', 'b', 'c'] )->splice( 1, 1, ['x', 'y'] );
-```
-
-**Results:**
-
-The first example removes all entries after "a", so only `['a']` will be left
-in the map and `['b', 'c']` is returned. The second example replaces/returns "b"
-(start at 1, length 1) with `['x', 'y']` so the new map will contain
-`['a', 'x', 'y', 'c']` afterwards.
-
 The rules for offsets are:
 - If offset is non-negative, the sequence will start at that offset
 - If offset is negative, the sequence will start that far from the end
@@ -3082,6 +2992,16 @@ Similar for the length:
 - If the array is shorter than the length, then only the available array elements will be present
 - If length is given and is negative then the sequence will stop that many elements from the end
 - If it is omitted, then the sequence will have everything from offset up until the end
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b', 'c'] )->splice( 1 );
+// ['b', 'c'] and map contains ['a']
+
+Map::from( ['a', 'b', 'c'] )->splice( 1, 1, ['x', 'y'] );
+// ['b'] and map contains ['a', 'x', 'y', 'c']
+```
 
 
 ### suffix
@@ -3095,23 +3015,22 @@ public function suffix( $suffix )
 * @param \Closure&#124;string `$suffix` Function with map as parameter which returns arbitrary result
 * @return self Updated map for fluid interface
 
+Nested arrays are walked recusively so all entries at all levels are suffixed.
+
 **Examples:**
 
 ```php
 Map::from( ['a', 'b'] )->suffix( '-1' );
+// ['a-1', 'b-1']
+
 Map::from( ['a', ['b']] )->suffix( '-1' );
+// ['a-1', ['b-1']]
+
 Map::from( ['a', 'b'] )->suffix( function( $item, $key ) {
     return '-' . ( ord( $item ) + ord( $key ) );
 } );
+// ['a-145', 'b-147']
 ```
-
-**Results:**
-
-The first example returns `['a-1', 'b-1']` while the second one will return
-`['a-1', ['b-1']]`. The third example passing the closure will return
-`['a-145', 'b-147']`.
-
-Nested arrays are walked recusively so all entries at all levels are suffixed.
 
 
 ### sum()
@@ -3131,14 +3050,15 @@ public function sum( string $col = null ) : int
 **Examples:**
 
 ```php
-Map::from( [1, 3, 5] )->sum()
-Map::from( [1, 'sum', 5] )->sum()
-Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' )
+Map::from( [1, 3, 5] )->sum();
+// 9
+
+Map::from( [1, 'sum', 5] )->sum();
+// 6
+
+Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' );
+// 90
 ```
-
-**Results:**
-
-The first line will return "9", the second one "6" and the last one "90".
 
 If you need a function to retrieve the sum of all values, then use:
 
@@ -3161,27 +3081,25 @@ public function take( int $size, $offset = 0 ) : self
 * @param \Closure&#124;int $offset Number of items to skip or function($item, $key) returning true for skipped items
 * @return self New map
 
+The keys of the items returned in the new map are the same as in the original one.
+
 **Examples:**
 
 ```php
 Map::from( [1, 2, 3, 4] )->take( 2 );
+// [0 => 1, 1 => 2]
+
 Map::from( [1, 2, 3, 4] )->take( 2, 1 );
+// [1 => 2, 2 => 3]
+
 Map::from( [1, 2, 3, 4] )->take( 2, -2 );
+// [2 => 3, 3 => 4]
+
 Map::from( [1, 2, 3, 4] )->take( 2, function( $item, $key ) {
     return $item < 2;
 } );
+// [1 => 2, 2 => 3]
 ```
-
-**Results:**
-
-```php
-[0 => 1, 1 => 2]
-[1 => 2, 2 => 3]
-[2 => 3, 3 => 4]
-[1 => 2, 2 => 3]
-```
-
-The keys of the items returned in the new map are the same as in the original one.
 
 
 ### tap()
@@ -3205,13 +3123,12 @@ callback.
 Map::from( [3, 2, 1] )->rsort()->tap( function( $map ) {
     print_r( $map->remove( 0 )->toArray() );
 } )->first();
+// 1
 ```
 
-**Results:**
-
-It will sort the list in reverse order(`[1, 2, 3]`) while keeping the keys,
-then prints the items without the first (`[2, 3]`) in the function passed
-to `tap()` and returns the first item ("1") at the end.
+It will sort the list in reverse order(`[1, 2, 3]`), then prints the items (`[2, 3]`)
+without the first one in the function passed to `tap()` and returns the first item
+("1") at the end.
 
 
 ### times()
@@ -3231,21 +3148,18 @@ public static function times( int $num, \Closure $callback )
 Map::times( 3, function( $num ) {
     return $num * 10;
 } );
+// [0 => 0, 1 => 10, 2 => 20]
+
 Map::times( 3, function( $num, &$key ) {
     $key = $num * 2;
     return $num * 5;
 } );
+// [0 => 0, 2 => 5, 4 => 10]
+
 Map::times( 2, function( $num ) {
     return new \stdClass();
 } );
-```
-
-**Results:**
-
-```php
-[0 => 0, 1 => 10, 2 => 20]
-[0 => 0, 2 => 5, 4 => 10]
-[0 => new \stdClass(), 1 => new \stdClass()]
+// [0 => new \stdClass(), 1 => new \stdClass()]
 ```
 
 
@@ -3258,6 +3172,13 @@ public function toArray() : array
 ```
 
 * @return array Plain array
+
+**Examples:**
+
+```php
+Map::from( ['a'] )->toArray();
+// ['a']
+```
 
 
 ### toJson()
@@ -3277,7 +3198,20 @@ The parameter can be a single JSON_* constant or a bitmask of several constants
 combine by bitwise OR (&#124;), e.g.:
 
 ```php
- JSON_FORCE_OBJECT|JSON_HEX_QUOT
+JSON_FORCE_OBJECT|JSON_HEX_QUOT
+```
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b'] )->toJson();
+// '["a","b"]'
+
+Map::from( ['a' => 'b'] )->toJson();
+// '{"a":"b"}'
+
+Map::from( ['a', 'b'] )->toJson( JSON_FORCE_OBJECT );
+// '{"0":"a", "1":"b"}'
 ```
 
 
@@ -3295,13 +3229,9 @@ public function toUrl() : string
 
 ```php
 Map::from( ['a' => 1, 'b' => 2] )->toUrl();
+// a=1&b=2
+
 Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
-```
-
-**Results:**
-
-```php
-a=1&b=2
 a%5Bb%5D=abc&a%5Bc%5D=def&d=123
 ```
 
@@ -3324,30 +3254,28 @@ Map::from( [
   ['name' => 'B', 2020 => 300, 2021 => 200, 2022 => 100],
   ['name' => 'C', 2020 => 400, 2021 => 300, 2022 => 200],
 ] )->transpose();
-
-Map::from( [
-  ['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
-  ['name' => 'B', 2020 => 300, 2021 => 200],
-  ['name' => 'C', 2020 => 400]
-] );
-```
-
-**Results:**
-
-```php
+/*
 [
   'name' => ['A', 'B', 'C'],
   2020 => [200, 300, 400],
   2021 => [100, 200, 300],
   2022 => [50, 100, 200]
 ]
+*/
 
+Map::from( [
+  ['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
+  ['name' => 'B', 2020 => 300, 2021 => 200],
+  ['name' => 'C', 2020 => 400]
+] );
+/*
 [
   'name' => ['A', 'B', 'C'],
   2020 => [200, 300, 400],
   2021 => [100, 200],
   2022 => [50]
 ]
+*/
 ```
 
 
@@ -3367,23 +3295,19 @@ two parameters (item A and B) and must return -1 if item A is smaller than
 item B, 0 if both are equal and 1 if item A is greater than item B. Both, a
 method name and an anonymous function can be passed.
 
+The keys are preserved using this method and no new map is created.
+
 **Examples:**
 
 ```php
 Map::from( ['a' => 'B', 'b' => 'a'] )->uasort( 'strcasecmp' );
+// ['b' => 'a', 'a' => 'B']
+
 Map::from( ['a' => 'B', 'b' => 'a'] )->uasort( function( $itemA, $itemB ) {
     return strtolower( $itemA ) <=> strtolower( $itemB );
 } );
+// ['b' => 'a', 'a' => 'B']
 ```
-
-**Results:**
-
-```php
-['b' => 'a', 'a' => 'B']
-['b' => 'a', 'a' => 'B']
-```
-
-The keys are preserved using this method and no new map is created.
 
 
 ## uksort()
@@ -3402,23 +3326,19 @@ two parameters (key A and B) and must return -1 if key A is smaller than
 key B, 0 if both are equal and 1 if key A is greater than key B. Both, a
 method name and an anonymous function can be passed.
 
+The keys are preserved using this method and no new map is created.
+
 **Examples:**
 
 ```php
 Map::from( ['B' => 'a', 'a' => 'b'] )->uksort( 'strcasecmp' );
+// ['a' => 'b', 'B' => 'a']
+
 Map::from( ['B' => 'a', 'a' => 'b'] )->uksort( function( $keyA, $keyB ) {
     return strtolower( $keyA ) <=> strtolower( $keyB );
 } );
+// ['a' => 'b', 'B' => 'a']
 ```
-
-**Results:**
-
-```php
-['a' => 'b', 'B' => 'a']
-['a' => 'b', 'B' => 'a']
-```
-
-The keys are preserved using this method and no new map is created.
 
 
 ### union()
@@ -3433,20 +3353,17 @@ public function union( iterable $elements ) : self
 * @param iterable `$elements` List of elements
 * @return self Updated map for fluid interface
 
+If list entries should be overwritten, use [`merge()`](#merge) instead.
+
 **Examples:**
 
 ```php
 Map::from( [0 => 'a', 1 => 'b'] )->union( [0 => 'c'] );
+// [0 => 'a', 1 => 'b'] because the key 0 isn't overwritten
+
 Map::from( ['a' => 1, 'b' => 2] )->union( ['c' => 1] );
+// ['a' => 1, 'b' => 2, 'c' => 1]
 ```
-
-**Results:**
-
-The first example will result in `[0 => 'a', 1 => 'b']` because the key 0
-isn't overwritten. In the second example, the result will be a combined
-list: `['a' => 1, 'b' => 2, 'c' => 1]`.
-
-If list entries should be overwritten,  please use merge() instead!
 
 
 ### unique()
@@ -3459,22 +3376,20 @@ public function unique() : self
 
 * @return self New map
 
-**Examples:**
-
-```php
-Map::from( [0 => 'a', 1 => 'b', 2 => 'b', 3 => 'c'] )->unique();
-```
-
-**Results:**
-
-A new map with `[0 => 'a', 1 => 'b', 3 => 'c']` as content
-
 Two elements are condidered equal if comparing their string representions returns `TRUE`:
+
 ```php
 (string) $elem1 === (string) $elem2
 ```
 
 The keys of the elements are preserved in the new map.
+
+**Examples:**
+
+```php
+Map::from( [0 => 'a', 1 => 'b', 2 => 'b', 3 => 'c'] )->unique();
+// [0 => 'a', 1 => 'b', 3 => 'c']
+```
 
 
 ### unshift()
@@ -3493,13 +3408,11 @@ public function unshift( $value, $key = null ) : self
 
 ```php
 Map::from( ['a', 'b'] )->unshift( 'd' );
+// ['d', 'a', 'b']
+
 Map::from( ['a', 'b'] )->unshift( 'd', 'first' );
+// ['first' => 'd', 0 => 'a', 1 => 'b']
 ```
-
-**Results:**
-
-The first example will result in `['d', 'a', 'b']` while the second one will
-produce `['first' => 'd', 0 => 'a', 1 => 'b']`.
 
 
 ### usort()
@@ -3518,31 +3431,26 @@ two parameters (item A and B) and must return -1 if item A is smaller than
 item B, 0 if both are equal and 1 if item A is greater than item B. Both, a
 method name and an anonymous function can be passed.
 
+The keys are NOT preserved and elements get a new index. No new map is created.
+
 **Examples:**
 
 ```php
 Map::from( ['a' => 'B', 'b' => 'a'] )->usort( 'strcasecmp' );
+// [0 => 'a', 1 => 'B']
+
 Map::from( ['a' => 'B', 'b' => 'a'] )->usort( function( $itemA, $itemB ) {
     return strtolower( $itemA ) <=> strtolower( $itemB );
 } );
+// [0 => 'a', 1 => 'B']
 ```
-
-**Results:**
-
-```php
-[0 => 'a', 1 => 'B']
-[0 => 'a', 1 => 'B']
-```
-
-The keys aren't preserved and elements get a new index. No new map is created.
-
 
 **Performance note:**
 
-The bigger the list, the higher the performance impact because unshift()
+The bigger the list, the higher the performance impact because `unshift()`
 needs to create a new list and copies all existing elements to the new
-array. Usually, it's better to push() new entries at the end and reverse()
-the list afterwards:
+array. Usually, it's better to [`push()`](#push) new entries at the end and
+[`reverse()`](#reverse) the list afterwards:
 
 ```php
 $map->push( 'a' )->push( 'b' )->reverse();
@@ -3569,29 +3477,29 @@ public function values() : self
 
 ```php
 Map::from( ['x' => 'b', 2 => 'a', 'c'] )->values();
+// [0 => 'b', 1 => 'a', 2 => 'c']
 ```
-
-**Results:**
-
-A new map with `[0 => 'b', 1 => 'a', 2 => 'c']` as content
 
 
 ### walk()
 
 Applies the given callback to all elements.
 
-To change the values of the Map, specify the value parameter as reference
-(&$value). You can only change the values but not the keys nor the array
-structure.
-
 ```php
 public function walk( callable $callback, $data = null, bool $recursive = true ) : self
 ```
 
-* @param callable $callback Function with (item, key, data) parameters
-* @param mixed $data Arbitrary data that will be passed to the callback as third parameter
-* @param bool $recursive TRUE to traverse sub-arrays recursively (default), FALSE to iterate Map elements only
+* @param callable `$callback` Function with (item, key, data) parameters
+* @param mixed `$data` Arbitrary data that will be passed to the callback as third parameter
+* @param bool `$recursive` TRUE to traverse sub-arrays recursively (default), FALSE to iterate Map elements only
 * @return self Map for fluid interface
+
+To change the values of the Map, specify the value parameter as reference
+(`&$value`). You can only change the values but not the keys nor the array
+structure.
+
+By default, Map elements which are arrays will be traversed recursively.
+To iterate over the Map elements only, pass FALSE as third parameter.
 
 **Examples:**
 
@@ -3599,32 +3507,21 @@ public function walk( callable $callback, $data = null, bool $recursive = true )
 Map::from( ['a', 'B', ['c', 'd'], 'e'] )->walk( function( &$value ) {
     $value = strtoupper( $value );
 } );
+// ['A', 'B', ['C', 'D'], 'E']
+
 Map::from( [66 => 'B', 97 => 'a'] )->walk( function( $value, $key ) {
     echo 'ASCII ' . $key . ' is ' . $value . "\n";
 } );
+/*
+ASCII 66 is B
+ASCII 97 is a
+*/
+
 Map::from( [1, 2, 3] )->walk( function( &$value, $key, $data ) {
     $value = $data[$value] ?? $value;
 }, [1 => 'one', 2 => 'two'] );
+// ['one', 'two', 3]
 ```
-
-**Results:**
-
-The first example will change the Map elements to:
-```php
-   ['A', 'B', ['C', 'D'], 'E']
-```
-The output of the second one will be:
-```
-  ASCII 66 is B
-  ASCII 97 is a
-```
-The last example changes the Map elements to:
-```php
-  ['one', 'two', 3]
-```
-
-By default, Map elements which are arrays will be traversed recursively.
-To iterate over the Map elements only, pass FALSE as third parameter.
 
 
 ### where()
@@ -3639,39 +3536,6 @@ public function where( string $key, string $op, $value ) : self
 * @param string `$op` Operator used for comparison
 * @param mixed `$value` Value used for comparison
 
-**Examples:**
-
-```php
-Map::from( [
-  ['id' => 1, 'type' => 'name'],
-  ['id' => 2, 'type' => 'short'],
-] )->where( 'type', '==', 'name' );
-
-Map::from( [
-  ['id' => 3, 'price' => 10],
-  ['id' => 4, 'price' => 50],
-] )->where( 'price', '>', 20 );
-
-Map::from( [
-  ['id' => 3, 'price' => 10],
-  ['id' => 4, 'price' => 50],
-] )->where( 'price', 'in', [10, 25] );
-
-Map::from( [
-  ['id' => 3, 'price' => 10],
-  ['id' => 4, 'price' => 50],
-] )->where( 'price', '-', [10, 100] );
-```
-
-**Results:**
-
-```php
-[['id' => 1, 'type' => 'name']]
-[['id' => 4, 'price' => 50]]
-[['id' => 3, 'price' => 10]]
-[['id' => 3, 'price' => 10], ['id' => 4, 'price' => 50]]
-```
-
 Available operators are:
 
 * '==' : Equal
@@ -3684,6 +3548,34 @@ Available operators are:
 * '>' : Greater
 * 'in' : Array of value which are in the list of values
 * '-' : Values between array of start and end value, e.g. [10, 100] (inclusive)
+
+**Examples:**
+
+```php
+Map::from( [
+  ['id' => 1, 'type' => 'name'],
+  ['id' => 2, 'type' => 'short'],
+] )->where( 'type', '==', 'name' );
+// [['id' => 1, 'type' => 'name']]
+
+Map::from( [
+  ['id' => 3, 'price' => 10],
+  ['id' => 4, 'price' => 50],
+] )->where( 'price', '>', 20 );
+// [['id' => 4, 'price' => 50]]
+
+Map::from( [
+  ['id' => 3, 'price' => 10],
+  ['id' => 4, 'price' => 50],
+] )->where( 'price', 'in', [10, 25] );
+// [['id' => 3, 'price' => 10]]
+
+Map::from( [
+  ['id' => 3, 'price' => 10],
+  ['id' => 4, 'price' => 50],
+] )->where( 'price', '-', [10, 100] );
+// [['id' => 3, 'price' => 10], ['id' => 4, 'price' => 50]]
+```
 
 
 ### zip()
@@ -3701,16 +3593,13 @@ public function zip( $array1, ... ) : self
 
 ```php
 Map::from( [1, 2, 3] )->zip( ['one', 'two', 'three'], ['uno', 'dos', 'tres'] );
-```
-
-**Results:**
-
-```php
+/*
 [
     [1, 'one', 'uno'],
     [2, 'two', 'dos'],
     [3, 'three', 'tres'],
 ]
+*/
 ```
 
 
@@ -3747,9 +3636,9 @@ Map::method( 'notInBoth', function( iterable $elements ) {
 ```
 
 Your custom method has access to `$this->items` array which contains the map
-elements and can also use the internal `getArray( iterable $list )` method to convert
-iterable parameters (arrays, generators and objects implementing \Traversable) to
-plain arrays:
+elements and can also use the internal `$this->getArray( iterable $list )` method to
+convert iterable parameters (arrays, generators and objects implementing \Traversable)
+to plain arrays:
 
 ```php
 Map::method( 'combine', function( iterable $keys ) {
