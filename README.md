@@ -107,7 +107,7 @@ will return:
 
 ## Methods
 
-<columns>
+<columns><p>
 
 <a href="#map-function">function map</a>
 <a href="#is_map-function">function is_map</a>
@@ -219,7 +219,7 @@ will return:
 <a href="#where">where</a>
 <a href="#zip">zip</a>
 
-</columns>
+</p></columns>
 
 ### Create
 
