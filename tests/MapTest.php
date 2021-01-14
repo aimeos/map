@@ -449,34 +449,6 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
-	public function testDiffKeys()
-	{
-		$m1 = new Map( ['id' => 1, 'first_word' => 'Hello'] );
-		$m2 = new Map( ['id' => 123, 'foo_bar' => 'Hello'] );
-		$r = $m1->diffKeys( $m2 );
-
-		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['first_word' => 'Hello'], $r->toArray() );
-	}
-
-
-	public function testDiffKeysCallback()
-	{
-		$m1 = new Map( ['id' => 1, 'first_word' => 'Hello'] );
-		$m2 = new Map( ['ID' => 123, 'foo_bar' => 'Hello'] );
-		$r1 = $m1->diffKeys( $m2 );
-		$r2 = $m1->diffKeys( $m2, 'strcasecmp' );
-
-		// demonstrate that diffKeys wont support case insensitivity
-		$this->assertInstanceOf( Map::class, $r1 );
-		$this->assertEquals( ['id'=>1, 'first_word'=> 'Hello'], $r1->toArray() );
-
-		// allow for case insensitive difference
-		$this->assertInstanceOf( Map::class, $r2 );
-		$this->assertEquals( ['first_word' => 'Hello'], $r2->toArray() );
-	}
-
-
 	public function testDiffAssoc()
 	{
 		$m1 = new Map( ['id' => 1, 'first_word' => 'Hello', 'not_affected' => 'value'] );
@@ -502,6 +474,34 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		// allow for case insensitive difference
 		$this->assertInstanceOf( Map::class, $r2 );
 		$this->assertEquals( ['b' => 'brown', 'c' => 'blue', 'red'], $r2->toArray() );
+	}
+
+
+	public function testDiffKeys()
+	{
+		$m1 = new Map( ['id' => 1, 'first_word' => 'Hello'] );
+		$m2 = new Map( ['id' => 123, 'foo_bar' => 'Hello'] );
+		$r = $m1->diffKeys( $m2 );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['first_word' => 'Hello'], $r->toArray() );
+	}
+
+
+	public function testDiffKeysCallback()
+	{
+		$m1 = new Map( ['id' => 1, 'first_word' => 'Hello'] );
+		$m2 = new Map( ['ID' => 123, 'foo_bar' => 'Hello'] );
+		$r1 = $m1->diffKeys( $m2 );
+		$r2 = $m1->diffKeys( $m2, 'strcasecmp' );
+
+		// demonstrate that diffKeys wont support case insensitivity
+		$this->assertInstanceOf( Map::class, $r1 );
+		$this->assertEquals( ['id'=>1, 'first_word'=> 'Hello'], $r1->toArray() );
+
+		// allow for case insensitive difference
+		$this->assertInstanceOf( Map::class, $r2 );
+		$this->assertEquals( ['first_word' => 'Hello'], $r2->toArray() );
 	}
 
 
