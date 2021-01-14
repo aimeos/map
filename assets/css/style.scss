@@ -3,11 +3,13 @@
 
 @import "jekyll-theme-cayman";
 
+columns p {
+	column-count: 3;
+	column-width: 8rem;
+}
 
 columns a {
-	display: inline-block;
-	min-width: 32.5%;
-	width: 15rem;
+	display: block;
 	padding: 0 1rem;
 	line-height: 1.8em;
 }
