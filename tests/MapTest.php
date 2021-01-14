@@ -78,6 +78,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testArsortStringsCase()
+	{
+		$m = ( new Map( [0 => 'C', 1 => 'b'] ) );
+
+		$this->assertEquals( [1 => 'b', 0 => 'C'], $m->arsort()->toArray() );
+		$this->assertEquals( [0 => 'C', 1 => 'b'], $m->arsort( SORT_STRING|SORT_FLAG_CASE )->toArray() );
+	}
+
+
 	public function testAsortNummeric()
 	{
 		$m = ( new Map( [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2] ) )->asort();
@@ -93,6 +102,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertInstanceOf( Map::class, $m );
 		$this->assertEquals( ['c' => 'bar-10', 1 => 'bar-1', 'a' => 'foo'], $m->toArray() );
+	}
+
+
+	public function testAsortStringsCase()
+	{
+		$m = ( new Map( [0 => 'C', 1 => 'b'] ) );
+
+		$this->assertEquals( [0 => 'C', 1 => 'b'], $m->asort()->toArray() );
+		$this->assertEquals( [1 => 'b', 0 => 'C'], $m->asort( SORT_STRING|SORT_FLAG_CASE )->toArray() );
 	}
 
 

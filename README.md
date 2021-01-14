@@ -266,6 +266,16 @@ function is_map( $var ) : bool
 
 * @param mixed `$var` Variable to test
 
+**Examples:**
+
+```php
+is_map( new Map() );
+// true
+
+is_map( [] );
+// false
+```
+
 
 ### map() function
 
@@ -282,28 +292,53 @@ function map( $elements = [] ) : \Aimeos\Map
 
 ```php
 Map::from( [] );
+// internal: []
+
 Map::from( null );
+// internal: []
+
 Map::from( 'a' );
+// internal: ['a']
+
 Map::from( new Map() );
+// internal: []
+
 Map::from( new ArrayObject() );
+// internal: []
 ```
-
-**Results:**
-
-A new map instance containing the list of elements. In case of an empty
-array or null, the map object will contain an empty list. If a map object
-is passed, it will be returned instead of creating a new instance.
 
 
 ### __construct()
 
-Creates a new map.
+Creates a new map object.
 
 ```php
-public function __construct( iterable $elements = [] )
+public function __construct( $elements = [] )
 ```
 
-* @param iterable `$elements` List of elements
+* @param mixed `$elements` Single element, list of elements, Map object, iterable objects or iterators, everything else
+
+**Examples:**
+
+```php
+new Map();
+// internal: []
+
+new Map( [] );
+// internal: []
+
+new Map( null );
+// internal: []
+
+new Map( 'a' );
+// internal: ['a']
+
+new Map( new Map() );
+// internal: []
+
+new Map( new ArrayObject() );
+// internal: []
+```
 
 
 ### __call()
@@ -319,7 +354,7 @@ public function __call( string $name, array $params )
 
 * @param string `$name` Method name
 * @param array `$params` List of parameters
-* @return mixed&#124;self Result from called function or map with results from the element methods
+* @return mixed Result from called function
 
 **Examples:**
 
@@ -329,21 +364,25 @@ Map::method( 'case', function( $case = CASE_LOWER ) {
 } );
 Map::from( ['a' => 'bar'] )->case( CASE_UPPER );
 
+// ['A' => 'bar']
+```
+
+This does also allow calling object methods if the items are objects:
+
+```php
 $item = new MyClass(); // with method setStatus() (returning $this) and getCode() implemented
 Map::from( [$item, $item] )->setStatus( 1 )->getCode()->toArray();
 ```
 
-**Results:**
-
-The first example will return `['A' => 'bar']`.
-
-The second one will call the `setStatus()` method of each element in the map and
+This will call the `setStatus()` method of each element in the map and
 use their return values to create a new map. On the new map, the `getCode()`
 method is called for every element and its return values are also stored in a new
-map. This last map is then returned.
-If the elements are not objects or don't implement the method, they are skipped.
-If this applies to all elements, an empty map is returned. The map keys from the
-original map are preserved in the returned map.
+map. This last map is then returned and the map keys from the original map are
+preserved in the returned map.
+
+If the elements are not objects, they are skipped and if this applies to all
+elements, an empty map is returned. In case the map contains objects of mixed
+types and one of them doesn't implement the called method, an error will be thrown.
 
 
 ### __callStatic()
@@ -374,6 +413,8 @@ Map::foo( $arg1, $arg2 );
 
 Returns the elements after the given one.
 
+The keys are preserved using this method.
+
 ```php
 public function after( $value ) : self
 ```
@@ -385,21 +426,16 @@ public function after( $value ) : self
 
 ```php
 Map::from( ['a' => 1, 'b' => 0] )->after( 1 );
+// ['b' => 0]
+
 Map::from( [0 => 'b', 1 => 'a'] )->after( 'b' );
+// [1 => 'a']
+
 Map::from( ['a', 'c', 'b'] )->after( function( $item, $key ) {
     return $item >= 'c';
 } );
+// [2 => 'b']
 ```
-
-**Results:**
-
-```php
-['b' => 0]
-[1 => 'a']
-[2 => 'b']
-```
-
-The keys are preserved using this method.
 
 
 ### all()
@@ -412,10 +448,19 @@ public function all() : array
 
 * @return array Plain array
 
+**Examples:**
+
+```php
+Map::from( ['a'] )->all();
+// ['a']
+```
+
 
 ### arsort()
 
 Sorts all elements in reverse order and maintains the key association.
+
+The keys are preserved using this method and no new map is created.
 
 ```php
 public function arsort( int $options = SORT_REGULAR ) : self
@@ -424,21 +469,7 @@ public function arsort( int $options = SORT_REGULAR ) : self
 * @param int `$options` Sort options for `arsort()`
 * @return self Updated map for fluid interface
 
-**Examples:**
-
-```php
-Map::from( ['b' => 0, 'a' => 1] )->arsort();
-Map::from( [1 => 'a', 0 => 'b'] )->arsort();
-```
-
-**Results:**
-
-```php
-['a' => 1, 'b' => 0]
-[0 => 'b', 1 => 'a']
-```
-
-The parameter modifies how the values are compared. Possible parameter values are:
+The `$options` parameter modifies how the values are compared. Possible parameter values are:
 - SORT_REGULAR : compare elements normally (don't change types)
 - SORT_NUMERIC : compare elements numerically
 - SORT_STRING : compare elements as strings
@@ -446,12 +477,28 @@ The parameter modifies how the values are compared. Possible parameter values ar
 - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 - SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
-The keys are preserved using this method and no new map is created.
+**Examples:**
+
+```php
+Map::from( ['b' => 0, 'a' => 1] )->arsort();
+// ['a' => 1, 'b' => 0]
+
+Map::from( ['a', 'b'] )->arsort();
+// ['b', 'a']
+
+Map::from( [0 => 'C', 1 => 'b'] )->arsort();
+// [1 => 'b', 0 => 'C']
+
+Map::from( [0 => 'C', 1 => 'b'] )->arsort( SORT_STRING|SORT_FLAG_CASE );
+// [0 => 'C', 1 => 'b'] because 'C' -> 'c' and 'c' > 'b'
+```
 
 
 ### asort()
 
 Sorts all elements and maintains the key association.
+
+The keys are preserved using this method and no new map is created.
 
 ```php
 public function asort( int $options = SORT_REGULAR ) : self
@@ -460,20 +507,6 @@ public function asort( int $options = SORT_REGULAR ) : self
 * @param int `$options` Sort options for `asort()`
 * @return self Updated map for fluid interface
 
-**Examples:**
-
-```php
-Map::from( ['a' => 1, 'b' => 0] )->asort();
-Map::from( [0 => 'b', 1 => 'a'] )->asort();
-```
-
-**Results:**
-
-```php
-['b' => 0, 'a' => 1]
-[1 => 'a', 0 => 'b']
-```
-
 The parameter modifies how the values are compared. Possible parameter values are:
 - SORT_REGULAR : compare elements normally (don't change types)
 - SORT_NUMERIC : compare elements numerically
@@ -482,7 +515,21 @@ The parameter modifies how the values are compared. Possible parameter values ar
 - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 - SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
-The keys are preserved using this method and no new map is created.
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 'b' => 0] )->asort();
+// ['b' => 0, 'a' => 1]
+
+Map::from( [0 => 'b', 1 => 'a'] )->asort();
+// [1 => 'a', 0 => 'b']
+
+Map::from( [0 => 'C', 1 => 'b'] )->asort();
+// [0 => 'C', 1 => 'b'] because 'C' < 'b'
+
+Map::from( [0 => 'C', 1 => 'b'] )->arsort( SORT_STRING|SORT_FLAG_CASE );
+// [1 => 'b', 0 => 'C'] because 'C' -> 'c' and 'c' > 'b'
+```
 
 
 ### before()

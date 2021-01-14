@@ -361,11 +361,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * Examples:
 	 *  Map::from( ['b' => 0, 'a' => 1] )->arsort();
-	 *  Map::from( [1 => 'a', 0 => 'b'] )->arsort();
+	 *  Map::from( ['a', 'b'] )->arsort();
+	 *  Map::from( [0 => 'C', 1 => 'b'] )->arsort();
+	 *  Map::from( [0 => 'C', 1 => 'b'] )->arsort( SORT_STRING|SORT_FLAG_CASE );
 	 *
 	 * Results:
 	 *  ['a' => 1, 'b' => 0]
-	 *  [0 => 'b', 1 => 'a']
+	 *  ['b', 'a']
+	 *  [1 => 'b', 0 => 'C']
+	 *  [0 => 'C', 1 => 'b'] // because 'C' -> 'c' and 'c' > 'b'
 	 *
 	 * The parameter modifies how the values are compared. Possible parameter values are:
 	 * - SORT_REGULAR : compare elements normally (don't change types)
@@ -393,10 +397,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Examples:
 	 *  Map::from( ['a' => 1, 'b' => 0] )->asort();
 	 *  Map::from( [0 => 'b', 1 => 'a'] )->asort();
+	 *  Map::from( [0 => 'C', 1 => 'b'] )->asort();
+	 *  Map::from( [0 => 'C', 1 => 'b'] )->arsort( SORT_STRING|SORT_FLAG_CASE );
 	 *
 	 * Results:
 	 *  ['b' => 0, 'a' => 1]
 	 *  [1 => 'a', 0 => 'b']
+	 *  [0 => 'C', 1 => 'b'] // because 'C' < 'b'
+	 *  [1 => 'b', 0 => 'C'] // because 'C' -> 'c' and 'c' > 'b'
 	 *
 	 * The parameter modifies how the values are compared. Possible parameter values are:
 	 * - SORT_REGULAR : compare elements normally (don't change types)
