@@ -3,13 +3,154 @@
 
 @import "jekyll-theme-cayman";
 
-columns p {
+
+header h1>a {
+	color: #fff;
+}
+
+header .icon.github {
+	display: none;
+}
+
+header .octocat {
+	width: 3rem;
+}
+
+header svg {
+	display: none;
+	padding: 0.5rem;
+	color: #fff;
+}
+
+.container {
+	display: flex;
+	margin: auto;
+}
+
+.sidebar {
+	position: -webkit-sticky;
+	position: sticky;
+	top: 0;
+	order: 1;
+	padding: 1rem;
+	height: 100vh;
+	overflow-y: auto;
+	scrollbar-color: #606c71 #F5F5F5;
+	scrollbar-width: 5px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+	background-color: #606c71;
+}
+
+.sidebar::-webkit-scrollbar-track {
+	background-color: #F5F5F5;
+}
+
+.sidebar::-webkit-scrollbar {
+	width: 5px;
+}
+
+.sidebar a {
+	display: block;
+	line-height: 2.25rem;
+}
+
+.main-content {
+	margin: 0!important;
+}
+
+.main-content h1, .main-content h2, .main-content h3,
+.main-content h4, .main-content h5, .main-content h6 {
+	padding-top: 4rem;
+	margin-top: -1rem;
+}
+
+.main-content nav {
 	column-count: 3;
 	column-width: 8rem;
 }
 
-columns a {
+.main-content nav a {
 	display: block;
 	padding: 0 1rem;
 	line-height: 1.8em;
+}
+
+@media screen and (min-width: 64em) {
+	.container {
+		max-width: 80rem;
+		margin: 0 auto;
+	}
+	.sidebar {
+		width: 16rem;
+	}
+	.main-content {
+		width: calc(100% - 16rem);
+		padding: 4rem!important;
+	}
+}
+
+@media screen and (max-width: 64em) {
+	.sidebar {
+		width: 12rem;
+	}
+	.main-content {
+		width: calc(100% - 12rem);
+		padding: 2rem!important;
+	}
+}
+
+@media screen and (max-width: 48em) {
+	.page-header {
+		position: fixed;
+		padding: 0.5rem;
+		height: 4rem;
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+	}
+	.project-name {
+		font-size: 1.75rem!important;
+	}
+	.project-tagline {
+		display: none;
+	}
+	header .icon.github {
+		display: inline-block;
+	}
+	header .btn.github {
+		display: none;
+	}
+	header .open.show,
+	header .close.show {
+		display: inline-block;
+	}
+	.sidebar {
+		position: fixed;
+		right: -16rem;
+		top: 4rem;
+		width: 16rem;
+		padding: 1rem 2rem;
+		height: calc(100vh - 4rem);
+		transition: right .5s;
+		scrollbar-color: #f0f0f0 #606c71;
+		background-color: #333;
+		color: #f0f0f0;
+	}
+	.sidebar::-webkit-scrollbar-thumb {
+		background-color: #f0f0f0;
+	}
+	.sidebar::-webkit-scrollbar-track {
+		background-color: #606c71;
+	}
+	.sidebar.show {
+		right: 0;
+	}
+	.sidebar a {
+		color: #f0f0f0;
+	}
+	.main-content {
+		width: 100%;
+	}
 }

@@ -15,7 +15,7 @@ composer req aimeos/map
 
 **Table of contents**
 
-* [Why](#why)
+* [Why PHP Map](#why-php-map)
 * [List of methods](#methods)
     * [Create](#create)
     * [Access](#access)
@@ -31,7 +31,7 @@ composer req aimeos/map
 * [Custom methods](#custom-methods)
 * [Performance](#performance)
 
-## Why
+## Why PHP Map
 
 **Instead of:**
 
@@ -107,7 +107,7 @@ will return:
 
 ## Methods
 
-<columns><p>
+<nav>
 
 <a href="#map-function">function map</a>
 <a href="#is_map-function">function is_map</a>
@@ -219,7 +219,7 @@ will return:
 <a href="#where">where</a>
 <a href="#zip">zip</a>
 
-</p></columns>
+</nav>
 
 ### Create
 
