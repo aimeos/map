@@ -58,13 +58,19 @@ header svg {
 }
 
 .sidebar .search {
+	width: calc(100% + 1rem);
+	margin: 0 -0.5rem;
 	margin-bottom: 1rem;
 	padding: 0.25rem;
-	width: 100%;
+	color: #606c71;
 }
 
 .sidebar .search:focus {
 	outline: none;
+}
+
+.sidebar .search::placeholder {
+	color: #aaa;
 }
 
 .sidebar a {
