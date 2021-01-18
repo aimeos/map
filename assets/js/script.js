@@ -32,4 +32,17 @@
 
 	sidebar.addEventListener('click', fcn);
 	content.addEventListener('click', fcn);
+
+
+	const search = document.querySelector('.sidebar .search');
+
+	search.addEventListener('input', function(ev) {
+		methods.querySelectorAll('a').forEach(function(item) {
+			if(item.textContent.includes(ev.target.value)) {
+				item.classList.remove('hide');
+			} else {
+				item.classList.add('hide');
+			}
+		});
+	});
 })();

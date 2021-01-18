@@ -4,6 +4,10 @@
 @import "jekyll-theme-cayman";
 
 
+body {
+	background-color: #333;
+}
+
 header h1>a {
 	color: #fff;
 }
@@ -23,6 +27,7 @@ header svg {
 }
 
 .container {
+	background-color: #fff;
 	display: flex;
 	margin: auto;
 }
@@ -35,6 +40,7 @@ header svg {
 	padding: 1rem;
 	height: 100vh;
 	overflow-y: auto;
+	background-color: #f3f6fa;
 	scrollbar-color: #606c71 #F5F5F5;
 	scrollbar-width: 5px;
 }
@@ -51,9 +57,22 @@ header svg {
 	width: 5px;
 }
 
+.sidebar .search {
+	margin-bottom: 1rem;
+	padding: 0.25rem;
+}
+
+.sidebar .search:focus {
+	outline: none;
+}
+
 .sidebar a {
 	display: block;
 	line-height: 2.25rem;
+}
+
+.sidebar a.hide {
+	display: none;
 }
 
 .main-content {
