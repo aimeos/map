@@ -30,7 +30,7 @@
 		open.classList.add('show');
 	};
 
-	sidebar.addEventListener('click', fcn);
+	methods.addEventListener('click', fcn);
 	content.addEventListener('click', fcn);
 
 
