@@ -21,6 +21,7 @@
 		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 		<link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+		<link rel="preconnect" href="https://fonts.googleapis.com">
 
 		<script type="application/ld+json">
 			{"@type":"WebSite","headline":"PHP Map - Manual","url":"https://php-map.org/","description":"PHP Map package for easy and elegant handling of PHP arrays as array-like map objects","name":"PHP Map","@context":"https://schema.org"}
@@ -33,7 +34,7 @@
 			{% if site.github.is_project_page %}
 				<a href="{{ site.github.repository_url }}" class="btn github">View on GitHub</a>
 				<a href="{{ site.github.repository_url }}" class="icon github">
-					<img class="octocat" src="https://github.githubassets.com/images/modules/logos_page/Octocat.png" />
+					<img class="octocat" src="https://github.githubassets.com/images/modules/logos_page/Octocat.png" alt="View on Github" />
 				</a>
 			{% endif %}
 
@@ -50,8 +51,8 @@
 
 		<div class="container">
 			<nav class="sidebar">
-				<h2>Methods</h2>
-				<input class="search" placeholder="Search" />
+				<h2><label for="#search">Methods</label></h2>
+				<input id="search" class="search" placeholder="Search" />
 				<div class="methods"></div>
 			</nav>
 			<main id="content" class="main-content" role="main">

@@ -37,8 +37,10 @@
 	const search = document.querySelector('.sidebar .search');
 
 	search.addEventListener('input', function(ev) {
+		let regex = new RegExp( ev.target.value, 'i');
+
 		methods.querySelectorAll('a').forEach(function(item) {
-			if(item.textContent.includes(ev.target.value)) {
+			if(regex.test(item.textContent)) {
 				item.classList.remove('hide');
 			} else {
 				item.classList.add('hide');
