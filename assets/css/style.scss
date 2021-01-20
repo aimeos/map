@@ -6,6 +6,11 @@
 
 body {
 	background-color: #333;
+	line-height: 1.75;
+}
+
+a {
+	display: inline-block;
 }
 
 header h1>a {
@@ -100,7 +105,10 @@ header svg {
 .main-content nav a {
 	display: block;
 	padding: 0 1rem;
-	line-height: 1.8em;
+}
+
+.main-content .highlight pre, .main-content pre {
+	line-height: 1.75;
 }
 
 @media screen and (min-width: 64em) {

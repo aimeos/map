@@ -1,8 +1,8 @@
-[![Build Status](https://circleci.com/gh/aimeos/map.svg?style=shield)](https://circleci.com/gh/aimeos/map)
-[![Coverage Status](https://coveralls.io/repos/github/aimeos/map/badge.svg)](https://coveralls.io/github/aimeos/map)
-[![License](https://poser.pugx.org/aimeos/map/license.svg)](https://packagist.org/packages/aimeos/map)
-[![Latest Stable Version](https://poser.pugx.org/aimeos/map/v/stable)](https://packagist.org/packages/aimeos/map)
-[![Total Downloads](https://poser.pugx.org/aimeos/map/downloads)](https://packagist.org/packages/aimeos/map)
+<a href="https://circleci.com/gh/aimeos/map"><img src="https://circleci.com/gh/aimeos/map.svg?style=shield" alt="Build Status" height="20"></a>
+<a href="https://coveralls.io/github/aimeos/map"><img src="https://coveralls.io/repos/github/aimeos/map/badge.svg" alt="Coverage Status" height="20"></a>
+<a href="https://packagist.org/packages/aimeos/map"><img src="https://poser.pugx.org/aimeos/map/license.svg" alt="License" height="20"></a>
+<a href="https://packagist.org/packages/aimeos/map"><img src="https://poser.pugx.org/aimeos/map/v/stable" alt="Latest Stable Version" height="20"></a>
+<a href="https://packagist.org/packages/aimeos/map"><img src="https://poser.pugx.org/aimeos/map/downloads" alt="Build Status" height="20"></a>
 
 # Working with PHP arrays easily
 
