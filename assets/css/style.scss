@@ -9,9 +9,10 @@ body {
 	line-height: 1.75;
 }
 
-a {
+ul a,
+nav a {
 	display: inline-block;
-	padding: 0.25rem 0;
+	line-height: 2.5;
 }
 
 header h1>a {
@@ -193,4 +194,11 @@ header svg {
 /* Better contrast of code examples */
 .highlight .c1 { color: #707070 }
 .highlight .nb { color: #007aa0 }
+.highlight .no { color: #007b7b }
 .highlight .nv { color: #007b7b }
+.highlight .mi { color: #007e7e }
+.highlight .mf { color: #007e7e }
+
+.main-content h1, .main-content h2, .main-content h3, .main-content h4, .main-content h5, .main-content h6 {
+	color: #13874d;
+}
