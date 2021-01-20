@@ -11,6 +11,7 @@ body {
 
 a {
 	display: inline-block;
+	padding: 0.25rem 0;
 }
 
 header h1>a {
@@ -80,7 +81,6 @@ header svg {
 
 .sidebar a {
 	display: block;
-	line-height: 2.25rem;
 }
 
 .sidebar a.hide {
@@ -189,3 +189,8 @@ header svg {
 		width: 100%;
 	}
 }
+
+/* Better contrast of code examples */
+.highlight .c1 { color: #707070 }
+.highlight .nb { color: #007aa0 }
+.highlight .nv { color: #007b7b }
