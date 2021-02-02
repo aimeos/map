@@ -3424,7 +3424,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			return $elements;
 		}
 
-		if( $elements instanceof self || is_object( $elements ) && method_exists( $elements, 'toArray' ) ) {
+		if( $elements instanceof self ) {
 			return $elements->toArray();
 		}
 
