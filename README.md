@@ -1393,7 +1393,7 @@ removed if their value converted to boolean is FALSE:
 
 ```php
 Map::from( [2 => 'a', 6 => 'b', 13 => 'm', 30 => 'z'] )->filter( function( $value, $key ) {
-    return `$key` < 10 && `$value` < 'n';
+    return $key < 10 && $value < 'n';
 } );
 // ['a', 'b']
 ```
