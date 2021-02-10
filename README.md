@@ -3149,15 +3149,17 @@ Map::from( ['a', 'b'] )->suffix( function( $item, $key ) {
 
 Returns the sum of all integer and float values in the map.
 
-For nested arrays, you have to pass the name of the column of the nested
-array which should be used for comparison.
-
 ```php
 public function sum( string $col = null ) : int
 ```
 
 * @param string&#124;null $col Key in the nested array or object to sum up
 * @return mixed Sum of all elements or 0 if there are no elements in the map
+
+This does also work to map values from multi-dimensional arrays by passing the keys
+of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
+to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
+public properties of objects or objects implementing `__isset()` and `__get()` methods.
 
 **Examples:**
 
@@ -3170,14 +3172,9 @@ Map::from( [1, 'sum', 5] )->sum();
 
 Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' );
 // 90
-```
 
-If you need a function to retrieve the sum of all values, then use:
-
-```php
-$sum = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) {
-    return $result += $entry['v']['p'] ?? 0;
-}, 0 );
+Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( 'i/p' );
+// 80
 ```
 
 
