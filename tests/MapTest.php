@@ -1372,13 +1372,19 @@ Array
 	{
 		$this->assertEquals( 5, Map::from( [1, 3, 2, 5, 4] )->max() );
 		$this->assertEquals( 'foo', Map::from( ['bar', 'foo', 'baz'] )->max() );
-		$this->assertEquals( 50, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' ) );
 	}
 
 
 	public function testMaxEmpty()
 	{
 		$this->assertNull( Map::from( [] )->max() );
+	}
+
+
+	public function testMaxPath()
+	{
+		$this->assertEquals( 50, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' ) );
+		$this->assertEquals( 50, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( 'i/p' ) );
 	}
 
 

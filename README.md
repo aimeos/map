@@ -2203,8 +2203,10 @@ public function max( string $col = null )
 * @param string&#124;null $col Key in the nested array or object to check for
 * @return mixed Maximum value or NULL if there are no elements in the map
 
-For nested arrays, you have to pass the name of the column of the nested
-array which should be used for comparison.
+This does also work to map values from multi-dimensional arrays by passing the keys
+of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
+to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
+public properties of objects or objects implementing `__isset()` and `__get()` methods.
 
 Be careful comparing elements of different types because this can have
 unpredictable results due to the [PHP comparison rules](https://www.php.net/manual/en/language.operators.comparison.php)
@@ -2220,14 +2222,9 @@ Map::from( ['bar', 'foo', 'baz'] )->max();
 
 Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' );
 // 50
-```
 
-If you need a function to retrieve the maximum of all values, then use:
-
-```php
-$sum = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) {
-    return max( $entry['v']['p'] ?? null, $result );
-} );
+Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( 'i/p' );
+// 50
 ```
 
 
