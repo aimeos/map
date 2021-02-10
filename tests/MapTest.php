@@ -2491,6 +2491,14 @@ Array
 	}
 
 
+	public function testWherePath()
+	{
+		$m = Map::from( [['item' => ['id' => 3, 'price' => 10]], ['item' => ['id' => 4, 'price' => 50]]] );
+
+		$this->assertEquals( [1 => ['item' => ['id' => 4, 'price' => 50]]], $m->where( 'item/price', '>', 30 )->toArray() );
+	}
+
+
 	public function testZip()
 	{
 		$m = new Map( [1, 2, 3] );

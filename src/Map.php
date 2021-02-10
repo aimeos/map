@@ -3321,11 +3321,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *    ['id' => 4, 'price' => 50],
 	 *  ] )->where( 'price', '-', [10, 100] );
 	 *
+	 *  Map::from( [
+	 *    ['item' => ['id' => 3, 'price' => 10]],
+	 *    ['item' => ['id' => 4, 'price' => 50]],
+	 *  ] )->where( 'item/price', '>', 30 );
+	 *
 	 * Results:
-	 *  [['id' => 1, 'type' => 'name']]
-	 *  [['id' => 4, 'price' => 50]]
-	 *  [['id' => 3, 'price' => 10]]
-	 *  [['id' => 3, 'price' => 10], ['id' => 4, 'price' => 50]]
+	 *  [0 => ['id' => 1, 'type' => 'name']]
+	 *  [1 => ['id' => 4, 'price' => 50]]
+	 *  [0 => ['id' => 3, 'price' => 10]]
+	 *  [0 => ['id' => 3, 'price' => 10], ['id' => 4, 'price' => 50]]
+	 *  [1 => ['item' => ['id' => 4, 'price' => 50]]]
 	 *
 	 * Available operators are:
 	 * * '==' : Equal
@@ -3339,7 +3345,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * 'in' : Array of value which are in the list of values
 	 * '-' : Values between array of start and end value, e.g. [10, 100] (inclusive)
 	 *
-	 * @param string $key Key of the array or object to used for comparison
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
+	 *
+	 * @param string $key Key or path of the value in the array or object used for comparison
 	 * @param string $op Operator used for comparison
 	 * @param mixed $value Value used for comparison
 	 */
@@ -3347,12 +3358,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	{
 		return $this->filter( function( $item, $idx ) use ( $key, $op, $value ) {
 
-			$item = (array) $item;
-
-			if( array_key_exists( $key, $item ) )
+			if( ( $val = $this->getValue( $item, explode( $this->sep, $key ) ) ) !== null )
 			{
-				$val = $item[$key];
-
 				switch( $op )
 				{
 					case '-':

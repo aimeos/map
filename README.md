@@ -3641,7 +3641,7 @@ Filters the list of elements by a given condition.
 public function where( string $key, string $op, $value ) : self
 ```
 
-* @param string `$key` Key of the array or object to used for comparison
+* @param string `$key` Key or path of the value of the array or object used for comparison
 * @param string `$op` Operator used for comparison
 * @param mixed `$value` Value used for comparison
 
@@ -3698,6 +3698,16 @@ Map::from( [
 /*
 [
     ['id' => 3, 'price' => 10],
+    ['id' => 4, 'price' => 50]
+]
+*/
+
+Map::from( [
+  ['item' => ['id' => 3, 'price' => 10]],
+  ['item' => ['id' => 4, 'price' => 50]],
+] )->where( 'item/price', '>', 30 );
+/*
+[
     ['id' => 4, 'price' => 50]
 ]
 */
