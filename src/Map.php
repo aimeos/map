@@ -16,7 +16,7 @@ namespace Aimeos;
 class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 {
 	protected static $methods = [];
-	protected static $delim = '.';
+	protected static $delim = '/';
 	protected $list = [];
 	protected $sep;
 
@@ -136,7 +136,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  '.'
 	 *  'baz'
 	 *
-	 * @param string|null $char Separator character, e.g. "/" for "key/to/value" instead of "key.to.value"
+	 * @param string|null $char Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
 	 * @return string Separator used up to now
 	 */
 	public static function delimiter( ?string $char = null ) : string
@@ -540,9 +540,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( 'val', 'id' );
 	 *  Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col( null, 'id' );
 	 *  Map::from( [['id' => 'ix', 'val' => 'v1'], ['id' => 'ix', 'val' => 'v2']] )->col( null, 'id' );
-	 *  Map::from( [['foo' => ['bar' => 'one', 'baz' => 'two']]] )->col( 'foo.baz', 'foo.bar' );
-	 *  Map::from( [['foo' => ['bar' => 'one']]] )->col( 'foo.baz', 'foo.bar' );
-	 *  Map::from( [['foo' => ['baz' => 'two']]] )->col( 'foo.baz', 'foo.bar' );
+	 *  Map::from( [['foo' => ['bar' => 'one', 'baz' => 'two']]] )->col( 'foo/baz', 'foo/bar' );
+	 *  Map::from( [['foo' => ['bar' => 'one']]] )->col( 'foo/baz', 'foo/bar' );
+	 *  Map::from( [['foo' => ['baz' => 'two']]] )->col( 'foo/baz', 'foo/bar' );
 	 *
 	 * Results:
 	 *  ['v1', 'v2']
@@ -558,7 +558,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * one will be part of the resulting map.
 	 *
 	 * This does also work to map values from multi-dimensional arrays by passing the keys
-	 * of the arrays separated by the delimiter ("." by default), e.g. "key1.key2.key3"
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
 	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
 	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
@@ -919,7 +919,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  [1 => ['i' => ['p' => '1']]]
 	 *
 	 * This does also work for multi-dimensional arrays by passing the keys
-	 * of the arrays separated by the delimiter ("." by default), e.g. "key1.key2.key3"
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
 	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
 	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
@@ -1251,7 +1251,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Examples:
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->get( 'a' );
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->get( 'c', 'Z' );
-	 *  Map::from( ['a' => ['b' => ['c' => 'Y']]] )->get( 'a.b.c' );
+	 *  Map::from( ['a' => ['b' => ['c' => 'Y']]] )->get( 'a/b/c' );
 	 *  Map::from( [] )->get( 'Y', new \Exception( 'error' ) );
 	 *  Map::from( [] )->get( function() { return rand(); } );
 	 *
@@ -1262,7 +1262,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * returned.
 	 *
 	 * This does also work for multi-dimensional arrays by passing the keys
-	 * of the arrays separated by the delimiter ("." by default), e.g. "key1.key2.key3"
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
 	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
 	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
@@ -1380,7 +1380,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Examples:
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'a' );
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->has( ['a', 'b'] );
-	 *  Map::from( ['a' => ['b' => ['c' => 'Y']]] )->has( 'a.b.c' );
+	 *  Map::from( ['a' => ['b' => ['c' => 'Y']]] )->has( 'a/b/c' );
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'c' );
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->has( ['a', 'c'] );
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'X' );
@@ -1389,7 +1389,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The first three examples will return TRUE while the other ones will return FALSE
 	 *
 	 * This does also work for multi-dimensional arrays by passing the keys
-	 * of the arrays separated by the delimiter ("." by default), e.g. "key1.key2.key3"
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
 	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
 	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
@@ -2532,7 +2532,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 *  'baz'
 	 *
-	 * @param string|null $char Separator character, e.g. "/" for "key/to/value" instead of "key.to.value"
+	 * @param string|null $char Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
 	 * @return self Same map for fluid interface
 	 */
 	public function sep( string $char ) : self
@@ -3065,7 +3065,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 		return new static( $result );
 	}
-
 
 
 	/**
