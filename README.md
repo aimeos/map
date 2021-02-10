@@ -816,7 +816,7 @@ public function collapse( int $depth = null ) : self
 * @return self New map with all sub-array elements added into it recursively, up to the specified depth
 
 The keys are preserved and already existing elements will be overwritten. This
-is also true for numeric keys! This method is similar than flat() but replaces
+is also true for numeric keys! This method is similar than [flat()](#flat) but replaces
 already existing elements.
 
 A value smaller than 1 for depth will return the same map elements. Collapsing
