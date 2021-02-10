@@ -1474,13 +1474,19 @@ Array
 	{
 		$this->assertEquals( 1, Map::from( [2, 3, 1, 5, 4] )->min() );
 		$this->assertEquals( 'bar', Map::from( ['baz', 'foo', 'bar'] )->min() );
-		$this->assertEquals( 10, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' ) );
 	}
 
 
 	public function testMinEmpty()
 	{
 		$this->assertNull( Map::from( [] )->min() );
+	}
+
+
+	public function testMinPath()
+	{
+		$this->assertEquals( 10, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' ) );
+		$this->assertEquals( 30, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( 'i/p' ) );
 	}
 
 
