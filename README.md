@@ -276,7 +276,7 @@ will return:
 * [countBy()](#countby) : Counts how often the same values are in the map
 * [max()](#max) : Returns the maximum value of all elements
 * [min()](#max) : Returns the minium value of all elements
-* [sum()](#sum) :. Returns the sum of all values in the map
+* [sum()](#sum) : Returns the sum of all values in the map
 
 ### Debug
 
@@ -774,7 +774,7 @@ Items with the same value for $indexcol will overwrite previous items and only t
 will be part of the resulting map.
 
 This does also work to map values from multi-dimensional arrays by passing the keys
-of the arrays separated by the delimiter ("." by default), e.g. `key1.key2.key3`
+of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
 to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
 public properties of objects or objects implementing `__isset()` and `__get()` methods.
 
@@ -793,13 +793,13 @@ Map::from( [['id' => 'i1', 'val' => 'v1'], ['id' => 'i2', 'val' => 'v2']] )->col
 Map::from( [['id' => 'ix', 'val' => 'v1'], ['id' => 'ix', 'val' => 'v2']] )->col( null, 'id' );
 // ['ix' => ['id' => 'ix', 'val' => 'v2']]
 
-Map::from( [['foo' => ['bar' => 'one', 'baz' => 'two']]] )->col( 'foo.baz', 'foo.bar' );
+Map::from( [['foo' => ['bar' => 'one', 'baz' => 'two']]] )->col( 'foo/baz', 'foo/bar' );
 // ['one' => 'two']
 
-Map::from( [['foo' => ['bar' => 'one']]] )->col( 'foo.baz', 'foo.bar' );
+Map::from( [['foo' => ['bar' => 'one']]] )->col( 'foo/baz', 'foo/bar' );
 // ['one' => null]
 
-Map::from( [['foo' => ['baz' => 'two']]] )->col( 'foo.baz', 'foo.bar' );
+Map::from( [['foo' => ['baz' => 'two']]] )->col( 'foo/baz', 'foo/bar' );
 // ['two']
 ```
 
@@ -990,7 +990,7 @@ Sets or returns the seperator for paths to values in multi-dimensional arrays or
 public static function delimiter( ?string $char = null ) : string
 ```
 
-* @param string `$char` Separator character, e.g. "/" for "key/to/value" instaed of "key.to.value"
+* @param string `$char` Separator character, e.g. "." for "key.to.value" instaed of "key/to/value"
 * @return string Separator used up to now
 
 The static method only changes the separator for new maps created afterwards.
@@ -1000,10 +1000,10 @@ the separator of an existing map, use the [sep()](#sep) method instead.
 **Examples:**
 
 ```php
-Map::delimiter( '/' );
-// '.'
+Map::delimiter( '.' );
+// '/'
 
-Map::from( ['foo' => ['bar' => 'baz']] )->get( 'foo/bar' );
+Map::from( ['foo' => ['bar' => 'baz']] )->get( 'foo.bar' );
 // 'baz'
 ```
 
@@ -1180,7 +1180,7 @@ public function duplicates( string $col = null ) : self
 * @return self New map
 
 This does also work to map values from multi-dimensional arrays by passing the keys
-of the arrays separated by the delimiter ("." by default), e.g. `key1.key2.key3`
+of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
 to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
 public properties of objects or objects implementing `__isset()` and `__get()` methods.
 
@@ -1195,7 +1195,7 @@ Map::from( [1, 2, '1', 3] )->duplicates()
 Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->duplicates( 'p' )
 // [1 => ['p' => 1]]
 
-Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i.p' )
+Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i/p' )
 // [1 => ['i' => ['p' => '1']]]
 ```
 
@@ -1617,7 +1617,7 @@ public function get( $key, $default = null )
 * @return mixed Value from map or default value
 
 This does also work to map values from multi-dimensional arrays by passing the keys
-of the arrays separated by the delimiter ("." by default), e.g. `key1.key2.key3`
+of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
 to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
 public properties of objects or objects implementing `__isset()` and `__get()` methods.
 
@@ -1630,7 +1630,7 @@ Map::from( ['a' => 'X', 'b' => 'Y'] )->get( 'a' );
 Map::from( ['a' => 'X', 'b' => 'Y'] )->get( 'c', 'Z' );
 // 'Z'
 
-Map::from( ['a' => ['b' => ['c' => 'Y']]] )->get( 'a.b.c' );
+Map::from( ['a' => ['b' => ['c' => 'Y']]] )->get( 'a/b/c' );
 // 'Y'
 
 Map::from( [] )->get( new \Exception( 'error' ) );
@@ -1753,7 +1753,7 @@ If several keys are passed as array, all keys must exist in the map to
 return TRUE.
 
 This does also work to map values from multi-dimensional arrays by passing the keys
-of the arrays separated by the delimiter ("." by default), e.g. `key1.key2.key3`
+of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
 to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
 public properties of objects or objects implementing `__isset()` and `__get()` methods.
 
@@ -1766,7 +1766,7 @@ Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'a' );
 Map::from( ['a' => 'X', 'b' => 'Y'] )->has( ['a', 'b'] );
 // false
 
-Map::from( ['a' => ['b' => ['c' => 'Y']]] )->has( 'a.b.c' );
+Map::from( ['a' => ['b' => ['c' => 'Y']]] )->has( 'a/b/c' );
 // true
 
 Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'c' );
@@ -2862,7 +2862,7 @@ Sets the seperator for paths to values in multi-dimensional arrays or objects.
 public static function sep( string $char ) : self
 ```
 
-* @param string `$char` Separator character, e.g. "/" for "key/to/value" instead of "key.to.value"
+* @param string `$char` Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
 * @return self Same map for fluid interface
 
 This method only changes the separator for the current map instance. To
@@ -2872,7 +2872,7 @@ change the separator for all maps created afterwards, use the static
 **Examples:**
 
 ```php
-Map::from( ['foo' => ['bar' => 'baz']] )->sep( '/' )->get( 'foo/bar' );
+Map::from( ['foo' => ['bar' => 'baz']] )->sep( '.' )->get( 'foo.bar' );
 // 'baz'
 ```
 
