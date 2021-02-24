@@ -235,6 +235,7 @@ will return:
 * [from()](#from) : Creates a new map from passed elements
 * [fromJson()](#fromjson) : Creates a new map from a JSON string
 * [times()](#times) : Creates a new map by invoking the closure a number of times
+* [tree()](#tree) : Creates a tree structure from the list items
 
 ### Access
 
@@ -3385,6 +3386,73 @@ Map::from( [
   2022 => [50]
 ]
 */
+```
+
+
+### tree()
+
+Creates a tree structure from the list items.
+
+```php
+public function tree( string $idKey, string $parentKey, string $nestKey = 'children' ) : self
+```
+
+* @param string `$idKey` Name of the key with the unique ID of the node
+* @param string `$parentKey` Name of the key with the ID of the parent node
+* @param string `$nestKey` Name of the key with will contain the children of the node
+* @return self New map with one or more root tree nodes
+
+Use this method to rebuild trees e.g. from database records. To traverse
+trees, use the [traverse()](#traverse) method.
+
+**Examples:**
+
+```php
+Map::from( [
+  ['id' => 1, 'pid' => null, 'lvl' => 0, 'name' => 'n1'],
+  ['id' => 2, 'pid' => 1, 'lvl' => 1, 'name' => 'n2'],
+  ['id' => 3, 'pid' => 2, 'lvl' => 2, 'name' => 'n3'],
+  ['id' => 4, 'pid' => 1, 'lvl' => 1, 'name' => 'n4'],
+  ['id' => 5, 'pid' => 3, 'lvl' => 2, 'name' => 'n5'],
+  ['id' => 6, 'pid' => 1, 'lvl' => 1, 'name' => 'n6'],
+] )->tree( 'id', 'pid' );
+/*
+[1 => [
+  'id' => 1, 'pid' => null, 'lvl' => 0, 'name' => 'n1', 'children' => [
+    2 => ['id' => 2, 'pid' => 1, 'lvl' => 1, 'name' => 'n2', 'children' => [
+      3 => ['id' => 3, 'pid' => 2, 'lvl' => 2, 'name' => 'n3', 'children' => []]
+    ]],
+    4 => ['id' => 4, 'pid' => 1, 'lvl' => 1, 'name' => 'n4', 'children' => [
+      5 => ['id' => 5, 'pid' => 3, 'lvl' => 2, 'name' => 'n5', 'children' => []]
+    ]],
+    6 => ['id' => 6, 'pid' => 1, 'lvl' => 1, 'name' => 'n6', 'children' => []]
+  ]
+]]
+*/
+```
+
+To build the tree correctly, the items must be in order or at least the
+nodes of the lower levels must come first. For a tree like this:
+
+```
+n1
+|- n2
+|  |- n3
+|- n4
+|  |- n5
+|- n6
+```
+
+Accepted item order:
+- in order: n1, n2, n3, n4, n5, n6
+- lower levels first: n1, n2, n4, n6, n3, n5
+
+If your items are unordered, apply [usort()](#usort) first to the map entries, e.g.
+
+```php
+Map::from( [['id' => 3, 'lvl' => 2], ...] )->usort( function( $item1, $item2 ) {
+  return $item1['lvl'] <=> $item2['lvl'];
+} );
 ```
 
 

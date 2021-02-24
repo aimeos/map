@@ -2253,6 +2253,38 @@ Array
 	}
 
 
+	public function testTree()
+	{
+		$expected = [
+			1 => [
+				'id' => 1, 'pid' => null, 'name' => 'Root', 'children' => [
+					2 => ['id' => 2, 'pid' => 1, 'name' => '1/2', 'children' => [
+						4 => ['id' => 4, 'pid' => 2, 'name' => '1/2/4', 'children' => []],
+						5 => ['id' => 5, 'pid' => 2, 'name' => '1/2/5', 'children' => []],
+					]],
+					3 => ['id' => 3, 'pid' => 1, 'name' => '1/3', 'children' => [
+						6 => ['id' => 6, 'pid' => 3, 'name' => '1/3/6', 'children' => []],
+						7 => ['id' => 7, 'pid' => 3, 'name' => '1/3/7', 'children' => []],
+					]]
+				]
+			]
+		];
+
+		$data = [
+			['id' => 1, 'pid' => null, 'name' => 'Root'],
+			['id' => 2, 'pid' => 1, 'name' => '1/2'],
+			['id' => 3, 'pid' => 1, 'name' => '1/3'],
+			['id' => 4, 'pid' => 2, 'name' => '1/2/4'],
+			['id' => 5, 'pid' => 2, 'name' => '1/2/5'],
+			['id' => 6, 'pid' => 3, 'name' => '1/3/6'],
+			['id' => 7, 'pid' => 3, 'name' => '1/3/7'],
+		];
+
+		$m = new Map( $data );
+		$this->assertEquals( $expected, $m->tree( 'id', 'pid' )->toArray() );
+	}
+
+
 	public function testToArray()
 	{
 		$m = new Map( ['name' => 'Hello'] );

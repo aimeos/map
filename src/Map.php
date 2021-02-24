@@ -3060,6 +3060,78 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Creates a tree structure from the list items.
+	 *
+	 * Use this method to rebuild trees e.g. from database records. To traverse
+	 * trees, use the traverse() method.
+	 *
+	 * Examples:
+	 *  Map::from( [
+	 *    ['id' => 1, 'pid' => null, 'lvl' => 0, 'name' => 'n1'],
+	 *    ['id' => 2, 'pid' => 1, 'lvl' => 1, 'name' => 'n2'],
+	 *    ['id' => 3, 'pid' => 2, 'lvl' => 2, 'name' => 'n3'],
+	 *    ['id' => 4, 'pid' => 1, 'lvl' => 1, 'name' => 'n4'],
+	 *    ['id' => 5, 'pid' => 3, 'lvl' => 2, 'name' => 'n5'],
+	 *    ['id' => 6, 'pid' => 1, 'lvl' => 1, 'name' => 'n6'],
+	 *  ] )->tree( 'id', 'pid' );
+	 *
+	 * Results:
+	 *   [1 => [
+	 *     'id' => 1, 'pid' => null, 'lvl' => 0, 'name' => 'n1', 'children' => [
+	 *       2 => ['id' => 2, 'pid' => 1, 'lvl' => 1, 'name' => 'n2', 'children' => [
+	 *         3 => ['id' => 3, 'pid' => 2, 'lvl' => 2, 'name' => 'n3', 'children' => []]
+	 *       ]],
+	 *       4 => ['id' => 4, 'pid' => 1, 'lvl' => 1, 'name' => 'n4', 'children' => [
+	 *         5 => ['id' => 5, 'pid' => 3, 'lvl' => 2, 'name' => 'n5', 'children' => []]
+	 *       ]],
+	 *       6 => ['id' => 6, 'pid' => 1, 'lvl' => 1, 'name' => 'n6', 'children' => []]
+	 *     ]
+	 *   ]]
+	 *
+	 * To build the tree correctly, the items must be in order or at least the
+	 * nodes of the lower levels must come first. For a tree like this:
+	 * n1
+	 * |- n2
+	 * |  |- n3
+	 * |- n4
+	 * |  |- n5
+	 * |- n6
+	 *
+	 * Accepted item order:
+	 * - in order: n1, n2, n3, n4, n5, n6
+	 * - lower levels first: n1, n2, n4, n6, n3, n5
+	 *
+	 * If your items are unordered, apply usort() first to the map entries, e.g.
+	 *   Map::from( [['id' => 3, 'lvl' => 2], ...] )->usort( function( $item1, $item2 ) {
+	 *     return $item1['lvl'] <=> $item2['lvl'];
+	 *   } );
+	 *
+	 * @param string $idKey Name of the key with the unique ID of the node
+	 * @param string $parentKey Name of the key with the ID of the parent node
+	 * @param string $nestKey Name of the key with will contain the children of the node
+	 * @return self New map with one or more root tree nodes
+	 */
+	public function tree( string $idKey, string $parentKey, string $nestKey = 'children' ) : self
+	{
+		$trees = $refs = [];
+
+		foreach( $this->list as &$node )
+		{
+			$node[$nestKey] = [];
+			$refs[$node[$idKey]] = &$node;
+
+			if( $node[$parentKey] ) {
+				$refs[$node[$parentKey]][$nestKey][$node[$idKey]] = &$node;
+			} else {
+				$trees[$node[$idKey]] = &$node;
+			}
+		}
+
+		return map( $trees );
+	}
+
+
+	/**
 	 * Sorts all elements using a callback and maintains the key association.
 	 *
 	 * The given callback will be used to compare the values. The callback must accept
