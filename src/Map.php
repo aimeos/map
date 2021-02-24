@@ -3060,6 +3060,77 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Traverses trees of nested items passing each item to the callback.
+	 *
+	 * This does work for nested arrays and objects with public properties or
+	 * objects implementing __isset() and __get() methods. To build trees
+	 * of nested items, use the tree() method.
+	 *
+	 * Examples:
+	 *   Map::from( [[
+	 *     'id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+	 *       ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+	 *       ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+	 *     ]
+	 *   ]] )->traverse();
+	 *
+	 *   Map::from( [[
+	 *     'id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+	 *       ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+	 *       ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+	 *     ]
+	 *   ]] )->traverse( function( $entry, $key, $level ) {
+	 *     return str_repeat( '-', $level ) . '- ' . $entry['name'];
+	 *   } );
+	 *
+	 *   Map::from( [[
+	 *     'id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+	 *       ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+	 *       ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+	 *     ]
+	 *   ]] )->traverse( function( $entry, $key, $level ) {
+	 *     return !isset( $entry['children'] ) ? $entry : null;
+	 *   } )->filter();
+	 *
+	 *   Map::from( [[
+	 *     'id' => 1, 'pid' => null, 'name' => 'n1', 'nodes' => [
+	 *       ['id' => 2, 'pid' => 1, 'name' => 'n2', 'nodes' => []]
+	 *     ]
+	 *   ]] )->traverse( null, 'nodes' );
+	 *
+	 * Results:
+	 *   [
+	 *     ['id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [...]],
+	 *     ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+	 *     ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []],
+	 *   ]
+	 *
+	 *   ['- n1', '-- n2', '-- n3']
+	 *
+	 *   [
+	 *     ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+	 *     ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []],
+	 *   ]
+	 *
+	 *   [
+	 *     ['id' => 1, 'pid' => null, 'name' => 'n1', 'nodes' => [...]],
+	 *     ['id' => 2, 'pid' => 1, 'name' => 'n2', 'nodes' => []],
+	 *   ]
+	 *
+	 * @param \Closure|null $callback Callback with (entry, key, level) arguments, returns the entry added to result
+	 * @param string $nestKey Key to the children of each item
+	 * @return self New map with all items as flat list
+	 */
+	public function traverse( \Closure $callback = null, string $nestKey = 'children' ) : self
+	{
+		$result = [];
+		$this->visit( $this->list, $result, 0, $callback, $nestKey );
+
+		return map( $result );
+	}
+
+
+	/**
 	 * Creates a tree structure from the list items.
 	 *
 	 * Use this method to rebuild trees e.g. from database records. To traverse
@@ -3567,6 +3638,30 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 				$this->kflatten( $entry, $result, $depth - 1 );
 			} else {
 				$result[$key] = $entry;
+			}
+		}
+	}
+
+
+	/**
+	 * Visits each entry, calls the callback and returns the items in the result argument
+	 *
+	 * @param interable $entries List of entries with children (optional)
+	 * @param array &$result Numerically indexed list of all visited entries
+	 * @param int $level Current depth of the nodes in the tree
+	 * @param \Closure|null $callback Callback with ($entry, $key, $level) arguments, returns the entry added to result
+	 * @param string $nestKey Key to the children of each entry
+	 */
+	protected function visit( iterable $entries, array &$result, int $level, ?\Closure $callback, string $nestKey )
+	{
+		foreach( $entries as $key => $entry )
+		{
+			$result[] = $callback ? $callback( $entry, $key, $level ) : $entry;
+
+			if( ( is_array( $entry ) || $entry instanceof \ArrayAccess ) && isset( $entry[$nestKey] ) ) {
+				$this->visit( $entry[$nestKey], $result, $level + 1, $callback, $nestKey );
+			} elseif( is_object( $entry ) && isset( $entry->{$nestKey} ) ) {
+				$this->visit( $entry->{$nestKey}, $result, $level + 1, $callback, $nestKey );
 			}
 		}
 	}

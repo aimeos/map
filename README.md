@@ -357,6 +357,7 @@ will return:
 * [toJson()](#tojson) : Returns the elements in JSON format
 * [toUrl()](#tourl) : Creates a HTTP query string
 * [transpose()](#transpose) : Exchanges rows and columns for a two dimensional map
+* [traverse()](#traverse) : Traverses trees of nested items passing each item to the callback
 * [walk()](#walk) : Applies the given callback to all elements
 * [zip()](#zip) : Merges the values of all arrays at the corresponding index
 
@@ -3384,6 +3385,63 @@ Map::from( [
   2020 => [200, 300, 400],
   2021 => [100, 200],
   2022 => [50]
+]
+*/
+```
+
+
+### traverse()
+
+Traverses trees of nested items passing each item to the callback.
+
+```php
+public function traverse( \Closure $callback = null, string $nestKey = 'children' ) : self
+```
+
+* @param \Closure&#124;null `$callback` Callback with (entry, key, level) arguments, returns the entry added to result
+* @param string `$nestKey` Key to the children of each item
+* @return self New map with all items as flat list
+
+This does work for nested arrays and objects with public properties or
+objects implementing `__isset()` and `__get()` methods. To build trees
+of nested items, use the [tree()](#tree) method.
+
+**Examples:**
+
+```php
+Map::from( [[
+  'id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+    ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+    ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+  ]
+]] )->traverse();
+/*
+[
+  ['id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [...]],
+  ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+  ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []],
+]
+*/
+
+Map::from( [[
+  'id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+    ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+    ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+  ]
+]] )->traverse( function( $entry, $key, $level ) {
+  return str_repeat( '-', $level ) . '- ' . $entry['name'];
+} );
+// ['- n1', '-- n2', '-- n3']
+
+Map::from( [[
+  'id' => 1, 'pid' => null, 'name' => 'n1', 'nodes' => [
+    ['id' => 2, 'pid' => 1, 'name' => 'n2', 'nodes' => []]
+  ]
+]] )->traverse( null, 'nodes' );
+/*
+[
+  ['id' => 1, 'pid' => null, 'name' => 'n1', 'nodes' => [...]],
+  ['id' => 2, 'pid' => 1, 'name' => 'n2', 'nodes' => []],
 ]
 */
 ```

@@ -2253,6 +2253,62 @@ Array
 	}
 
 
+	public function testTraverse()
+	{
+		$expected = [
+			['id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+				['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+				['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+			]],
+			['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+			['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []],
+		];
+
+		$r = Map::from( [[
+			'id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+				['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+				['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+			]
+		]] )->traverse();
+
+		$this->assertEquals( $expected, $r->toArray() );
+	}
+
+
+	public function testTraverseCallback()
+	{
+		$r = Map::from( [[
+			'id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+				['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+				['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+			]
+		]] )->traverse( function( $entry, $key, $level ) {
+			return str_repeat( '-', $level ) . '- ' . $entry['name'];
+		} );
+
+		$this->assertEquals( ['- n1', '-- n2', '-- n3'], $r->toArray() );
+	}
+
+
+	public function testTraverseNestkey()
+	{
+		$expected = [
+			['id' => 1, 'pid' => null, 'name' => 'n1', 'nodes' => [
+				['id' => 2, 'pid' => 1, 'name' => 'n2', 'nodes' => []]
+			]],
+			['id' => 2, 'pid' => 1, 'name' => 'n2', 'nodes' => []],
+		];
+
+		$r = Map::from( [[
+			'id' => 1, 'pid' => null, 'name' => 'n1', 'nodes' => [
+				['id' => 2, 'pid' => 1, 'name' => 'n2', 'nodes' => []]
+			]
+		]] )->traverse( null, 'nodes' );
+
+		$this->assertEquals( $expected, $r->toArray() );
+	}
+
+
 	public function testTree()
 	{
 		$expected = [
