@@ -1372,13 +1372,19 @@ Array
 	{
 		$this->assertEquals( 5, Map::from( [1, 3, 2, 5, 4] )->max() );
 		$this->assertEquals( 'foo', Map::from( ['bar', 'foo', 'baz'] )->max() );
-		$this->assertEquals( 50, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' ) );
 	}
 
 
 	public function testMaxEmpty()
 	{
 		$this->assertNull( Map::from( [] )->max() );
+	}
+
+
+	public function testMaxPath()
+	{
+		$this->assertEquals( 50, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' ) );
+		$this->assertEquals( 50, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( 'i/p' ) );
 	}
 
 
@@ -1468,13 +1474,19 @@ Array
 	{
 		$this->assertEquals( 1, Map::from( [2, 3, 1, 5, 4] )->min() );
 		$this->assertEquals( 'bar', Map::from( ['baz', 'foo', 'bar'] )->min() );
-		$this->assertEquals( 10, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' ) );
 	}
 
 
 	public function testMinEmpty()
 	{
 		$this->assertNull( Map::from( [] )->min() );
+	}
+
+
+	public function testMinPath()
+	{
+		$this->assertEquals( 10, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' ) );
+		$this->assertEquals( 30, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( 'i/p' ) );
 	}
 
 
@@ -2161,7 +2173,13 @@ Array
 	{
 		$this->assertEquals( 9, Map::from( [1, 3, 5] )->sum() );
 		$this->assertEquals( 6, Map::from( [1, 'sum', 5] )->sum() );
+	}
+
+
+	public function testSumPath()
+	{
 		$this->assertEquals( 90, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' ) );
+		$this->assertEquals( 80, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( 'i/p' ) );
 	}
 
 
@@ -2232,6 +2250,94 @@ Array
 		$this->assertEquals( [0 => new \stdClass(), 1 => new \stdClass()], Map::times( 2, function( $num ) {
 			return new \stdClass();
 		} )->toArray() );
+	}
+
+
+	public function testTraverse()
+	{
+		$expected = [
+			['id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+				['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+				['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+			]],
+			['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+			['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []],
+		];
+
+		$r = Map::from( [[
+			'id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+				['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+				['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+			]
+		]] )->traverse();
+
+		$this->assertEquals( $expected, $r->toArray() );
+	}
+
+
+	public function testTraverseCallback()
+	{
+		$r = Map::from( [[
+			'id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+				['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+				['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+			]
+		]] )->traverse( function( $entry, $key, $level ) {
+			return str_repeat( '-', $level ) . '- ' . $entry['name'];
+		} );
+
+		$this->assertEquals( ['- n1', '-- n2', '-- n3'], $r->toArray() );
+	}
+
+
+	public function testTraverseNestkey()
+	{
+		$expected = [
+			['id' => 1, 'pid' => null, 'name' => 'n1', 'nodes' => [
+				['id' => 2, 'pid' => 1, 'name' => 'n2', 'nodes' => []]
+			]],
+			['id' => 2, 'pid' => 1, 'name' => 'n2', 'nodes' => []],
+		];
+
+		$r = Map::from( [[
+			'id' => 1, 'pid' => null, 'name' => 'n1', 'nodes' => [
+				['id' => 2, 'pid' => 1, 'name' => 'n2', 'nodes' => []]
+			]
+		]] )->traverse( null, 'nodes' );
+
+		$this->assertEquals( $expected, $r->toArray() );
+	}
+
+
+	public function testTree()
+	{
+		$expected = [
+			1 => [
+				'id' => 1, 'pid' => null, 'name' => 'Root', 'children' => [
+					2 => ['id' => 2, 'pid' => 1, 'name' => '1/2', 'children' => [
+						4 => ['id' => 4, 'pid' => 2, 'name' => '1/2/4', 'children' => []],
+						5 => ['id' => 5, 'pid' => 2, 'name' => '1/2/5', 'children' => []],
+					]],
+					3 => ['id' => 3, 'pid' => 1, 'name' => '1/3', 'children' => [
+						6 => ['id' => 6, 'pid' => 3, 'name' => '1/3/6', 'children' => []],
+						7 => ['id' => 7, 'pid' => 3, 'name' => '1/3/7', 'children' => []],
+					]]
+				]
+			]
+		];
+
+		$data = [
+			['id' => 1, 'pid' => null, 'name' => 'Root'],
+			['id' => 2, 'pid' => 1, 'name' => '1/2'],
+			['id' => 3, 'pid' => 1, 'name' => '1/3'],
+			['id' => 4, 'pid' => 2, 'name' => '1/2/4'],
+			['id' => 5, 'pid' => 2, 'name' => '1/2/5'],
+			['id' => 6, 'pid' => 3, 'name' => '1/3/6'],
+			['id' => 7, 'pid' => 3, 'name' => '1/3/7'],
+		];
+
+		$m = new Map( $data );
+		$this->assertEquals( $expected, $m->tree( 'id', 'pid' )->toArray() );
 	}
 
 
@@ -2470,6 +2576,14 @@ Array
 	public function testWhereMissing()
 	{
 		$this->assertEquals( [], Map::from( [['p' => 10]] )->where( 'x', '==', [0] )->toArray() );
+	}
+
+
+	public function testWherePath()
+	{
+		$m = Map::from( [['item' => ['id' => 3, 'price' => 10]], ['item' => ['id' => 4, 'price' => 50]]] );
+
+		$this->assertEquals( [1 => ['item' => ['id' => 4, 'price' => 50]]], $m->where( 'item/price', '>', 30 )->toArray() );
 	}
 
 

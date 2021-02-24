@@ -235,6 +235,7 @@ will return:
 * [from()](#from) : Creates a new map from passed elements
 * [fromJson()](#fromjson) : Creates a new map from a JSON string
 * [times()](#times) : Creates a new map by invoking the closure a number of times
+* [tree()](#tree) : Creates a tree structure from the list items
 
 ### Access
 
@@ -356,6 +357,7 @@ will return:
 * [toJson()](#tojson) : Returns the elements in JSON format
 * [toUrl()](#tourl) : Creates a HTTP query string
 * [transpose()](#transpose) : Exchanges rows and columns for a two dimensional map
+* [traverse()](#traverse) : Traverses trees of nested items passing each item to the callback
 * [walk()](#walk) : Applies the given callback to all elements
 * [zip()](#zip) : Merges the values of all arrays at the corresponding index
 
@@ -2203,8 +2205,10 @@ public function max( string $col = null )
 * @param string&#124;null $col Key in the nested array or object to check for
 * @return mixed Maximum value or NULL if there are no elements in the map
 
-For nested arrays, you have to pass the name of the column of the nested
-array which should be used for comparison.
+This does also work to map values from multi-dimensional arrays by passing the keys
+of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
+to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
+public properties of objects or objects implementing `__isset()` and `__get()` methods.
 
 Be careful comparing elements of different types because this can have
 unpredictable results due to the [PHP comparison rules](https://www.php.net/manual/en/language.operators.comparison.php)
@@ -2220,14 +2224,9 @@ Map::from( ['bar', 'foo', 'baz'] )->max();
 
 Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' );
 // 50
-```
 
-If you need a function to retrieve the maximum of all values, then use:
-
-```php
-$sum = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) {
-    return max( $entry['v']['p'] ?? null, $result );
-} );
+Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( 'i/p' );
+// 50
 ```
 
 
@@ -2312,8 +2311,10 @@ public function min( string $col = null )
 * @param string&#124;null $col Key in the nested array or object to check for
 * @return mixed Minimum value or NULL if there are no elements in the map
 
-For nested arrays, you have to pass the name of the column of the nested
-array which should be used for comparison.
+This does also work to map values from multi-dimensional arrays by passing the keys
+of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
+to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
+public properties of objects or objects implementing `__isset()` and `__get()` methods.
 
 Be careful comparing elements of different types because this can have
 unpredictable results due to the [PHP comparison rules](https://www.php.net/manual/en/language.operators.comparison.php)
@@ -2329,14 +2330,9 @@ Map::from( ['baz', 'foo', 'bar'] )->min();
 
 Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' );
 // 10
-```
 
-If you need a function to retrieve the minimum of all values, then use:
-
-```php
-$sum = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) {
-    return min( $entry['v']['p'] ?? null, $result );
-} );
+Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( 'i/p' );
+// 30
 ```
 
 
@@ -3155,15 +3151,17 @@ Map::from( ['a', 'b'] )->suffix( function( $item, $key ) {
 
 Returns the sum of all integer and float values in the map.
 
-For nested arrays, you have to pass the name of the column of the nested
-array which should be used for comparison.
-
 ```php
 public function sum( string $col = null ) : int
 ```
 
 * @param string&#124;null $col Key in the nested array or object to sum up
 * @return mixed Sum of all elements or 0 if there are no elements in the map
+
+This does also work to map values from multi-dimensional arrays by passing the keys
+of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
+to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
+public properties of objects or objects implementing `__isset()` and `__get()` methods.
 
 **Examples:**
 
@@ -3176,14 +3174,9 @@ Map::from( [1, 'sum', 5] )->sum();
 
 Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' );
 // 90
-```
 
-If you need a function to retrieve the sum of all values, then use:
-
-```php
-$sum = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) {
-    return $result += $entry['v']['p'] ?? 0;
-}, 0 );
+Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( 'i/p' );
+// 80
 ```
 
 
@@ -3394,6 +3387,130 @@ Map::from( [
   2022 => [50]
 ]
 */
+```
+
+
+### traverse()
+
+Traverses trees of nested items passing each item to the callback.
+
+```php
+public function traverse( \Closure $callback = null, string $nestKey = 'children' ) : self
+```
+
+* @param \Closure&#124;null `$callback` Callback with (entry, key, level) arguments, returns the entry added to result
+* @param string `$nestKey` Key to the children of each item
+* @return self New map with all items as flat list
+
+This does work for nested arrays and objects with public properties or
+objects implementing `__isset()` and `__get()` methods. To build trees
+of nested items, use the [tree()](#tree) method.
+
+**Examples:**
+
+```php
+Map::from( [[
+  'id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+    ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+    ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+  ]
+]] )->traverse();
+/*
+[
+  ['id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [...]],
+  ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+  ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []],
+]
+*/
+
+Map::from( [[
+  'id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+    ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+    ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+  ]
+]] )->traverse( function( $entry, $key, $level ) {
+  return str_repeat( '-', $level ) . '- ' . $entry['name'];
+} );
+// ['- n1', '-- n2', '-- n3']
+
+Map::from( [[
+  'id' => 1, 'pid' => null, 'name' => 'n1', 'nodes' => [
+    ['id' => 2, 'pid' => 1, 'name' => 'n2', 'nodes' => []]
+  ]
+]] )->traverse( null, 'nodes' );
+/*
+[
+  ['id' => 1, 'pid' => null, 'name' => 'n1', 'nodes' => [...]],
+  ['id' => 2, 'pid' => 1, 'name' => 'n2', 'nodes' => []],
+]
+*/
+```
+
+
+### tree()
+
+Creates a tree structure from the list items.
+
+```php
+public function tree( string $idKey, string $parentKey, string $nestKey = 'children' ) : self
+```
+
+* @param string `$idKey` Name of the key with the unique ID of the node
+* @param string `$parentKey` Name of the key with the ID of the parent node
+* @param string `$nestKey` Name of the key with will contain the children of the node
+* @return self New map with one or more root tree nodes
+
+Use this method to rebuild trees e.g. from database records. To traverse
+trees, use the [traverse()](#traverse) method.
+
+**Examples:**
+
+```php
+Map::from( [
+  ['id' => 1, 'pid' => null, 'lvl' => 0, 'name' => 'n1'],
+  ['id' => 2, 'pid' => 1, 'lvl' => 1, 'name' => 'n2'],
+  ['id' => 3, 'pid' => 2, 'lvl' => 2, 'name' => 'n3'],
+  ['id' => 4, 'pid' => 1, 'lvl' => 1, 'name' => 'n4'],
+  ['id' => 5, 'pid' => 3, 'lvl' => 2, 'name' => 'n5'],
+  ['id' => 6, 'pid' => 1, 'lvl' => 1, 'name' => 'n6'],
+] )->tree( 'id', 'pid' );
+/*
+[1 => [
+  'id' => 1, 'pid' => null, 'lvl' => 0, 'name' => 'n1', 'children' => [
+    2 => ['id' => 2, 'pid' => 1, 'lvl' => 1, 'name' => 'n2', 'children' => [
+      3 => ['id' => 3, 'pid' => 2, 'lvl' => 2, 'name' => 'n3', 'children' => []]
+    ]],
+    4 => ['id' => 4, 'pid' => 1, 'lvl' => 1, 'name' => 'n4', 'children' => [
+      5 => ['id' => 5, 'pid' => 3, 'lvl' => 2, 'name' => 'n5', 'children' => []]
+    ]],
+    6 => ['id' => 6, 'pid' => 1, 'lvl' => 1, 'name' => 'n6', 'children' => []]
+  ]
+]]
+*/
+```
+
+To build the tree correctly, the items must be in order or at least the
+nodes of the lower levels must come first. For a tree like this:
+
+```
+n1
+|- n2
+|  |- n3
+|- n4
+|  |- n5
+|- n6
+```
+
+Accepted item order:
+- in order: n1, n2, n3, n4, n5, n6
+- lower levels first: n1, n2, n4, n6, n3, n5
+
+If your items are unordered, apply [usort()](#usort) first to the map entries, e.g.
+
+```php
+Map::from( [['id' => 3, 'lvl' => 2], ...] )->usort( function( $item1, $item2 ) {
+  return $item1['lvl'] <=> $item2['lvl'];
+} );
 ```
 
 
@@ -3650,7 +3767,7 @@ Filters the list of elements by a given condition.
 public function where( string $key, string $op, $value ) : self
 ```
 
-* @param string `$key` Key of the array or object to used for comparison
+* @param string `$key` Key or path of the value of the array or object used for comparison
 * @param string `$op` Operator used for comparison
 * @param mixed `$value` Value used for comparison
 
@@ -3707,6 +3824,16 @@ Map::from( [
 /*
 [
     ['id' => 3, 'price' => 10],
+    ['id' => 4, 'price' => 50]
+]
+*/
+
+Map::from( [
+  ['item' => ['id' => 3, 'price' => 10]],
+  ['item' => ['id' => 4, 'price' => 50]],
+] )->where( 'item/price', '>', 30 );
+/*
+[
     ['id' => 4, 'price' => 50]
 ]
 */

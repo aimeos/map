@@ -1833,38 +1833,35 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Returns the maximum value of all elements.
 	 *
-	 * For nested arrays, you have to pass the name of the column of the nested
-	 * array which should be used for comparison.
-	 *
 	 * Examples:
 	 *  Map::from( [1, 3, 2, 5, 4] )->max()
 	 *  Map::from( ['bar', 'foo', 'baz'] )->max()
 	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' )
+	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( 'i/p' )
 	 *
 	 * Results:
-	 * The first line will return "5", the second one "foo" while the third one
-	 * returns 50.
+	 * The first line will return "5", the second one "foo" and the third/fourth
+	 * one return both 50.
 	 *
-	 * If you need a function to retrieve the maximum of all values, then use:
-	 *  $max = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) {
-	 *      return max( $entry['v']['p'] ?? 0, $result );
-	 *  } );
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
 	 * Be careful comparing elements of different types because this can have
 	 * unpredictable results due to the PHP comparison rules:
 	 * {@link https://www.php.net/manual/en/language.operators.comparison.php}
 	 *
-	 * @param string|null $col Key in the nested array or object to check for
+	 * @param string|null $key Key or path to the value of the nested array or object
 	 * @return mixed Maximum value or NULL if there are no elements in the map
 	 */
-	public function max( string $col = null )
+	public function max( string $key = null )
 	{
 		if( empty( $this->list ) ) {
 			return null;
 		}
 
-		$list = $col !== null ? array_column( $this->list, $col ) : $this->list;
-		return max( $list );
+		return max( $key !== null ? $this->col( $key )->toArray() : $this->list );
 	}
 
 
@@ -1907,38 +1904,35 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Returns the minimum value of all elements.
 	 *
-	 * For nested arrays, you have to pass the name of the column of the nested
-	 * array which should be used for comparison.
-	 *
 	 * Examples:
 	 *  Map::from( [2, 3, 1, 5, 4] )->min()
 	 *  Map::from( ['baz', 'foo', 'bar'] )->min()
 	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' )
+	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( 'i/p' )
 	 *
 	 * Results:
-	 * The first line will return "1", the second one "bar" while the third one
-	 * returns 10.
+	 * The first line will return "1", the second one "bar", the third one
+	 * returns 10 while the last one returns 30.
 	 *
-	 * If you need a function to retrieve the minimum of all values, then use:
-	 *  $max = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) {
-	 *      return min( $entry['v']['p'] ?? 0, $result );
-	 *  } );
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
 	 * Be careful comparing elements of different types because this can have
 	 * unpredictable results due to the PHP comparison rules:
 	 * {@link https://www.php.net/manual/en/language.operators.comparison.php}
 	 *
-	 * @param string|null $col Key in the nested array or object to check for
+	 * @param string|null $key Key or path to the value of the nested array or object
 	 * @return mixed Minimum value or NULL if there are no elements in the map
 	 */
-	public function min( string $col = null )
+	public function min( string $key = null )
 	{
 		if( empty( $this->list ) ) {
 			return null;
 		}
 
-		$list = $col !== null ? array_column( $this->list, $col ) : $this->list;
-		return min( $list );
+		return min( $key !== null ? $this->col( $key )->toArray() : $this->list );
 	}
 
 
@@ -2871,29 +2865,27 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Returns the sum of all integer and float values in the map.
 	 *
-	 * For nested arrays, you have to pass the name of the column of the nested
-	 * array which should be used for comparison.
-	 *
 	 * Examples:
 	 *  Map::from( [1, 3, 5] )->sum();
 	 *  Map::from( [1, 'sum', 5] )->sum();
 	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' );
+	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( 'i.p' );
 	 *
 	 * Results:
-	 * The first line will return "9", the second one "6" and the last one "90".
+	 * The first line will return "9", the second one "6", the third one "90"
+	 * and the last one "80".
 	 *
-	 * If you need a function to retrieve the sum of all values, then use:
-	 *  $sum = Map::from( [['v' => ['p' => 10]]] )->reduce( function( $result, $entry ) {
-	 *      return $result += $entry['v']['p'] ?? 0;
-	 *  }, 0 );
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
-	 * @param string|null $col Key in the nested array or object to sum up
+	 * @param string|null $key Key or path to the values in the nested array or object to sum up
 	 * @return mixed Sum of all elements or 0 if there are no elements in the map
 	 */
-	public function sum( string $col = null ) : int
+	public function sum( string $key = null ) : int
 	{
-		$list = $col !== null ? array_column( $this->list, $col ) : $this->list;
-		return array_sum( $list );
+		return array_sum( $key !== null ? $this->col( $key )->toArray() : $this->list );
 	}
 
 
@@ -3064,6 +3056,149 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		return new static( $result );
+	}
+
+
+	/**
+	 * Traverses trees of nested items passing each item to the callback.
+	 *
+	 * This does work for nested arrays and objects with public properties or
+	 * objects implementing __isset() and __get() methods. To build trees
+	 * of nested items, use the tree() method.
+	 *
+	 * Examples:
+	 *   Map::from( [[
+	 *     'id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+	 *       ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+	 *       ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+	 *     ]
+	 *   ]] )->traverse();
+	 *
+	 *   Map::from( [[
+	 *     'id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+	 *       ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+	 *       ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+	 *     ]
+	 *   ]] )->traverse( function( $entry, $key, $level ) {
+	 *     return str_repeat( '-', $level ) . '- ' . $entry['name'];
+	 *   } );
+	 *
+	 *   Map::from( [[
+	 *     'id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+	 *       ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+	 *       ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+	 *     ]
+	 *   ]] )->traverse( function( $entry, $key, $level ) {
+	 *     return !isset( $entry['children'] ) ? $entry : null;
+	 *   } )->filter();
+	 *
+	 *   Map::from( [[
+	 *     'id' => 1, 'pid' => null, 'name' => 'n1', 'nodes' => [
+	 *       ['id' => 2, 'pid' => 1, 'name' => 'n2', 'nodes' => []]
+	 *     ]
+	 *   ]] )->traverse( null, 'nodes' );
+	 *
+	 * Results:
+	 *   [
+	 *     ['id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [...]],
+	 *     ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+	 *     ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []],
+	 *   ]
+	 *
+	 *   ['- n1', '-- n2', '-- n3']
+	 *
+	 *   [
+	 *     ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+	 *     ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []],
+	 *   ]
+	 *
+	 *   [
+	 *     ['id' => 1, 'pid' => null, 'name' => 'n1', 'nodes' => [...]],
+	 *     ['id' => 2, 'pid' => 1, 'name' => 'n2', 'nodes' => []],
+	 *   ]
+	 *
+	 * @param \Closure|null $callback Callback with (entry, key, level) arguments, returns the entry added to result
+	 * @param string $nestKey Key to the children of each item
+	 * @return self New map with all items as flat list
+	 */
+	public function traverse( \Closure $callback = null, string $nestKey = 'children' ) : self
+	{
+		$result = [];
+		$this->visit( $this->list, $result, 0, $callback, $nestKey );
+
+		return map( $result );
+	}
+
+
+	/**
+	 * Creates a tree structure from the list items.
+	 *
+	 * Use this method to rebuild trees e.g. from database records. To traverse
+	 * trees, use the traverse() method.
+	 *
+	 * Examples:
+	 *  Map::from( [
+	 *    ['id' => 1, 'pid' => null, 'lvl' => 0, 'name' => 'n1'],
+	 *    ['id' => 2, 'pid' => 1, 'lvl' => 1, 'name' => 'n2'],
+	 *    ['id' => 3, 'pid' => 2, 'lvl' => 2, 'name' => 'n3'],
+	 *    ['id' => 4, 'pid' => 1, 'lvl' => 1, 'name' => 'n4'],
+	 *    ['id' => 5, 'pid' => 3, 'lvl' => 2, 'name' => 'n5'],
+	 *    ['id' => 6, 'pid' => 1, 'lvl' => 1, 'name' => 'n6'],
+	 *  ] )->tree( 'id', 'pid' );
+	 *
+	 * Results:
+	 *   [1 => [
+	 *     'id' => 1, 'pid' => null, 'lvl' => 0, 'name' => 'n1', 'children' => [
+	 *       2 => ['id' => 2, 'pid' => 1, 'lvl' => 1, 'name' => 'n2', 'children' => [
+	 *         3 => ['id' => 3, 'pid' => 2, 'lvl' => 2, 'name' => 'n3', 'children' => []]
+	 *       ]],
+	 *       4 => ['id' => 4, 'pid' => 1, 'lvl' => 1, 'name' => 'n4', 'children' => [
+	 *         5 => ['id' => 5, 'pid' => 3, 'lvl' => 2, 'name' => 'n5', 'children' => []]
+	 *       ]],
+	 *       6 => ['id' => 6, 'pid' => 1, 'lvl' => 1, 'name' => 'n6', 'children' => []]
+	 *     ]
+	 *   ]]
+	 *
+	 * To build the tree correctly, the items must be in order or at least the
+	 * nodes of the lower levels must come first. For a tree like this:
+	 * n1
+	 * |- n2
+	 * |  |- n3
+	 * |- n4
+	 * |  |- n5
+	 * |- n6
+	 *
+	 * Accepted item order:
+	 * - in order: n1, n2, n3, n4, n5, n6
+	 * - lower levels first: n1, n2, n4, n6, n3, n5
+	 *
+	 * If your items are unordered, apply usort() first to the map entries, e.g.
+	 *   Map::from( [['id' => 3, 'lvl' => 2], ...] )->usort( function( $item1, $item2 ) {
+	 *     return $item1['lvl'] <=> $item2['lvl'];
+	 *   } );
+	 *
+	 * @param string $idKey Name of the key with the unique ID of the node
+	 * @param string $parentKey Name of the key with the ID of the parent node
+	 * @param string $nestKey Name of the key with will contain the children of the node
+	 * @return self New map with one or more root tree nodes
+	 */
+	public function tree( string $idKey, string $parentKey, string $nestKey = 'children' ) : self
+	{
+		$trees = $refs = [];
+
+		foreach( $this->list as &$node )
+		{
+			$node[$nestKey] = [];
+			$refs[$node[$idKey]] = &$node;
+
+			if( $node[$parentKey] ) {
+				$refs[$node[$parentKey]][$nestKey][$node[$idKey]] = &$node;
+			} else {
+				$trees[$node[$idKey]] = &$node;
+			}
+		}
+
+		return map( $trees );
 	}
 
 
@@ -3329,11 +3464,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *    ['id' => 4, 'price' => 50],
 	 *  ] )->where( 'price', '-', [10, 100] );
 	 *
+	 *  Map::from( [
+	 *    ['item' => ['id' => 3, 'price' => 10]],
+	 *    ['item' => ['id' => 4, 'price' => 50]],
+	 *  ] )->where( 'item/price', '>', 30 );
+	 *
 	 * Results:
-	 *  [['id' => 1, 'type' => 'name']]
-	 *  [['id' => 4, 'price' => 50]]
-	 *  [['id' => 3, 'price' => 10]]
-	 *  [['id' => 3, 'price' => 10], ['id' => 4, 'price' => 50]]
+	 *  [0 => ['id' => 1, 'type' => 'name']]
+	 *  [1 => ['id' => 4, 'price' => 50]]
+	 *  [0 => ['id' => 3, 'price' => 10]]
+	 *  [0 => ['id' => 3, 'price' => 10], ['id' => 4, 'price' => 50]]
+	 *  [1 => ['item' => ['id' => 4, 'price' => 50]]]
 	 *
 	 * Available operators are:
 	 * * '==' : Equal
@@ -3347,7 +3488,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * 'in' : Array of value which are in the list of values
 	 * '-' : Values between array of start and end value, e.g. [10, 100] (inclusive)
 	 *
-	 * @param string $key Key of the array or object to used for comparison
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
+	 *
+	 * @param string $key Key or path of the value in the array or object used for comparison
 	 * @param string $op Operator used for comparison
 	 * @param mixed $value Value used for comparison
 	 */
@@ -3355,12 +3501,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	{
 		return $this->filter( function( $item, $idx ) use ( $key, $op, $value ) {
 
-			$item = (array) $item;
-
-			if( array_key_exists( $key, $item ) )
+			if( ( $val = $this->getValue( $item, explode( $this->sep, $key ) ) ) !== null )
 			{
-				$val = $item[$key];
-
 				switch( $op )
 				{
 					case '-':
@@ -3496,6 +3638,30 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 				$this->kflatten( $entry, $result, $depth - 1 );
 			} else {
 				$result[$key] = $entry;
+			}
+		}
+	}
+
+
+	/**
+	 * Visits each entry, calls the callback and returns the items in the result argument
+	 *
+	 * @param interable $entries List of entries with children (optional)
+	 * @param array &$result Numerically indexed list of all visited entries
+	 * @param int $level Current depth of the nodes in the tree
+	 * @param \Closure|null $callback Callback with ($entry, $key, $level) arguments, returns the entry added to result
+	 * @param string $nestKey Key to the children of each entry
+	 */
+	protected function visit( iterable $entries, array &$result, int $level, ?\Closure $callback, string $nestKey )
+	{
+		foreach( $entries as $key => $entry )
+		{
+			$result[] = $callback ? $callback( $entry, $key, $level ) : $entry;
+
+			if( ( is_array( $entry ) || $entry instanceof \ArrayAccess ) && isset( $entry[$nestKey] ) ) {
+				$this->visit( $entry[$nestKey], $result, $level + 1, $callback, $nestKey );
+			} elseif( is_object( $entry ) && isset( $entry->{$nestKey} ) ) {
+				$this->visit( $entry->{$nestKey}, $result, $level + 1, $callback, $nestKey );
 			}
 		}
 	}
