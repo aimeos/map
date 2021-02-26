@@ -180,7 +180,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * @param int $limit Maximum number of element with the last element containing the rest of the string
 	 * @return self New map with splitted parts
 	 */
-	public static function explode( string $delimiter , string $string , int $limit = PHP_INT_MAX ) : self
+	public static function explode( string $delimiter, string $string, int $limit = PHP_INT_MAX ) : self
 	{
 		if( $delimiter !== '' ) {
 			return new static( explode( $delimiter, $string, $limit ) );
@@ -3630,7 +3630,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * @param float $depth Number of levels to flatten in multi-dimensional arrays
 	 * @return array Single level array with all elements
 	 */
-	protected function kflatten( iterable $entries, array &$result, float $depth  )
+	protected function kflatten( iterable $entries, array &$result, float $depth )
 	{
 		foreach( $entries as $key => $entry )
 		{
