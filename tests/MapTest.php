@@ -1657,6 +1657,7 @@ Array
 
 		$this->assertEquals( ['1-a', '1-b'], Map::from( ['a', 'b'] )->prefix( '1-' )->toArray() );
 		$this->assertEquals( ['1-a', ['1-b']], Map::from( ['a', ['b']] )->prefix( '1-' )->toArray() );
+		$this->assertEquals( ['1-a', ['b']], Map::from( ['a', ['b']] )->prefix( '1-', 1 )->toArray() );
 		$this->assertEquals( ['145-a', '147-b'], Map::from( ['a', 'b'] )->prefix( $fcn )->toArray() );
 	}
 

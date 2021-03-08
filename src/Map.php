@@ -2235,31 +2235,34 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Adds a prefix in front of each map entry.
 	 *
-	 * Nested arrays are walked recusively so all entries at all levels are prefixed.
+	 * By defaul, nested arrays are walked recusively so all entries at all levels are prefixed.
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'b'] )->prefix( '1-' );
 	 *  Map::from( ['a', ['b']] )->prefix( '1-' );
+	 *  Map::from( ['a', ['b']] )->prefix( '1-', 1 );
 	 *  Map::from( ['a', 'b'] )->prefix( function( $item, $key ) {
 	 *      return ( ord( $item ) + ord( $key ) ) . '-';
 	 *  } );
 	 *
 	 * Results:
 	 *  The first example returns ['1-a', '1-b'] while the second one will return
-	 *  ['1-a', ['1-b']]. The third example passing the closure will return
-	 *  ['145-a', '147-b'].
+	 *  ['1-a', ['1-b']]. In the third example, the depth is limited to the first
+	 *  level only so it will return ['1-a', ['b']]. The forth example passing
+	 *  the closure will return ['145-a', '147-b'].
 	 *
 	 * @param \Closure|string $prefix Prefix string or anonymous function with ($item, $key) as parameters
+	 * @param int|null $depth Maximum depth to dive into multi-dimensional arrays starting from "1"
 	 * @return self Updated map for fluid interface
 	 */
-	public function prefix( $prefix )
+	public function prefix( $prefix, int $depth = null ) : self
 	{
-		$fcn = function( $list, $prefix ) use ( &$fcn ) {
+		$fcn = function( array $list, $prefix, int $depth ) use ( &$fcn ) {
 
 			foreach( $list as $key => $item )
 			{
-				if( !is_scalar( $item ) ) {
-					$list[$key] = $fcn( $item, $prefix );
+				if( is_array( $item ) ) {
+					$list[$key] = $depth > 1 ? $fcn( $item, $prefix, $depth - 1 ) : $item;
 				} else {
 					$list[$key] = ( is_callable( $prefix ) ? $prefix( $item, $key ) : $prefix ) . $item;
 				}
@@ -2268,7 +2271,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			return $list;
 		};
 
-		$this->list = $fcn( $this->list, $prefix );
+		$this->list = $fcn( $this->list, $prefix, $depth ?? 0x7fffffff );
 		return $this;
 	}
 

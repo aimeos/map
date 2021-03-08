@@ -2602,13 +2602,14 @@ and the returned index is zero based so the first item has the index "0".
 Adds a prefix in front of each map entry.
 
 ```php
-public function prefix( $prefix )
+public function prefix( $prefix, int $depth = null ) : self
 ```
 
 * @param \Closure&#124;string `$prefix` Function with map as parameter which returns arbitrary result
+* @param int|null $depth Maximum depth to dive into multi-dimensional arrays starting from "1"
 * @return self Updated map for fluid interface
 
-Nested arrays are walked recusively so all entries at all levels are prefixed.
+By default, nested arrays are walked recusively so all entries at all levels are prefixed.
 
 **Examples:**
 
@@ -2618,6 +2619,9 @@ Map::from( ['a', 'b'] )->prefix( '1-' );
 
 Map::from( ['a', ['b']] )->prefix( '1-' );
 // ['1-a', ['1-b']]
+
+Map::from( ['a', ['b']] )->prefix( '1-', 1 );
+// ['1-a', ['b']]
 
 Map::from( ['a', 'b'] )->prefix( function( $item, $key ) {
     return ( ord( $item ) + ord( $key ) ) . '-';
