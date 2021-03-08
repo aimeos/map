@@ -627,7 +627,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		$result = [];
-		$this->kflatten( $this->list, $result, $depth ?? INF );
+		$this->kflatten( $this->list, $result, $depth ?? 0x7fffffff );
 		return new self( $result );
 	}
 
@@ -1223,7 +1223,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		$result = [];
-		$this->flatten( $this->list, $result, $depth ?? INF );
+		$this->flatten( $this->list, $result, $depth ?? 0x7fffffff );
 		return new self( $result );
 	}
 
@@ -3540,7 +3540,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *    [3, 'three', 'tres'],
 	 *  ]
 	 *
-	 * @param array|\Traversable|\Iterator $array1 List of values to merge with
+	 * @param array|\Traversable|\Iterator $items List of values to merge with
 	 * @return self New map of arrays
 	 */
 	public function zip( $items ) : self
@@ -3582,14 +3582,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param iterable $entries Single of multi-level array, map or everything foreach can be used with
 	 * @param array &$result Will contain all elements from the multi-dimensional arrays afterwards
-	 * @param float $depth Number of levels to flatten in multi-dimensional arrays
+	 * @param int $depth Number of levels to flatten in multi-dimensional arrays
 	 * @return array Single level array with all elements
 	 */
-	protected function flatten( iterable $entries, array &$result, float $depth )
+	protected function flatten( iterable $entries, array &$result, int $depth )
 	{
 		foreach( $entries as $entry )
 		{
-			if( is_iterable( $entry ) && $depth > 0.1 ) {
+			if( is_iterable( $entry ) && $depth > 0 ) {
 				$this->flatten( $entry, $result, $depth - 1 );
 			} else {
 				$result[] = $entry;
@@ -3627,14 +3627,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param iterable $entries Single of multi-level array, map or everything foreach can be used with
 	 * @param array &$result Will contain all elements from the multi-dimensional arrays afterwards
-	 * @param float $depth Number of levels to flatten in multi-dimensional arrays
+	 * @param int $depth Number of levels to flatten in multi-dimensional arrays
 	 * @return array Single level array with all elements
 	 */
-	protected function kflatten( iterable $entries, array &$result, float $depth )
+	protected function kflatten( iterable $entries, array &$result, int $depth )
 	{
 		foreach( $entries as $key => $entry )
 		{
-			if( is_iterable( $entry ) && $depth > 0.1 ) {
+			if( is_iterable( $entry ) && $depth > 0 ) {
 				$this->kflatten( $entry, $result, $depth - 1 );
 			} else {
 				$result[$key] = $entry;
