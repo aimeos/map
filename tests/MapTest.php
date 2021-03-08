@@ -2166,6 +2166,7 @@ Array
 
 		$this->assertEquals( ['a-1', 'b-1'], Map::from( ['a', 'b'] )->suffix( '-1' )->toArray() );
 		$this->assertEquals( ['a-1', ['b-1']], Map::from( ['a', ['b']] )->suffix( '-1' )->toArray() );
+		$this->assertEquals( ['a-1', ['b']], Map::from( ['a', ['b']] )->suffix( '-1', 1 )->toArray() );
 		$this->assertEquals( ['a-145', 'b-147'], Map::from( ['a', 'b'] )->suffix( $fcn )->toArray() );
 	}
 

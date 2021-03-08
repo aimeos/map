@@ -2827,31 +2827,34 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Adds a suffix at the end of each map entry.
 	 *
-	 * Nested arrays are walked recusively so all entries at all levels are suffixed.
+	 * By defaul, nested arrays are walked recusively so all entries at all levels are suffixed.
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'b'] )->suffix( '-1' );
 	 *  Map::from( ['a', ['b']] )->suffix( '-1' );
+	 *  Map::from( ['a', ['b']] )->suffix( '-1', 1 );
 	 *  Map::from( ['a', 'b'] )->suffix( function( $item, $key ) {
 	 *      return '-' . ( ord( $item ) + ord( $key ) );
 	 *  } );
 	 *
 	 * Results:
 	 *  The first example returns ['a-1', 'b-1'] while the second one will return
-	 *  ['a-1', ['b-1']]. The third example passing the closure will return
-	 *  ['a-145', 'b-147'].
+	 *  ['a-1', ['b-1']]. In the third example, the depth is limited to the first
+	 *  level only so it will return ['a-1', ['b']]. The forth example passing
+	 *  the closure will return ['a-145', 'b-147'].
 	 *
 	 * @param \Closure|string $suffix Suffix string or anonymous function with ($item, $key) as parameters
+	 * @param int|null $depth Maximum depth to dive into multi-dimensional arrays starting from "1"
 	 * @return self Updated map for fluid interface
 	 */
-	public function suffix( $suffix )
+	public function suffix( $suffix, int $depth = null ) : self
 	{
-		$fcn = function( $list, $suffix ) use ( &$fcn ) {
+		$fcn = function( $list, $suffix, $depth ) use ( &$fcn ) {
 
 			foreach( $list as $key => $item )
 			{
-				if( !is_scalar( $item ) ) {
-					$list[$key] = $fcn( $item, $suffix );
+				if( is_array( $item ) ) {
+					$list[$key] = $depth > 1 ? $fcn( $item, $suffix, $depth - 1 ) : $item;
 				} else {
 					$list[$key] = $item . ( is_callable( $suffix ) ? $suffix( $item, $key ) : $suffix );
 				}
@@ -2860,7 +2863,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			return $list;
 		};
 
-		$this->list = $fcn( $this->list, $suffix );
+		$this->list = $fcn( $this->list, $suffix, $depth ?? 0x7fffffff );
 		return $this;
 	}
 

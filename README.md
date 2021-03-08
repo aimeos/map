@@ -3127,13 +3127,14 @@ Map::from( ['a', 'b', 'c'] )->splice( 1, 1, ['x', 'y'] );
 Adds a suffix at the end of each map entry.
 
 ```php
-public function suffix( $suffix )
+public function suffix( $suffix, int $depth = null ) : self
 ```
 
 * @param \Closure&#124;string `$suffix` Function with map as parameter which returns arbitrary result
+* @param int|null $depth Maximum depth to dive into multi-dimensional arrays starting from "1"
 * @return self Updated map for fluid interface
 
-Nested arrays are walked recusively so all entries at all levels are suffixed.
+By defaul, nested arrays are walked recusively so all entries at all levels are suffixed.
 
 **Examples:**
 
@@ -3143,6 +3144,9 @@ Map::from( ['a', 'b'] )->suffix( '-1' );
 
 Map::from( ['a', ['b']] )->suffix( '-1' );
 // ['a-1', ['b-1']]
+
+Map::from( ['a', ['b']] )->suffix( '-1', 1 );
+// ['a-1', ['b']]
 
 Map::from( ['a', 'b'] )->suffix( function( $item, $key ) {
     return '-' . ( ord( $item ) + ord( $key ) );
