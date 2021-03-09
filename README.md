@@ -962,7 +962,7 @@ Dumps the map content and terminates the script.
 public function dd( callable $callback = null ) : self
 ```
 
-* @param callable `$callback` Function receiving the map elements as parameter (optional)
+* @param callable|null `$callback` Function receiving the map elements as parameter (optional)
 
 The dd() method is very helpful to see what are the map elements passed
 between two map methods in a method call chain. It stops execution of the
@@ -1143,7 +1143,7 @@ Dumps the map content using the given function (print_r by default).
 public function dump( callable $callback = null ) : self
 ```
 
-* @param callable `$callback` Function receiving the map elements as parameter (optional)
+* @param callable|null `$callback` Function receiving the map elements as parameter (optional)
 * @return self Same map for fluid interface
 
 The `dump()` method is very helpful to see what are the map elements passed
@@ -2991,7 +2991,7 @@ public function slice( int $offset, int $length = null ) : self
 ```
 
 * @param int `$offset` Number of elements to start from
-* @param int `$length` Number of elements to return
+* @param int|null `$length` Number of elements to return or NULL for no limit
 * @return self New map
 
 The rules for offsets are:
@@ -3848,7 +3848,7 @@ Merges the values of all arrays at the corresponding index.
 public function zip( $array1, ... ) : self
 ```
 
-* @param array&#124;\Traversable&#124;\Iterator `$array1` List of values to merge with
+* @param array&#124;\Traversable&#124;\Iterator `$array1` List of arrays to merge with at the same position
 * @return self New map of arrays
 
 **Examples:**

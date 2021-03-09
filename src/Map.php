@@ -747,7 +747,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *      [1] => foo
 	 *  )
 	 *
-	 * @param callable $callback Function receiving the map elements as parameter (optional)
+	 * @param callable|null $callback Function receiving the map elements as parameter (optional)
 	 */
 	public function dd( callable $callback = null ) : self
 	{
@@ -892,7 +892,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *    string(3) "foo"
 	 *  }
 	 *
-	 * @param callable $callback Function receiving the map elements as parameter (optional)
+	 * @param callable|null $callback Function receiving the map elements as parameter (optional)
 	 * @return self Same map for fluid interface
 	 */
 	public function dump( callable $callback = null ) : self
@@ -2693,7 +2693,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * - If it is omitted, then the sequence will have everything from offset up until the end
 	 *
 	 * @param int $offset Number of elements to start from
-	 * @param int $length Number of elements to return
+	 * @param int|null $length Number of elements to return or NULL for no limit
 	 * @return self New map
 	 */
 	public function slice( int $offset, int $length = null ) : self
@@ -3499,15 +3499,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function where( string $key, string $op, $value ) : self
 	{
-		return $this->filter( function( $item, $idx ) use ( $key, $op, $value ) {
+		return $this->filter( function( $item ) use ( $key, $op, $value ) {
 
 			if( ( $val = $this->getValue( $item, explode( $this->sep, $key ) ) ) !== null )
 			{
 				switch( $op )
 				{
 					case '-':
-						$value = (array) $value;
-						return $val >= current( $value ) && $val <= end( $value );
+						$list = (array) $value;
+						return $val >= current( $list ) && $val <= end( $list );
 					case 'in': return in_array( $val, (array) $value );
 					case '<': return $val < $value;
 					case '>': return $val > $value;
@@ -3540,14 +3540,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *    [3, 'three', 'tres'],
 	 *  ]
 	 *
-	 * @param array|\Traversable|\Iterator $array1 List of values to merge with
+	 * @param array|\Traversable|\Iterator $arrays List of arrays to merge with at the same position
 	 * @return self New map of arrays
 	 */
-	public function zip( $items ) : self
+	public function zip( ...$arrays ) : self
 	{
 		$args = array_map( function( $items ) {
 			return $this->getArray( $items );
-		}, func_get_args() );
+		}, $arrays );
 
 		return new static( array_map( null, $this->list, ...$args ) );
 	}
@@ -3583,7 +3583,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * @param iterable $entries Single of multi-level array, map or everything foreach can be used with
 	 * @param array &$result Will contain all elements from the multi-dimensional arrays afterwards
 	 * @param float $depth Number of levels to flatten in multi-dimensional arrays
-	 * @return array Single level array with all elements
 	 */
 	protected function flatten( iterable $entries, array &$result, float $depth )
 	{
@@ -3628,7 +3627,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * @param iterable $entries Single of multi-level array, map or everything foreach can be used with
 	 * @param array &$result Will contain all elements from the multi-dimensional arrays afterwards
 	 * @param float $depth Number of levels to flatten in multi-dimensional arrays
-	 * @return array Single level array with all elements
 	 */
 	protected function kflatten( iterable $entries, array &$result, float $depth )
 	{
