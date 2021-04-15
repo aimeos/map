@@ -1657,7 +1657,7 @@ This method will be used by e.g. foreach() to loop over all entries.
 
 **Examples:**
 
-```
+```php
 foreach( Map::from( ['a', 'b'] ) as $value ) {
     // ...
 }
