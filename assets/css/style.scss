@@ -197,12 +197,11 @@ header svg {
 }
 
 /* Better contrast of code examples */
-.highlight .c1 { color: #707070 }
+
+.highlight .bp, .highlight .c1, .highlight .cd, .highlight .cm, .highlight .cp, .highlight .cs, .highlight .gh { color: #707070 }
 .highlight .nb { color: #007aa0 }
-.highlight .no { color: #007b7b }
-.highlight .nv { color: #007b7b }
-.highlight .mi { color: #007e7e }
-.highlight .mf { color: #007e7e }
+.highlight .no, .highlight .nv { color: #007b7b }
+.highlight .mi, .highlight .mf { color: #007e7e }
 
 .main-content h1, .main-content h2, .main-content h3, .main-content h4, .main-content h5, .main-content h6 {
 	color: #13874d;
