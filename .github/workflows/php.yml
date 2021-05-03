@@ -2,17 +2,34 @@ name: PHP Composer
 
 on:
   push:
-    branches: [ 2.x ]
+    branches: [ "*.x" ]
   pull_request:
-    branches: [ 2.x ]
+    branches: [ "*.x" ]
+
+env:
+  fail-fast: true
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        php-version:
+          - "7.1"
+          - "7.2"
+          - "7.3"
+          - "7.4"
+          - "8.0"
+          
     steps:
     - uses: actions/checkout@v2
+
+    - name: "Install PHP"
+      uses: "shivammathur/setup-php@v2"
+      with:
+        php-version: "${{ matrix.php-version }}"
 
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
