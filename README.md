@@ -1,13 +1,13 @@
-<a class="badge" href="https://circleci.com/gh/aimeos/map"><img src="https://circleci.com/gh/aimeos/map.svg?style=shield" alt="Build Status" height="20"></a>
+<a class="badge" href="https://github.com/aimeos/map/actions"><img src="https://github.com/aimeos/map/actions/workflows/php.yml/badge.svg" alt="Build Status" height="20"></a>
 <a class="badge" href="https://coveralls.io/github/aimeos/map"><img src="https://coveralls.io/repos/github/aimeos/map/badge.svg" alt="Coverage Status" height="20"></a>
 <a class="badge" href="https://packagist.org/packages/aimeos/map"><img src="https://poser.pugx.org/aimeos/map/license.svg" alt="License" height="20"></a>
 <a class="badge" href="https://packagist.org/packages/aimeos/map"><img src="https://poser.pugx.org/aimeos/map/v/stable" alt="Latest Stable Version" height="20"></a>
 <a class="badge" href="https://packagist.org/packages/aimeos/map"><img src="https://poser.pugx.org/aimeos/map/downloads" alt="Build Status" height="20"></a>
 
-# Working with PHP arrays easily
+# PHP arrays and collections made easy
 
-Easy to use and elegant handling for PHP arrays with an array-like map object
-as offered by jQuery and Laravel Collections.
+Easy and elegant handling of PHP arrays and collections by using an array-like
+map object as offered by jQuery and Laravel Collections.
 
 ```bash
 composer req aimeos/map
