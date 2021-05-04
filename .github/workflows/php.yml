@@ -2,9 +2,9 @@ name: build
 
 on:
   push:
-    branches: [ "*.x" ]
+    branches: [ "master", "*.x" ]
   pull_request:
-    branches: [ "*.x" ]
+    branches: [ "master", "*.x" ]
 
 env:
   fail-fast: true
@@ -48,12 +48,12 @@ jobs:
       run: composer update --prefer-dist --no-progress
 
     - name: Run test suite
-      run: vendor/bin/phpunit
-
-    - name: Publish to coveralls.io
-      uses: coverallsapp/github-action@v1.1.2
-      with:
-        github-token: ${{ github.token }}
+      run: ./vendor/bin/phpunit --coverage-clover=coverage.xml
 
     - name: Run coding style check
-      run: vendor/bin/phpcs --standard=PSR1 src/
+      run: ./vendor/bin/phpcs --standard=PSR1 src/
+
+    - name: Publish to coveralls.io
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: ./vendor/bin/php-coveralls -o coveralls.json -x coverage.xml -vvv
