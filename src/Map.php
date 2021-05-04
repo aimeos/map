@@ -3631,7 +3631,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Flattens a multi-dimensional array or map into a single level array.
 	 *
 	 * @param iterable $entries Single of multi-level array, map or everything foreach can be used with
-	 * @param array &$result Will contain all elements from the multi-dimensional arrays afterwards
+	 * @param array $result Will contain all elements from the multi-dimensional arrays afterwards
 	 * @param int $depth Number of levels to flatten in multi-dimensional arrays
 	 */
 	protected function kflatten( iterable $entries, array &$result, int $depth )
@@ -3651,7 +3651,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Visits each entry, calls the callback and returns the items in the result argument
 	 *
 	 * @param interable $entries List of entries with children (optional)
-	 * @param array &$result Numerically indexed list of all visited entries
+	 * @param array $result Numerically indexed list of all visited entries
 	 * @param int $level Current depth of the nodes in the tree
 	 * @param \Closure|null $callback Callback with ($entry, $key, $level) arguments, returns the entry added to result
 	 * @param string $nestKey Key to the children of each entry
