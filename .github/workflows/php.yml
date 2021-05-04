@@ -40,20 +40,20 @@ jobs:
       uses: actions/cache@v2
       with:
         path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        key: ${{ runner.os }}-php${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
-          ${{ runner.os }}-php-
+          ${{ runner.os }}-php-${{ matrix.php-version }}
 
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
+      run: composer update --prefer-dist --no-progress
 
     - name: Run test suite
       run: vendor/bin/phpunit
-
-    - name: Run coding style check
-      run: vendor/bin/phpcs --standard=PSR1 src/
 
     - name: Publish to coveralls.io
       uses: coverallsapp/github-action@v1.1.2
       with:
         github-token: ${{ github.token }}
+
+    - name: Run coding style check
+      run: vendor/bin/phpcs --standard=PSR1 src/
