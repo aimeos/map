@@ -2,9 +2,9 @@ name: build
 
 on:
   push:
-    branches: [ "*.x" ]
+    branches: [ "master", "*.x" ]
   pull_request:
-    branches: [ "*.x" ]
+    branches: [ "master", "*.x" ]
 
 env:
   fail-fast: true
