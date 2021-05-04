@@ -1,4 +1,4 @@
-name: PHP Composer
+name: build
 
 on:
   push:
@@ -30,6 +30,7 @@ jobs:
       uses: "shivammathur/setup-php@v2"
       with:
         php-version: "${{ matrix.php-version }}"
+        coverage: xdebug
 
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
@@ -48,3 +49,11 @@ jobs:
 
     - name: Run test suite
       run: vendor/bin/phpunit
+
+    - name: Run coding style check
+      run: vendor/bin/phpcs --standard=PSR1 src/
+
+    - name: Publish to coveralls.io
+      uses: coverallsapp/github-action@v1.1.2
+      with:
+        github-token: ${{ github.token }}
