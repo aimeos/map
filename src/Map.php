@@ -2274,6 +2274,21 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Pushes an element onto the beginning of the map without returning a new map.
+	 *
+	 * This method is an alias for unshift().
+	 *
+	 * @param mixed $value Item to add at the beginning
+	 * @param mixed $key Key for the item
+	 * @return self Same map for fluid interface
+	 */
+	public function prepend( $value, $key = null ) : self
+	{
+		return $this->unshift( $value, $key );
+	}
+
+
+	/**
 	 * Returns and removes an element from the map by its key.
 	 *
 	 * Examples:

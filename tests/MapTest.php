@@ -1661,6 +1661,14 @@ Array
 	}
 
 
+	public function testPrepend()
+	{
+		$m = ( new Map( ['one', 'two', 'three', 'four'] ) )->prepend( 'zero' );
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( ['zero', 'one', 'two', 'three', 'four'], $m->toArray() );
+	}
+
+
 	public function testPull()
 	{
 		$m = new Map( ['foo', 'bar'] );
