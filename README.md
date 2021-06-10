@@ -185,6 +185,7 @@ will return:
 <a href="#pop">pop</a>
 <a href="#pos">pos</a>
 <a href="#prefix">prefix</a>
+<a href="#prepend">prepend</a>
 <a href="#pull">pull</a>
 <a href="#push">push</a>
 <a href="#random">random</a>
@@ -266,6 +267,7 @@ will return:
 * [concat()](#concat) : Adds all elements with new keys
 * [merge()](#merge) : Combines elements overwriting existing ones
 * [pad()](#pad) : Fill up to the specified length with the given value
+* [prepend()](#prepend) : Adds an element at the beginning
 * [push()](#push) : Adds an element to the end
 * [set()](#set) : Overwrites an element
 * [union()](#union) : Adds the elements without overwriting existing ones
@@ -2630,6 +2632,31 @@ Map::from( ['a', 'b'] )->prefix( function( $item, $key ) {
 ```
 
 
+### prepend()
+
+Pushes an element onto the beginning of the map without returning a new map.
+
+```php
+public function prepend( $value, $key = null ) : self
+```
+
+* @param mixed `$value` Item to add at the beginning
+* @param mixed `$key` Key for the item
+* @return self Same map for fluid interface
+
+This method is an alias for the `unshift()` method.
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b'] )->prepend( 'd' );
+// ['d', 'a', 'b']
+
+Map::from( ['a', 'b'] )->prepend( 'd', 'first' );
+// ['first' => 'd', 0 => 'a', 1 => 'b']
+```
+
+
 ### pull()
 
 Returns and removes an element from the map by its key.
@@ -4005,7 +4032,7 @@ Both methods are costly, especially on large arrays. The used `array_shift()` an
 
 If you want to reduce or create a large list of elements from the beginning in
 an iterative way, you should use `reverse()` and `pop()`/`push()` instead of
-`shift()` and `unshift()`:
+`shift()` and `unshift()`/`prepend()`:
 
 ```php
 $map->reverse()->pop(); // use pop() until it returns NULL
