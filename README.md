@@ -2776,10 +2776,16 @@ removed.
 **Examples:**
 
 ```php
-Map::from( [2 => 'a', 6 => 'b', 13 => 'm', 30 => 'z'] )->filter( function( $value, $key ) {
-    return $key < 10 && $value < 'n';
+Map::from( [2 => 'a', 6 => 'b', 13 => 'm', 30 => 'z'] )->reject( function( $value, $key ) {
+    return $value < 'm';
 } );
-// ['a', 'b']
+// [13 => 'm', 30 => 'z']
+
+Map::from( [2 => 'a', 13 => 'm', 30 => 'z'] )->reject( 'm' );
+// [2 => 'a', 30 => 'z']
+
+Map::from( [2 => 'a', 6 => null, 13 => 'm'] )->reject();
+// [6 => null]
 ```
 
 
@@ -3673,7 +3679,7 @@ Returns only unique elements from the map in a new map
 public function unique( string $key = null ) : self
 ```
 
-* @param string|null $key Key or path of the nested array or object to check for
+* @param string&#124;null $key Key or path of the nested array or object to check for
 * @return self New map
 
 Two elements are considered equal if comparing their string representions returns TRUE:
