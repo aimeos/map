@@ -3347,19 +3347,28 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * Examples:
 	 *  Map::from( [0 => 'a', 1 => 'b', 2 => 'b', 3 => 'c'] )->unique();
+	 *  Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->unique( 'p' )
+	 *  Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->unique( 'i/p' )
 	 *
 	 * Results:
-	 * A new map with [0 => 'a', 1 => 'b', 3 => 'c'] as content
+	 * [0 => 'a', 1 => 'b', 3 => 'c']
+	 * [['p' => 1], ['p' => 2]]
+	 * [['i' => ['p' => '1']]]
 	 *
-	 * Two elements are condidered equal if comparing their string representions returns TRUE:
+	 * Two elements are considered equal if comparing their string representions returns TRUE:
 	 * (string) $elem1 === (string) $elem2
 	 *
-	 * The keys of the elements are preserved in the new map.
+	 * The keys of the elements are only preserved in the new map if no key is passed.
 	 *
+	 * @param string|null $key Key or path of the nested array or object to check for
 	 * @return self New map
 	 */
-	public function unique() : self
+	public function unique( string $key = null ) : self
 	{
+		if( $key !== null ) {
+			return $this->col( null, $key )->values();
+		}
+
 		return new static( array_unique( $this->list ) );
 	}
 

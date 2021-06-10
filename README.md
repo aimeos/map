@@ -3670,24 +3670,31 @@ Map::from( ['a' => 1, 'b' => 2] )->union( ['c' => 1] );
 Returns only unique elements from the map in a new map
 
 ```php
-public function unique() : self
+public function unique( string $key = null ) : self
 ```
 
+* @param string|null $key Key or path of the nested array or object to check for
 * @return self New map
 
-Two elements are condidered equal if comparing their string representions returns TRUE:
+Two elements are considered equal if comparing their string representions returns TRUE:
 
 ```php
 (string) $elem1 === (string) $elem2
 ```
 
-The keys of the elements are preserved in the new map.
+The keys of the elements are only preserved in the new map if no key is passed.
 
 **Examples:**
 
 ```php
 Map::from( [0 => 'a', 1 => 'b', 2 => 'b', 3 => 'c'] )->unique();
 // [0 => 'a', 1 => 'b', 3 => 'c']
+
+Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->unique( 'p' );
+// [['p' => 1], ['p' => 2]]
+
+Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->unique( 'i/p' );
+// [['i' => ['p' => '1']]]
 ```
 
 
