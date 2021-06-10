@@ -2512,6 +2512,26 @@ Array
 	}
 
 
+	public function testUniqueKey()
+	{
+		$m = new Map( [['p' => '1'], ['p' => 1], ['p' => 2]] );
+		$r = $m->unique( 'p' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [['p' => 1], ['p' => 2]], $r->toArray() );
+	}
+
+
+	public function testUniquePath()
+	{
+		$m = new Map( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] );
+		$r = $m->unique( 'i/p' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [['i' => ['p' => '1']]], $r->toArray() );
+	}
+
+
 	public function testUnshift()
 	{
 		$m = ( new Map( ['one', 'two', 'three', 'four'] ) )->unshift( 'zero' );
