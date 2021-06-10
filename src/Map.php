@@ -912,7 +912,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Examples:
 	 *  Map::from( [1, 2, '1', 3] )->duplicates()
 	 *  Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->duplicates( 'p' )
-	 *  Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i.p' )
+	 *  Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i/p' )
 	 *
 	 * Results:
 	 *  [2 => '1']
@@ -2924,7 +2924,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  Map::from( [1, 3, 5] )->sum();
 	 *  Map::from( [1, 'sum', 5] )->sum();
 	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' );
-	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( 'i.p' );
+	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( 'i/p' );
 	 *
 	 * Results:
 	 * The first line will return "9", the second one "6", the third one "90"
