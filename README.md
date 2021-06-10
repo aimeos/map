@@ -190,6 +190,7 @@ will return:
 <a href="#push">push</a>
 <a href="#random">random</a>
 <a href="#reduce">reduce</a>
+<a href="#reject">reject</a>
 <a href="#remove">remove</a>
 <a href="#replace">replace</a>
 <a href="#reverse">reverse</a>
@@ -318,6 +319,7 @@ will return:
 * [only()](#only) : Returns only those elements specified by the keys
 * [pop()](#pop) : Returns and removes the last element
 * [pull()](#pull) : Returns and removes an element by key
+* [reject()](#reject) : Removes all matched elements
 * [remove()](#remove) : Removes an element by key
 * [shift()](#shift) : Returns and removes the first element
 * [skip()](#skip) : Skips the given number of items and return the rest
@@ -2644,7 +2646,7 @@ public function prepend( $value, $key = null ) : self
 * @param mixed `$key` Key for the item
 * @return self Same map for fluid interface
 
-This method is an alias for the `unshift()` method.
+This method is an alias for the [`unshift()`](#unshift) method.
 
 **Examples:**
 
@@ -2751,6 +2753,33 @@ Map::from( [2, 8] )->reduce( function( $result, $value ) {
     return $result += $value;
 }, 10 );
 // 20 because 10 + 2 + 8 and map equals []
+```
+
+
+### reject()
+
+Removes all matched elements and returns a new map.
+
+```php
+public function reject( $callback = true ) : self
+```
+
+* @param  Closure&#124;mixed `$callback` Function with (item) parameter which returns TRUE/FALSE or value to compare with
+* @return self New map
+
+This method is the inverse of the [`filter()`](#filter) and should return TRUE
+if the item should be removed from the returned map.
+
+If no callback is passed, all values which are NOT empty, null or false will be
+removed.
+
+**Examples:**
+
+```php
+Map::from( [2 => 'a', 6 => 'b', 13 => 'm', 30 => 'z'] )->filter( function( $value, $key ) {
+    return $key < 10 && $value < 'n';
+} );
+// ['a', 'b']
 ```
 
 
