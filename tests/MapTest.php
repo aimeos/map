@@ -1760,6 +1760,34 @@ Array
 	}
 
 
+	public function testReject()
+	{
+		$m = new Map( [2 => 'a', 6 => null, 13 => 'm'] );
+
+		$this->assertEquals( [6 => null], $m->reject()->toArray() );
+	}
+
+
+	public function testRejectCallback()
+	{
+		$m = new Map( [2 => 'a', 6 => 'b', 13 => 'm', 30 => 'z'] );
+
+		$this->assertEquals( [13 => 'm', 30 => 'z'], $m->reject( function( $value ) {
+			return $value < 'm';
+		} )->toArray() );
+	}
+
+
+	public function testRejectValue()
+	{
+		$m = new Map( [2 => 'a', 13 => 'm', 30 => 'z'] );
+		$r = $m->reject( 'm' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [2 => 'a', 30 => 'z'], $r->toArray() );
+	}
+
+
 	public function testRemoveNumeric()
 	{
 		$m = new Map( ['foo', 'bar'] );

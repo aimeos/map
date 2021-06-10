@@ -2401,6 +2401,40 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Removes all matched elements and returns a new map.
+	 *
+	 * Examples:
+	 *  Map::from( [2 => 'a', 6 => 'b', 13 => 'm', 30 => 'z'] )->reject( function( $value, $key ) {
+	 *      return $value < 'm';
+	 *  } );
+	 *  Map::from( [2 => 'a', 13 => 'm', 30 => 'z'] )->reject( 'm' );
+	 *  Map::from( [2 => 'a', 6 => null, 13 => 'm'] )->reject();
+	 *
+	 * Results:
+	 *  [13 => 'm', 30 => 'z']
+	 *  [2 => 'a', 30 => 'z']
+	 *  [6 => null]
+	 *
+	 * This method is the inverse of the filter() and should return TRUE if the
+	 * item should be removed from the returned map.
+	 *
+	 * If no callback is passed, all values which are NOT empty, null or false will be
+	 * removed.
+	 *
+	 * @param Closure|mixed $callback Function with (item) parameter which returns TRUE/FALSE or value to compare with
+	 * @return self New map
+	 */
+	public function reject( $callback = true ) : self
+	{
+		$isCallable = $callback instanceof \Closure;
+
+		return new static( array_filter( $this->list, function( $value, $key ) use  ( $callback, $isCallable ) {
+			return $isCallable ? !$callback( $value, $key ) : $value != $callback;
+		}, ARRAY_FILTER_USE_BOTH ) );
+	}
+
+
+	/**
 	 * Removes one or more elements from the map by its keys without returning a new map.
 	 *
 	 * Examples:
