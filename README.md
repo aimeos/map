@@ -477,7 +477,7 @@ public function __call( string $name, array $params )
 * @param array `$params` List of parameters
 * @return mixed Result from called function
 
-Calls a custom method added by Map::method(). The called method
+Calls a custom method added by [Map::method()](#method). The called method
 has access to the internal array by using `$this->items`.
 
 **Examples:**
@@ -522,7 +522,7 @@ public static function __callStatic( string $name, array $params )
 * @return mixed Result from called function
 * @throws \BadMethodCallException
 
-Calls a custom method added by Map::method() statically. The called method
+Calls a custom method added by [Map::method()](#method) statically. The called method
 has no access to the internal array because no object is available.
 
 **Examples:**
@@ -597,8 +597,8 @@ The `$options` parameter modifies how the values are compared. Possible paramete
 - SORT_REGULAR : compare elements normally (don't change types)
 - SORT_NUMERIC : compare elements numerically
 - SORT_STRING : compare elements as strings
-- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
-- SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by `setlocale()`
+- SORT_NATURAL : compare elements as strings using "natural ordering" like `natsort()`
 - SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
 **Examples:**
@@ -635,8 +635,8 @@ The parameter modifies how the values are compared. Possible parameter values ar
 - SORT_REGULAR : compare elements normally (don't change types)
 - SORT_NUMERIC : compare elements numerically
 - SORT_STRING : compare elements as strings
-- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
-- SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by `setlocale()`
+- SORT_NATURAL : compare elements as strings using "natural ordering" like `natsort()`
 - SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
 **Examples:**
@@ -699,7 +699,7 @@ public function call( string $name, array $params = [] ) : self
 
 This method can call methods on the map entries that are also implemented
 by the map object itself and are therefore not reachable when using the
-magic __call() method. If some entries are not objects, they will be skipped.
+magic `__call()` method. If some entries are not objects, they will be skipped.
 
 The keys from the original map are preserved in the returned in the new map.
 
@@ -732,7 +732,7 @@ public function chunk( int $size, bool $preserve = false ) : self
 The last chunk may contain less elements than the given number.
 
 The sub-arrays of the returned map are plain PHP arrays. If you need Map
-objects, then wrap them with `Map::from()` when you iterate over the map.
+objects, then wrap them with [Map::from()](#from) when you iterate over the map.
 
 **Examples:**
 
@@ -968,7 +968,7 @@ public function dd( callable $callback = null ) : self
 
 * @param callable|null `$callback` Function receiving the map elements as parameter (optional)
 
-The dd() method is very helpful to see what are the map elements passed
+The `dd()` method is very helpful to see what are the map elements passed
 between two map methods in a method call chain. It stops execution of the
 script afterwards to avoid further output.
 
@@ -1266,7 +1266,7 @@ public function equals( iterable $elements ) : bool
 * @param iterable `$elements` List of elements to test against
 * @return bool TRUE if both are equal, FALSE if not
 
-The method differs to [`is()`](#is) in the fact that it doesn't care about the keys
+The method differs to [is()](#is) in the fact that it doesn't care about the keys
 by default. The elements are only loosely compared and the keys are ignored.
 
 Values are compared by their string values:
@@ -1508,7 +1508,7 @@ The keys are not preserved and the new map elements will be numbered from
 indexed from 0-n. Flattening does also work if elements implement the
 "Traversable" interface (which the Map object does).
 
-This method is similar than collapse() but doesn't replace existing elements.
+This method is similar than [collapse()](#collapse) but doesn't replace existing elements.
 
 **Examples:**
 
@@ -1657,7 +1657,7 @@ public function getIterator() : \Iterator
 
 * @return \Iterator Over map elements
 
-This method will be used by e.g. foreach() to loop over all entries.
+This method will be used by e.g. `foreach()` to loop over all entries.
 
 **Examples:**
 
@@ -1679,8 +1679,8 @@ public function groupBy( $key ) : self
 * @param  \Closure&#124;string $key Closure function with (item, idx) parameters returning the key or the key itself to group by
 * @return self New map with elements grouped by the given key
 
-Instead of overwriting items with the same keys like to the `col()` method does,
-`groupBy()` keeps all entries in sub-arrays. It's preserves the keys of the
+Instead of overwriting items with the same keys like to the [col()](#col) method does,
+[groupBy()](#groupby) keeps all entries in sub-arrays. It's preserves the keys of the
 orignal map entries too.
 
 **Examples:**
@@ -1830,7 +1830,7 @@ public function includes( $element, bool $strict = false ) : bool
 * @param bool `$strict` TRUE to check the type too, using FALSE '1' and 1 will be the same
 * @return bool TRUE if all elements are available in map, FALSE if not
 
-This method is an alias for [`in()`](#in). For performance reasons, `in()` should be preferred
+This method is an alias for [in()](#in). For performance reasons, `in()` should be preferred
 because it uses one method call less than `includes()`.
 
 **Examples:**
@@ -2004,7 +2004,7 @@ public function isEmpty() : bool
 
 * @return bool TRUE if map is empty, FALSE if not
 
-The method is equivalent to [`empty()`](#empty).
+The method is equivalent to [empty()](#empty).
 
 **Examples:**
 
@@ -2028,7 +2028,7 @@ public function join( $glue = '' ) : string
 * @param string `$glue` Character or string added between elements
 * @return string String of concatenated map elements
 
-Objects that implement __toString() does also work, otherwise (and in case
+Objects that implement `__toString()` does also work, otherwise (and in case
 of arrays) a PHP notice is generated. NULL and FALSE values are treated as
 empty strings.
 
@@ -2079,8 +2079,8 @@ The parameter modifies how the keys are compared. Possible values are:
 - SORT_REGULAR : compare elements normally (don't change types)
 - SORT_NUMERIC : compare elements numerically
 - SORT_STRING : compare elements as strings
-- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
-- SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by `setlocale()`
+- SORT_NATURAL : compare elements as strings using "natural ordering" like `natsort()`
 - SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
 The keys are preserved using this method and no new map is created.
@@ -2111,8 +2111,8 @@ The parameter modifies how the keys are compared. Possible values are:
 - SORT_REGULAR : compare elements normally (don't change types)
 - SORT_NUMERIC : compare elements numerically
 - SORT_STRING : compare elements as strings
-- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
-- SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by `setlocale()`
+- SORT_NATURAL : compare elements as strings using "natural ordering" like `natsort()`
 - SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
 The keys are preserved using this method and no new map is created.
@@ -2249,9 +2249,9 @@ public function merge( iterable $elements, bool $recursive = false ) : self
 Elements with the same non-numeric keys will be overwritten, elements with the
 same numeric keys will be added.
 
-The method is similar to [`replace()`](#replace) but doesn't replace elements with the same
+The method is similar to [replace()](#replace) but doesn't replace elements with the same
 numeric keys. If you want to be sure that all passed elements are added without
-replacing existing ones, use [`concat()`](#concat) instead.
+replacing existing ones, use [concat()](#concat) instead.
 
 **Examples:**
 
@@ -2646,7 +2646,7 @@ public function prepend( $value, $key = null ) : self
 * @param mixed `$key` Key for the item
 * @return self Same map for fluid interface
 
-This method is an alias for the [`unshift()`](#unshift) method.
+This method is an alias for the [unshift()](#unshift) method.
 
 **Examples:**
 
@@ -2767,7 +2767,7 @@ public function reject( $callback = true ) : self
 * @param  Closure&#124;mixed `$callback` Function with (item) parameter which returns TRUE/FALSE or value to compare with
 * @return self New map
 
-This method is the inverse of the [`filter()`](#filter) and should return TRUE
+This method is the inverse of the [filter()](#filter) and should return TRUE
 if the item should be removed from the returned map.
 
 If no callback is passed, all values which are NOT empty, null or false will be
@@ -2823,7 +2823,7 @@ public function replace( iterable $elements, bool $recursive = true ) : self
 * @param bool `$recursive` TRUE to replace recursively (default), FALSE to replace elements only
 * @return self Updated map for fluid interface
 
-The method is similar to [`merge()`](#merge) but also replaces elements with numeric keys.
+The method is similar to [merge()](#merge) but also replaces elements with numeric keys.
 These would be added by `merge()` with a new numeric key.
 
 **Examples:**
@@ -2870,8 +2870,8 @@ The parameter modifies how the values are compared. Possible parameter values ar
 - SORT_REGULAR : compare elements normally (don't change types)
 - SORT_NUMERIC : compare elements numerically
 - SORT_STRING : compare elements as strings
-- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
-- SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by `setlocale()`
+- SORT_NATURAL : compare elements as strings using "natural ordering" like `natsort()`
 - SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
 The keys are NOT preserved and elements get a new index. No new map is created.
@@ -2985,8 +2985,8 @@ Map::from( [] )->shift();
 **Performance note:**
 
 The bigger the list, the higher the performance impact because `shift()`
-reindexes all existing elements. Usually, it's better to [`reverse()`](#reverse)
-the list and [`pop()`](#pop) entries from the list afterwards if a significant
+reindexes all existing elements. Usually, it's better to [reverse()](#reverse)
+the list and [pop()](#pop) entries from the list afterwards if a significant
 number of elements should be removed from the list:
 
 ```php
@@ -3133,8 +3133,8 @@ The parameter modifies how the values are compared. Possible parameter values ar
 - SORT_REGULAR : compare elements normally (don't change types)
 - SORT_NUMERIC : compare elements numerically
 - SORT_STRING : compare elements as strings
-- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
-- SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by `setlocale()`
+- SORT_NATURAL : compare elements as strings using "natural ordering" like `natsort()`
 - SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
 The keys are NOT preserved and elements get a new index. No new map is created.
@@ -3658,7 +3658,7 @@ public function union( iterable $elements ) : self
 * @param iterable `$elements` List of elements
 * @return self Updated map for fluid interface
 
-If list entries should be overwritten, use [`merge()`](#merge) instead.
+If list entries should be overwritten, use [merge()](#merge) instead.
 
 **Examples:**
 
@@ -3726,6 +3726,23 @@ Map::from( ['a', 'b'] )->unshift( 'd', 'first' );
 // ['first' => 'd', 0 => 'a', 1 => 'b']
 ```
 
+**Performance note:**
+
+The bigger the list, the higher the performance impact because [unshift()](#unshift)
+needs to create a new list and copies all existing elements to the new
+array. Usually, it's better to [push()](#push) new entries at the end and
+[reverse()](#reverse) the list afterwards:
+
+```php
+$map->push( 'a' )->push( 'b' )->reverse();
+```
+
+instead of
+
+```php
+$map->unshift( 'a' )->unshift( 'b' );
+```
+
 
 ### usort()
 
@@ -3755,23 +3772,6 @@ Map::from( ['a' => 'B', 'b' => 'a'] )->usort( function( $itemA, $itemB ) {
     return strtolower( $itemA ) <=> strtolower( $itemB );
 } );
 // [0 => 'a', 1 => 'B']
-```
-
-**Performance note:**
-
-The bigger the list, the higher the performance impact because `unshift()`
-needs to create a new list and copies all existing elements to the new
-array. Usually, it's better to [`push()`](#push) new entries at the end and
-[`reverse()`](#reverse) the list afterwards:
-
-```php
-$map->push( 'a' )->push( 'b' )->reverse();
-```
-
-instead of
-
-```php
-$map->unshift( 'a' )->unshift( 'b' );
 ```
 
 
@@ -3945,7 +3945,7 @@ Map::from( [1, 2, 3] )->zip( ['one', 'two', 'three'], ['uno', 'dos', 'tres'] );
 
 ## Custom methods
 
-Most of the time, it's enough to pass an anonymous function to the pipe() method
+Most of the time, it's enough to pass an anonymous function to the [pipe()](#pipe) method
 to implement custom functionality in map objects:
 
 ```php
@@ -4005,15 +4005,17 @@ lots of elements instead of 10,000+ arrays. Nevertheless, if your application
 creates a very large number of arrays within one area, you should think about
 avoiding map objects in that area.
 
-If you use the `map()` function or `Map::from()` to create map objects, then be
-aware that this adds another function call. Using these methods for creating the
-map object lasts around 1.1x resp. 1.3x compared to the time for `new Map()`.
+If you use the [map()](#map-function) function or [Map::from()](#from) to create
+map objects, then be aware that this adds another function call. Using these methods
+for creating the map object lasts around 1.1x resp. 1.3x compared to the time for
+`new Map()`.
+
 Conclusion: Using `new Map()` is fastest and `map()` is faster than `Map::from()`.
 
 ### Populating Map vs. array
 
 Adding an element to a Map object using `$map[] = 'a'` is ca. 5x slower than
-doing the same on a plain array. This is because the method `offsetSet()` will
+doing the same on a plain array. This is because the method [offsetSet()](#offsetSet) will
 be called instead of adding the new element to the array directly. This applies
 to the `$map->push( 'a' )` method too.
 
@@ -4057,7 +4059,7 @@ every element of the map. PHP needs some time to call the passed function and
 to execute its code. Depending on the number of elements, this may have a
 significant impact on performance!
 
-The `pipe()` method of the Map object is an exception because it receives the
+The [pipe()](#pipe) method of the Map object is an exception because it receives the
 whole map object instead of each element separately. Its performance mainly
 depends on the implemented code:
 
@@ -4073,8 +4075,8 @@ Both methods are costly, especially on large arrays. The used `array_shift()` an
 `array_unshift()` functions will reindex all numerical keys of the array.
 
 If you want to reduce or create a large list of elements from the beginning in
-an iterative way, you should use `reverse()` and `pop()`/`push()` instead of
-`shift()` and `unshift()`/`prepend()`:
+an iterative way, you should use [reverse()](#reverse) and [pop()](#pop)/[push()](#push)
+instead of [shift()](#shift) and [unshift()](#unshift)/[prepend()](#prepend):
 
 ```php
 $map->reverse()->pop(); // use pop() until it returns NULL
@@ -4105,8 +4107,8 @@ generates a fatal error if the method isn't implemented by all objects.
 
 #### Second equals() parameter
 
-The second parameter of the [`equals()`](#equals) method (`$assoc`) to compare keys
-too has been removed. Use the [`is()`](#is) method instead:
+The second parameter of the [equals()](#equals) method (`$assoc`) to compare keys
+too has been removed. Use the [is()](#is) method instead:
 
 ```php
 // 1.x
@@ -4118,7 +4120,7 @@ map( ['one' => 1] )->is( ['one' => 1] );
 
 #### New find() argument
 
-A default value or exception object can be passed to the [`find()`](#find) method now
+A default value or exception object can be passed to the [find()](#find) method now
 as second argument. The `$reverse` argument has been moved to the third position.
 
 ```php
@@ -4135,7 +4137,7 @@ Map::from( ['a', 'c', 'e'] )->find( function( $value, $key ) {
 
 #### groupBy() semantic change
 
-If the key passed to [`groupBy()`](#groupby) didn't exist, the items have been grouped
+If the key passed to [groupBy()](#groupby) didn't exist, the items have been grouped
 using the given key. Now, an empty string is used as key to offer easier checking and
 sorting of the keys.
 
@@ -4161,7 +4163,7 @@ Map::from( [
 
 #### offsetExists() semantic change
 
-To be consistent with typical PHP behavior, the [`offsetExists()`](#offsetexists) method
+To be consistent with typical PHP behavior, the [offsetExists()](#offsetexists) method
 use `isset()` instead of `array_key_exists()` now. This changes the behavior when dealing
 with NULL values.
 
@@ -4177,7 +4179,7 @@ isset( $m['foo'] ); // false
 
 #### Renamed split() method
 
-The static `Map::split()` method has been renamed to [`Map::explode()`](#explode) and
+The static `Map::split()` method has been renamed to [Map::explode()](#explode) and
 the argument order has changed. This avoids conflicts with the Laravel split() method
 and is in line with the PHP `explode()` method.
 
