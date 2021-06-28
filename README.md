@@ -215,6 +215,8 @@ will return:
 <a href="#tojson">toJson</a>
 <a href="#tourl">toUrl</a>
 <a href="#transpose">transpose</a>
+<a href="#traverse">traverse</a>
+<a href="#tree">tree</a>
 <a href="#uasort">uasort</a>
 <a href="#uksort">uksort</a>
 <a href="#union">union</a>
@@ -3720,7 +3722,7 @@ Map::from( ['a', 'b'] )->unshift( 'd', 'first' );
 
 **Performance note:**
 
-The bigger the list, the higher the performance impact because [unshift()](#unshift)
+The bigger the list, the higher the performance impact because `unshift()`
 needs to create a new list and copies all existing elements to the new
 array. Usually, it's better to [push()](#push) new entries at the end and
 [reverse()](#reverse) the list afterwards:
