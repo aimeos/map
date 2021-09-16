@@ -3721,4 +3721,40 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			}
 		}
 	}
+
+	/**
+	 * Executes $callback if the Map is empty
+	 *
+	 * Examples:
+	 *  $page = $pages
+	 *      ->filter(fn(Page $page, $_) => $page->GetIdentifier() == $pageParameters->Page)
+	 *      ->ifEmpty(fn ($_) => die("unknown page: $pageParameters->Page"))
+	 *      ->first();
+	 *
+	 * @param  callable $callback Function with (Map) parameter and returns void
+	 * @return self Same map for fluid interface
+	 */
+	public function ifEmpty( callable $callback ) : self
+	{
+		if( empty($this->list) ) {
+			$callback($this);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Executes $callback if the Map is not empty
+	 *
+	 * @param  callable $callback Function with (Map) parameter and returns void
+	 * @return self Same map for fluid interface
+	 */
+	public function ifNotEmpty( callable $callback ) : self
+	{
+		if( !empty($this->list) ) {
+			$callback($this);
+		}
+
+		return $this;
+	}
 }
