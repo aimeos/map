@@ -377,6 +377,7 @@ will return:
 * [offsetSet()](#offsetset) : Overwrites an element
 * [offsetUnset()](#offsetunset) : Removes an element by key
 * [sep()](#sep) : Sets the seperator for paths to multi-dimensional arrays in the current map
+* [ifThen()](#ifThen) : Conditionally executes a callable
 
 
 
@@ -1785,6 +1786,43 @@ Map::from( ['a' => 'X', 'b' => 'Y'] )->has( ['a', 'c'] );
 
 Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'X' );
 // false
+```
+
+
+### ifThen()
+
+Executes callables $then and $else depending on callable $condition.
+
+```php
+public function ifThen( Callable $condition, Callable $then, $Callable $else = null ) : bool
+```
+* @param callable $condition Function with (Map) parameter and returns bool
+* @param callable $then Function with (Map) parameter and returns void
+* @param callable|null $else Optional function with (Map) parameter and returns void
+* @return self Same map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 'b' => 0] )->ifThen(
+    fn(Map &$map) => $map->has('a'),
+    function(Map &$_) {echo "then";},
+    function(Map &$_) {echo "else";}
+);
+//then
+
+Map::from( ['a' => 1, 'b' => 0] )->ifThen(
+    fn(Map &$map) => $map->has('c'),
+    function(Map &$_) {echo "then";},
+    function(Map &$_) {echo "else";}
+);
+//else
+
+Map::from( ['a' => 1, 'b' => 0] )->ifThen(
+    fn(Map &$map) => $map->has('c'),
+    function(Map &$_) {echo "then";}
+);
+// (no output)
 ```
 
 
