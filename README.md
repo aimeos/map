@@ -371,13 +371,13 @@ will return:
 
 * [delimiter()](#delimiter) : Sets or returns the seperator for paths to multi-dimensional arrays
 * [getIterator()](#getiterator) : Returns an iterator for the elements
+* [if()](#if) : Conditionally executes a callable
 * [method()](#method) : Registers a custom method
 * [offsetExists()](#offsetexists) : Checks if the key exists
 * [offsetGet()](#offsetget) : Returns an element by key
 * [offsetSet()](#offsetset) : Overwrites an element
 * [offsetUnset()](#offsetunset) : Removes an element by key
 * [sep()](#sep) : Sets the seperator for paths to multi-dimensional arrays in the current map
-* [ifThen()](#ifThen) : Conditionally executes a callable
 
 
 
@@ -1789,12 +1789,12 @@ Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'X' );
 ```
 
 
-### ifThen()
+### if()
 
 Executes callables $then and $else depending on callable $condition.
 
 ```php
-public function ifThen( Callable $condition, Callable $then, $Callable $else = null ) : bool
+public function if( Callable $condition, Callable $then, $Callable $else = null ) : bool
 ```
 * @param callable $condition Function with (Map) parameter and returns bool
 * @param callable $then Function with (Map) parameter and returns void
@@ -1804,21 +1804,21 @@ public function ifThen( Callable $condition, Callable $then, $Callable $else = n
 **Examples:**
 
 ```php
-Map::from( ['a' => 1, 'b' => 0] )->ifThen(
+Map::from( ['a' => 1, 'b' => 0] )->if(
     fn(Map &$map) => $map->has('a'),
     function(Map &$_) {echo "then";},
     function(Map &$_) {echo "else";}
 );
 //then
 
-Map::from( ['a' => 1, 'b' => 0] )->ifThen(
+Map::from( ['a' => 1, 'b' => 0] )->if(
     fn(Map &$map) => $map->has('c'),
     function(Map &$_) {echo "then";},
     function(Map &$_) {echo "else";}
 );
 //else
 
-Map::from( ['a' => 1, 'b' => 0] )->ifThen(
+Map::from( ['a' => 1, 'b' => 0] )->if(
     fn(Map &$map) => $map->has('c'),
     function(Map &$_) {echo "then";}
 );
