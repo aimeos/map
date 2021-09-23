@@ -1805,22 +1805,22 @@ public function if( Callable $condition, Callable $then, $Callable $else = null 
 
 ```php
 Map::from( ['a' => 1, 'b' => 0] )->if(
-    fn(Map &$map) => $map->has('a'),
-    function(Map &$_) {echo "then";},
-    function(Map &$_) {echo "else";}
+    fn(Map $map) => $map->has('a'),
+    function(Map $_) {echo "then";},
+    function(Map $_) {echo "else";}
 );
 //then
 
 Map::from( ['a' => 1, 'b' => 0] )->if(
-    fn(Map &$map) => $map->has('c'),
-    function(Map &$_) {echo "then";},
-    function(Map &$_) {echo "else";}
+    fn(Map $map) => $map->has('c'),
+    function(Map $_) {echo "then";},
+    function(Map $_) {echo "else";}
 );
 //else
 
 Map::from( ['a' => 1, 'b' => 0] )->if(
-    fn(Map &$map) => $map->has('c'),
-    function(Map &$_) {echo "then";}
+    fn(Map $map) => $map->has('c'),
+    function(Map $_) {echo "then";}
 );
 // (no output)
 ```

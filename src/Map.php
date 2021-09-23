@@ -3740,19 +3740,22 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *              fn(Map &$_) => die("unknown page: " . $pageId))
 	 *          ->first();
 	 *
-	 * @param callable $condition Function with (Map) parameter and returns bool
+	 * @param mixed|callable $condition Bool or function with (Map) parameter and returns bool
 	 * @param callable $then Function with (Map) parameter and returns void
 	 * @param callable|null $else Optional function with (Map) parameter and returns void
 	 * @return self Same map for fluid interface
 	 */
-	public function if(callable $condition, callable $then, callable $else = null): self
+	public function if($condition, callable $then, callable $else = null): self
 	{
-		if ($condition($this)) {
+		$conditionResult = $condition;
+		if($condition instanceof \Closure){
+			$conditionResult = $condition($this);
+		}
+
+		if ($conditionResult) {
 			$then($this);
-		} else {
-			if ($else != null) {
-				$else($this);
-			}
+		} elseif($else != null) {
+			$else($this);
 		}
 
 		return $this;
