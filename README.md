@@ -1916,6 +1916,34 @@ Map::from( ['foo', 'bar'] )->insertAfter( null, 'baz' );
 ```
 
 
+### insertBefore()
+
+Inserts the value or values before the given element.
+
+```php
+public function insertBefore( $element, $value ) : self
+```
+
+* @param mixed `$element` Element before the value is inserted
+* @param mixed `$value` Element or list of elements to insert
+* @return self Updated map for fluid interface
+
+Numerical array indexes are not preserved.
+
+**Examples:**
+
+```php
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertBefore( 'bar', 'baz' );
+// ['a' => 'foo', 0 => 'baz', 'b' => 'bar']
+
+Map::from( ['foo', 'bar'] )->insertBefore( 'bar', ['baz', 'boo'] );
+// ['foo', 'baz', 'boo', 'bar']
+
+Map::from( ['foo', 'bar'] )->insertBefore( null, 'baz' );
+// ['foo', 'bar', 'baz']
+```
+
+
 ### intersect()
 
 Returns all values in a new map that are available in both, the map and the given elements.

@@ -1212,6 +1212,33 @@ Array
 	}
 
 
+	public function testInsertBefore()
+	{
+		$r = Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertBefore( 'bar', 'baz' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['a' => 'foo', 0 => 'baz', 'b' => 'bar'], $r->toArray() );
+	}
+
+
+	public function testInsertBeforeArray()
+	{
+		$r = Map::from( ['foo', 'bar'] )->insertBefore( 'bar', ['baz', 'boo'] );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['foo', 'baz', 'boo', 'bar'], $r->toArray() );
+	}
+
+
+	public function testInsertBeforeEnd()
+	{
+		$r = Map::from( ['foo', 'bar'] )->insertBefore( null, 'baz' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['foo', 'bar', 'baz'], $r->toArray() );
+	}
+
+
 	public function testIntersect()
 	{
 		$m = new Map( ['id' => 1, 'first_word' => 'Hello'] );
