@@ -2332,7 +2332,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Both examples will return "1" because the value "b" is at the second position
 	 * and the returned index is zero based so the first item has the index "0".
 	 *
-	 * @param \Closure|mixed $value Value to search for or function with (item, key) parameters return TRUE if value is found
+	 * @param \Closure|string|int $value Value to search for or function with (item, key) parameters return TRUE if value is found
 	 * @return int|null Position of the found value (zero based) or NULL if not found
 	 */
 	public function pos( $value ) : ?int

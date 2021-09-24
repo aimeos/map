@@ -153,11 +153,14 @@ will return:
 <a href="#fromjson">fromJson</a>
 <a href="#get">get</a>
 <a href="#getiterator">getIterator</a>
+<a href="#grep">grep</a>
 <a href="#groupby">groupBy</a>
 <a href="#has">has</a>
 <a href="#in">in</a>
 <a href="#includes">includes</a>
 <a href="#index">index</a>
+<a href="#insertAfter">insertAfter</a>
+<a href="#insertBefore">insertBefore</a>
 <a href="#intersect">intersect</a>
 <a href="#intersectassoc">intersectAssoc</a>
 <a href="#intersectkeys">intersectKeys</a>
@@ -271,6 +274,7 @@ will return:
 
 * [concat()](#concat) : Adds all elements with new keys
 * [insertAfter()](#insertAfter) : Inserts the value after the given element
+* [insertBefore()](#insertBefore) : Inserts the value before the given element
 * [merge()](#merge) : Combines elements overwriting existing ones
 * [pad()](#pad) : Fill up to the specified length with the given value
 * [prepend()](#prepend) : Adds an element at the beginning
@@ -2702,7 +2706,7 @@ Returns the numerical index of the value.
 public function pos( $value ) : ?int
 ```
 
-* @param \Closure&#124;mixed $value Value to search for or function with (item, key) parameters return TRUE if value is found
+* @param \Closure&#124;string|int $value Value to search for or function with (item, key) parameters return TRUE if value is found
 * @return int&#124;null Position of the found value (zero based) or NULL if not found
 
 **Examples:**

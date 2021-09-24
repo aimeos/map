@@ -1742,6 +1742,13 @@ Array
 		$m = new Map( [4 => 'a', 8 => 'b'] );
 
 		$this->assertEquals( 1, $m->pos( 'b' ) );
+	}
+
+
+	public function testPosClosure()
+	{
+		$m = new Map( [4 => 'a', 8 => 'b'] );
+
 		$this->assertEquals( 1, $m->pos( function( $item, $key ) {
 			return $item === 'b';
 		} ) );
