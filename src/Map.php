@@ -3861,4 +3861,32 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			}
 		}
 	}
+
+
+	/**
+	 * Executes $callback if the Map is empty
+	 *
+	 * Examples: (Returns match or dies if doesn't exist)
+	 *  $page = $this->pages
+	 *          ->filter(fn(Page $page, $_) => $page->Id == $pageId)
+	 *          ->if(
+	 *              fn(Map $Map) => $Map->isEmpty(),
+	 *              fn(Map $_) => die("unknown page: " . $pageId))
+	 *          ->first();
+	 *
+	 * @param callable|bool $condition Bool or function with (Map) parameter which evaluates to bool
+	 * @param \Closure $then Function with (Map) parameter which returns void
+	 * @param \Closure|null $else Optional function with (Map) parameter which returns void
+	 * @return self Same map for fluid interface
+	 */
+	public function if( $condition, \Closure $then, \Closure $else = null ): self
+	{
+		if( $condition instanceof \Closure ? $condition( $this ) : $condition ){
+			$then( $this );
+		} elseif( $else != null ) {
+			$else( $this );
+		}
+
+		return $this;
+	}
 }

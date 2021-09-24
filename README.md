@@ -379,6 +379,7 @@ will return:
 
 * [delimiter()](#delimiter) : Sets or returns the seperator for paths to multi-dimensional arrays
 * [getIterator()](#getiterator) : Returns an iterator for the elements
+* [if()](#if) : Conditionally executes a callable
 * [method()](#method) : Registers a custom method
 * [offsetExists()](#offsetexists) : Checks if the key exists
 * [offsetGet()](#offsetget) : Returns an element by key
@@ -1824,6 +1825,43 @@ Map::from( ['a' => 'X', 'b' => 'Y'] )->has( ['a', 'c'] );
 
 Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'X' );
 // false
+```
+
+
+### if()
+
+Executes callables $then and $else depending on callable $condition.
+
+```php
+public function if( $condition, \Closure $then, \Closure $else = null ) : self
+```
+* @param callable|bool $condition Bool or function with (Map) parameter which evaluates to bool
+* @param \Closure $then Function with (Map) parameter which returns void
+* @param \Closure|null $else Optional function with (Map) parameter which returns void
+* @return self Same map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 'b' => 0] )->if(
+    fn( Map $map ) => $map->has( 'a' ),
+    function( Map $_ ) { echo "then"; },
+    function( Map $_ ) { echo "else"; }
+);
+//then
+
+Map::from( ['a' => 1, 'b' => 0] )->if(
+    fn( Map $map ) => $map->has( 'c' ),
+    function( Map $_ ) { echo "then"; },
+    function( Map $_ ) { echo "else"; }
+);
+//else
+
+Map::from( ['a' => 1, 'b' => 0] )->if(
+    fn( Map $map ) => $map->has( 'c' ),
+    function( Map $_ ) { echo "then"; }
+);
+// (no output)
 ```
 
 

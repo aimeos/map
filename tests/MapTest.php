@@ -1168,6 +1168,36 @@ Array
 	}
 
 
+	public function testIfBlankElse()
+	{
+		Map::from( ['a' => 1, 'b' => 0] )->if(
+			function(Map $map) { return $map->has( 'c' ); },
+			function(Map $_) { $this->assertTrue( false ); }
+		);
+		$this->assertTrue(true);
+	}
+
+
+	public function testIfElse()
+	{
+		Map::from( ['a' => 1, 'b' => 0] )->if(
+			function(Map $map) { return $map->has( 'c' ); },
+			function(Map $_) { $this->assertTrue( false ); },
+			function(Map $_) { $this->assertTrue( true );}
+		);
+	}
+
+
+	public function testIfThen()
+	{
+		Map::from( ['a' => 1, 'b' => 0] )->if(
+			function(Map $map) { return $map->has( 'a' ); },
+			function(Map $_) { $this->assertTrue( true ); },
+			function(Map $_) { $this->assertTrue( false );}
+		);
+	}
+
+
 	public function testIn()
 	{
 		$this->assertTrue( Map::from( ['a', 'b'] )->in( 'a' ) );
