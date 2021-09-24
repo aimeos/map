@@ -1505,6 +1505,34 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Inserts the value or values after the given element.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAfter( 'foo', 'baz' );
+	 *  Map::from( ['foo', 'bar'] )->insertAfter( 'foo', ['baz', 'boo'] );
+	 *  Map::from( ['foo', 'bar'] )->insertAfter( null, 'baz' );
+	 *
+	 * Results:
+	 *  ['a' => 'foo', 0 => 'baz', 'b' => 'bar']
+	 *  ['foo', 'baz', 'boo', 'bar']
+	 *  ['foo', 'bar', 'baz']
+	 *
+	 * Numerical array indexes are not preserved.
+	 *
+	 * @param mixed $element Element after the value is inserted
+	 * @param mixed $value Element or list of elements to insert
+	 * @return self Updated map for fluid interface
+	 */
+	public function insertAfter( $element, $value ) : self
+	{
+		$pos = ( $element !== null ? $this->pos( $element ) : count( $this->list ) );
+		array_splice( $this->list, $pos + 1, 0, $this->getArray( $value ) );
+
+		return $this;
+	}
+
+
+	/**
 	 * Returns all values in a new map that are available in both, the map and the given elements.
 	 *
 	 * Examples:

@@ -1185,6 +1185,33 @@ Array
 	}
 
 
+	public function testInsertAfter()
+	{
+		$r = Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAfter( 'foo', 'baz' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['a' => 'foo', 0 => 'baz', 'b' => 'bar'], $r->toArray() );
+	}
+
+
+	public function testInsertAfterArray()
+	{
+		$r = Map::from( ['foo', 'bar'] )->insertAfter( 'foo', ['baz', 'boo'] );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['foo', 'baz', 'boo', 'bar'], $r->toArray() );
+	}
+
+
+	public function testInsertAfterEnd()
+	{
+		$r = Map::from( ['foo', 'bar'] )->insertAfter( null, 'baz' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['foo', 'bar', 'baz'], $r->toArray() );
+	}
+
+
 	public function testIntersect()
 	{
 		$m = new Map( ['id' => 1, 'first_word' => 'Hello'] );

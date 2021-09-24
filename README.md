@@ -268,6 +268,7 @@ will return:
 ### Add
 
 * [concat()](#concat) : Adds all elements with new keys
+* [insertAfter()](#insertAfter) : Inserts the value after the given element
 * [merge()](#merge) : Combines elements overwriting existing ones
 * [pad()](#pad) : Fill up to the specified length with the given value
 * [prepend()](#prepend) : Adds an element at the beginning
@@ -1884,6 +1885,34 @@ Map::from( ['a', 'b'] )->includes( ['a', 'x'] );
 
 Map::from( ['1', '2'] )->includes( 2, true );
 // false
+```
+
+
+### insertAfter()
+
+Inserts the value or values after the given element.
+
+```php
+public function insertAfter( $element, $value ) : self
+```
+
+* @param mixed `$element` Element after the value is inserted
+* @param mixed `$value` Element or list of elements to insert
+* @return self Updated map for fluid interface
+
+Numerical array indexes are not preserved.
+
+**Examples:**
+
+```php
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAfter( 'foo', 'baz' );
+// ['a' => 'foo', 0 => 'baz', 'b' => 'bar']
+
+Map::from( ['foo', 'bar'] )->insertAfter( 'foo', ['baz', 'boo'] );
+// ['foo', 'baz', 'boo', 'bar']
+
+Map::from( ['foo', 'bar'] )->insertAfter( null, 'baz' );
+// ['foo', 'bar', 'baz']
 ```
 
 
