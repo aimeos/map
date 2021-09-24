@@ -313,7 +313,8 @@ will return:
 * [diffAssoc()](#diffassoc) : Returns the elements missing in the given list and checks keys
 * [diffKeys()](#diffkeys) : Returns the elements missing in the given list by keys
 * [except()](#except) : Returns a new map without the passed element keys
-* [filter()](#filter) : Applies a filter to the all elements
+* [filter()](#filter) : Applies a filter to all elements
+* [grep()](#grep) : Applies a regular expression to all elements
 * [intersect()](#intersect) : Returns the elements shared
 * [intersectAssoc()](#intersectassoc) : Returns the elements shared and checks keys
 * [intersectKeys()](#intersectkeys) : Returns the elements shared by keys
@@ -1670,6 +1671,37 @@ foreach( Map::from( ['a', 'b'] ) as $value ) {
 ```
 
 
+### grep()
+
+Returns only items which matches the regular expression.
+
+```php
+public function grep( string $pattern, int $flags = 0 ) : self
+```
+
+* @param string `$pattern` Regular expression pattern, e.g. "/ab/"
+* @param int `$flags` PREG_GREP_INVERT to return elements not matching the pattern
+* @return self New map containing only the matched elements
+
+All items are converted to string first before they are compared to the
+regular expression. Thus, fractions of ".0" will be removed in float numbers
+which may result in unexpected results. The keys are preserved using this method.
+
+**Examples:**
+
+```php
+Map::from( ['ab', 'bc', 'cd'] )->grep( '/b/' );
+// ['ab', 'bc']
+
+Map::from( ['ab', 'bc', 'cd'] )->grep( '/a/', PREG_GREP_INVERT );
+// ['bc', 'cd']
+
+Map::from( [1.5, 0, 1.0, 'a'] )->grep( '/^(\d+)?\.\d+$/' );
+// [1.5]
+// float 1.0 is converted to string "1"
+```
+
+
 ### groupBy()
 
 Groups associative array elements or objects by the passed key or closure.
@@ -1678,7 +1710,7 @@ Groups associative array elements or objects by the passed key or closure.
 public function groupBy( $key ) : self
 ```
 
-* @param  \Closure&#124;string $key Closure function with (item, idx) parameters returning the key or the key itself to group by
+* @param \Closure&#124;string $key Closure function with (item, idx) parameters returning the key or the key itself to group by
 * @return self New map with elements grouped by the given key
 
 Instead of overwriting items with the same keys like to the [col()](#col) method does,

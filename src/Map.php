@@ -1307,6 +1307,39 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns only items which matches the regular expression.
+	 *
+	 * All items are converted to string first before they are compared to the
+	 * regular expression. Thus, fractions of ".0" will be removed in float numbers
+	 * which may result in unexpected results.
+	 *
+	 * Examples:
+	 *  Map::from( ['ab', 'bc', 'cd'] )->grep( '/b/' );
+	 *  Map::from( ['ab', 'bc', 'cd'] )->grep( '/a/', PREG_GREP_INVERT );
+	 *  Map::from( [1.5, 0, 1.0, 'a'] )->grep( '/^(\d+)?\.\d+$/' );
+	 *
+	 * Results:
+	 *  ['ab', 'bc']
+	 *  ['bc', 'cd']
+	 *  [1.5] // float 1.0 is converted to string "1"
+	 *
+	 * The keys are preserved using this method.
+	 *
+	 * @param string $pattern Regular expression pattern, e.g. "/ab/"
+	 * @param int $flags PREG_GREP_INVERT to return elements not matching the pattern
+	 * @return self New map containing only the matched elements
+	 */
+	public function grep( string $pattern, int $flags = 0 ) : self
+	{
+		if( ( $result = preg_grep( $pattern, $this->list, $flags ) ) === false ) {
+			throw new \InvalidArgumentException( 'Regular expression pattern is invalid' );
+		}
+
+		return new static( $result );
+	}
+
+
+	/**
 	 * Groups associative array elements or objects by the passed key or closure.
 	 *
 	 * Instead of overwriting items with the same keys like to the col() method

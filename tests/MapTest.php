@@ -1050,6 +1050,33 @@ Array
 	}
 
 
+	public function testGrep()
+	{
+		$r = Map::from( ['ab', 'bc', 'cd'] )->grep( '/b/' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['ab', 'bc'], $r->toArray() );
+	}
+
+
+	public function testGrepInvert()
+	{
+		$r = Map::from( ['ab', 'bc', 'cd'] )->grep( '/a/', PREG_GREP_INVERT );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [1 => 'bc', 2 => 'cd'], $r->toArray() );
+	}
+
+
+	public function testGrepNumbers()
+	{
+		$r = Map::from( [1.5, 0, 0.0, 'a'] )->grep( '/^(\d+)?\.\d+$/' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [1.5], $r->toArray() );
+	}
+
+
 	public function testGroupBy()
 	{
 		$list = [
