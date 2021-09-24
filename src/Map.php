@@ -1491,12 +1491,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 * The first and second example will return TRUE while the other ones will return FALSE
 	 *
+	 * This method is an alias for in(). For performance reasons, in() should be
+	 * preferred because it uses one method call less than includes().
+	 *
 	 * @param mixed|array $element Element or elements to search for in the map
 	 * @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
 	 * @return bool TRUE if all elements are available in map, FALSE if not
-	 *
-	 * This method is an alias for in(). For performance reasons, in() should be
-	 * preferred because it uses one method call less than includes().
 	 */
 	public function includes( $element, bool $strict = false ) : bool
 	{
@@ -2890,6 +2890,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * - If the array is shorter than the length, then only the available array elements will be present
 	 * - If length is given and is negative then the sequence will stop that many elements from the end
 	 * - If it is omitted, then the sequence will have everything from offset up until the end
+	 *
+	 * Numerical array indexes are not preserved.
 	 *
 	 * @param int $offset Number of elements to start from
 	 * @param int|null $length Number of elements to remove, NULL for all
