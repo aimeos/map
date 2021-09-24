@@ -1794,7 +1794,7 @@ Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'X' );
 Executes callables $then and $else depending on callable $condition.
 
 ```php
-public function if( $condition, Callable $then, $Callable $else = null ) : self
+public function if( $condition, callable $then, callable $else = null ) : self
 ```
 * @param callable|bool $condition Bool or function with (Map) parameter which evaluates to bool
 * @param callable $then Function with (Map) parameter which returns void
@@ -1805,22 +1805,22 @@ public function if( $condition, Callable $then, $Callable $else = null ) : self
 
 ```php
 Map::from( ['a' => 1, 'b' => 0] )->if(
-    fn(Map $map) => $map->has('a'),
-    function(Map $_) {echo "then";},
-    function(Map $_) {echo "else";}
+    fn( Map $map ) => $map->has( 'a' ),
+    function( Map $_ ) { echo "then"; },
+    function( Map $_ ) { echo "else"; }
 );
 //then
 
 Map::from( ['a' => 1, 'b' => 0] )->if(
-    fn(Map $map) => $map->has('c'),
-    function(Map $_) {echo "then";},
-    function(Map $_) {echo "else";}
+    fn( Map $map ) => $map->has( 'c' ),
+    function( Map $_ ) { echo "then"; },
+    function( Map $_ ) { echo "else"; }
 );
 //else
 
 Map::from( ['a' => 1, 'b' => 0] )->if(
-    fn(Map $map) => $map->has('c'),
-    function(Map $_) {echo "then";}
+    fn( Map $map ) => $map->has( 'c' ),
+    function( Map $_ ) { echo "then"; }
 );
 // (no output)
 ```
