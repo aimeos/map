@@ -1144,8 +1144,8 @@ Array
 	public function testIfBlankElse()
 	{
 		Map::from( ['a' => 1, 'b' => 0] )->if(
-			fn(Map $map) => $map->has('c'),
-			function(Map $_) { $this->assertTrue(false); }
+			function(Map $map) { return $map->has( 'c' ); },
+			function(Map $_) { $this->assertTrue( false ); }
 		);
 		$this->assertTrue(true);
 	}
@@ -1154,9 +1154,9 @@ Array
 	public function testIfElse()
 	{
 		Map::from( ['a' => 1, 'b' => 0] )->if(
-			fn(Map $map) => $map->has('c'),
-			function(Map $_) { $this->assertTrue(false); },
-			function(Map $_) { $this->assertTrue(true);}
+			function(Map $map) { return $map->has( 'c' ); },
+			function(Map $_) { $this->assertTrue( false ); },
+			function(Map $_) { $this->assertTrue( true );}
 		);
 	}
 
@@ -1164,9 +1164,9 @@ Array
 	public function testIfThen()
 	{
 		Map::from( ['a' => 1, 'b' => 0] )->if(
-			fn(Map $map) => $map->has('a'),
-			function(Map $_) { $this->assertTrue(true); },
-			function(Map $_) { $this->assertTrue(false);}
+			function(Map $map) { return $map->has( 'a' ); },
+			function(Map $_) { $this->assertTrue( true ); },
+			function(Map $_) { $this->assertTrue( false );}
 		);
 	}
 
