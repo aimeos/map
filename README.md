@@ -1794,11 +1794,11 @@ Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'X' );
 Executes callables $then and $else depending on callable $condition.
 
 ```php
-public function if( $condition, callable $then, callable $else = null ) : self
+public function if( $condition, \Closure $then, \Closure $else = null ) : self
 ```
 * @param callable|bool $condition Bool or function with (Map) parameter which evaluates to bool
-* @param callable $then Function with (Map) parameter which returns void
-* @param callable|null $else Optional function with (Map) parameter which returns void
+* @param \Closure $then Function with (Map) parameter which returns void
+* @param \Closure|null $else Optional function with (Map) parameter which returns void
 * @return self Same map for fluid interface
 
 **Examples:**
