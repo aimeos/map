@@ -1185,6 +1185,32 @@ Array
 	}
 
 
+	public function testIndex()
+	{
+		$m = new Map( [4 => 'a', 8 => 'b'] );
+
+		$this->assertEquals( 1, $m->index( '8' ) );
+	}
+
+
+	public function testIndexClosure()
+	{
+		$m = new Map( [4 => 'a', 8 => 'b'] );
+
+		$this->assertEquals( 1, $m->index( function( $key ) {
+			return $key == '8';
+		} ) );
+	}
+
+
+	public function testIndexNotFound()
+	{
+		$m = new Map( [] );
+
+		$this->assertNull( $m->index( 'b' ) );
+	}
+
+
 	public function testInsertAfter()
 	{
 		$r = Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAfter( 'foo', 'baz' );

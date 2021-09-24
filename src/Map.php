@@ -1509,6 +1509,45 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns the numerical index of the given key.
+	 *
+	 * Examples:
+	 *  Map::from( [4 => 'a', 8 => 'b'] )->index( '8' );
+	 *  Map::from( [4 => 'a', 8 => 'b'] )->index( function( $key ) {
+	 *      return $key == '8';
+	 *  } );
+	 *
+	 * Results:
+	 * Both examples will return "1" because the value "b" is at the second position
+	 * and the returned index is zero based so the first item has the index "0".
+	 *
+	 * @param \Closure|string|int $value Key to search for or function with (key) parameters return TRUE if key is found
+	 * @return int|null Position of the found value (zero based) or NULL if not found
+	 */
+	public function index( $value ) : ?int
+	{
+		if( $value instanceof \Closure )
+		{
+			$pos = 0;
+
+			foreach( $this->list as $key => $item )
+			{
+				if( $value( $key ) ) {
+					return $pos;
+				}
+
+				++$pos;
+			}
+
+			return null;
+		}
+
+		$pos = array_search( $value, array_keys( $this->list ) );
+		return $pos !== false ? $pos : null;
+	}
+
+
+	/**
 	 * Inserts the value or values after the given element.
 	 *
 	 * Examples:

@@ -157,6 +157,7 @@ will return:
 <a href="#has">has</a>
 <a href="#in">in</a>
 <a href="#includes">includes</a>
+<a href="#index">index</a>
 <a href="#intersect">intersect</a>
 <a href="#intersectassoc">intersectAssoc</a>
 <a href="#intersectkeys">intersectKeys</a>
@@ -251,6 +252,7 @@ will return:
 * [first()](#first) : Returns the first element
 * [firstKey()](#firstkey) : Returns the first key
 * [get()](#get) : Returns an element by key
+* [index()](#index) : Returns the numerical index of the given key
 * [keys()](#keys) : Returns all keys
 * [last()](#last) : Returns the last element
 * [lastKey()](#lastkey) : Returns the last key
@@ -1886,6 +1888,33 @@ Map::from( ['a', 'b'] )->includes( ['a', 'x'] );
 Map::from( ['1', '2'] )->includes( 2, true );
 // false
 ```
+
+
+### index()
+
+Returns the numerical index of the given key.
+
+```php
+public function index( $value ) : ?int
+```
+
+* @param \Closure&#124;string&#124;int $value Key to search for or function with (key) parameters return TRUE if key is found
+* @return int&#124;null Position of the found value (zero based) or NULL if not found
+
+**Examples:**
+
+```php
+Map::from( [4 => 'a', 8 => 'b'] )->index( '8' );
+// 1
+
+Map::from( [4 => 'a', 8 => 'b'] )->index( function( $key ) {
+    return $key == '8';
+} );
+// 1
+```
+
+Both examples will return "1" because the value "b" is at the second position
+and the returned index is zero based so the first item has the index "0".
 
 
 ### insertAfter()
