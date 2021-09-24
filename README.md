@@ -344,6 +344,7 @@ will return:
 * [equals()](#equals) : Tests if map contents are equal
 * [every()](#every) : Verifies that all elements pass the test of the given callback
 * [has()](#has) : Tests if a key exists
+* [if()](#if) : Executes callbacks depending on the condition
 * [in()](#in) : Tests if element is included
 * [includes()](#includes) : Tests if element is included
 * [is()](#is) : Tests if the map consists of the same keys and values
@@ -1830,38 +1831,45 @@ Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'X' );
 
 ### if()
 
-Executes callables $then and $else depending on callable $condition.
+Executes callbacks depending on the condition.
 
 ```php
 public function if( $condition, \Closure $then, \Closure $else = null ) : self
 ```
-* @param callable|bool $condition Bool or function with (Map) parameter which evaluates to bool
-* @param \Closure $then Function with (Map) parameter which returns void
-* @param \Closure|null $else Optional function with (Map) parameter which returns void
+
+* @param \Closure&#124;bool $condition Boolean or function with (map) parameter returning a boolean
+* @param \Closure `$then` Function with (map) parameter
+* @param \Closure&#124;null `$else` Function with (map) parameter (optional)
 * @return self Same map for fluid interface
+
+Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
+(a short form for anonymous closures) as parameters. The automatically have access
+to previously defined variables but can not modify them. Also, they can not have
+a void return type and must/will always return something. Details about
+[PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
 
 **Examples:**
 
 ```php
 Map::from( ['a' => 1, 'b' => 0] )->if(
-    fn( Map $map ) => $map->has( 'a' ),
-    function( Map $_ ) { echo "then"; },
-    function( Map $_ ) { echo "else"; }
-);
-//then
-
-Map::from( ['a' => 1, 'b' => 0] )->if(
-    fn( Map $map ) => $map->has( 'c' ),
-    function( Map $_ ) { echo "then"; },
-    function( Map $_ ) { echo "else"; }
-);
-//else
-
-Map::from( ['a' => 1, 'b' => 0] )->if(
-    fn( Map $map ) => $map->has( 'c' ),
+    'a' == 'b',
     function( Map $_ ) { echo "then"; }
 );
-// (no output)
+// no output
+
+Map::from( ['a' => 1, 'b' => 0] )->if(
+    function( Map $map ) { return $map->has( 'a' ); },
+    function( Map $_ ) { echo "then"; },
+    function( Map $_ ) { echo "else"; }
+);
+// then
+
+Map::from( ['a' => 1, 'b' => 0] )->if(
+    fn( Map $map ) => $map->has( 'c' ),
+    function( Map $_ ) { echo "then"; },
+    function( Map $_ ) { echo "else"; }
+);
+// else
 ```
 
 

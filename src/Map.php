@@ -1449,6 +1449,55 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Executes callbacks depending on the condition.
+	 *
+	 * Examples:
+	 *  Map::from( [] )->if( strpos( 'abc', 'b' ) !== false, function( $map ) {
+	 *    echo 'found';
+	 *  } );
+	 *
+	 *  Map::from( [] )->if( function( $map ) {
+	 *    return $map->empty();
+	 *  }, function( $map ) {
+	 *    echo 'then';
+	 *  } );
+	 *
+	 *  Map::from( ['a'] )->if( function( $map ) {
+	 *    return $map->empty();
+	 *  }, function( $map ) {
+	 *    echo 'then';
+	 *  }, function( $map ) {
+	 *    echo 'else';
+	 *  } );
+	 *
+	 * Results:
+	 * The first example returns "found" while the second one returns "then" and
+	 * the third one "else".
+	 *
+	 * Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
+	 * (a short form for anonymous closures) as parameters. The automatically have access
+	 * to previously defined variables but can not modify them. Also, they can not have
+	 * a void return type and must/will always return something. Details about
+	 * [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
+	 *
+	 * @param \Closure|bool $condition Boolean or function with (map) parameter returning a boolean
+	 * @param \Closure $then Function with (map) parameter
+	 * @param \Closure|null $else Function with (map) parameter (optional)
+	 * @return self Same map for fluid interface
+	 */
+	public function if( $condition, \Closure $then, \Closure $else = null ) : self
+	{
+		if( $condition instanceof \Closure ? $condition( $this ) : $condition ) {
+			$then( $this );
+		} elseif( $else ) {
+			$else( $this );
+		}
+
+		return $this;
+	}
+
+
+	/**
 	 * Tests if the passed element or elements are part of the map.
 	 *
 	 * Examples:
@@ -3860,33 +3909,5 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 				$this->visit( $entry->{$nestKey}, $result, $level + 1, $callback, $nestKey );
 			}
 		}
-	}
-
-
-	/**
-	 * Executes $callback if the Map is empty
-	 *
-	 * Examples: (Returns match or dies if doesn't exist)
-	 *  $page = $this->pages
-	 *          ->filter(fn(Page $page, $_) => $page->Id == $pageId)
-	 *          ->if(
-	 *              fn(Map $Map) => $Map->isEmpty(),
-	 *              fn(Map $_) => die("unknown page: " . $pageId))
-	 *          ->first();
-	 *
-	 * @param callable|bool $condition Bool or function with (Map) parameter which evaluates to bool
-	 * @param \Closure $then Function with (Map) parameter which returns void
-	 * @param \Closure|null $else Optional function with (Map) parameter which returns void
-	 * @return self Same map for fluid interface
-	 */
-	public function if( $condition, \Closure $then, \Closure $else = null ): self
-	{
-		if( $condition instanceof \Closure ? $condition( $this ) : $condition ){
-			$then( $this );
-		} elseif( $else != null ) {
-			$else( $this );
-		}
-
-		return $this;
 	}
 }
