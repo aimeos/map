@@ -341,7 +341,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function after( $value ) : self
 	{
-		return new self( array_slice( $this->list, $this->pos( $value ) + 1, null, true ) );
+		if( ( $pos = $this->pos( $value ) ) === null ) {
+			return new self();
+		}
+
+		return new self( array_slice( $this->list, $pos + 1, null, true ) );
 	}
 
 
@@ -1525,8 +1529,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function insertAfter( $element, $value ) : self
 	{
-		$pos = ( $element !== null ? $this->pos( $element ) : count( $this->list ) );
-		array_splice( $this->list, $pos + 1, 0, $this->getArray( $value ) );
+		$position = ( $element !== null && ( $pos = $this->pos( $element ) ) !== null ? $pos : count( $this->list ) );
+		array_splice( $this->list, $position + 1, 0, $this->getArray( $value ) );
 
 		return $this;
 	}
@@ -1553,8 +1557,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function insertBefore( $element, $value ) : self
 	{
-		$pos = ( $element !== null ? $this->pos( $element ) : count( $this->list ) );
-		array_splice( $this->list, $pos, 0, $this->getArray( $value ) );
+		$position = ( $element !== null && ( $pos = $this->pos( $element ) ) !== null ? $pos : count( $this->list ) );
+		array_splice( $this->list, $position, 0, $this->getArray( $value ) );
 
 		return $this;
 	}

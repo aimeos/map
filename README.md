@@ -2670,11 +2670,11 @@ Map::from( ['a', 'b'] )->pop();
 Returns the numerical index of the value.
 
 ```php
-public function pos( $value ) : int
+public function pos( $value ) : ?int
 ```
 
 * @param \Closure&#124;mixed $value Value to search for or function with (item, key) parameters return TRUE if value is found
-* @return int Position of the found value (zero based)
+* @return int&#124;null Position of the found value (zero based) or NULL if not found
 
 **Examples:**
 
