@@ -561,11 +561,14 @@ The keys are preserved using this method.
 **Examples:**
 
 ```php
+Map::from( [0 => 'b', 1 => 'a'] )->after( 'b' );
+// [1 => 'a']
+
 Map::from( ['a' => 1, 'b' => 0] )->after( 1 );
 // ['b' => 0]
 
-Map::from( [0 => 'b', 1 => 'a'] )->after( 'b' );
-// [1 => 'a']
+Map::from( [0 => 'b', 1 => 'a'] )->after( 'c' );
+// []
 
 Map::from( ['a', 'c', 'b'] )->after( function( $item, $key ) {
     return $item >= 'c';

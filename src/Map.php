@@ -325,6 +325,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Examples:
 	 *  Map::from( ['a' => 1, 'b' => 0] )->after( 1 );
 	 *  Map::from( [0 => 'b', 1 => 'a'] )->after( 'b' );
+	 *  Map::from( [0 => 'b', 1 => 'a'] )->after( 'c' );
 	 *  Map::from( ['a', 'c', 'b'] )->after( function( $item, $key ) {
 	 *      return $item >= 'c';
 	 *  } );
@@ -332,6 +333,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 *  ['b' => 0]
 	 *  [1 => 'a']
+	 *  []
 	 *  [2 => 'b']
 	 *
 	 * The keys are preserved using this method.
