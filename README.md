@@ -693,6 +693,9 @@ Map::from( ['a' => 1, 'b' => 0] )->before( 0 );
 Map::from( [0 => 'b', 1 => 'a'] )->before( 'a' );
 // [0 => 'b']
 
+Map::from( [0 => 'b', 1 => 'a'] )->before( 'c' );
+// []
+
 Map::from( ['a', 'c', 'b'] )->before( function( $item, $key ) {
     return $key >= 1;
 } );
