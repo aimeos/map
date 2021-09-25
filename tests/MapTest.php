@@ -1109,7 +1109,12 @@ Array
 
 	public function testGrepWarning()
 	{
-		$this->expectWarning();
+		if( method_exists( $this, 'expectWarning' ) ) {
+			$this->expectWarning(); // PHPUnit 8+
+		} else {
+			$this->expectException( \PHPUnit\Framework\Error\Warning::class ); // PHP 7.1
+		}
+
 		Map::from( [] )->grep( 'b' );
 	}
 
