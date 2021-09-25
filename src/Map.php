@@ -1340,7 +1340,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function grep( string $pattern, int $flags = 0 ) : self
 	{
 		if( ( $result = preg_grep( $pattern, $this->list, $flags ) ) === false ) {
-			throw new \InvalidArgumentException( 'Regular expression pattern is invalid' );
+			throw new \RuntimeException( 'Regular expression error: ' . preg_last_error_msg() );
 		}
 
 		return new static( $result );

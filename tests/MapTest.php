@@ -1098,6 +1098,22 @@ Array
 	}
 
 
+	public function testGrepException()
+	{
+		set_error_handler( function( $errno ) {} );
+
+		$this->expectException( \RuntimeException::class );
+		Map::from( [] )->grep( 'b' );
+	}
+
+
+	public function testGrepWarning()
+	{
+		$this->expectWarning();
+		Map::from( [] )->grep( 'b' );
+	}
+
+
 	public function testGrepNumbers()
 	{
 		$r = Map::from( [1.5, 0, 0.0, 'a'] )->grep( '/^(\d+)?\.\d+$/' );
@@ -1163,6 +1179,25 @@ Array
 		];
 
 		$r = Map::from( $list )->groupBy( 'xid' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( $expected, $r->toArray() );
+	}
+
+
+	public function testGroupByObject()
+	{
+		$list = [
+			10 => (object) ['aid' => 123, 'code' => 'x-abc'],
+			20 => (object) ['aid' => 123, 'code' => 'x-def'],
+			30 => (object) ['aid' => 456, 'code' => 'x-def']
+		];
+		$expected = [
+			123 => [10 => (object) ['aid' => 123, 'code' => 'x-abc'], 20 => (object) ['aid' => 123, 'code' => 'x-def']],
+			456 => [30 => (object) ['aid' => 456, 'code' => 'x-def']]
+		];
+
+		$r = Map::from( $list )->groupBy( 'aid' );
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertEquals( $expected, $r->toArray() );
@@ -1273,6 +1308,16 @@ Array
 		$m = new Map( [] );
 
 		$this->assertNull( $m->index( 'b' ) );
+	}
+
+
+	public function testIndexNotFoundClosure()
+	{
+		$m = new Map( [] );
+
+		$this->assertNull( $m->index( function( $key ) {
+			return false;
+		} ) );
 	}
 
 
@@ -2501,6 +2546,21 @@ Array
 			]
 		]] )->traverse( function( $entry, $key, $level ) {
 			return str_repeat( '-', $level ) . '- ' . $entry['name'];
+		} );
+
+		$this->assertEquals( ['- n1', '-- n2', '-- n3'], $r->toArray() );
+	}
+
+
+	public function testTraverseCallbackObject()
+	{
+		$r = Map::from( [(object) [
+			'id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+				(object) ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+				(object) ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+			]
+		]] )->traverse( function( $entry, $key, $level ) {
+			return str_repeat( '-', $level ) . '- ' . $entry->name;
 		} );
 
 		$this->assertEquals( ['- n1', '-- n2', '-- n3'], $r->toArray() );
