@@ -1844,7 +1844,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * @param callable $callback Function with (value, key) parameters and returns computed result
 	 * @return self New map with computed keys and original values
 	 */
-	public function mapKeys( callable $callback )
+	public function mapKeys( callable $callback ): self
 	{
 		$keys = array_keys( $this->list );
 		$newKeys = array_map( $callback, $this->list, $keys );
