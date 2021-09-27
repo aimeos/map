@@ -1376,7 +1376,7 @@ Array
 		} );
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( ['a1' => '1', 'b2' => 'b'], $m->toArray() );
+		$this->assertEquals( ['a-1' => '1', 'b-2' => 'b'], $m->toArray() );
 	}
 
 
