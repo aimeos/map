@@ -1368,6 +1368,18 @@ Array
 	}
 
 
+	public function testMapKeys()
+	{
+		$m = new Map( ['a' => '1', 'b' => '2'] );
+		$m = $m->map( function( $item, $key ) {
+			return $key . '-' . $item;
+		} );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( ['a1' => '1', 'b2' => 'b'], $m->toArray() );
+	}
+
+
 	public function testMax()
 	{
 		$this->assertEquals( 5, Map::from( [1, 3, 2, 5, 4] )->max() );

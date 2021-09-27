@@ -353,6 +353,7 @@ will return:
 * [groupBy()](#groupby) : Groups associative array elements or objects
 * [join()](#join) : Returns concatenated elements as string with separator
 * [map()](#map) : Applies a callback to each element and returns the results
+* [mapKeys()](#mapKeys) : Applies a callback to each key and returns the results
 * [partition()](#partition) : Breaks the list into the given number of groups
 * [pipe()](#pipe) : Applies a callback to the whole map
 * [prefix()](#prefix) : Adds a prefix to each map entry
@@ -2197,6 +2198,27 @@ Map::from( ['a' => 2, 'b' => 4] )->map( function( $value, $key ) {
     return $value * 2;
 } );
 // ['a' => 4, 'b' => 8]
+```
+
+
+### mapKeys()
+
+Calls the passed function once for each key and returns a new map for the result.
+
+```php
+public function mapKeys( callable $callback ) : self
+```
+
+* @param callable `$callback` Function with (value, key) parameters and returns computed result
+* @return self New map with the computed keys and the original values
+
+**Examples:**
+
+```php
+Map::from( ['a' => 2, 'b' => 4] )->mapKeys( function( $value, $key ) {
+    return $key . 'A';
+} );
+// ['aA' => 2, 'bA' => 4]
 ```
 
 
