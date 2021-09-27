@@ -1371,7 +1371,7 @@ Array
 	public function testMapKeys()
 	{
 		$m = new Map( ['a' => '1', 'b' => '2'] );
-		$m = $m->map( function( $item, $key ) {
+		$m = $m->mapKeys( function( $item, $key ) {
 			return $key . '-' . $item;
 		} );
 
