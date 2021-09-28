@@ -44,9 +44,24 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testAfter()
 	{
-		$this->assertEquals( ['b' => 0], Map::from( ['a' => 1, 'b' => 0] )->after( 1 )->toArray() );
 		$this->assertEquals( [1 => 'a'], Map::from( [0 => 'b', 1 => 'a'] )->after( 'b' )->toArray() );
+	}
 
+
+	public function testAfterInt()
+	{
+		$this->assertEquals( ['b' => 0], Map::from( ['a' => 1, 'b' => 0] )->after( 1 )->toArray() );
+	}
+
+
+	public function testAfterNone()
+	{
+		$this->assertEquals( [], Map::from( [0 => 'b', 1 => 'a'] )->after( 'c' )->toArray() );
+	}
+
+
+	public function testAfterCallback()
+	{
 		$this->assertEquals( [2 => 'b'], Map::from( ['a', 'c', 'b'] )->after( function( $item, $key ) {
 			return $item >= 'c';
 		} )->toArray() );
@@ -116,9 +131,24 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testBefore()
 	{
-		$this->assertEquals( ['a' => 1], Map::from( ['a' => 1, 'b' => 0] )->before( 0 )->toArray() );
 		$this->assertEquals( [0 => 'b'], Map::from( [0 => 'b', 1 => 'a'] )->before( 'a' )->toArray() );
+	}
 
+
+	public function testBeforeInt()
+	{
+		$this->assertEquals( ['a' => 1], Map::from( ['a' => 1, 'b' => 0] )->before( 0 )->toArray() );
+	}
+
+
+	public function testBeforeNone()
+	{
+		$this->assertEquals( [], Map::from( [0 => 'b', 1 => 'a'] )->before( 'b' )->toArray() );
+	}
+
+
+	public function testBeforeCallback()
+	{
 		$this->assertEquals( [0 => 'a'], Map::from( ['a', 'c', 'b'] )->before( function( $item, $key ) {
 			return $key >= 1;
 		} )->toArray() );
@@ -1050,6 +1080,54 @@ Array
 	}
 
 
+	public function testGrep()
+	{
+		$r = Map::from( ['ab', 'bc', 'cd'] )->grep( '/b/' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['ab', 'bc'], $r->toArray() );
+	}
+
+
+	public function testGrepInvert()
+	{
+		$r = Map::from( ['ab', 'bc', 'cd'] )->grep( '/a/', PREG_GREP_INVERT );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [1 => 'bc', 2 => 'cd'], $r->toArray() );
+	}
+
+
+	public function testGrepException()
+	{
+		set_error_handler( function( $errno ) {} );
+
+		$this->expectException( \RuntimeException::class );
+		Map::from( [] )->grep( 'b' );
+	}
+
+
+	public function testGrepWarning()
+	{
+		if( method_exists( $this, 'expectWarning' ) ) {
+			$this->expectWarning(); // PHPUnit 8+
+		} else {
+			$this->expectException( \PHPUnit\Framework\Error\Warning::class ); // PHP 7.1
+		}
+
+		Map::from( [] )->grep( 'b' );
+	}
+
+
+	public function testGrepNumbers()
+	{
+		$r = Map::from( [1.5, 0, 0.0, 'a'] )->grep( '/^(\d+)?\.\d+$/' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [1.5], $r->toArray() );
+	}
+
+
 	public function testGroupBy()
 	{
 		$list = [
@@ -1112,6 +1190,25 @@ Array
 	}
 
 
+	public function testGroupByObject()
+	{
+		$list = [
+			10 => (object) ['aid' => 123, 'code' => 'x-abc'],
+			20 => (object) ['aid' => 123, 'code' => 'x-def'],
+			30 => (object) ['aid' => 456, 'code' => 'x-def']
+		];
+		$expected = [
+			123 => [10 => (object) ['aid' => 123, 'code' => 'x-abc'], 20 => (object) ['aid' => 123, 'code' => 'x-def']],
+			456 => [30 => (object) ['aid' => 456, 'code' => 'x-def']]
+		];
+
+		$r = Map::from( $list )->groupBy( 'aid' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( $expected, $r->toArray() );
+	}
+
+
 	public function testHas()
 	{
 		$m = new Map( ['id' => 1, 'first' => 'Hello', 'second' => 'World'] );
@@ -1141,6 +1238,41 @@ Array
 	}
 
 
+	public function testIf()
+	{
+		$r = Map::from( ['a'] )->if(
+			'a' == 'b',
+			function( Map $_ ) { $this->assertTrue( false ); }
+		);
+
+		$this->assertInstanceOf( Map::class, $r );
+	}
+
+
+	public function testIfThen()
+	{
+		$r = Map::from( ['a'] )->if(
+			function( Map $map ) { return $map->in( 'a' ); },
+			function( Map $_ ) { $this->assertTrue( true ); },
+			function( Map $_ ) { $this->assertTrue( false ); }
+		);
+
+		$this->assertInstanceOf( Map::class, $r );
+	}
+
+
+	public function testIfElse()
+	{
+		$r = Map::from( ['a'] )->if(
+			function( Map $map ) { return $map->in( 'c' ); },
+			function( Map $_ ) { $this->assertTrue( false ); },
+			function( Map $_ ) { $this->assertTrue( true ); }
+		);
+
+		$this->assertInstanceOf( Map::class, $r );
+	}
+
+
 	public function testIn()
 	{
 		$this->assertTrue( Map::from( ['a', 'b'] )->in( 'a' ) );
@@ -1155,6 +1287,96 @@ Array
 	{
 		$this->assertTrue( Map::from( ['a', 'b'] )->includes( 'a' ) );
 		$this->assertFalse( Map::from( ['a', 'b'] )->includes( 'x' ) );
+	}
+
+
+	public function testIndex()
+	{
+		$m = new Map( [4 => 'a', 8 => 'b'] );
+
+		$this->assertEquals( 1, $m->index( '8' ) );
+	}
+
+
+	public function testIndexClosure()
+	{
+		$m = new Map( [4 => 'a', 8 => 'b'] );
+
+		$this->assertEquals( 1, $m->index( function( $key ) {
+			return $key == '8';
+		} ) );
+	}
+
+
+	public function testIndexNotFound()
+	{
+		$m = new Map( [] );
+
+		$this->assertNull( $m->index( 'b' ) );
+	}
+
+
+	public function testIndexNotFoundClosure()
+	{
+		$m = new Map( [] );
+
+		$this->assertNull( $m->index( function( $key ) {
+			return false;
+		} ) );
+	}
+
+
+	public function testInsertAfter()
+	{
+		$r = Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAfter( 'foo', 'baz' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['a' => 'foo', 0 => 'baz', 'b' => 'bar'], $r->toArray() );
+	}
+
+
+	public function testInsertAfterArray()
+	{
+		$r = Map::from( ['foo', 'bar'] )->insertAfter( 'foo', ['baz', 'boo'] );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['foo', 'baz', 'boo', 'bar'], $r->toArray() );
+	}
+
+
+	public function testInsertAfterEnd()
+	{
+		$r = Map::from( ['foo', 'bar'] )->insertAfter( null, 'baz' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['foo', 'bar', 'baz'], $r->toArray() );
+	}
+
+
+	public function testInsertBefore()
+	{
+		$r = Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertBefore( 'bar', 'baz' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['a' => 'foo', 0 => 'baz', 'b' => 'bar'], $r->toArray() );
+	}
+
+
+	public function testInsertBeforeArray()
+	{
+		$r = Map::from( ['foo', 'bar'] )->insertBefore( 'bar', ['baz', 'boo'] );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['foo', 'baz', 'boo', 'bar'], $r->toArray() );
+	}
+
+
+	public function testInsertBeforeEnd()
+	{
+		$r = Map::from( ['foo', 'bar'] )->insertBefore( null, 'baz' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['foo', 'bar', 'baz'], $r->toArray() );
 	}
 
 
@@ -1635,6 +1857,13 @@ Array
 		$m = new Map( [4 => 'a', 8 => 'b'] );
 
 		$this->assertEquals( 1, $m->pos( 'b' ) );
+	}
+
+
+	public function testPosClosure()
+	{
+		$m = new Map( [4 => 'a', 8 => 'b'] );
+
 		$this->assertEquals( 1, $m->pos( function( $item, $key ) {
 			return $item === 'b';
 		} ) );
@@ -1657,6 +1886,7 @@ Array
 
 		$this->assertEquals( ['1-a', '1-b'], Map::from( ['a', 'b'] )->prefix( '1-' )->toArray() );
 		$this->assertEquals( ['1-a', ['1-b']], Map::from( ['a', ['b']] )->prefix( '1-' )->toArray() );
+		$this->assertEquals( ['1-a', ['b']], Map::from( ['a', ['b']] )->prefix( '1-', 1 )->toArray() );
 		$this->assertEquals( ['145-a', '147-b'], Map::from( ['a', 'b'] )->prefix( $fcn )->toArray() );
 	}
 
@@ -2201,6 +2431,7 @@ Array
 
 		$this->assertEquals( ['a-1', 'b-1'], Map::from( ['a', 'b'] )->suffix( '-1' )->toArray() );
 		$this->assertEquals( ['a-1', ['b-1']], Map::from( ['a', ['b']] )->suffix( '-1' )->toArray() );
+		$this->assertEquals( ['a-1', ['b']], Map::from( ['a', ['b']] )->suffix( '-1', 1 )->toArray() );
 		$this->assertEquals( ['a-145', 'b-147'], Map::from( ['a', 'b'] )->suffix( $fcn )->toArray() );
 	}
 
@@ -2320,6 +2551,21 @@ Array
 			]
 		]] )->traverse( function( $entry, $key, $level ) {
 			return str_repeat( '-', $level ) . '- ' . $entry['name'];
+		} );
+
+		$this->assertEquals( ['- n1', '-- n2', '-- n3'], $r->toArray() );
+	}
+
+
+	public function testTraverseCallbackObject()
+	{
+		$r = Map::from( [(object) [
+			'id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+				(object) ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+				(object) ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+			]
+		]] )->traverse( function( $entry, $key, $level ) {
+			return str_repeat( '-', $level ) . '- ' . $entry->name;
 		} );
 
 		$this->assertEquals( ['- n1', '-- n2', '-- n3'], $r->toArray() );
@@ -2629,7 +2875,7 @@ Array
 	}
 
 
-	public function testWhereMissing()
+	public function testWhereNotFound()
 	{
 		$this->assertEquals( [], Map::from( [['p' => 10]] )->where( 'x', '==', [0] )->toArray() );
 	}

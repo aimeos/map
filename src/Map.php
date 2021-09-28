@@ -325,6 +325,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Examples:
 	 *  Map::from( ['a' => 1, 'b' => 0] )->after( 1 );
 	 *  Map::from( [0 => 'b', 1 => 'a'] )->after( 'b' );
+	 *  Map::from( [0 => 'b', 1 => 'a'] )->after( 'c' );
 	 *  Map::from( ['a', 'c', 'b'] )->after( function( $item, $key ) {
 	 *      return $item >= 'c';
 	 *  } );
@@ -332,6 +333,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 *  ['b' => 0]
 	 *  [1 => 'a']
+	 *  []
 	 *  [2 => 'b']
 	 *
 	 * The keys are preserved using this method.
@@ -341,7 +343,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function after( $value ) : self
 	{
-		return new self( array_slice( $this->list, $this->pos( $value ) + 1, null, true ) );
+		if( ( $pos = $this->pos( $value ) ) === null ) {
+			return new self();
+		}
+
+		return new self( array_slice( $this->list, $pos + 1, null, true ) );
 	}
 
 
@@ -432,6 +438,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Examples:
 	 *  Map::from( ['a' => 1, 'b' => 0] )->before( 0 );
 	 *  Map::from( [0 => 'b', 1 => 'a'] )->before( 'a' );
+	 *  Map::from( [0 => 'b', 1 => 'a'] )->before( 'b' );
 	 *  Map::from( ['a', 'c', 'b'] )->before( function( $item, $key ) {
 	 *      return $key >= 1;
 	 *  } );
@@ -439,6 +446,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 *  ['a' => 1]
 	 *  [0 => 'b']
+	 *  []
 	 *  [0 => 'a']
 	 *
 	 * The keys are preserved using this method.
@@ -627,7 +635,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		$result = [];
-		$this->kflatten( $this->list, $result, $depth ?? INF );
+		$this->kflatten( $this->list, $result, $depth ?? 0x7fffffff );
 		return new self( $result );
 	}
 
@@ -1223,7 +1231,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		$result = [];
-		$this->flatten( $this->list, $result, $depth ?? INF );
+		$this->flatten( $this->list, $result, $depth ?? 0x7fffffff );
 		return new self( $result );
 	}
 
@@ -1303,6 +1311,39 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function getIterator() : \Iterator
 	{
 		return new \ArrayIterator( $this->list );
+	}
+
+
+	/**
+	 * Returns only items which matches the regular expression.
+	 *
+	 * All items are converted to string first before they are compared to the
+	 * regular expression. Thus, fractions of ".0" will be removed in float numbers
+	 * which may result in unexpected results.
+	 *
+	 * Examples:
+	 *  Map::from( ['ab', 'bc', 'cd'] )->grep( '/b/' );
+	 *  Map::from( ['ab', 'bc', 'cd'] )->grep( '/a/', PREG_GREP_INVERT );
+	 *  Map::from( [1.5, 0, 1.0, 'a'] )->grep( '/^(\d+)?\.\d+$/' );
+	 *
+	 * Results:
+	 *  ['ab', 'bc']
+	 *  ['bc', 'cd']
+	 *  [1.5] // float 1.0 is converted to string "1"
+	 *
+	 * The keys are preserved using this method.
+	 *
+	 * @param string $pattern Regular expression pattern, e.g. "/ab/"
+	 * @param int $flags PREG_GREP_INVERT to return elements not matching the pattern
+	 * @return self New map containing only the matched elements
+	 */
+	public function grep( string $pattern, int $flags = 0 ) : self
+	{
+		if( ( $result = preg_grep( $pattern, $this->list, $flags ) ) === false ) {
+			throw new \RuntimeException( 'Regular expression error: ' . preg_last_error_msg() );
+		}
+
+		return new static( $result );
 	}
 
 
@@ -1412,6 +1453,55 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Executes callbacks depending on the condition.
+	 *
+	 * Examples:
+	 *  Map::from( [] )->if( strpos( 'abc', 'b' ) !== false, function( $map ) {
+	 *    echo 'found';
+	 *  } );
+	 *
+	 *  Map::from( [] )->if( function( $map ) {
+	 *    return $map->empty();
+	 *  }, function( $map ) {
+	 *    echo 'then';
+	 *  } );
+	 *
+	 *  Map::from( ['a'] )->if( function( $map ) {
+	 *    return $map->empty();
+	 *  }, function( $map ) {
+	 *    echo 'then';
+	 *  }, function( $map ) {
+	 *    echo 'else';
+	 *  } );
+	 *
+	 * Results:
+	 * The first example returns "found" while the second one returns "then" and
+	 * the third one "else".
+	 *
+	 * Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
+	 * (a short form for anonymous closures) as parameters. The automatically have access
+	 * to previously defined variables but can not modify them. Also, they can not have
+	 * a void return type and must/will always return something. Details about
+	 * [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
+	 *
+	 * @param \Closure|bool $condition Boolean or function with (map) parameter returning a boolean
+	 * @param \Closure $then Function with (map) parameter
+	 * @param \Closure|null $else Function with (map) parameter (optional)
+	 * @return self Same map for fluid interface
+	 */
+	public function if( $condition, \Closure $then, \Closure $else = null ) : self
+	{
+		if( $condition instanceof \Closure ? $condition( $this ) : $condition ) {
+			$then( $this );
+		} elseif( $else ) {
+			$else( $this );
+		}
+
+		return $this;
+	}
+
+
+	/**
 	 * Tests if the passed element or elements are part of the map.
 	 *
 	 * Examples:
@@ -1458,16 +1548,111 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 * The first and second example will return TRUE while the other ones will return FALSE
 	 *
+	 * This method is an alias for in(). For performance reasons, in() should be
+	 * preferred because it uses one method call less than includes().
+	 *
 	 * @param mixed|array $element Element or elements to search for in the map
 	 * @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
 	 * @return bool TRUE if all elements are available in map, FALSE if not
-	 *
-	 * This method is an alias for in(). For performance reasons, in() should be
-	 * preferred because it uses one method call less than includes().
 	 */
 	public function includes( $element, bool $strict = false ) : bool
 	{
 		return $this->in( $element, $strict );
+	}
+
+
+	/**
+	 * Returns the numerical index of the given key.
+	 *
+	 * Examples:
+	 *  Map::from( [4 => 'a', 8 => 'b'] )->index( '8' );
+	 *  Map::from( [4 => 'a', 8 => 'b'] )->index( function( $key ) {
+	 *      return $key == '8';
+	 *  } );
+	 *
+	 * Results:
+	 * Both examples will return "1" because the value "b" is at the second position
+	 * and the returned index is zero based so the first item has the index "0".
+	 *
+	 * @param \Closure|string|int $value Key to search for or function with (key) parameters return TRUE if key is found
+	 * @return int|null Position of the found value (zero based) or NULL if not found
+	 */
+	public function index( $value ) : ?int
+	{
+		if( $value instanceof \Closure )
+		{
+			$pos = 0;
+
+			foreach( $this->list as $key => $item )
+			{
+				if( $value( $key ) ) {
+					return $pos;
+				}
+
+				++$pos;
+			}
+
+			return null;
+		}
+
+		$pos = array_search( $value, array_keys( $this->list ) );
+		return $pos !== false ? $pos : null;
+	}
+
+
+	/**
+	 * Inserts the value or values after the given element.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAfter( 'foo', 'baz' );
+	 *  Map::from( ['foo', 'bar'] )->insertAfter( 'foo', ['baz', 'boo'] );
+	 *  Map::from( ['foo', 'bar'] )->insertAfter( null, 'baz' );
+	 *
+	 * Results:
+	 *  ['a' => 'foo', 0 => 'baz', 'b' => 'bar']
+	 *  ['foo', 'baz', 'boo', 'bar']
+	 *  ['foo', 'bar', 'baz']
+	 *
+	 * Numerical array indexes are not preserved.
+	 *
+	 * @param mixed $element Element after the value is inserted
+	 * @param mixed $value Element or list of elements to insert
+	 * @return self Updated map for fluid interface
+	 */
+	public function insertAfter( $element, $value ) : self
+	{
+		$position = ( $element !== null && ( $pos = $this->pos( $element ) ) !== null ? $pos : count( $this->list ) );
+		array_splice( $this->list, $position + 1, 0, $this->getArray( $value ) );
+
+		return $this;
+	}
+
+
+	/**
+	 * Inserts the value or values before the given element.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertBefore( 'bar', 'baz' );
+	 *  Map::from( ['foo', 'bar'] )->insertBefore( 'bar', ['baz', 'boo'] );
+	 *  Map::from( ['foo', 'bar'] )->insertBefore( null, 'baz' );
+	 *
+	 * Results:
+	 *  ['a' => 'foo', 0 => 'baz', 'b' => 'bar']
+	 *  ['foo', 'baz', 'boo', 'bar']
+	 *  ['foo', 'bar', 'baz']
+	 *
+	 * Numerical array indexes are not preserved.
+	 *
+	 * @param mixed $element Element before the value is inserted
+	 * @param mixed $value Element or list of elements to insert
+	 * @return self Updated map for fluid interface
+	 */
+	public function insertBefore( $element, $value ) : self
+	{
+		$position = ( $element !== null && ( $pos = $this->pos( $element ) ) !== null ? $pos : count( $this->list ) );
+		array_splice( $this->list, $position, 0, $this->getArray( $value ) );
+
+		return $this;
 	}
 
 
@@ -2200,7 +2385,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Both examples will return "1" because the value "b" is at the second position
 	 * and the returned index is zero based so the first item has the index "0".
 	 *
-	 * @param \Closure|mixed $value Value to search for or function with (item, key) parameters return TRUE if value is found
+	 * @param \Closure|string|int $value Value to search for or function with (item, key) parameters return TRUE if value is found
 	 * @return int|null Position of the found value (zero based) or NULL if not found
 	 */
 	public function pos( $value ) : ?int
@@ -2235,31 +2420,34 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Adds a prefix in front of each map entry.
 	 *
-	 * Nested arrays are walked recusively so all entries at all levels are prefixed.
+	 * By defaul, nested arrays are walked recusively so all entries at all levels are prefixed.
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'b'] )->prefix( '1-' );
 	 *  Map::from( ['a', ['b']] )->prefix( '1-' );
+	 *  Map::from( ['a', ['b']] )->prefix( '1-', 1 );
 	 *  Map::from( ['a', 'b'] )->prefix( function( $item, $key ) {
 	 *      return ( ord( $item ) + ord( $key ) ) . '-';
 	 *  } );
 	 *
 	 * Results:
 	 *  The first example returns ['1-a', '1-b'] while the second one will return
-	 *  ['1-a', ['1-b']]. The third example passing the closure will return
-	 *  ['145-a', '147-b'].
+	 *  ['1-a', ['1-b']]. In the third example, the depth is limited to the first
+	 *  level only so it will return ['1-a', ['b']]. The forth example passing
+	 *  the closure will return ['145-a', '147-b'].
 	 *
 	 * @param \Closure|string $prefix Prefix string or anonymous function with ($item, $key) as parameters
+	 * @param int|null $depth Maximum depth to dive into multi-dimensional arrays starting from "1"
 	 * @return self Updated map for fluid interface
 	 */
-	public function prefix( $prefix )
+	public function prefix( $prefix, int $depth = null ) : self
 	{
-		$fcn = function( $list, $prefix ) use ( &$fcn ) {
+		$fcn = function( array $list, $prefix, int $depth ) use ( &$fcn ) {
 
 			foreach( $list as $key => $item )
 			{
-				if( !is_scalar( $item ) ) {
-					$list[$key] = $fcn( $item, $prefix );
+				if( is_array( $item ) ) {
+					$list[$key] = $depth > 1 ? $fcn( $item, $prefix, $depth - 1 ) : $item;
 				} else {
 					$list[$key] = ( is_callable( $prefix ) ? $prefix( $item, $key ) : $prefix ) . $item;
 				}
@@ -2268,7 +2456,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			return $list;
 		};
 
-		$this->list = $fcn( $this->list, $prefix );
+		$this->list = $fcn( $this->list, $prefix, $depth ?? 0x7fffffff );
 		return $this;
 	}
 
@@ -2855,6 +3043,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * - If length is given and is negative then the sequence will stop that many elements from the end
 	 * - If it is omitted, then the sequence will have everything from offset up until the end
 	 *
+	 * Numerical array indexes are not preserved.
+	 *
 	 * @param int $offset Number of elements to start from
 	 * @param int|null $length Number of elements to remove, NULL for all
 	 * @param mixed $replacement List of elements to insert
@@ -2873,31 +3063,34 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Adds a suffix at the end of each map entry.
 	 *
-	 * Nested arrays are walked recusively so all entries at all levels are suffixed.
+	 * By defaul, nested arrays are walked recusively so all entries at all levels are suffixed.
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'b'] )->suffix( '-1' );
 	 *  Map::from( ['a', ['b']] )->suffix( '-1' );
+	 *  Map::from( ['a', ['b']] )->suffix( '-1', 1 );
 	 *  Map::from( ['a', 'b'] )->suffix( function( $item, $key ) {
 	 *      return '-' . ( ord( $item ) + ord( $key ) );
 	 *  } );
 	 *
 	 * Results:
 	 *  The first example returns ['a-1', 'b-1'] while the second one will return
-	 *  ['a-1', ['b-1']]. The third example passing the closure will return
-	 *  ['a-145', 'b-147'].
+	 *  ['a-1', ['b-1']]. In the third example, the depth is limited to the first
+	 *  level only so it will return ['a-1', ['b']]. The forth example passing
+	 *  the closure will return ['a-145', 'b-147'].
 	 *
 	 * @param \Closure|string $suffix Suffix string or anonymous function with ($item, $key) as parameters
+	 * @param int|null $depth Maximum depth to dive into multi-dimensional arrays starting from "1"
 	 * @return self Updated map for fluid interface
 	 */
-	public function suffix( $suffix )
+	public function suffix( $suffix, int $depth = null ) : self
 	{
-		$fcn = function( $list, $suffix ) use ( &$fcn ) {
+		$fcn = function( $list, $suffix, $depth ) use ( &$fcn ) {
 
 			foreach( $list as $key => $item )
 			{
-				if( !is_scalar( $item ) ) {
-					$list[$key] = $fcn( $item, $suffix );
+				if( is_array( $item ) ) {
+					$list[$key] = $depth > 1 ? $fcn( $item, $suffix, $depth - 1 ) : $item;
 				} else {
 					$list[$key] = $item . ( is_callable( $suffix ) ? $suffix( $item, $key ) : $suffix );
 				}
@@ -2906,7 +3099,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			return $list;
 		};
 
-		$this->list = $fcn( $this->list, $suffix );
+		$this->list = $fcn( $this->list, $suffix, $depth ?? 0x7fffffff );
 		return $this;
 	}
 
@@ -3640,13 +3833,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param iterable $entries Single of multi-level array, map or everything foreach can be used with
 	 * @param array &$result Will contain all elements from the multi-dimensional arrays afterwards
-	 * @param float $depth Number of levels to flatten in multi-dimensional arrays
+	 * @param int $depth Number of levels to flatten in multi-dimensional arrays
 	 */
-	protected function flatten( iterable $entries, array &$result, float $depth )
+	protected function flatten( iterable $entries, array &$result, int $depth )
 	{
 		foreach( $entries as $entry )
 		{
-			if( is_iterable( $entry ) && $depth > 0.1 ) {
+			if( is_iterable( $entry ) && $depth > 0 ) {
 				$this->flatten( $entry, $result, $depth - 1 );
 			} else {
 				$result[] = $entry;
@@ -3683,14 +3876,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Flattens a multi-dimensional array or map into a single level array.
 	 *
 	 * @param iterable $entries Single of multi-level array, map or everything foreach can be used with
-	 * @param array &$result Will contain all elements from the multi-dimensional arrays afterwards
-	 * @param float $depth Number of levels to flatten in multi-dimensional arrays
+	 * @param array $result Will contain all elements from the multi-dimensional arrays afterwards
+	 * @param int $depth Number of levels to flatten in multi-dimensional arrays
 	 */
-	protected function kflatten( iterable $entries, array &$result, float $depth )
+	protected function kflatten( iterable $entries, array &$result, int $depth )
 	{
 		foreach( $entries as $key => $entry )
 		{
-			if( is_iterable( $entry ) && $depth > 0.1 ) {
+			if( is_iterable( $entry ) && $depth > 0 ) {
 				$this->kflatten( $entry, $result, $depth - 1 );
 			} else {
 				$result[$key] = $entry;
@@ -3703,7 +3896,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Visits each entry, calls the callback and returns the items in the result argument
 	 *
 	 * @param interable $entries List of entries with children (optional)
-	 * @param array &$result Numerically indexed list of all visited entries
+	 * @param array $result Numerically indexed list of all visited entries
 	 * @param int $level Current depth of the nodes in the tree
 	 * @param \Closure|null $callback Callback with ($entry, $key, $level) arguments, returns the entry added to result
 	 * @param string $nestKey Key to the children of each entry

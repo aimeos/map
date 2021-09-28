@@ -153,10 +153,14 @@ will return:
 <a href="#fromjson">fromJson</a>
 <a href="#get">get</a>
 <a href="#getiterator">getIterator</a>
+<a href="#grep">grep</a>
 <a href="#groupby">groupBy</a>
 <a href="#has">has</a>
 <a href="#in">in</a>
 <a href="#includes">includes</a>
+<a href="#index">index</a>
+<a href="#insertAfter">insertAfter</a>
+<a href="#insertBefore">insertBefore</a>
 <a href="#intersect">intersect</a>
 <a href="#intersectassoc">intersectAssoc</a>
 <a href="#intersectkeys">intersectKeys</a>
@@ -251,6 +255,7 @@ will return:
 * [first()](#first) : Returns the first element
 * [firstKey()](#firstkey) : Returns the first key
 * [get()](#get) : Returns an element by key
+* [index()](#index) : Returns the numerical index of the given key
 * [keys()](#keys) : Returns all keys
 * [last()](#last) : Returns the last element
 * [lastKey()](#lastkey) : Returns the last key
@@ -268,6 +273,8 @@ will return:
 ### Add
 
 * [concat()](#concat) : Adds all elements with new keys
+* [insertAfter()](#insertAfter) : Inserts the value after the given element
+* [insertBefore()](#insertBefore) : Inserts the value before the given element
 * [merge()](#merge) : Combines elements overwriting existing ones
 * [pad()](#pad) : Fill up to the specified length with the given value
 * [prepend()](#prepend) : Adds an element at the beginning
@@ -313,7 +320,8 @@ will return:
 * [diffAssoc()](#diffassoc) : Returns the elements missing in the given list and checks keys
 * [diffKeys()](#diffkeys) : Returns the elements missing in the given list by keys
 * [except()](#except) : Returns a new map without the passed element keys
-* [filter()](#filter) : Applies a filter to the all elements
+* [filter()](#filter) : Applies a filter to all elements
+* [grep()](#grep) : Applies a regular expression to all elements
 * [intersect()](#intersect) : Returns the elements shared
 * [intersectAssoc()](#intersectassoc) : Returns the elements shared and checks keys
 * [intersectKeys()](#intersectkeys) : Returns the elements shared by keys
@@ -336,6 +344,7 @@ will return:
 * [equals()](#equals) : Tests if map contents are equal
 * [every()](#every) : Verifies that all elements pass the test of the given callback
 * [has()](#has) : Tests if a key exists
+* [if()](#if) : Executes callbacks depending on the condition
 * [in()](#in) : Tests if element is included
 * [includes()](#includes) : Tests if element is included
 * [is()](#is) : Tests if the map consists of the same keys and values
@@ -371,6 +380,7 @@ will return:
 
 * [delimiter()](#delimiter) : Sets or returns the seperator for paths to multi-dimensional arrays
 * [getIterator()](#getiterator) : Returns an iterator for the elements
+* [if()](#if) : Conditionally executes a callable
 * [method()](#method) : Registers a custom method
 * [offsetExists()](#offsetexists) : Checks if the key exists
 * [offsetGet()](#offsetget) : Returns an element by key
@@ -551,11 +561,14 @@ The keys are preserved using this method.
 **Examples:**
 
 ```php
+Map::from( [0 => 'b', 1 => 'a'] )->after( 'b' );
+// [1 => 'a']
+
 Map::from( ['a' => 1, 'b' => 0] )->after( 1 );
 // ['b' => 0]
 
-Map::from( [0 => 'b', 1 => 'a'] )->after( 'b' );
-// [1 => 'a']
+Map::from( [0 => 'b', 1 => 'a'] )->after( 'c' );
+// []
 
 Map::from( ['a', 'c', 'b'] )->after( function( $item, $key ) {
     return $item >= 'c';
@@ -679,6 +692,9 @@ Map::from( ['a' => 1, 'b' => 0] )->before( 0 );
 
 Map::from( [0 => 'b', 1 => 'a'] )->before( 'a' );
 // [0 => 'b']
+
+Map::from( [0 => 'b', 1 => 'a'] )->before( 'c' );
+// []
 
 Map::from( ['a', 'c', 'b'] )->before( function( $item, $key ) {
     return $key >= 1;
@@ -1670,6 +1686,37 @@ foreach( Map::from( ['a', 'b'] ) as $value ) {
 ```
 
 
+### grep()
+
+Returns only items which matches the regular expression.
+
+```php
+public function grep( string $pattern, int $flags = 0 ) : self
+```
+
+* @param string `$pattern` Regular expression pattern, e.g. "/ab/"
+* @param int `$flags` PREG_GREP_INVERT to return elements not matching the pattern
+* @return self New map containing only the matched elements
+
+All items are converted to string first before they are compared to the
+regular expression. Thus, fractions of ".0" will be removed in float numbers
+which may result in unexpected results. The keys are preserved using this method.
+
+**Examples:**
+
+```php
+Map::from( ['ab', 'bc', 'cd'] )->grep( '/b/' );
+// ['ab', 'bc']
+
+Map::from( ['ab', 'bc', 'cd'] )->grep( '/a/', PREG_GREP_INVERT );
+// ['bc', 'cd']
+
+Map::from( [1.5, 0, 1.0, 'a'] )->grep( '/^(\d+)?\.\d+$/' );
+// [1.5]
+// float 1.0 is converted to string "1"
+```
+
+
 ### groupBy()
 
 Groups associative array elements or objects by the passed key or closure.
@@ -1678,7 +1725,7 @@ Groups associative array elements or objects by the passed key or closure.
 public function groupBy( $key ) : self
 ```
 
-* @param  \Closure&#124;string $key Closure function with (item, idx) parameters returning the key or the key itself to group by
+* @param \Closure&#124;string $key Closure function with (item, idx) parameters returning the key or the key itself to group by
 * @return self New map with elements grouped by the given key
 
 Instead of overwriting items with the same keys like to the [col()](#col) method does,
@@ -1788,6 +1835,50 @@ Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'X' );
 ```
 
 
+### if()
+
+Executes callbacks depending on the condition.
+
+```php
+public function if( $condition, \Closure $then, \Closure $else = null ) : self
+```
+
+* @param \Closure&#124;bool $condition Boolean or function with (map) parameter returning a boolean
+* @param \Closure `$then` Function with (map) parameter
+* @param \Closure&#124;null `$else` Function with (map) parameter (optional)
+* @return self Same map for fluid interface
+
+Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
+(a short form for anonymous closures) as parameters. The automatically have access
+to previously defined variables but can not modify them. Also, they can not have
+a void return type and must/will always return something. Details about
+[PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 'b' => 0] )->if(
+    'a' == 'b',
+    function( Map $_ ) { echo "then"; }
+);
+// no output
+
+Map::from( ['a' => 1, 'b' => 0] )->if(
+    function( Map $map ) { return $map->has( 'a' ); },
+    function( Map $_ ) { echo "then"; },
+    function( Map $_ ) { echo "else"; }
+);
+// then
+
+Map::from( ['a' => 1, 'b' => 0] )->if(
+    fn( Map $map ) => $map->has( 'c' ),
+    function( Map $_ ) { echo "then"; },
+    function( Map $_ ) { echo "else"; }
+);
+// else
+```
+
+
 ### in()
 
 Tests if the passed element or elements are part of the map.
@@ -1852,6 +1943,89 @@ Map::from( ['a', 'b'] )->includes( ['a', 'x'] );
 
 Map::from( ['1', '2'] )->includes( 2, true );
 // false
+```
+
+
+### index()
+
+Returns the numerical index of the given key.
+
+```php
+public function index( $value ) : ?int
+```
+
+* @param \Closure&#124;string&#124;int $value Key to search for or function with (key) parameters return TRUE if key is found
+* @return int&#124;null Position of the found value (zero based) or NULL if not found
+
+**Examples:**
+
+```php
+Map::from( [4 => 'a', 8 => 'b'] )->index( '8' );
+// 1
+
+Map::from( [4 => 'a', 8 => 'b'] )->index( function( $key ) {
+    return $key == '8';
+} );
+// 1
+```
+
+Both examples will return "1" because the value "b" is at the second position
+and the returned index is zero based so the first item has the index "0".
+
+
+### insertAfter()
+
+Inserts the value or values after the given element.
+
+```php
+public function insertAfter( $element, $value ) : self
+```
+
+* @param mixed `$element` Element after the value is inserted
+* @param mixed `$value` Element or list of elements to insert
+* @return self Updated map for fluid interface
+
+Numerical array indexes are not preserved.
+
+**Examples:**
+
+```php
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAfter( 'foo', 'baz' );
+// ['a' => 'foo', 0 => 'baz', 'b' => 'bar']
+
+Map::from( ['foo', 'bar'] )->insertAfter( 'foo', ['baz', 'boo'] );
+// ['foo', 'baz', 'boo', 'bar']
+
+Map::from( ['foo', 'bar'] )->insertAfter( null, 'baz' );
+// ['foo', 'bar', 'baz']
+```
+
+
+### insertBefore()
+
+Inserts the value or values before the given element.
+
+```php
+public function insertBefore( $element, $value ) : self
+```
+
+* @param mixed `$element` Element before the value is inserted
+* @param mixed `$value` Element or list of elements to insert
+* @return self Updated map for fluid interface
+
+Numerical array indexes are not preserved.
+
+**Examples:**
+
+```php
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertBefore( 'bar', 'baz' );
+// ['a' => 'foo', 0 => 'baz', 'b' => 'bar']
+
+Map::from( ['foo', 'bar'] )->insertBefore( 'bar', ['baz', 'boo'] );
+// ['foo', 'baz', 'boo', 'bar']
+
+Map::from( ['foo', 'bar'] )->insertBefore( null, 'baz' );
+// ['foo', 'bar', 'baz']
 ```
 
 
@@ -2581,11 +2755,11 @@ Map::from( ['a', 'b'] )->pop();
 Returns the numerical index of the value.
 
 ```php
-public function pos( $value ) : int
+public function pos( $value ) : ?int
 ```
 
-* @param \Closure&#124;mixed $value Value to search for or function with (item, key) parameters return TRUE if value is found
-* @return int Position of the found value (zero based)
+* @param \Closure&#124;string|int $value Value to search for or function with (item, key) parameters return TRUE if value is found
+* @return int&#124;null Position of the found value (zero based) or NULL if not found
 
 **Examples:**
 
@@ -2608,13 +2782,14 @@ and the returned index is zero based so the first item has the index "0".
 Adds a prefix in front of each map entry.
 
 ```php
-public function prefix( $prefix )
+public function prefix( $prefix, int $depth = null ) : self
 ```
 
 * @param \Closure&#124;string `$prefix` Function with map as parameter which returns arbitrary result
+* @param int|null $depth Maximum depth to dive into multi-dimensional arrays starting from "1"
 * @return self Updated map for fluid interface
 
-Nested arrays are walked recusively so all entries at all levels are prefixed.
+By default, nested arrays are walked recusively so all entries at all levels are prefixed.
 
 **Examples:**
 
@@ -2624,6 +2799,9 @@ Map::from( ['a', 'b'] )->prefix( '1-' );
 
 Map::from( ['a', ['b']] )->prefix( '1-' );
 // ['1-a', ['1-b']]
+
+Map::from( ['a', ['b']] )->prefix( '1-', 1 );
+// ['1-a', ['b']]
 
 Map::from( ['a', 'b'] )->prefix( function( $item, $key ) {
     return ( ord( $item ) + ord( $key ) ) . '-';
@@ -3171,6 +3349,8 @@ Similar for the length:
 - If length is given and is negative then the sequence will stop that many elements from the end
 - If it is omitted, then the sequence will have everything from offset up until the end
 
+Numerical array indexes are not preserved.
+
 **Examples:**
 
 ```php
@@ -3187,13 +3367,14 @@ Map::from( ['a', 'b', 'c'] )->splice( 1, 1, ['x', 'y'] );
 Adds a suffix at the end of each map entry.
 
 ```php
-public function suffix( $suffix )
+public function suffix( $suffix, int $depth = null ) : self
 ```
 
 * @param \Closure&#124;string `$suffix` Function with map as parameter which returns arbitrary result
+* @param int|null $depth Maximum depth to dive into multi-dimensional arrays starting from "1"
 * @return self Updated map for fluid interface
 
-Nested arrays are walked recusively so all entries at all levels are suffixed.
+By defaul, nested arrays are walked recusively so all entries at all levels are suffixed.
 
 **Examples:**
 
@@ -3203,6 +3384,9 @@ Map::from( ['a', 'b'] )->suffix( '-1' );
 
 Map::from( ['a', ['b']] )->suffix( '-1' );
 // ['a-1', ['b-1']]
+
+Map::from( ['a', ['b']] )->suffix( '-1', 1 );
+// ['a-1', ['b']]
 
 Map::from( ['a', 'b'] )->suffix( function( $item, $key ) {
     return '-' . ( ord( $item ) + ord( $key ) );
