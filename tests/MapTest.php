@@ -1368,18 +1368,6 @@ Array
 	}
 
 
-	public function testRekey()
-	{
-		$m = new Map( ['a' => '1', 'b' => '2'] );
-		$m = $m->rekey( function( $item, $key ) {
-			return $key . '-' . $item;
-		} );
-
-		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( ['a-1' => '1', 'b-2' => '2'], $m->toArray() );
-	}
-
-
 	public function testMax()
 	{
 		$this->assertEquals( 5, Map::from( [1, 3, 2, 5, 4] )->max() );
@@ -1778,6 +1766,18 @@ Array
 		$m = new Map( [2 => 'a', 6 => null, 13 => 'm'] );
 
 		$this->assertEquals( [6 => null], $m->reject()->toArray() );
+	}
+
+
+	public function testRekey()
+	{
+		$m = new Map( ['a' => '1', 'b' => '2'] );
+		$m = $m->rekey( function( $item, $key ) {
+			return $key . '-' . $item;
+		} );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( ['a-1' => '1', 'b-2' => '2'], $m->toArray() );
 	}
 
 
