@@ -159,8 +159,8 @@ will return:
 <a href="#in">in</a>
 <a href="#includes">includes</a>
 <a href="#index">index</a>
-<a href="#insertAfter">insertAfter</a>
-<a href="#insertBefore">insertBefore</a>
+<a href="#insertafter">insertAfter</a>
+<a href="#insertbefore">insertBefore</a>
 <a href="#intersect">intersect</a>
 <a href="#intersectassoc">intersectAssoc</a>
 <a href="#intersectkeys">intersectKeys</a>
@@ -273,8 +273,8 @@ will return:
 ### Add
 
 * [concat()](#concat) : Adds all elements with new keys
-* [insertAfter()](#insertAfter) : Inserts the value after the given element
-* [insertBefore()](#insertBefore) : Inserts the value before the given element
+* [insertafter()](#insertAfter) : Inserts the value after the given element
+* [insertbefore()](#insertBefore) : Inserts the value before the given element
 * [merge()](#merge) : Combines elements overwriting existing ones
 * [pad()](#pad) : Fill up to the specified length with the given value
 * [prepend()](#prepend) : Adds an element at the beginning
