@@ -1241,11 +1241,12 @@ Array
 	public function testIf()
 	{
 		$r = Map::from( ['a'] )->if(
-			'a' == 'b',
-			function( Map $_ ) { $this->assertTrue( false ); }
+			true,
+			function( Map $_ ) { return ['b']; }
 		);
 
 		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['b'], $r->all() );
 	}
 
 
@@ -1258,6 +1259,7 @@ Array
 		);
 
 		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [], $r->all() );
 	}
 
 
@@ -1270,6 +1272,25 @@ Array
 		);
 
 		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [], $r->all() );
+	}
+
+
+	public function testIfTrue()
+	{
+		$r = Map::from( ['a'] )->if( true );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['a'], $r->all() );
+	}
+
+
+	public function testIfFalse()
+	{
+		$r = Map::from( ['a'] )->if( false );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [], $r->all() );
 	}
 
 
