@@ -2,7 +2,8 @@
 <a class="badge" href="https://coveralls.io/github/aimeos/map"><img src="https://coveralls.io/repos/github/aimeos/map/badge.svg" alt="Coverage Status" height="20"></a>
 <a class="badge" href="https://packagist.org/packages/aimeos/map"><img src="https://poser.pugx.org/aimeos/map/license.svg" alt="License" height="20"></a>
 <a class="badge" href="https://packagist.org/packages/aimeos/map"><img src="https://poser.pugx.org/aimeos/map/v/stable" alt="Latest Stable Version" height="20"></a>
-<a class="badge" href="https://packagist.org/packages/aimeos/map"><img src="https://poser.pugx.org/aimeos/map/downloads" alt="Build Status" height="20"></a>
+<a class="badge" href="https://packagist.org/packages/aimeos/map"><img src="https://badgen.net/github/stars/aimeos/map" alt="Stars" height="20"></a>
+<a class="badge" href="https://packagist.org/packages/aimeos/map"><img src="https://poser.pugx.org/aimeos/map/downloads" alt="Downloads" height="20"></a>
 
 # PHP arrays and collections made easy
 
