@@ -273,8 +273,8 @@ will return:
 ### Add
 
 * [concat()](#concat) : Adds all elements with new keys
-* [insertafter()](#insertAfter) : Inserts the value after the given element
-* [insertbefore()](#insertBefore) : Inserts the value before the given element
+* [insertAfter()](#insertafter) : Inserts the value after the given element
+* [insertBefore()](#insertbefore) : Inserts the value before the given element
 * [merge()](#merge) : Combines elements overwriting existing ones
 * [pad()](#pad) : Fill up to the specified length with the given value
 * [prepend()](#prepend) : Adds an element at the beginning
