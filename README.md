@@ -353,11 +353,11 @@ will return:
 * [groupBy()](#groupby) : Groups associative array elements or objects
 * [join()](#join) : Returns concatenated elements as string with separator
 * [map()](#map) : Applies a callback to each element and returns the results
-* [mapKeys()](#mapKeys) : Applies a callback to each key and returns the results
 * [partition()](#partition) : Breaks the list into the given number of groups
 * [pipe()](#pipe) : Applies a callback to the whole map
 * [prefix()](#prefix) : Adds a prefix to each map entry
 * [reduce()](#reduce) : Computes a single value from the map content
+* [rekey()](#rekey) : Applies a callback to each key and returns the results
 * [replace()](#replace) : Replaces elements recursively
 * [splice()](#splice) : Replaces a slice by new elements
 * [suffix()](#suffix) : Adds a suffix to each map entry
@@ -2201,27 +2201,6 @@ Map::from( ['a' => 2, 'b' => 4] )->map( function( $value, $key ) {
 ```
 
 
-### mapKeys()
-
-Calls the passed function once for each key and returns a new map for the result.
-
-```php
-public function mapKeys( callable $callback ) : self
-```
-
-* @param callable `$callback` Function with (value, key) parameters and returns computed result
-* @return self New map with the computed keys and the original values
-
-**Examples:**
-
-```php
-Map::from( ['a' => 2, 'b' => 4] )->mapKeys( function( $value, $key ) {
-    return $key . 'A';
-} );
-// ['aA' => 2, 'bA' => 4]
-```
-
-
 ### max()
 
 Returns the maximum value of all elements.
@@ -2810,6 +2789,27 @@ Map::from( [2 => 'a', 13 => 'm', 30 => 'z'] )->reject( 'm' );
 
 Map::from( [2 => 'a', 6 => null, 13 => 'm'] )->reject();
 // [6 => null]
+```
+
+
+### rekey()
+
+Calls the passed function once for each key and returns a new map for the result.
+
+```php
+public function rekey( callable $callback ) : self
+```
+
+* @param callable `$callback` Function with (value, key) parameters and returns computed result
+* @return self New map with the computed keys and the original values
+
+**Examples:**
+
+```php
+Map::from( ['a' => 2, 'b' => 4] )->rekey( function( $value, $key ) {
+    return $key . 'A';
+} );
+// ['aA' => 2, 'bA' => 4]
 ```
 
 

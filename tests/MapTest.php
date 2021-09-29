@@ -1368,10 +1368,10 @@ Array
 	}
 
 
-	public function testMapKeys()
+	public function testRekey()
 	{
 		$m = new Map( ['a' => '1', 'b' => '2'] );
-		$m = $m->mapKeys( function( $item, $key ) {
+		$m = $m->rekey( function( $item, $key ) {
 			return $key . '-' . $item;
 		} );
 
