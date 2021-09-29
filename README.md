@@ -1848,11 +1848,10 @@ public function if( $condition, \Closure $then, \Closure $else = null ) : self
 * @param \Closure&#124;null `$else` Function with (map) parameter (optional)
 * @return self Same map for fluid interface
 
-Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
-(a short form for anonymous closures) as parameters. The automatically have access
-to previously defined variables but can not modify them. Also, they can not have
-a void return type and must/will always return something. Details about
-[PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
+If callbacks for "then" and/or "else" are passed, these callbacks will be
+executed and their returned value is passed back within a Map object. In
+case no "then" or "else" closure is given, the method will return the same
+map object if the condition is true or an empty map object if it's false.
 
 **Examples:**
 
@@ -1876,7 +1875,23 @@ Map::from( ['a' => 1, 'b' => 0] )->if(
     function( Map $_ ) { echo "else"; }
 );
 // else
+
+Map::from( ['a'] )->if( function( $map ) {
+  return $map->search( 'a' );
+} );
+// ['a']
+
+Map::from( ['a'] )->if( function( $map ) {
+  return $map->search( 'b' );
+} )->sort();
+// []
 ```
+
+Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
+(a short form for anonymous closures) as parameters. The automatically have access
+to previously defined variables but can not modify them. Also, they can not have
+a void return type and must/will always return something. Details about
+[PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
 
 
 ### in()

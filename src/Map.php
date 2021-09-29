@@ -1455,6 +1455,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Executes callbacks depending on the condition.
 	 *
+	 * If callbacks for "then" and/or "else" are passed, these callbacks will be
+	 * executed and their returned value is passed back within a Map object. In
+	 * case no "then" or "else" closure is given, the method will return the same
+	 * map object if the condition is true or an empty map object if it's false.
+	 *
 	 * Examples:
 	 *  Map::from( [] )->if( strpos( 'abc', 'b' ) !== false, function( $map ) {
 	 *    echo 'found';
@@ -1474,9 +1479,18 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *    echo 'else';
 	 *  } );
 	 *
+	 *  Map::from( ['a'] )->if( function( $map ) {
+	 *    return $map->search( 'a' );
+	 *  } );
+	 *
+	 *  Map::from( ['a'] )->if( function( $map ) {
+	 *    return $map->search( 'b' );
+	 *  } )->sort();
+	 *
 	 * Results:
 	 * The first example returns "found" while the second one returns "then" and
-	 * the third one "else".
+	 * the third one "else". The forth one will return the same map and the last
+	 * one an empty map so nothing will be sorted.
 	 *
 	 * Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
 	 * (a short form for anonymous closures) as parameters. The automatically have access
@@ -1485,19 +1499,25 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
 	 *
 	 * @param \Closure|bool $condition Boolean or function with (map) parameter returning a boolean
-	 * @param \Closure $then Function with (map) parameter
+	 * @param \Closure|null $then Function with (map) parameter (optional)
 	 * @param \Closure|null $else Function with (map) parameter (optional)
 	 * @return self Same map for fluid interface
 	 */
-	public function if( $condition, \Closure $then, \Closure $else = null ) : self
+	public function if( $condition, \Closure $then = null, \Closure $else = null ) : self
 	{
-		if( $condition instanceof \Closure ? $condition( $this ) : $condition ) {
-			$then( $this );
-		} elseif( $else ) {
-			$else( $this );
+		if( $condition instanceof \Closure ) {
+			$condition = $condition( $this );
 		}
 
-		return $this;
+		if( $condition ) {
+			$result = $then ? $then( $this ) : $this;
+		} elseif( $else ) {
+			$result = $else( $this );
+		} else {
+			$result = [];
+		}
+
+		return new self( $result );
 	}
 
 
