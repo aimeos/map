@@ -1263,6 +1263,15 @@ Array
 	}
 
 
+	public function testIfThenReturn()
+	{
+		$r = Map::from( ['a'] )->if( true, function($_) {return ["b"];} );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['b'], $r->all() );
+	}
+
+
 	public function testIfElse()
 	{
 		$r = Map::from( ['a'] )->if(
@@ -1273,6 +1282,15 @@ Array
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertEquals( [], $r->all() );
+	}
+
+
+	public function testIfElseReturn()
+	{
+		$r = Map::from( ['a'] )->if( false, null, function($_) {return ["b"];} );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['b'], $r->all() );
 	}
 
 
@@ -1290,7 +1308,7 @@ Array
 		$r = Map::from( ['a'] )->if( false );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( [], $r->all() );
+		$this->assertEquals( ['a'], $r->all() );
 	}
 
 
