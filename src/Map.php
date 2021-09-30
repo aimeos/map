@@ -1514,7 +1514,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		} elseif( $else ) {
 			$result = $else( $this );
 		} else {
-			$result = [];
+			$result = $this;
 		}
 
 		return new self( $result );
