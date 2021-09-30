@@ -2376,6 +2376,22 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns the values of a single column/property from an array of arrays or objects in a new map.
+	 *
+	 * This method is an alias for col(). For performance reasons, col() should
+	 * be preferred because it uses one method call less than pluck().
+	 *
+	 * @param string|null $valuecol Name or path of the value property
+	 * @param string|null $indexcol Name or path of the index property
+	 * @return self New instance with mapped entries
+	 */
+	public function pluck( string $valuecol = null, string $indexcol = null ) : self
+	{
+		return $this->col( $valuecol, $indexcol );
+	}
+
+
+	/**
 	 * Returns and removes the last element from the map.
 	 *
 	 * Examples:

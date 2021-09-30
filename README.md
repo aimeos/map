@@ -187,6 +187,7 @@ will return:
 <a href="#pad">pad</a>
 <a href="#partition">partition</a>
 <a href="#pipe">pipe</a>
+<a href="#pluck">pluck</a>
 <a href="#pop">pop</a>
 <a href="#pos">pos</a>
 <a href="#prefix">prefix</a>
@@ -366,6 +367,7 @@ will return:
 * [map()](#map) : Applies a callback to each element and returns the results
 * [partition()](#partition) : Breaks the list into the given number of groups
 * [pipe()](#pipe) : Applies a callback to the whole map
+* [pluck()](#pluck) : Creates a key/value mapping
 * [prefix()](#prefix) : Adds a prefix to each map entry
 * [reduce()](#reduce) : Computes a single value from the map content
 * [rekey()](#rekey) : Changes the keys according to the passed function
@@ -2748,6 +2750,22 @@ Map::from( ['a', 'b'] )->pipe( function( $map ) {
 } );
 // 'b-a'
 ```
+
+
+### pluck()
+
+Returns the values of a single column/property from an array of arrays or list of elements in a new map.
+
+```php
+public function pluck( string $valuecol = null, string $indexcol = null ) : self
+```
+
+* @param string&#124;null `$valuecol` Name or path of the value property
+* @param string&#124;null `$indexcol` Name or path of the index property
+* @return self New instance with mapped entries
+
+This method is an alias for [col()](#col). For performance reasons, `col()` should
+be preferred because it uses one method call less than `pluck()`.
 
 
 ### pop()

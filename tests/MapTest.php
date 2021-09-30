@@ -1864,6 +1864,16 @@ Array
 	}
 
 
+	public function testPluck()
+	{
+		$map = new Map( [['foo' => 'one', 'bar' => 'two']] );
+		$r = $map->pluck( 'bar' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [0 => 'two'], $r->toArray() );
+	}
+
+
 	public function testPop()
 	{
 		$m = new Map( ['foo', 'bar'] );
