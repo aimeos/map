@@ -2019,6 +2019,18 @@ Array
 	}
 
 
+	public function testRekey()
+	{
+		$m = new Map( ['a' => '1', 'b' => '2'] );
+		$m = $m->rekey( function( $item, $key ) {
+			return $key . '-' . $item;
+		} );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( ['a-1' => '1', 'b-2' => '2'], $m->toArray() );
+	}
+
+
 	public function testRejectCallback()
 	{
 		$m = new Map( [2 => 'a', 6 => 'b', 13 => 'm', 30 => 'z'] );

@@ -2643,6 +2643,29 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Calls the passed function once for each key and returns a new map for the result.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 2, 'b' => 4] )->rekey( function( $value, $key ) {
+	 *      return $key . "A";
+	 *  } );
+	 *
+	 * Results:
+	 *  ['aA' => 2, 'bA' => 4]
+	 *
+	 * @param callable $callback Function with (value, key) parameters and returns computed result
+	 * @return self New map with computed keys and original values
+	 */
+	public function rekey( callable $callback ) : self
+	{
+		$keys = array_keys( $this->list );
+		$newKeys = array_map( $callback, $this->list, $keys );
+
+		return new static( array_combine( $newKeys, $this->list ) ?: [] );
+	}
+
+
+	/**
 	 * Removes one or more elements from the map by its keys without returning a new map.
 	 *
 	 * Examples:
