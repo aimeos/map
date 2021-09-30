@@ -2019,18 +2019,6 @@ Array
 	}
 
 
-	public function testRekey()
-	{
-		$m = new Map( ['a' => '1', 'b' => '2'] );
-		$m = $m->rekey( function( $item, $key ) {
-			return $key . '-' . $item;
-		} );
-
-		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( ['a-1' => '1', 'b-2' => '2'], $m->toArray() );
-	}
-
-
 	public function testRejectCallback()
 	{
 		$m = new Map( [2 => 'a', 6 => 'b', 13 => 'm', 30 => 'z'] );
@@ -2048,6 +2036,18 @@ Array
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertEquals( [2 => 'a', 30 => 'z'], $r->toArray() );
+	}
+
+
+	public function testRekey()
+	{
+		$m = new Map( ['a' => 2, 'b' => 4] );
+		$m = $m->rekey( function( $item, $key ) {
+			return 'key-' . $key;
+		} );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( ['key-a' => 2, 'key-b' => 4], $m->toArray() );
 	}
 
 
