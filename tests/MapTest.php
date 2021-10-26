@@ -192,6 +192,18 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testClone()
+	{
+		$m1 = new Map( [new \stdClass, new \stdClass] );
+		$m2 = $m1->clone();
+
+		$this->assertInstanceOf( Map::class, $m1->clear() );
+		$this->assertInstanceOf( Map::class, $m2 );
+		$this->assertCount( 2, $m2 );
+		$this->assertNotSame( $m2->first(), $m1->first() );
+	}
+
+
 	public function testCol()
 	{
 		$map = new Map( [['foo' => 'one', 'bar' => 'two']] );

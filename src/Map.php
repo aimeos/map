@@ -541,6 +541,32 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Clones the map and all objects within.
+	 *
+	 * Examples:
+	 *  Map::from( [new \stdClass, new \stdClass] )->clone();
+	 *
+	 * Results:
+	 *   [new \stdClass, new \stdClass]
+	 *
+	 * The objects within the Map are NOT the same as before but new cloned objects.
+	 * This is different to copy(), which doesn't clone the objects within.
+	 *
+	 * @return self New instance with cloned objects
+	 */
+	public function clone() : self
+	{
+		$list = [];
+
+		foreach( $this->list as $key => $item ) {
+			$list[$key] = is_object( $item ) ? clone $item : $item;
+		}
+
+		return new self( $list );
+	}
+
+
+	/**
 	 * Returns the values of a single column/property from an array of arrays or objects in a new map.
 	 *
 	 * Examples:

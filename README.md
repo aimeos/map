@@ -124,6 +124,7 @@ will return:
 <a href="#call">call</a>
 <a href="#chunk">chunk</a>
 <a href="#clear">clear</a>
+<a href="#clone">clone</a>
 <a href="#col">col</a>
 <a href="#collapse">collapse</a>
 <a href="#concat">concat</a>
@@ -241,6 +242,7 @@ will return:
 
 * [function map()](#map-function) : Creates a new map from passed elements
 * [__construct()](#__construct) : Creates a new map
+* [clone()](#clone) : Clones the map and all objects within
 * [copy()](#copy) : Creates a new copy
 * [explode()](#explode) : Splits a string into a map of elements
 * [from()](#from) : Creates a new map from passed elements
@@ -783,6 +785,27 @@ public function clear() : self
 ```php
 Map::from( [0, 1] )->clear();
 // internal : []
+```
+
+
+### clone()
+
+Clones the map and all objects within.
+
+```php
+public function clone() : self
+```
+
+* @return self New instance with cloned objects
+
+The objects within the Map are NOT the same as before but new cloned objects.
+This is different to [`copy()`](#copy), which doesn't clone the objects within.
+
+**Examples:**
+
+```php
+Map::from( [new \stdClass, new \stdClass] )->clone();
+// [new \stdClass, new \stdClass]
 ```
 
 
