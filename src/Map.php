@@ -70,7 +70,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * Examples:
 	 *  Map::method( 'case', function( $case = CASE_LOWER ) {
-	 *      return new self( array_change_key_case( $this->list, $case ) );
+	 *      return new static( array_change_key_case( $this->list, $case ) );
 	 *  } );
 	 *  Map::from( ['a' => 'bar'] )->case( CASE_UPPER );
 	 *
@@ -106,7 +106,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			}
 		}
 
-		return new self( $result );
+		return new static( $result );
 	}
 
 
@@ -315,7 +315,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			$list[$key] = $callback( $i, $key );
 		}
 
-		return new self( $list );
+		return new static( $list );
 	}
 
 
@@ -344,10 +344,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function after( $value ) : self
 	{
 		if( ( $pos = $this->pos( $value ) ) === null ) {
-			return new self();
+			return new static();
 		}
 
-		return new self( array_slice( $this->list, $pos + 1, null, true ) );
+		return new static( array_slice( $this->list, $pos + 1, null, true ) );
 	}
 
 
@@ -456,7 +456,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function before( $value ) : self
 	{
-		return new self( array_slice( $this->list, 0, $this->pos( $value ), true ) );
+		return new static( array_slice( $this->list, 0, $this->pos( $value ), true ) );
 	}
 
 
@@ -493,7 +493,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			}
 		}
 
-		return new self( $result );
+		return new static( $result );
 	}
 
 
@@ -562,7 +562,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			$list[$key] = is_object( $item ) ? clone $item : $item;
 		}
 
-		return new self( $list );
+		return new static( $list );
 	}
 
 
@@ -662,7 +662,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 		$result = [];
 		$this->kflatten( $this->list, $result, $depth ?? 0x7fffffff );
-		return new self( $result );
+		return new static( $result );
 	}
 
 
@@ -1258,7 +1258,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 		$result = [];
 		$this->flatten( $this->list, $result, $depth ?? 0x7fffffff );
-		return new self( $result );
+		return new static( $result );
 	}
 
 
@@ -1275,7 +1275,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function flip() : self
 	{
-		return new self( array_flip( $this->list ) );
+		return new static( array_flip( $this->list ) );
 	}
 
 
@@ -1543,7 +1543,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			$result = [];
 		}
 
-		return new self( $result );
+		return new static( $result );
 	}
 
 
@@ -2615,7 +2615,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		if( empty( $this->list ) ) {
-			return new self();
+			return new static();
 		}
 
 		if( ( $num = count( $this->list ) ) < $max ) {
@@ -2624,7 +2624,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 		$keys = array_rand( $this->list, $max );
 
-		return new self( array_intersect_key( $this->list, array_flip( (array) $keys ) ) );
+		return new static( array_intersect_key( $this->list, array_flip( (array) $keys ) ) );
 	}
 
 
