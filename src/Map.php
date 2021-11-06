@@ -1332,9 +1332,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * This method will be used by e.g. foreach() to loop over all entries:
 	 *  foreach( Map::from( ['a', 'b'] ) as $value )
 	 *
-	 * @return \Iterator Over map elements
+	 * @return \ArrayIterator Over map elements
 	 */
-	public function getIterator() : \Iterator
+	public function getIterator() : \ArrayIterator
 	{
 		return new \ArrayIterator( $this->list );
 	}
@@ -1841,7 +1841,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param iterable $list List of key/value pairs to compare with
 	 * @param bool $strict TRUE for comparing order of elements too, FALSE for key/values only
-	 * @param bool TRUE if given list is equal, FALSE if not
+	 * @return bool TRUE if given list is equal, FALSE if not
 	 */
 	public function is( iterable $list, bool $strict = false ) : bool
 	{
@@ -2848,7 +2848,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 *  'baz'
 	 *
-	 * @param string|null $char Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
+	 * @param string $char Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
 	 * @return self Same map for fluid interface
 	 */
 	public function sep( string $char ) : self
@@ -3208,9 +3208,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
 	 * @param string|null $key Key or path to the values in the nested array or object to sum up
-	 * @return mixed Sum of all elements or 0 if there are no elements in the map
+	 * @return float Sum of all elements or 0 if there are no elements in the map
 	 */
-	public function sum( string $key = null ) : int
+	public function sum( string $key = null ) : float
 	{
 		return array_sum( $key !== null ? $this->col( $key )->toArray() : $this->list );
 	}
@@ -3549,7 +3549,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * The keys are preserved using this method and no new map is created.
 	 *
-	 * @param callable|null $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
+	 * @param callable $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self Updated map for fluid interface
 	 */
 	public function uasort( callable $callback ) : self
@@ -3980,7 +3980,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Visits each entry, calls the callback and returns the items in the result argument
 	 *
-	 * @param interable $entries List of entries with children (optional)
+	 * @param iterable $entries List of entries with children (optional)
 	 * @param array $result Numerically indexed list of all visited entries
 	 * @param int $level Current depth of the nodes in the tree
 	 * @param \Closure|null $callback Callback with ($entry, $key, $level) arguments, returns the entry added to result

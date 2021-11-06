@@ -675,7 +675,7 @@ Array
 	public function testEqualsLessKeys()
 	{
 		$map = new Map( ['foo' => 'one', 'bar' => 'two'] );
-		$this->assertFalse( $map->equals( ['foo' => 'one'], true ) );
+		$this->assertFalse( $map->equals( ['foo' => 'one'] ) );
 	}
 
 

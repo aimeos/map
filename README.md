@@ -1698,7 +1698,7 @@ Map::from( [] )->get( function() { return rand(); } );
 Returns an iterator for the elements.
 
 ```php
-public function getIterator() : \Iterator
+public function getIterator() : \ArrayIterator
 ```
 
 * @return \Iterator Over map elements
@@ -2197,7 +2197,7 @@ public function is( iterable $list, bool $strict = false ) : bool
 
 * @param iterable `$list` List of key/value pairs to compare with
 * @param bool `$strict` TRUE for comparing order of elements too, FALSE for key/values only
-* @param bool TRUE if given list is equal, FALSE if not
+* @return bool TRUE if given list is equal, FALSE if not
 
 **Examples:**
 
@@ -3480,11 +3480,11 @@ Map::from( ['a', 'b'] )->suffix( function( $item, $key ) {
 Returns the sum of all integer and float values in the map.
 
 ```php
-public function sum( string $col = null ) : int
+public function sum( string $col = null ) : float
 ```
 
 * @param string&#124;null $col Key in the nested array or object to sum up
-* @return mixed Sum of all elements or 0 if there are no elements in the map
+* @return float Sum of all elements or 0 if there are no elements in the map
 
 This does also work to map values from multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
