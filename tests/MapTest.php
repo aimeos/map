@@ -1112,7 +1112,7 @@ Array
 
 	public function testGrepException()
 	{
-		set_error_handler( function( $errno, $str, $file, $line, $ctx ) { return true; } );
+		set_error_handler( function( $errno, $str, $file, $line ) { return true; } );
 
 		$this->expectException( \RuntimeException::class );
 		Map::from( [] )->grep( 'b' );
