@@ -12,13 +12,31 @@ namespace Aimeos;
 /**
  * Handling and operating on a list of elements easily
  * Inspired by Laravel Collection class, PHP map data structure and Javascript
+ *
+ * @template-implements \ArrayAccess<int|string,mixed>
+ * @template-implements \IteratorAggregate<int|string,mixed>
  */
 class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 {
+	/**
+	 * @var array<string,\Closure>
+	 */
 	protected static $methods = [];
+
+	/**
+	 * @var string
+	 */
 	protected static $delim = '/';
+
+	/**
+	 * @var array<int|string,mixed>
+	 */
 	protected $list = [];
-	protected $sep;
+
+	/**
+	 * @var string
+	 */
+	protected $sep = '/';
 
 
 	/**
@@ -47,7 +65,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  Map::foo( $arg1, $arg2 );
 	 *
 	 * @param string $name Method name
-	 * @param array $params List of parameters
+	 * @param array<mixed> $params List of parameters
 	 * @return mixed Result from called function
 	 *
 	 * @throws \BadMethodCallException
@@ -88,7 +106,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * original map are preserved in the returned map.
 	 *
 	 * @param string $name Method name
-	 * @param array $params List of parameters
+	 * @param array<mixed> $params List of parameters
 	 * @return mixed|self Result from called function or map with results from the element methods
 	 */
 	public function __call( string $name, array $params )
@@ -113,7 +131,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Returns the elements as a plain array.
 	 *
-	 * @return array Plain array
+	 * @return array<int|string,mixed> Plain array
 	 */
 	public function __toArray() : array
 	{
@@ -178,7 +196,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * @param string $delimiter Delimiter character, string or empty string
 	 * @param string $string String to split
 	 * @param int $limit Maximum number of element with the last element containing the rest of the string
-	 * @return self New map with splitted parts
+	 * @return self<int|string,mixed> New map with splitted parts
 	 */
 	public static function explode( string $delimiter, string $string, int $limit = PHP_INT_MAX ) : self
 	{
@@ -215,7 +233,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * is passed, it will be returned instead of creating a new instance.
 	 *
 	 * @param mixed $elements List of elements or single element
-	 * @return self Map object
+	 * @return self<int|string,mixed> Map object
 	 */
 	public static function from( $elements = [] ) : self
 	{
@@ -248,7 +266,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  JSON_BIGINT_AS_STRING|JSON_INVALID_UTF8_IGNORE
 	 *
 	 * @param int $options Combination of JSON_* constants
-	 * @return self Map from decoded JSON string
+	 * @return self<int|string,mixed> Map from decoded JSON string
 	 */
 	public static function fromJson( string $json, int $options = JSON_BIGINT_AS_STRING ) : self
 	{
@@ -261,7 +279,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Registers a custom method that has access to the class properties if called non-static.
+	 * Registers a custom method or returns the existing one.
+	 *
+	 * The registed method has access to the class properties if called non-static.
 	 *
 	 * Examples:
 	 *  Map::method( 'foo', function( $arg1, $arg2 ) {
@@ -269,17 +289,22 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  } );
 	 *
 	 * Dynamic calls have access to the class properties:
-	 *  (new Map( ['bar'] ))->foo( $arg1, $arg2 );
+	 *  Map::from( ['bar'] )->foo( $arg1, $arg2 );
 	 *
 	 * Static calls yield an error because $this->elements isn't available:
 	 *  Map::foo( $arg1, $arg2 );
 	 *
-	 * @param string $name Method name
-	 * @param \Closure $function Anonymous method
+	 * @param string $method Method name
+	 * @param \Closure|null $fcn Anonymous function or NULL to return the closure if available
+	 * @return \Closure|null Registered anonymous function or NULL if none has been registered
 	 */
-	public static function method( string $name, \Closure $function )
+	public static function method( string $method, \Closure $fcn = null ) : ?\Closure
 	{
-		static::$methods[$name] = $function;
+		if( $fcn ) {
+			self::$methods[$method] = $fcn;
+		}
+
+		return self::$methods[$method] ?? null;
 	}
 
 
@@ -305,8 +330,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param int $num Number of times the function is called
 	 * @param \Closure $callback Function with (value, key) parameters and returns new value
+	 * @return self<int|string,mixed> New map with the generated elements
 	 */
-	public static function times( int $num, \Closure $callback )
+	public static function times( int $num, \Closure $callback ) : self
 	{
 		$list = [];
 
@@ -338,8 +364,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * The keys are preserved using this method.
 	 *
-	 * @param mixed $value Value or function with (item, key) parameters
-	 * @return self New map with the elements after the given one
+	 * @param \Closure|int|string $value Value or function with (item, key) parameters
+	 * @return self<int|string,mixed> New map with the elements after the given one
 	 */
 	public function after( $value ) : self
 	{
@@ -354,7 +380,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Returns the elements as a plain array.
 	 *
-	 * @return array Plain array
+	 * @return array<int|string,mixed> Plain array
 	 */
 	public function all() : array
 	{
@@ -388,7 +414,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The keys are preserved using this method and no new map is created.
 	 *
 	 * @param int $options Sort options for arsort()
-	 * @return self Updated map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function arsort( int $options = SORT_REGULAR ) : self
 	{
@@ -423,7 +449,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The keys are preserved using this method and no new map is created.
 	 *
 	 * @param int $options Sort options for asort()
-	 * @return self Updated map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function asort( int $options = SORT_REGULAR ) : self
 	{
@@ -451,8 +477,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * The keys are preserved using this method.
 	 *
-	 * @param mixed $value Value or function with (item, key) parameters
-	 * @return self New map with the elements before the given one
+	 * @param \Closure|int|string $value Value or function with (item, key) parameters
+	 * @return self<int|string,mixed> New map with the elements before the given one
 	 */
 	public function before( $value ) : self
 	{
@@ -479,8 +505,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * original map are preserved in the returned map.
 	 *
 	 * @param string $name Method name
-	 * @param array $params List of parameters
-	 * @return self Map with results from all elements
+	 * @param array<mixed> $params List of parameters
+	 * @return self<int|string,mixed> Map with results from all elements
 	 */
 	public function call( string $name, array $params = [] ) : self
 	{
@@ -515,7 +541,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param int $size Maximum size of the sub-arrays
 	 * @param bool $preserve Preserve keys in new map
-	 * @return self New map with elements chunked in sub-arrays
+	 * @return self<int|string,mixed> New map with elements chunked in sub-arrays
 	 * @throws \InvalidArgumentException If size is smaller than 1
 	 */
 	public function chunk( int $size, bool $preserve = false ) : self
@@ -531,7 +557,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Removes all elements from the current map.
 	 *
-	 * @return self Same map for fluid interface
+	 * @return self<int|string,mixed> Same map for fluid interface
 	 */
 	public function clear() : self
 	{
@@ -552,7 +578,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The objects within the Map are NOT the same as before but new cloned objects.
 	 * This is different to copy(), which doesn't clone the objects within.
 	 *
-	 * @return self New instance with cloned objects
+	 * @return self<int|string,mixed> New instance with cloned objects
 	 */
 	public function clone() : self
 	{
@@ -598,12 +624,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param string|null $valuecol Name or path of the value property
 	 * @param string|null $indexcol Name or path of the index property
-	 * @return self New instance with mapped entries
+	 * @return self<int|string,mixed> New instance with mapped entries
 	 */
 	public function col( string $valuecol = null, string $indexcol = null ) : self
 	{
-		$vparts = explode( $this->sep, $valuecol );
-		$iparts = explode( $this->sep, $indexcol );
+		$vparts = explode( $this->sep, (string) $valuecol );
+		$iparts = explode( $this->sep, (string) $indexcol );
 
 		if( count( $vparts ) === 1 && count( $iparts ) === 1 ) {
 			return new static( array_column( $this->list, $valuecol, $indexcol ) );
@@ -651,7 +677,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * This method is similar than flat() but replaces already existing elements.
 	 *
 	 * @param int|null $depth Number of levels to collapse for multi-dimensional arrays or NULL for all
-	 * @return self New map with all sub-array elements added into it recursively, up to the specified depth
+	 * @return self<int|string,mixed> New map with all sub-array elements added into it recursively, up to the specified depth
 	 * @throws \InvalidArgumentException If depth must be greater or equal than 0 or NULL
 	 */
 	public function collapse( int $depth = null ) : self
@@ -675,8 +701,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 *  ['foo', 'bar']
 	 *
-	 * @param iterable $elements List of elements
-	 * @return self Updated map for fluid interface
+	 * @param iterable<int|string,mixed> $elements List of elements
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function concat( iterable $elements ) : self
 	{
@@ -697,8 +723,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 *  ['name' => 'Tom', 'age' => 29]
 	 *
-	 * @param iterable $values Values of the new map
-	 * @return self New map
+	 * @param iterable<int|string,mixed> $values Values of the new map
+	 * @return self<int|string,mixed> New map
 	 */
 	public function combine( iterable $values ) : self
 	{
@@ -712,7 +738,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Both maps share the same array until one of the map objects modifies the
 	 * array. Then, the array is copied and the copy is modfied (copy on write).
 	 *
-	 * @return self New map
+	 * @return self<int|string,mixed> New map
 	 */
 	public function copy() : self
 	{
@@ -752,7 +778,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * string or integer values are returned!
 	 *
 	 * @param  callable|null $callback Function with (value, key) parameters which returns the value to use for counting
-	 * @return self New map with values as keys and their count as value
+	 * @return self<int|string,mixed> New map with values as keys and their count as value
 	 */
 	public function countBy( callable $callback = null ) : self
 	{
@@ -783,7 +809,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param callable|null $callback Function receiving the map elements as parameter (optional)
 	 */
-	public function dd( callable $callback = null ) : self
+	public function dd( callable $callback = null ) : void
 	{
 		$this->dump( $callback );
 		exit( 1 );
@@ -813,9 +839,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * All examples will return an empty map because both contain the same values
 	 * when compared case insensitive.
 	 *
-	 * @param iterable $elements List of elements
+	 * @param iterable<int|string,mixed> $elements List of elements
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
-	 * @return self New map
+	 * @return self<int|string,mixed> New map
 	 */
 	public function diff( iterable $elements, callable $callback = null ) : self
 	{
@@ -852,9 +878,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * an empty map because 'A' is part of the passed array but the keys doesn't match
 	 * ("b" vs. "B" and "b" vs. "c").
 	 *
-	 * @param iterable $elements List of elements
+	 * @param iterable<int|string,mixed> $elements List of elements
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
-	 * @return self New map
+	 * @return self<int|string,mixed> New map
 	 */
 	public function diffAssoc( iterable $elements, callable $callback = null ) : self
 	{
@@ -890,9 +916,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * the same keys when compared case insensitive. The third example will return
 	 * ['b' => 'a'] because the keys doesn't match ("b" vs. "c").
 	 *
-	 * @param iterable $elements List of elements
+	 * @param iterable<int|string,mixed> $elements List of elements
 	 * @param  callable|null $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
-	 * @return self New map
+	 * @return self<int|string,mixed> New map
 	 */
 	public function diffKeys( iterable $elements, callable $callback = null ) : self
 	{
@@ -927,7 +953,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  }
 	 *
 	 * @param callable|null $callback Function receiving the map elements as parameter (optional)
-	 * @return self Same map for fluid interface
+	 * @return self<int|string,mixed> Same map for fluid interface
 	 */
 	public function dump( callable $callback = null ) : self
 	{
@@ -958,7 +984,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
 	 * @param string|null $key Key or path of the nested array or object to check for
-	 * @return self New map
+	 * @return self<int|string,mixed> New map
 	 */
 	public function duplicates( string $key = null ) : self
 	{
@@ -981,7 +1007,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * after the first entry and all other entries are then skipped.
 	 *
 	 * @param \Closure $callback Function with (value, key) parameters and returns TRUE/FALSE
-	 * @return self Same map for fluid interface
+	 * @return self<int|string,mixed> Same map for fluid interface
 	 */
 	public function each( \Closure $callback ) : self
 	{
@@ -1033,7 +1059,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Values are compared by their string values:
 	 * (string) $item1 === (string) $item2
 	 *
-	 * @param iterable $elements List of elements to test against
+	 * @param iterable<int|string,mixed> $elements List of elements to test against
 	 * @return bool TRUE if both are equal, FALSE if not
 	 */
 	public function equals( iterable $elements ) : bool
@@ -1085,8 +1111,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  ['a' => 1, 'c' => 3]
 	 *  [2 => 'b']
 	 *
-	 * @param mixed|array $keys List of keys to remove
-	 * @return self New map
+	 * @param iterable<string|int>|array<string|int>|string|int $keys List of keys to remove
+	 * @return self<int|string,mixed> New map
 	 */
 	public function except( $keys ) : self
 	{
@@ -1110,7 +1136,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  (bool) $value === false
 	 *
 	 * @param  callable|null $callback Function with (item) parameter and returns TRUE/FALSE
-	 * @return self New map
+	 * @return self<int|string,mixed> New map
 	 */
 	public function filter( callable $callback = null ) : self
 	{
@@ -1247,7 +1273,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * This method is similar than collapse() but doesn't replace existing elements.
 	 *
 	 * @param int|null $depth Number of levels to flatten multi-dimensional arrays or NULL for all
-	 * @return self New map with all sub-array elements added into it recursively, up to the specified depth
+	 * @return self<int|string,mixed> New map with all sub-array elements added into it recursively, up to the specified depth
 	 * @throws \InvalidArgumentException If depth must be greater or equal than 0 or NULL
 	 */
 	public function flat( int $depth = null ) : self
@@ -1271,7 +1297,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 *  ['X' => 'a', 'Y' => 'b']
 	 *
-	 * @return self New map with keys as values and values as keys
+	 * @return self<int|string,mixed> New map with keys as values and values as keys
 	 */
 	public function flip() : self
 	{
@@ -1300,7 +1326,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
 	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
-	 * @param mixed $key Key or path to the requested item
+	 * @param int|string $key Key or path to the requested item
 	 * @param mixed $default Default value if no element matches
 	 * @return mixed Value from map or default value
 	 */
@@ -1310,7 +1336,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			return $this->list[$key];
 		}
 
-		if( ( $v = $this->getValue( $this->list, explode( $this->sep, $key ) ) ) !== null ) {
+		if( ( $v = $this->getValue( $this->list, explode( $this->sep, (string) $key ) ) ) !== null ) {
 			return $v;
 		}
 
@@ -1332,7 +1358,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * This method will be used by e.g. foreach() to loop over all entries:
 	 *  foreach( Map::from( ['a', 'b'] ) as $value )
 	 *
-	 * @return \ArrayIterator Over map elements
+	 * @return \ArrayIterator<int|string,mixed> Over map elements
 	 */
 	public function getIterator() : \ArrayIterator
 	{
@@ -1361,7 +1387,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param string $pattern Regular expression pattern, e.g. "/ab/"
 	 * @param int $flags PREG_GREP_INVERT to return elements not matching the pattern
-	 * @return self New map containing only the matched elements
+	 * @return self<int|string,mixed> New map containing only the matched elements
 	 */
 	public function grep( string $pattern, int $flags = 0 ) : self
 	{
@@ -1412,8 +1438,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * In case the passed key doesn't exist in one or more items, these items
 	 * are stored in a sub-array using an empty string as key.
 	 *
-	 * @param  \Closure|string $key Closure function with (item, idx) parameters returning the key or the key itself to group by
-	 * @return self New map with elements grouped by the given key
+	 * @param  \Closure|string|int $key Closure function with (item, idx) parameters returning the key or the key itself to group by
+	 * @return self<int|string,mixed> New map with elements grouped by the given key
 	 */
 	public function groupBy( $key ) : self
 	{
@@ -1460,7 +1486,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
 	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
-	 * @param mixed|array $key Key of the requested item or list of keys
+	 * @param array<int|string>|int|string $key Key of the requested item or list of keys
 	 * @return bool TRUE if key or keys are available in map, FALSE if not
 	 */
 	public function has( $key ) : bool
@@ -1468,7 +1494,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		foreach( (array) $key as $entry )
 		{
 			if( array_key_exists( $entry, $this->list ) === false
-				&& $this->getValue( $this->list, explode( $this->sep, $entry ) ) === null
+				&& $this->getValue( $this->list, explode( $this->sep, (string) $entry ) ) === null
 			) {
 				return false;
 			}
@@ -1527,7 +1553,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * @param \Closure|bool $condition Boolean or function with (map) parameter returning a boolean
 	 * @param \Closure|null $then Function with (map) parameter (optional)
 	 * @param \Closure|null $else Function with (map) parameter (optional)
-	 * @return self Same map for fluid interface
+	 * @return self<int|string,mixed> Same map for fluid interface
 	 */
 	public function if( $condition, \Closure $then = null, \Closure $else = null ) : self
 	{
@@ -1663,7 +1689,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param mixed $element Element after the value is inserted
 	 * @param mixed $value Element or list of elements to insert
-	 * @return self Updated map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function insertAfter( $element, $value ) : self
 	{
@@ -1691,7 +1717,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param mixed $element Element before the value is inserted
 	 * @param mixed $value Element or list of elements to insert
-	 * @return self Updated map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function insertBefore( $element, $value ) : self
 	{
@@ -1725,9 +1751,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * All examples will return a map containing ['a'] because both contain the same
 	 * values when compared case insensitive.
 	 *
-	 * @param iterable $elements List of elements
+	 * @param iterable<int|string,mixed> $elements List of elements
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
-	 * @return self New map
+	 * @return self<int|string,mixed> New map
 	 */
 	public function intersect( iterable $elements, callable $callback = null ) : self
 	{
@@ -1768,9 +1794,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * values when compared case insensitive. The second and third example will return
 	 * an empty map because the keys doesn't match ("b" vs. "B" and "b" vs. "c").
 	 *
-	 * @param iterable $elements List of elements
+	 * @param iterable<int|string,mixed> $elements List of elements
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
-	 * @return self New map
+	 * @return self<int|string,mixed> New map
 	 */
 	public function intersectAssoc( iterable $elements, callable $callback = null ) : self
 	{
@@ -1809,9 +1835,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * case insensitive. The third example will return an empty map because the keys
 	 * doesn't match ("b" vs. "c").
 	 *
-	 * @param iterable $elements List of elements
+	 * @param iterable<int|string,mixed> $elements List of elements
 	 * @param  callable|null $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
-	 * @return self New map
+	 * @return self<int|string,mixed> New map
 	 */
 	public function intersectKeys( iterable $elements, callable $callback = null ) : self
 	{
@@ -1839,7 +1865,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 *  The first example returns TRUE while the second and third one returns FALSE
 	 *
-	 * @param iterable $list List of key/value pairs to compare with
+	 * @param iterable<int|string,mixed> $list List of key/value pairs to compare with
 	 * @param bool $strict TRUE for comparing order of elements too, FALSE for key/values only
 	 * @return bool TRUE if given list is equal, FALSE if not
 	 */
@@ -1909,7 +1935,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The first example returns a map containing [0, 1] while the second one will
 	 * return a map with ['a', 'b'].
 	 *
-	 * @return self New map
+	 * @return self<int|string,mixed> New map
 	 */
 	public function keys() : self
 	{
@@ -1939,7 +1965,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The keys are preserved using this method and no new map is created.
 	 *
 	 * @param int $options Sort options for krsort()
-	 * @return self Updated map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function krsort( int $options = SORT_REGULAR ) : self
 	{
@@ -1970,7 +1996,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The keys are preserved using this method and no new map is created.
 	 *
 	 * @param int $options Sort options for ksort()
-	 * @return self Updated map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function ksort( int $options = SORT_REGULAR ) : self
 	{
@@ -2050,7 +2076,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  ['a' => 4, 'b' => 8]
 	 *
 	 * @param callable $callback Function with (value, key) parameters and returns computed result
-	 * @return self New map with the original keys and the computed values
+	 * @return self<int|string,mixed> New map with the original keys and the computed values
 	 */
 	public function map( callable $callback ) : self
 	{
@@ -2116,9 +2142,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * the same numeric keys. If you want to be sure that all passed elements
 	 * are added without replacing existing ones, use concat() instead.
 	 *
-	 * @param iterable $elements List of elements
+	 * @param iterable<int|string,mixed> $elements List of elements
 	 * @param bool $recursive TRUE to merge nested arrays too, FALSE for first level elements only
-	 * @return self Updated map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function merge( iterable $elements, bool $recursive = false ) : self
 	{
@@ -2180,7 +2206,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param int $step Step width
 	 * @param int $offset Number of element to start from (0-based)
-	 * @return self New map
+	 * @return self<int|string,mixed> New map
 	 */
 	public function nth( int $step, int $offset = 0 ) : self
 	{
@@ -2210,7 +2236,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 *  The first isset() will return TRUE while the second and third one will return FALSE
 	 *
-	 * @param mixed $key Key to check for
+	 * @param int|string $key Key to check for
 	 * @return bool TRUE if key exists, FALSE if not
 	 */
 	public function offsetExists( $key )
@@ -2229,7 +2255,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 *  $map['b'] will return 3
 	 *
-	 * @param mixed $key Key to return the element for
+	 * @param int|string $key Key to return the element for
 	 * @return mixed Value associated to the given key
 	 */
 	public function offsetGet( $key )
@@ -2249,7 +2275,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 *  ['a' => 1, 'b' => 2, 0 => 4]
 	 *
-	 * @param mixed $key Key to set the element for
+	 * @param int|string|null $key Key to set the element for or NULL to append value
 	 * @param mixed $value New value set for the key
 	 */
 	public function offsetSet( $key, $value )
@@ -2272,7 +2298,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 *  The map will be empty
 	 *
-	 * @param string $key Key for unsetting the item
+	 * @param int|string $key Key for unsetting the item
 	 */
 	public function offsetUnset( $key )
 	{
@@ -2291,8 +2317,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  ['a' => 1]
 	 *  [0 => 'b', 1 => 'c']
 	 *
-	 * @param iterable|array|string|int $keys Keys of the elements that should be returned
-	 * @return self New map with only the elements specified by the keys
+	 * @param iterable<mixed>|array<mixed>|string|int $keys Keys of the elements that should be returned
+	 * @return self<int|string,mixed> New map with only the elements specified by the keys
 	 */
 	public function only( $keys ) : self
 	{
@@ -2321,7 +2347,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  [1, 2, 3]
 	 *
 	 * @param int $size Total number of elements that should be in the list
-	 * @return self New map
+	 * @param mixed $value Value to fill up with if the map length is smaller than the given size
+	 * @return self<int|string,mixed> New map
 	 */
 	public function pad( int $size, $value = null ) : self
 	{
@@ -2345,7 +2372,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The keys of the original map are preserved in the returned map.
 	 *
 	 * @param \Closure|int $number Function with (value, index) as arguments returning the bucket key or number of groups
-	 * @return self New map
+	 * @return self<int|string,mixed> New map
 	 */
 	public function partition( $number ) : self
 	{
@@ -2409,7 +2436,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param string|null $valuecol Name or path of the value property
 	 * @param string|null $indexcol Name or path of the index property
-	 * @return self New instance with mapped entries
+	 * @return self<int|string,mixed> New instance with mapped entries
 	 */
 	public function pluck( string $valuecol = null, string $indexcol = null ) : self
 	{
@@ -2447,7 +2474,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Both examples will return "1" because the value "b" is at the second position
 	 * and the returned index is zero based so the first item has the index "0".
 	 *
-	 * @param \Closure|string|int $value Value to search for or function with (item, key) parameters return TRUE if value is found
+	 * @param \Closure|mixed $value Value to search for or function with (item, key) parameters return TRUE if value is found
 	 * @return int|null Position of the found value (zero based) or NULL if not found
 	 */
 	public function pos( $value ) : ?int
@@ -2500,7 +2527,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param \Closure|string $prefix Prefix string or anonymous function with ($item, $key) as parameters
 	 * @param int|null $depth Maximum depth to dive into multi-dimensional arrays starting from "1"
-	 * @return self Updated map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function prefix( $prefix, int $depth = null ) : self
 	{
@@ -2529,8 +2556,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * This method is an alias for unshift().
 	 *
 	 * @param mixed $value Item to add at the beginning
-	 * @param mixed $key Key for the item
-	 * @return self Same map for fluid interface
+	 * @param int|string|null $key Key for the item or NULL to reindex all numerical keys
+	 * @return self<int|string,mixed> Same map for fluid interface
 	 */
 	public function prepend( $value, $key = null ) : self
 	{
@@ -2555,7 +2582,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * closure function will be returned.
 	 *
 	 *
-	 * @param mixed $key Key to retrieve the value for
+	 * @param int|string $key Key to retrieve the value for
 	 * @param mixed $default Default value if key isn't available
 	 * @return mixed Value from map or default value
 	 */
@@ -2578,7 +2605,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  ['a', 'b', 'aa']
 	 *
 	 * @param mixed $value Value to add to the end
-	 * @return self Same map for fluid interface
+	 * @return self<int|string,mixed> Same map for fluid interface
 	 */
 	public function push( $value ) : self
 	{
@@ -2605,7 +2632,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The keys of the original map are preserved in the returned map.
 	 *
 	 * @param int $max Maximum number of elements that should be returned
-	 * @return self New map with key/element pairs from original map in random order
+	 * @return self<int|string,mixed> New map with key/element pairs from original map in random order
 	 * @throws \InvalidArgumentException If requested number of elements is less than 1
 	 */
 	public function random( int $max = 1 ) : self
@@ -2672,7 +2699,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * removed.
 	 *
 	 * @param Closure|mixed $callback Function with (item) parameter which returns TRUE/FALSE or value to compare with
-	 * @return self New map
+	 * @return self<int|string,mixed> New map
 	 */
 	public function reject( $callback = true ) : self
 	{
@@ -2696,7 +2723,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  ['key-a' => 2, 'key-b' => 4]
 	 *
 	 * @param callable $callback Function with (value, key) parameters and returns new key
-	 * @return self New map with new keys and original values
+	 * @return self<int|string,mixed> New map with new keys and original values
 	 */
 	public function rekey( callable $callback ) : self
 	{
@@ -2718,8 +2745,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The first example will result in [2 => 'b'] while the second one resulting
 	 * in an empty list
 	 *
-	 * @param iterable|array|string|int $keys List of keys to remove
-	 * @return self Same map for fluid interface
+	 * @param iterable<string|int>|array<string|int>|string|int $keys List of keys to remove
+	 * @return self<int|string,mixed> Same map for fluid interface
 	 */
 	public function remove( $keys ) : self
 	{
@@ -2745,9 +2772,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The method is similar to merge() but it also replaces elements with numeric
 	 * keys. These would be added by merge() with a new numeric key.
 	 *
-	 * @param iterable $elements List of elements
+	 * @param iterable<int|string,mixed> $elements List of elements
 	 * @param bool $recursive TRUE to replace recursively (default), FALSE to replace elements only
-	 * @return self Updated map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function replace( iterable $elements, bool $recursive = true ) : self
 	{
@@ -2770,7 +2797,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 *  ['b', 'a']
 	 *
-	 * @return self Updated map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function reverse() : self
 	{
@@ -2801,7 +2828,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The keys aren't preserved and elements get a new index. No new map is created
 	 *
 	 * @param int $options Sort options for rsort()
-	 * @return self Updated map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function rsort( int $options = SORT_REGULAR ) : self
 	{
@@ -2849,7 +2876,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  'baz'
 	 *
 	 * @param string $char Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
-	 * @return self Same map for fluid interface
+	 * @return self<int|string,mixed> Same map for fluid interface
 	 */
 	public function sep( string $char ) : self
 	{
@@ -2868,9 +2895,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 * The first example results in ['a', 'b'] while the second one produces ['b']
 	 *
-	 * @param mixed $key Key to set the new value for
+	 * @param int|string $key Key to set the new value for
 	 * @param mixed $value New element that should be set
-	 * @return self Same map for fluid interface
+	 * @return self<int|string,mixed> Same map for fluid interface
 	 */
 	public function set( $key, $value ) : self
 	{
@@ -2921,7 +2948,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * random order but preserves the keys of the original list.
 	 *
 	 * @param bool $assoc True to preserve keys, false to assign new keys
-	 * @return self Updated map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function shuffle( bool $assoc = false ) : self
 	{
@@ -2963,7 +2990,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  [3 => 4]
 	 *
 	 * @param \Closure|int $offset Number of items to skip or function($item, $key) returning true for skipped items
-	 * @return self New map
+	 * @return self<int|string,mixed> New map
 	 */
 	public function skip( $offset ) : self
 	{
@@ -3016,7 +3043,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param int $offset Number of elements to start from
 	 * @param int|null $length Number of elements to return or NULL for no limit
-	 * @return self New map
+	 * @return self<int|string,mixed> New map
 	 */
 	public function slice( int $offset, int $length = null ) : self
 	{
@@ -3096,7 +3123,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The keys aren't preserved and elements get a new index. No new map is created.
 	 *
 	 * @param int $options Sort options for sort()
-	 * @return self Updated map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function sort( int $options = SORT_REGULAR ) : self
 	{
@@ -3133,7 +3160,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * @param int $offset Number of elements to start from
 	 * @param int|null $length Number of elements to remove, NULL for all
 	 * @param mixed $replacement List of elements to insert
-	 * @return self New map
+	 * @return self<int|string,mixed> New map
 	 */
 	public function splice( int $offset, int $length = null, $replacement = [] ) : self
 	{
@@ -3141,7 +3168,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 			$length = count( $this->list );
 		}
 
-		return new static( array_splice( $this->list, $offset, $length, $replacement ) );
+		return new static( array_splice( $this->list, $offset, $length, (array) $replacement ) );
 	}
 
 
@@ -3166,7 +3193,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param \Closure|string $suffix Suffix string or anonymous function with ($item, $key) as parameters
 	 * @param int|null $depth Maximum depth to dive into multi-dimensional arrays starting from "1"
-	 * @return self Updated map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function suffix( $suffix, int $depth = null ) : self
 	{
@@ -3237,7 +3264,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param int $size Number of items to return
 	 * @param \Closure|int $offset Number of items to skip or function($item, $key) returning true for skipped items
-	 * @return self New map
+	 * @return self<int|string,mixed> New map
 	 */
 	public function take( int $size, $offset = 0 ) : self
 	{
@@ -3283,7 +3310,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * to `tap()` and returns the first item ("1") at the end.
 	 *
 	 * @param callable $callback Function receiving ($map) parameter
-	 * @return self Same map for fluid interface
+	 * @return self<int|string,mixed> Same map for fluid interface
 	 */
 	public function tap( callable $callback ) : self
 	{
@@ -3295,7 +3322,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Returns the elements as a plain array.
 	 *
-	 * @return array Plain array
+	 * @return array<int|string,mixed> Plain array
 	 */
 	public function toArray() : array
 	{
@@ -3314,11 +3341,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  JSON_FORCE_OBJECT|JSON_HEX_QUOT
 	 *
 	 * @param int $options Combination of JSON_* constants
-	 * @return string Array encoded as JSON string
+	 * @return string|null Array encoded as JSON string or NULL on failure
 	 */
-	public function toJson( int $options = 0 ) : string
+	public function toJson( int $options = 0 ) : ?string
 	{
-		return json_encode( $this->list, $options );
+		$result = json_encode( $this->list, $options );
+		return $result !== false ? $result : null;
 	}
 
 
@@ -3337,7 +3365,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 */
 	public function toUrl() : string
 	{
-		return http_build_query( $this->list, null, '&', PHP_QUERY_RFC3986 );
+		return http_build_query( $this->list, '', '&', PHP_QUERY_RFC3986 );
 	}
 
 
@@ -3372,13 +3400,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *    2022 => [50]
 	 *  ]
 	 *
-	 * @return self New map
+	 * @return self<int|string,mixed> New map
 	 */
 	public function transpose() : self
 	{
 		$result = [];
 
-		foreach( $this->first( [] ) as $key => $col ) {
+		foreach( (array) $this->first( [] ) as $key => $col ) {
 			$result[$key] = array_column( $this->list, $key );
 		}
 
@@ -3446,7 +3474,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * @param \Closure|null $callback Callback with (entry, key, level) arguments, returns the entry added to result
 	 * @param string $nestKey Key to the children of each item
-	 * @return self New map with all items as flat list
+	 * @return self<int|string,mixed> New map with all items as flat list
 	 */
 	public function traverse( \Closure $callback = null, string $nestKey = 'children' ) : self
 	{
@@ -3507,7 +3535,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * @param string $idKey Name of the key with the unique ID of the node
 	 * @param string $parentKey Name of the key with the ID of the parent node
 	 * @param string $nestKey Name of the key with will contain the children of the node
-	 * @return self New map with one or more root tree nodes
+	 * @return self<int|string,mixed> New map with one or more root tree nodes
 	 */
 	public function tree( string $idKey, string $parentKey, string $nestKey = 'children' ) : self
 	{
@@ -3550,7 +3578,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The keys are preserved using this method and no new map is created.
 	 *
 	 * @param callable $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
-	 * @return self Updated map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function uasort( callable $callback ) : self
 	{
@@ -3580,7 +3608,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The keys are preserved using this method and no new map is created.
 	 *
 	 * @param callable $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
-	 * @return self Updated map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function uksort( callable $callback ) : self
 	{
@@ -3604,8 +3632,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *
 	 * If list entries should be overwritten,  please use merge() instead!
 	 *
-	 * @param iterable $elements List of elements
-	 * @return self Updated map for fluid interface
+	 * @param iterable<int|string,mixed> $elements List of elements
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function union( iterable $elements ) : self
 	{
@@ -3633,7 +3661,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The keys of the elements are only preserved in the new map if no key is passed.
 	 *
 	 * @param string|null $key Key or path of the nested array or object to check for
-	 * @return self New map
+	 * @return self<int|string,mixed> New map
 	 */
 	public function unique( string $key = null ) : self
 	{
@@ -3667,8 +3695,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *  $map->unshift( 'a' )->unshift( 'b' );
 	 *
 	 * @param mixed $value Item to add at the beginning
-	 * @param mixed $key Key for the item
-	 * @return self Same map for fluid interface
+	 * @param int|string|null $key Key for the item or NULL to reindex all numerical keys
+	 * @return self<int|string,mixed> Same map for fluid interface
 	 */
 	public function unshift( $value, $key = null ) : self
 	{
@@ -3703,7 +3731,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * The keys aren't preserved and elements get a new index. No new map is created.
 	 *
 	 * @param callable $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
-	 * @return self Updated map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function usort( callable $callback ) : self
 	{
@@ -3721,7 +3749,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Results:
 	 * A new map with [0 => 'b', 1 => 'a', 2 => 'c'] as content
 	 *
-	 * @return self New map of the values
+	 * @return self<int|string,mixed> New map of the values
 	 */
 	public function values() : self
 	{
@@ -3762,7 +3790,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * @param callable $callback Function with (item, key, data) parameters
 	 * @param mixed $data Arbitrary data that will be passed to the callback as third parameter
 	 * @param bool $recursive TRUE to traverse sub-arrays recursively (default), FALSE to iterate Map elements only
-	 * @return self Map for fluid interface
+	 * @return self<int|string,mixed> Map for fluid interface
 	 */
 	public function walk( callable $callback, $data = null, bool $recursive = true ) : self
 	{
@@ -3832,6 +3860,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * @param string $key Key or path of the value in the array or object used for comparison
 	 * @param string $op Operator used for comparison
 	 * @param mixed $value Value used for comparison
+	 * @return self<int|string,mixed> New map for fluid interface
 	 */
 	public function where( string $key, string $op, $value ) : self
 	{
@@ -3876,8 +3905,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *    [3, 'three', 'tres'],
 	 *  ]
 	 *
-	 * @param array|\Traversable|\Iterator $arrays List of arrays to merge with at the same position
-	 * @return self New map of arrays
+	 * @param array<int|string,mixed>|\Traversable<int|string,mixed>|\Iterator<int|string,mixed> $arrays List of arrays to merge with at the same position
+	 * @return self<int|string,mixed> New map of arrays
 	 */
 	public function zip( ...$arrays ) : self
 	{
@@ -3893,7 +3922,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * Returns a plain array of the given elements.
 	 *
 	 * @param mixed $elements List of elements or single value
-	 * @return array Plain array
+	 * @return array<int|string,mixed> Plain array
 	 */
 	protected function getArray( $elements ) : array
 	{
@@ -3916,11 +3945,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Flattens a multi-dimensional array or map into a single level array.
 	 *
-	 * @param iterable $entries Single of multi-level array, map or everything foreach can be used with
-	 * @param array &$result Will contain all elements from the multi-dimensional arrays afterwards
+	 * @param iterable<int|string,mixed> $entries Single of multi-level array, map or everything foreach can be used with
+	 * @param array<mixed> &$result Will contain all elements from the multi-dimensional arrays afterwards
 	 * @param int $depth Number of levels to flatten in multi-dimensional arrays
 	 */
-	protected function flatten( iterable $entries, array &$result, int $depth )
+	protected function flatten( iterable $entries, array &$result, int $depth ) : void
 	{
 		foreach( $entries as $entry )
 		{
@@ -3936,8 +3965,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Returns a configuration value from an array.
 	 *
-	 * @param array|object $entry The array or object to look at
-	 * @param array $parts Path parts to look for inside the array or object
+	 * @param array<mixed>|object $entry The array or object to look at
+	 * @param array<string> $parts Path parts to look for inside the array or object
 	 * @return mixed Found value or null if no value is available
 	 */
 	protected function getValue( $entry, array $parts )
@@ -3960,11 +3989,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Flattens a multi-dimensional array or map into a single level array.
 	 *
-	 * @param iterable $entries Single of multi-level array, map or everything foreach can be used with
-	 * @param array $result Will contain all elements from the multi-dimensional arrays afterwards
+	 * @param iterable<int|string,mixed> $entries Single of multi-level array, map or everything foreach can be used with
+	 * @param array<int|string,mixed> $result Will contain all elements from the multi-dimensional arrays afterwards
 	 * @param int $depth Number of levels to flatten in multi-dimensional arrays
 	 */
-	protected function kflatten( iterable $entries, array &$result, int $depth )
+	protected function kflatten( iterable $entries, array &$result, int $depth ) : void
 	{
 		foreach( $entries as $key => $entry )
 		{
@@ -3980,13 +4009,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	/**
 	 * Visits each entry, calls the callback and returns the items in the result argument
 	 *
-	 * @param iterable $entries List of entries with children (optional)
-	 * @param array $result Numerically indexed list of all visited entries
+	 * @param iterable<int|string,mixed> $entries List of entries with children (optional)
+	 * @param array<mixed> $result Numerically indexed list of all visited entries
 	 * @param int $level Current depth of the nodes in the tree
 	 * @param \Closure|null $callback Callback with ($entry, $key, $level) arguments, returns the entry added to result
 	 * @param string $nestKey Key to the children of each entry
 	 */
-	protected function visit( iterable $entries, array &$result, int $level, ?\Closure $callback, string $nestKey )
+	protected function visit( iterable $entries, array &$result, int $level, ?\Closure $callback, string $nestKey ) : void
 	{
 		foreach( $entries as $key => $entry )
 		{
