@@ -31,7 +31,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testMagicCall()
 	{
 		$m = new Map( ['a' => new TestMapObject(), 'b' => new TestMapObject()] );
-		$this->assertEquals( ['a' => 1, 'b' => 2], $m->setId( null )->getCode()->toArray() );
+		$this->assertEquals( ['a' => 1, 'b' => 2], $m->setId( 1 )->getCode()->toArray() );
 	}
 
 
@@ -159,7 +159,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	{
 		$m = new Map( ['a' => new TestMapObject(), 'b' => new TestMapObject()] );
 
-		$this->assertEquals( ['a' => 'p1', 'b' => 'p2'], $m->call( 'get', ['prop'] )->toArray() );
+		$this->assertEquals( ['a' => 'p1', 'b' => 'p2'], $m->call( 'get', [1] )->toArray() );
 		$this->assertEquals( ['a' => ['prop' => 'p3'], 'b' => ['prop' => 'p4']], $m->call( 'toArray' )->toArray() );
 	}
 
@@ -427,7 +427,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testCountByCallback()
 	{
 		$r = Map::from( ['a@gmail.com', 'b@yahoo.com', 'c@gmail.com'] )->countBy( function( $email ) {
-			return substr( strrchr( $email, '@' ), 1 );
+			return substr( (string) strrchr( $email, '@' ), 1 );
 		} );
 
 		$this->assertInstanceOf( Map::class, $r );
@@ -1070,7 +1070,7 @@ Array
 	public function testGetWithNull()
 	{
 		$map = new Map( [1, 2, 3] );
-		$this->assertNull( $map->get( null ) );
+		$this->assertNull( $map->get( 'a' ) );
 	}
 
 
@@ -1112,7 +1112,7 @@ Array
 
 	public function testGrepException()
 	{
-		set_error_handler( function( $errno ) {} );
+		set_error_handler( function( $errno, $str, $file, $line, $ctx ) { return true; } );
 
 		$this->expectException( \RuntimeException::class );
 		Map::from( [] )->grep( 'b' );
@@ -2964,25 +2964,36 @@ Array
 
 class TestMapObject
 {
+	/**
+	 * @var int
+	 */
 	private static $num = 1;
+
+	/**
+	 * @var int
+	 */
 	private static $prop = 1;
 
-	public function get( $prop )
+
+	public function get( int $prop ) : string
 	{
 		return 'p' . self::$prop++;
 	}
 
-	public function getCode()
+	public function getCode() : int
 	{
 		return self::$num++;
 	}
 
-	public function setId( $id )
+	public function setId( int $id ) : self
 	{
 		return $this;
 	}
 
-	public function toArray()
+	/**
+	 * @return array<string,string>
+	 */
+	public function toArray() : array
 	{
 		return ['prop' => 'p' . self::$prop++];
 	}
