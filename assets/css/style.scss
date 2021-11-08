@@ -9,8 +9,7 @@ body {
 	line-height: 1.75;
 }
 
-ul a,
-nav a {
+a {
 	display: inline-block;
 	line-height: 2.5;
 }
@@ -99,8 +98,9 @@ header svg {
 
 .main-content h1, .main-content h2, .main-content h3,
 .main-content h4, .main-content h5, .main-content h6 {
-	padding-top: 4rem;
+	padding-top: 3rem;
 	margin-top: -1rem;
+	color: #13874d;
 }
 
 .main-content nav {
@@ -117,7 +117,20 @@ header svg {
 	line-height: 1.75;
 }
 
+.method-list {
+	margin-top: 0;
+}
+
 @media screen and (min-width: 64em) {
+	.page-header {
+		padding: 2.5rem 6rem;
+	}
+	header .btn {
+		padding: 0.25rem 1rem;
+	}
+	header .logo {
+		max-height: 7.5rem;
+	}
 	.container {
 		max-width: 80rem;
 		margin: 0 auto;
@@ -132,6 +145,15 @@ header svg {
 }
 
 @media screen and (max-width: 64em) {
+	.page-header {
+		padding: 1.5rem 4rem;
+	}
+	header .btn {
+		padding: 0.125rem 0.9rem;
+	}
+	header .logo {
+		max-height: 6rem;
+	}
 	.sidebar {
 		width: 12rem;
 	}
@@ -149,6 +171,9 @@ header svg {
 		width: 100%;
 		display: flex;
 		justify-content: space-between;
+	}
+	header .logo {
+		height: 100%;
 	}
 	.project-name {
 		font-size: 1.75rem!important;
@@ -200,9 +225,7 @@ header svg {
 
 .highlight .bp, .highlight .c1, .highlight .cd, .highlight .cm, .highlight .cp, .highlight .cs, .highlight .gh { color: #707070 }
 .highlight .nb { color: #007aa0 }
+.highlight .nv { color: #007b7b }
 .highlight .no, .highlight .nv { color: #007b7b }
 .highlight .mi, .highlight .mf { color: #007e7e }
-
-.main-content h1, .main-content h2, .main-content h3, .main-content h4, .main-content h5, .main-content h6 {
-	color: #13874d;
-}
+.highlight .err { color: inherit; background-color: inherit }
