@@ -1,11 +1,9 @@
 (function() {
-	const nav = document.querySelectorAll('main nav');
+	const nav = document.querySelector('main nav');
 	const methods = document.querySelector('.sidebar .methods');
 
 	if(nav && methods) {
-		nav.forEach(function(el) {
-			methods.appendChild(el.cloneNode(true));
-		});
+		methods.appendChild(nav.cloneNode(true));
 	}
 
 	const open = document.querySelector('.open');
@@ -43,9 +41,9 @@
 
 		methods.querySelectorAll('a').forEach(function(item) {
 			if(regex.test(item.textContent)) {
-				item.parentNode.classList.remove('hide');
+				item.classList.remove('hide');
 			} else {
-				item.parentNode.classList.add('hide');
+				item.classList.add('hide');
 			}
 		});
 	});
