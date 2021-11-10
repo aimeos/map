@@ -14,6 +14,11 @@ a {
 	line-height: 2.5;
 }
 
+header.page-header {
+	background-color: #25a2db;
+	background-image: linear-gradient(120deg, #1b75bb, #25a2db);
+}
+
 header h1>a {
 	color: #fff;
 }
@@ -83,7 +88,7 @@ header svg {
 	display: block;
 }
 
-.sidebar a.hide {
+.sidebar li.hide {
 	display: none;
 }
 
@@ -100,7 +105,7 @@ header svg {
 .main-content h4, .main-content h5, .main-content h6 {
 	padding-top: 3rem;
 	margin-top: -1rem;
-	color: #13874d;
+	color: #1b75bb;
 }
 
 .main-content nav {
