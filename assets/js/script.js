@@ -1,9 +1,11 @@
 (function() {
-	const nav = document.querySelector('main nav');
+	const nav = document.querySelectorAll('main nav');
 	const methods = document.querySelector('.sidebar .methods');
 
 	if(nav && methods) {
-		methods.appendChild(nav.cloneNode(true));
+		nav.forEach(function(el) {
+			methods.appendChild(el.cloneNode(true));
+		});
 	}
 
 	const open = document.querySelector('.open');
@@ -41,9 +43,9 @@
 
 		methods.querySelectorAll('a').forEach(function(item) {
 			if(regex.test(item.textContent)) {
-				item.classList.remove('hide');
+				item.parentNode.classList.remove('hide');
 			} else {
-				item.classList.add('hide');
+				item.parentNode.classList.add('hide');
 			}
 		});
 	});
