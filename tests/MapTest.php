@@ -31,7 +31,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testMagicCall()
 	{
 		$m = new Map( ['a' => new TestMapObject(), 'b' => new TestMapObject()] );
-		$this->assertEquals( ['a' => 1, 'b' => 2], $m->setId( null )->getCode()->toArray() );
+		$this->assertEquals( ['a' => 1, 'b' => 2], $m->setId( 1 )->getCode()->toArray() );
 	}
 
 
@@ -159,7 +159,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	{
 		$m = new Map( ['a' => new TestMapObject(), 'b' => new TestMapObject()] );
 
-		$this->assertEquals( ['a' => 'p1', 'b' => 'p2'], $m->call( 'get', ['prop'] )->toArray() );
+		$this->assertEquals( ['a' => 'p1', 'b' => 'p2'], $m->call( 'get', [1] )->toArray() );
 		$this->assertEquals( ['a' => ['prop' => 'p3'], 'b' => ['prop' => 'p4']], $m->call( 'toArray' )->toArray() );
 	}
 
@@ -189,6 +189,18 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	{
 		$m = new Map( ['foo', 'bar'] );
 		$this->assertInstanceOf( Map::class, $m->clear() );
+	}
+
+
+	public function testClone()
+	{
+		$m1 = new Map( [new \stdClass, new \stdClass] );
+		$m2 = $m1->clone();
+
+		$this->assertInstanceOf( Map::class, $m1->clear() );
+		$this->assertInstanceOf( Map::class, $m2 );
+		$this->assertCount( 2, $m2 );
+		$this->assertNotSame( $m2->first(), $m1->first() );
 	}
 
 
@@ -385,6 +397,24 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testContains()
+	{
+		$this->assertTrue( Map::from( ['a', 'b'] )->contains( 'a' ) );
+		$this->assertTrue( Map::from( ['a', 'b'] )->contains( ['a', 'c'] ) );
+		$this->assertTrue( Map::from( ['a', 'b'] )->some( function( $item, $key ) {
+			return $item === 'a';
+		} ) );
+	}
+
+
+	public function testContainsWhere()
+	{
+		$this->assertTrue( Map::from( [['type' => 'name']] )->contains( 'type', 'name' ) );
+		$this->assertTrue( Map::from( [['type' => 'name']] )->contains( 'type', '==', 'name' ) );
+		$this->assertFalse( Map::from( [['type' => 'name']] )->contains( 'type', '!=', 'name' ) );
+	}
+
+
 	public function testCopy()
 	{
 		$m1 = new Map( ['foo', 'bar'] );
@@ -415,7 +445,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testCountByCallback()
 	{
 		$r = Map::from( ['a@gmail.com', 'b@yahoo.com', 'c@gmail.com'] )->countBy( function( $email ) {
-			return substr( strrchr( $email, '@' ), 1 );
+			return substr( (string) strrchr( $email, '@' ), 1 );
 		} );
 
 		$this->assertInstanceOf( Map::class, $r );
@@ -663,7 +693,7 @@ Array
 	public function testEqualsLessKeys()
 	{
 		$map = new Map( ['foo' => 'one', 'bar' => 'two'] );
-		$this->assertFalse( $map->equals( ['foo' => 'one'], true ) );
+		$this->assertFalse( $map->equals( ['foo' => 'one'] ) );
 	}
 
 
@@ -1058,7 +1088,7 @@ Array
 	public function testGetWithNull()
 	{
 		$map = new Map( [1, 2, 3] );
-		$this->assertNull( $map->get( null ) );
+		$this->assertNull( $map->get( 'a' ) );
 	}
 
 
@@ -1100,7 +1130,7 @@ Array
 
 	public function testGrepException()
 	{
-		set_error_handler( function( $errno ) {} );
+		set_error_handler( function( $errno, $str, $file, $line ) { return true; } );
 
 		$this->expectException( \RuntimeException::class );
 		Map::from( [] )->grep( 'b' );
@@ -1278,19 +1308,23 @@ Array
 
 	public function testIfTrue()
 	{
-		$r = Map::from( ['a'] )->if( true );
+		$r = Map::from( ['a', 'b'] )->if( true, function( $map ) {
+			return $map->push( 'c' );
+		} );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['a'], $r->all() );
+		$this->assertEquals( ['a', 'b', 'c'], $r->all() );
 	}
 
 
 	public function testIfFalse()
 	{
-		$r = Map::from( ['a'] )->if( false );
+		$r = Map::from( ['a', 'b'] )->if( false, null, function( $map ) {
+			return $map->pop();
+		} );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( [], $r->all() );
+		$this->assertEquals( ['b'], $r->all() );
 	}
 
 
@@ -1864,6 +1898,16 @@ Array
 	}
 
 
+	public function testPluck()
+	{
+		$map = new Map( [['foo' => 'one', 'bar' => 'two']] );
+		$r = $map->pluck( 'bar' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [0 => 'two'], $r->toArray() );
+	}
+
+
 	public function testPop()
 	{
 		$m = new Map( ['foo', 'bar'] );
@@ -1964,6 +2008,15 @@ Array
 	}
 
 
+	public function testPut()
+	{
+		$r = Map::from( [] )->put( 'foo', 1 );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['foo' => 1], $r->toArray() );
+	}
+
+
 	public function testRandom()
 	{
 		$m = new Map( ['a' => 1, 'b' => 2, 'c' => 3] );
@@ -2036,6 +2089,18 @@ Array
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertEquals( [2 => 'a', 30 => 'z'], $r->toArray() );
+	}
+
+
+	public function testRekey()
+	{
+		$m = new Map( ['a' => 2, 'b' => 4] );
+		$m = $m->rekey( function( $item, $key ) {
+			return 'key-' . $key;
+		} );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertEquals( ['key-a' => 2, 'key-b' => 4], $m->toArray() );
 	}
 
 
@@ -2930,25 +2995,36 @@ Array
 
 class TestMapObject
 {
+	/**
+	 * @var int
+	 */
 	private static $num = 1;
+
+	/**
+	 * @var int
+	 */
 	private static $prop = 1;
 
-	public function get( $prop )
+
+	public function get( int $prop ) : string
 	{
 		return 'p' . self::$prop++;
 	}
 
-	public function getCode()
+	public function getCode() : int
 	{
 		return self::$num++;
 	}
 
-	public function setId( $id )
+	public function setId( int $id ) : self
 	{
 		return $this;
 	}
 
-	public function toArray()
+	/**
+	 * @return array<string,string>
+	 */
+	public function toArray() : array
 	{
 		return ['prop' => 'p' . self::$prop++];
 	}
