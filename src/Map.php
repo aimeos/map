@@ -2654,6 +2654,29 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Sets the given key and value in the map without returning a new map.
+	 *
+	 * Examples:
+	 *  Map::from( ['a'] )->put( 1, 'b' );
+	 *  Map::from( ['a'] )->put( 0, 'b' );
+	 *
+	 * Results:
+	 * The first example results in ['a', 'b'] while the second one produces ['b']
+	 *
+	 * This method is an alias for set(). For performance reasons, set() should be
+	 * preferred because it uses one method call less than put().
+	 *
+	 * @param int|string $key Key to set the new value for
+	 * @param mixed $value New element that should be set
+	 * @return self<int|string,mixed> Same map for fluid interface
+	 */
+	public function put( $key, $value ) : self
+	{
+		return $this->set( $key, $value );
+	}
+
+
+	/**
 	 * Returns one or more random element from the map incl. their keys.
 	 *
 	 * Examples:

@@ -285,7 +285,8 @@ will return:
 * [pad()](#pad) : Fill up to the specified length with the given value
 * [prepend()](#prepend) : Adds an element at the beginning
 * [push()](#push) : Adds an element to the end
-* [set()](#set) : Overwrites an element
+* [put()](#put) : Sets the given key and value in the map
+* [set()](#set) : Overwrites or adds an element
 * [union()](#union) : Adds the elements without overwriting existing ones
 * [unshift()](#unshift) : Adds an element at the beginning
 
@@ -2985,6 +2986,32 @@ public function push( $value ) : self
 ```php
 Map::from( ['a', 'b'] )->push( 'aa' );
 // ['a', 'b', 'aa']
+```
+
+
+### put()
+
+Sets the given key and value in the map without returning a new map.
+
+```php
+public function put( $key, $value ) : self
+```
+
+This method is an alias for `set()`. For performance reasons, `set()` should be
+preferred because it uses one method call less than `put()`.
+
+* @param int&#124;string `$key` Key to set the new value for
+* @param mixed `$value` New element that should be set
+* @param self&#60;int&#124;string,mixed&#62; Same map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( ['a'] )->put( 1, 'b' );
+// [0 => 'a', 1 => 'b']
+
+Map::from( ['a'] )->put( 0, 'b' );
+// [0 => 'b']
 ```
 
 

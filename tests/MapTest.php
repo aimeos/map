@@ -2004,6 +2004,15 @@ Array
 	}
 
 
+	public function testPut()
+	{
+		$r = Map::from( [] )->put( 'foo', 1 );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['foo' => 1], $r->toArray() );
+	}
+
+
 	public function testRandom()
 	{
 		$m = new Map( ['a' => 1, 'b' => 2, 'c' => 3] );
