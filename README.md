@@ -159,6 +159,7 @@ will return:
 <a href="#grep">grep</a>
 <a href="#groupby">groupBy</a>
 <a href="#has">has</a>
+<a href="#if">if</a>
 <a href="#in">in</a>
 <a href="#includes">includes</a>
 <a href="#index">index</a>
@@ -196,6 +197,7 @@ will return:
 <a href="#prepend">prepend</a>
 <a href="#pull">pull</a>
 <a href="#push">push</a>
+<a href="#put">put</a>
 <a href="#random">random</a>
 <a href="#reduce">reduce</a>
 <a href="#reject">reject</a>
