@@ -1308,19 +1308,23 @@ Array
 
 	public function testIfTrue()
 	{
-		$r = Map::from( ['a'] )->if( true );
+		$r = Map::from( ['a', 'b'] )->if( true, function( $map ) {
+			return $map->push( 'c' );
+		} );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['a'], $r->all() );
+		$this->assertEquals( ['a', 'b', 'c'], $r->all() );
 	}
 
 
 	public function testIfFalse()
 	{
-		$r = Map::from( ['a'] )->if( false );
+		$r = Map::from( ['a', 'b'] )->if( false, null, function( $map ) {
+			return $map->pop();
+		} );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( [], $r->all() );
+		$this->assertEquals( ['b'], $r->all() );
 	}
 
 

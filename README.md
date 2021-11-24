@@ -1945,15 +1945,15 @@ Map::from( ['a' => 1, 'b' => 0] )->if(
 );
 // else
 
-Map::from( ['a'] )->if( function( $map ) {
-  return $map->search( 'a' );
-} );
-// ['a']
+ Map::from( ['a', 'b'] )->if( true, function( $map ) {
+    return $map->push( 'c' );
+ } );
+// ['a', 'b', 'c']
 
-Map::from( ['a'] )->if( function( $map ) {
-  return $map->search( 'b' );
-} )->sort();
-// []
+Map::from( ['a', 'b'] )->if( false, null, function( $map ) {
+  return $map->pop();
+} );
+// ['b']
 ```
 
 Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`

@@ -1549,7 +1549,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * If callbacks for "then" and/or "else" are passed, these callbacks will be
 	 * executed and their returned value is passed back within a Map object. In
 	 * case no "then" or "else" closure is given, the method will return the same
-	 * map object if the condition is true or an empty map object if it's false.
+	 * map object.
 	 *
 	 * Examples:
 	 *  Map::from( [] )->if( strpos( 'abc', 'b' ) !== false, function( $map ) {
@@ -1570,18 +1570,18 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 *    echo 'else';
 	 *  } );
 	 *
-	 *  Map::from( ['a'] )->if( function( $map ) {
-	 *    return $map->search( 'a' );
+	 *  Map::from( ['a', 'b'] )->if( true, function( $map ) {
+	 *    return $map->push( 'c' );
 	 *  } );
 	 *
-	 *  Map::from( ['a'] )->if( function( $map ) {
-	 *    return $map->search( 'b' );
-	 *  } )->sort();
+	 *  Map::from( ['a', 'b'] )->if( false, null, function( $map ) {
+	 *    return $map->pop();
+	 *  } );
 	 *
 	 * Results:
 	 * The first example returns "found" while the second one returns "then" and
-	 * the third one "else". The forth one will return the same map and the last
-	 * one an empty map so nothing will be sorted.
+	 * the third one "else". The forth one will return ['a', 'b', 'c'] while the
+	 * fifth one will return 'b', which is turned into a map of ['b'] again.
 	 *
 	 * Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
 	 * (a short form for anonymous closures) as parameters. The automatically have access
@@ -1590,8 +1590,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
 	 *
 	 * @param \Closure|bool $condition Boolean or function with (map) parameter returning a boolean
-	 * @param \Closure|null $then Function with (map) parameter (optional)
-	 * @param \Closure|null $else Function with (map) parameter (optional)
+	 * @param \Closure|null $then Function with (map, condition) parameter (optional)
+	 * @param \Closure|null $else Function with (map, condition) parameter (optional)
 	 * @return self<int|string,mixed> Same map for fluid interface
 	 */
 	public function if( $condition, \Closure $then = null, \Closure $else = null ) : self
@@ -1601,14 +1601,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		if( $condition ) {
-			$result = $then ? $then( $this ) : $this;
+			return $then ? new static( $then( $this, $condition ) ) : $this;
 		} elseif( $else ) {
-			$result = $else( $this );
-		} else {
-			$result = [];
+			return new static( $else( $this, $condition ) );
 		}
 
-		return new static( $result );
+		return $this;
 	}
 
 
