@@ -693,6 +693,24 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Combines the values of the map as keys with the passed elements as values.
+	 *
+	 * Examples:
+	 *  Map::from( ['name', 'age'] )->combine( ['Tom', 29] );
+	 *
+	 * Results:
+	 *  ['name' => 'Tom', 'age' => 29]
+	 *
+	 * @param iterable<int|string,mixed> $values Values of the new map
+	 * @return self<int|string,mixed> New map
+	 */
+	public function combine( iterable $values ) : self
+	{
+		return new static( array_combine( $this->list, $this->getArray( $values ) ) );
+	}
+
+
+	/**
 	 * Pushs all of the given elements onto the map with new keys without creating a new map.
 	 *
 	 * Examples:
@@ -715,20 +733,41 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
-	 * Combines the values of the map as keys with the passed elements as values.
+	 * Determines if an item exists in the map.
+	 *
+	 * This method combines the power of the where() method with some() to check
+	 * if the map contains at least one of the passed values or conditions.
 	 *
 	 * Examples:
-	 *  Map::from( ['name', 'age'] )->combine( ['Tom', 29] );
+	 *  Map::from( ['a', 'b'] )->contains( 'a' );
+	 *  Map::from( ['a', 'b'] )->contains( ['a', 'c'] );
+	 *  Map::from( ['a', 'b'] )->contains( function( $item, $key ) {
+	 *    return $item === 'a'
+	 *  } );
+	 *  Map::from( [['type' => 'name']] )->contains( 'type', 'name' );
+	 *  Map::from( [['type' => 'name']] )->contains( 'type', '==', 'name' );
 	 *
 	 * Results:
-	 *  ['name' => 'Tom', 'age' => 29]
+	 * All method calls will return TRUE because at least "a" is included in the
+	 * map or there's a "type" key with a value "name" like in the last two
+	 * examples.
 	 *
-	 * @param iterable<int|string,mixed> $values Values of the new map
-	 * @return self<int|string,mixed> New map
+	 * @param \Closure|iterable|mixed $values Anonymous function with (item, key) parameter, element or list of elements to test against
+	 * @param string|null $op Operator used for comparison
+	 * @param mixed $value Value used for comparison
+	 * @return bool TRUE if at least one element is available in map, FALSE if the map contains none of them
 	 */
-	public function combine( iterable $values ) : self
+	public function contains( $key, string $operator = null, $value = null ) : bool
 	{
-		return new static( array_combine( $this->list, $this->getArray( $values ) ) );
+		if( $operator === null ) {
+			return $this->some( $key );
+		}
+
+		if( $value === null ) {
+			return !$this->where( $key, '==', $operator )->isEmpty();
+		}
+
+		return !$this->where( $key, $operator, $value )->isEmpty();
 	}
 
 

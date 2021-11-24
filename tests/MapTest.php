@@ -397,6 +397,24 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testContains()
+	{
+		$this->assertTrue( Map::from( ['a', 'b'] )->contains( 'a' ) );
+		$this->assertTrue( Map::from( ['a', 'b'] )->contains( ['a', 'c'] ) );
+		$this->assertTrue( Map::from( ['a', 'b'] )->some( function( $item, $key ) {
+			return $item === 'a';
+		} ) );
+	}
+
+
+	public function testContainsWhere()
+	{
+		$this->assertTrue( Map::from( [['type' => 'name']] )->contains( 'type', 'name' ) );
+		$this->assertTrue( Map::from( [['type' => 'name']] )->contains( 'type', '==', 'name' ) );
+		$this->assertFalse( Map::from( [['type' => 'name']] )->contains( 'type', '!=', 'name' ) );
+	}
+
+
 	public function testCopy()
 	{
 		$m1 = new Map( ['foo', 'bar'] );

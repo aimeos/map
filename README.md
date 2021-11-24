@@ -127,8 +127,9 @@ will return:
 <a href="#clone">clone</a>
 <a href="#col">col</a>
 <a href="#collapse">collapse</a>
-<a href="#concat">concat</a>
 <a href="#combine">combine</a>
+<a href="#concat">concat</a>
+<a href="#contains">contains</a>
 <a href="#copy">copy</a>
 <a href="#count">count</a>
 <a href="#countby">countBy</a>
@@ -344,6 +345,7 @@ will return:
 ### Test
 
 * [function is_map()](#is_map-function) : Tests if the variable is a map object
+* [contains()](#contains) : Determines if an item exists in the map
 * [each()](#each) : Applies a callback to each element
 * [empty()](#empty) : Tests if map is empty
 * [equals()](#equals) : Tests if map contents are equal
@@ -933,6 +935,44 @@ public function combine( iterable $values ) : self
 ```php
 Map::from( ['name', 'age'] )->combine( ['Tom', 29] );
 // ['name' => 'Tom', 'age' => 29]
+```
+
+
+### contains()
+
+Determines if an item exists in the map.
+
+```php
+public function contains( $key, string $operator = null, $value = null ) : bool
+```
+
+This method combines the power of the `where()` method with `some()` to check
+if the map contains at least one of the passed values or conditions.
+
+* @param \Closure&#124;iterable&#124;mixed `$values` Anonymous function with (item, key) parameter, element or list of elements to test against
+* @param string&#124;null `$op` Operator used for comparison
+* @param mixed `$value` Value used for comparison
+* @return bool TRUE if at least one element is available in map, FALSE if the map contains none of them
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b'] )->contains( 'a' );
+// true
+
+Map::from( ['a', 'b'] )->contains( ['a', 'c'] );
+// true
+
+Map::from( ['a', 'b'] )->contains( function( $item, $key ) {
+    return $item === 'a'
+} );
+// true
+
+Map::from( [['type' => 'name']] )->contains( 'type', 'name' );
+// true
+
+Map::from( [['type' => 'name']] )->contains( 'type', '!=', 'name' );
+// false
 ```
 
 
