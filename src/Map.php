@@ -459,6 +459,35 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns the average of all integer and float values in the map.
+	 *
+	 * Examples:
+	 *  Map::from( [1, 3, 5] )->avg();
+	 *  Map::from( [1, null, 5] )->avg();
+	 *  Map::from( [1, 'sum', 5] )->avg();
+	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( 'p' );
+	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( 'i/p' );
+	 *
+	 * Results:
+	 * The first line will return "3", the second and third one "2", the forth
+	 * one "30" and the last one "40".
+	 *
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
+	 *
+	 * @param string|null $key Key or path to the values in the nested array or object to compute the average for
+	 * @return float Average of all elements or 0 if there are no elements in the map
+	 */
+	public function avg( string $key = null ) : float
+	{
+		$cnt = count( $this->list );
+		return $cnt > 0 ? $this->sum( $key ) / $cnt : 0;
+	}
+
+
+	/**
 	 * Returns the elements before the given one.
 	 *
 	 * Examples:

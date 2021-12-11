@@ -129,6 +129,21 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testAvg()
+	{
+		$this->assertEquals( 3, Map::from( [1, 3, 5] )->avg() );
+		$this->assertEquals( 2, Map::from( [1, null, 5] )->avg() );
+		$this->assertEquals( 2, Map::from( [1, 'sum', 5] )->avg() );
+	}
+
+
+	public function testAvgPath()
+	{
+		$this->assertEquals( 30, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( 'p' ) );
+		$this->assertEquals( 40, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( 'i/p' ) );
+	}
+
+
 	public function testBefore()
 	{
 		$this->assertEquals( [0 => 'b'], Map::from( [0 => 'b', 1 => 'a'] )->before( 'a' )->toArray() );

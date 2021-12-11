@@ -120,6 +120,7 @@ will return:
 <a href="#all">all</a>
 <a href="#arsort">arsort</a>
 <a href="#asort">asort</a>
+<a href="#avg">avg</a>
 <a href="#before">before</a>
 <a href="#call">call</a>
 <a href="#chunk">chunk</a>
@@ -295,6 +296,7 @@ will return:
 
 ### Aggregate
 
+* [avg()](#avg) : Returns the average of all values
 * [count()](#count) : Returns the total number of elements
 * [countBy()](#countby) : Counts how often the same values are in the map
 * [max()](#max) : Returns the maximum value of all elements
@@ -682,6 +684,42 @@ Map::from( [0 => 'C', 1 => 'b'] )->asort();
 
 Map::from( [0 => 'C', 1 => 'b'] )->arsort( SORT_STRING|SORT_FLAG_CASE );
 // [1 => 'b', 0 => 'C'] because 'C' -> 'c' and 'c' > 'b'
+```
+
+
+### avg()
+
+Returns the average of all integer and float values in the map.
+
+```php
+public function avg( string $key = null ) : float
+```
+
+* @param string&#124;null `$key` Key or path to the values in the nested array or object to compute the average for
+* @return float Average of all elements or 0 if there are no elements in the map
+
+This does also work for multi-dimensional arrays by passing the keys
+of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+to get "val" from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
+public properties of objects or objects implementing `__isset()` and `__get()` methods.
+
+**Examples:**
+
+```php
+Map::from( [1, 3, 5] )->avg();
+// 3
+
+Map::from( [1, null, 5] )->avg();
+// 2
+
+Map::from( [1, 'sum', 5] )->avg();
+// 2
+
+Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( 'p' );
+// 30
+
+Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( 'i/p' );
+// 40
 ```
 
 
