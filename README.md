@@ -175,6 +175,7 @@ will return:
 <a href="#is">is</a>
 <a href="#isempty">isEmpty</a>
 <a href="#join">join</a>
+<a href="#jsonserialize">jsonSerialize</a>
 <a href="#keys">keys</a>
 <a href="#krsort">krsort</a>
 <a href="#ksort">ksort</a>
@@ -400,6 +401,7 @@ will return:
 
 * [delimiter()](#delimiter) : Sets or returns the seperator for paths to multi-dimensional arrays
 * [getIterator()](#getiterator) : Returns an iterator for the elements
+* [jsonSerialize()](#jsonserialize) : Specifies the data which should be serialized to JSON
 * [method()](#method) : Registers a custom method
 * [offsetExists()](#offsetexists) : Checks if the key exists
 * [offsetGet()](#offsetget) : Returns an element by key
@@ -2445,6 +2447,27 @@ Map::from( ['a', 'b', false] )->join();
 
 Map::from( ['a', 'b', null, false] )->join( '-' );
 // 'a-b--'
+```
+
+
+### jsonSerialize()
+
+Specifies the data which should be serialized to JSON by json_encode().
+
+```php
+public function jsonSerialize()
+```
+
+* @return array&#60;int&#124;string,mixed&#62; Data to serialize to JSON
+
+**Examples:**
+
+```php
+json_encode( Map::from( ['a', 'b'] ) );
+// ["a", "b"]
+
+json_encode( Map::from( ['a' => 0, 'b' => 1] ) );
+// {"a":0,"b":1}
 ```
 
 

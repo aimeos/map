@@ -1643,6 +1643,13 @@ Array
 	}
 
 
+	public function testJsonSerialize()
+	{
+		$this->assertEquals( '["a","b"]', json_encode( new Map( ['a', 'b'] ) ) );
+		$this->assertEquals( '{"a":0,"b":1}', json_encode( new Map( ['a' => 0, 'b' => 1] ) ) );
+	}
+
+
 	public function testKeys()
 	{
 		$m = ( new Map( ['name' => 'test', 'last' => 'user'] ) )->keys();

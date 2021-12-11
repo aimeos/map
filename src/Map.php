@@ -16,7 +16,7 @@ namespace Aimeos;
  * @template-implements \ArrayAccess<int|string,mixed>
  * @template-implements \IteratorAggregate<int|string,mixed>
  */
-class Map implements \ArrayAccess, \Countable, \IteratorAggregate
+class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializable
 {
 	/**
 	 * @var array<string,\Closure>
@@ -2091,6 +2091,25 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function join( string $glue = '' ) : string
 	{
 		return implode( $glue, $this->list );
+	}
+
+
+	/**
+	 * Specifies the data which should be serialized to JSON by json_encode().
+	 *
+	 * Examples:
+	 *   json_encode( Map::from( ['a', 'b'] ) );
+	 *   json_encode( Map::from( ['a' => 0, 'b' => 1] ) );
+	 *
+	 * Results:
+	 *   ["a", "b"]
+	 *   {"a":0,"b":1}
+	 *
+	 * @return array<int|string,mixed> Data to serialize to JSON
+	 */
+	public function jsonSerialize()
+	{
+		return $this->list;
 	}
 
 
