@@ -120,6 +120,7 @@ will return:
 <a href="#all">all</a>
 <a href="#arsort">arsort</a>
 <a href="#asort">asort</a>
+<a href="#at">at</a>
 <a href="#avg">avg</a>
 <a href="#before">before</a>
 <a href="#call">call</a>
@@ -260,6 +261,7 @@ will return:
 * [__call()](#__call) : Calls a custom method
 * [__callStatic()](#__callstatic) : Calls a custom method statically
 * [all()](#all) : Returns the plain array
+* [at()](#at) : RetuReturns the value at the given position
 * [call()](#call) : Calls the given method on all items
 * [find()](#find) : Returns the first/last matching element
 * [first()](#first) : Returns the first element
@@ -683,6 +685,38 @@ Map::from( [0 => 'C', 1 => 'b'] )->asort();
 
 Map::from( [0 => 'C', 1 => 'b'] )->arsort( SORT_STRING|SORT_FLAG_CASE );
 // [1 => 'b', 0 => 'C'] because 'C' -> 'c' and 'c' > 'b'
+```
+
+
+### at()
+
+Returns the value at the given position.
+
+```php
+public function at( int $pos )
+```
+
+* @param int `$pos` Position of the value in the map
+* @return mixed&#134;null Value at the given position or NULL if no value is available
+
+The position starts from zero and a position of "0" returns the first element
+of the map, "1" the second and so on. If the position is negative, the sequence
+will start from the end of the map.
+
+**Examples:**
+
+```php
+Map::from( [1, 3, 5] )->at( 0 );
+// 1
+
+Map::from( [1, 3, 5] )->at( 1 );
+// 3
+
+Map::from( [1, 3, 5] )->at( -1 );
+// 5
+
+Map::from( [1, 3, 5] )->at( 3 );
+// NULL
 ```
 
 

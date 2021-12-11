@@ -459,6 +459,33 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Returns the value at the given position.
+	 *
+	 * Examples:
+	 *  Map::from( [1, 3, 5] )->at( 0 );
+	 *  Map::from( [1, 3, 5] )->at( 1 );
+	 *  Map::from( [1, 3, 5] )->at( -1 );
+	 *  Map::from( [1, 3, 5] )->at( 3 );
+	 *
+	 * Results:
+	 * The first line will return "1", the second one "3", the third one "5" and
+	 * the last one NULL.
+	 *
+	 * The position starts from zero and a position of "0" returns the first element
+	 * of the map, "1" the second and so on. If the position is negative, the
+	 * sequence will start from the end of the map.
+	 *
+	 * @param int $pos Position of the value in the map
+	 * @return mixed|null Value at the given position or NULL if no value is available
+	 */
+	public function at( int $pos )
+	{
+		$pair = array_slice( $this->list, $pos, 1 );
+		return !empty( $pair ) ? current( $pair ) : null;
+	}
+
+
+	/**
 	 * Returns the average of all integer and float values in the map.
 	 *
 	 * Examples:
