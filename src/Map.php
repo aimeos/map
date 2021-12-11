@@ -1832,6 +1832,45 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 
 
 	/**
+	 * Inserts the item at the given position in the map.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 0, 'baz' );
+	 *  Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 1, 'baz', 'c' );
+	 *  Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 4, 'baz' );
+	 *  Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( -1, 'baz', 'c' );
+	 *
+	 * Results:
+	 *  [0 => 'baz', 'a' => 'foo', 'b' => 'bar']
+	 *  ['a' => 'foo', 'c' => 'baz', 'b' => 'bar']
+	 *  ['a' => 'foo', 'b' => 'bar', 'c' => 'baz']
+	 *  ['a' => 'foo', 'c' => 'baz', 'b' => 'bar']
+	 *
+	 * @param int $pos Position the element it should be inserted at
+	 * @param mixed $element Element to be inserted
+	 * @param mixed|null $key Element key or NULL to assign an integer key automatically
+	 * @return self<int|string,mixed> Updated map for fluid interface
+	 */
+	public function insertAt( int $pos, $element, $key = null ) : self
+	{
+		if( $key !== null )
+		{
+			$this->list = array_merge(
+				array_slice( $this->list, 0, $pos, true ),
+				[$key => $element],
+				array_slice( $this->list, $pos, null, true )
+			);
+		}
+		else
+		{
+			array_splice( $this->list, $pos, 0, [$element] );
+		}
+
+		return $this;
+	}
+
+
+	/**
 	 * Inserts the value or values before the given element.
 	 *
 	 * Examples:

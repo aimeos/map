@@ -1464,6 +1464,50 @@ Array
 	}
 
 
+	public function testInsertAt()
+	{
+		$r = Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 1, 'baz', 'c' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['a' => 'foo', 'c' => 'baz', 'b' => 'bar'], $r->toArray() );
+	}
+
+
+	public function testInsertAtBegin()
+	{
+		$r = Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 0, 'baz' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [0 => 'baz', 'a' => 'foo', 'b' => 'bar'], $r->toArray() );
+	}
+
+
+	public function testInsertAtEnd()
+	{
+		$r = Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 5, 'baz' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['a' => 'foo', 'b' => 'bar', 0 => 'baz'], $r->toArray() );
+	}
+
+
+	public function testInsertAtNegative()
+	{
+		$r = Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( -1, 'baz' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['a' => 'foo', 0 => 'baz', 'b' => 'bar'], $r->toArray() );
+	}
+
+	public function testInsertAtNegativeKey()
+	{
+		$r = Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( -1, 'baz', 'c' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['a' => 'foo', 'c' => 'baz', 'b' => 'bar'], $r->toArray() );
+	}
+
+
 	public function testInsertBefore()
 	{
 		$r = Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertBefore( 'bar', 'baz' );

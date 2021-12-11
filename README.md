@@ -167,6 +167,7 @@ will return:
 <a href="#includes">includes</a>
 <a href="#index">index</a>
 <a href="#insertafter">insertAfter</a>
+<a href="#insertat">insertAt</a>
 <a href="#insertbefore">insertBefore</a>
 <a href="#intersect">intersect</a>
 <a href="#intersectassoc">intersectAssoc</a>
@@ -285,6 +286,7 @@ will return:
 
 * [concat()](#concat) : Adds all elements with new keys
 * [insertAfter()](#insertafter) : Inserts the value after the given element
+* [insertAt()](#insertat) : Inserts the element at the given position in the map
 * [insertBefore()](#insertbefore) : Inserts the value before the given element
 * [merge()](#merge) : Combines elements overwriting existing ones
 * [pad()](#pad) : Fill up to the specified length with the given value
@@ -2195,6 +2197,36 @@ Map::from( ['foo', 'bar'] )->insertAfter( 'foo', ['baz', 'boo'] );
 
 Map::from( ['foo', 'bar'] )->insertAfter( null, 'baz' );
 // ['foo', 'bar', 'baz']
+```
+
+
+### insertAt()
+
+Inserts the item at the given position in the map.
+
+```php
+public function insertAt( int $pos, $element, $key = null ) : self
+```
+
+* @param int `$pos` Position the element it should be inserted at
+* @param mixed `$element` Element to be inserted
+* @param mixed&#124;null `$key` Element key or NULL to assign an integer key automatically
+* @param self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 0, 'baz' );
+// [0 => 'baz', 'a' => 'foo', 'b' => 'bar']
+
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 1, 'baz', 'c' );
+// ['a' => 'foo', 'c' => 'baz', 'b' => 'bar']
+
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 5, 'baz' );
+// ['a' => 'foo', 'b' => 'bar', 'c' => 'baz']
+
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( -1, 'baz', 'c' );
+// ['a' => 'foo', 'c' => 'baz', 'b' => 'bar']
 ```
 
 
