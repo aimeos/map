@@ -1328,6 +1328,38 @@ Array
 	}
 
 
+	public function testIfEmpty()
+	{
+		$r = Map::from( [] )->ifEmpty(
+			function( Map $_ ) { return ['a']; }
+		);
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['a'], $r->all() );
+	}
+
+
+	public function testIfEmptyFalse()
+	{
+		$r = Map::from( ['a'] )->ifEmpty(
+			function( Map $m ) { return $m->push( 'b' ); },
+			function( Map $m ) { return $m->push( 'c' ); }
+		);
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['a', 'c'], $r->all() );
+	}
+
+
+	public function testIfEmptyNone()
+	{
+		$r = Map::from( ['a'] )->ifEmpty();
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( ['a'], $r->all() );
+	}
+
+
 	public function testIn()
 	{
 		$this->assertTrue( Map::from( ['a', 'b'] )->in( 'a' ) );
