@@ -7,8 +7,8 @@
 
 # PHP arrays and collections made easy
 
-Easy and elegant handling of PHP arrays and collections by using an array-like
-map object as offered by jQuery and Laravel Collections.
+Easy and elegant handling of PHP arrays by using an array-like collection object
+as offered by jQuery and Laravel Collections.
 
 ```bash
 composer req aimeos/map
@@ -278,7 +278,6 @@ will return:
 * [toArray()](#toarray) : Returns the plain array
 * [unique()](#unique) : Returns all unique elements preserving keys
 * [values()](#values) : Returns all elements with new keys
-* [where()](#where) : Filters the list of elements by a given condition
 
 ### Add
 
@@ -347,6 +346,7 @@ will return:
 * [skip()](#skip) : Skips the given number of items and return the rest
 * [slice()](#slice) : Returns a slice of the map
 * [take()](#take) : Returns a new map with the given number of items
+* [where()](#where) : Filters the list of elements by a given condition
 
 ### Test
 
@@ -396,7 +396,6 @@ will return:
 
 * [delimiter()](#delimiter) : Sets or returns the seperator for paths to multi-dimensional arrays
 * [getIterator()](#getiterator) : Returns an iterator for the elements
-* [if()](#if) : Conditionally executes a callable
 * [method()](#method) : Registers a custom method
 * [offsetExists()](#offsetexists) : Checks if the key exists
 * [offsetGet()](#offsetget) : Returns an element by key
@@ -1987,9 +1986,9 @@ Map::from( ['a' => 1, 'b' => 0] )->if(
 );
 // else
 
- Map::from( ['a', 'b'] )->if( true, function( $map ) {
+Map::from( ['a', 'b'] )->if( true, function( $map ) {
     return $map->push( 'c' );
- } );
+} );
 // ['a', 'b', 'c']
 
 Map::from( ['a', 'b'] )->if( false, null, function( $map ) {

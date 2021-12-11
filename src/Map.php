@@ -1630,9 +1630,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		if( $condition ) {
-			return $then ? new static( $then( $this, $condition ) ) : $this;
+			return $then ? static::from( $then( $this, $condition ) ) : $this;
 		} elseif( $else ) {
-			return new static( $else( $this, $condition ) );
+			return static::from( $else( $this, $condition ) );
 		}
 
 		return $this;
