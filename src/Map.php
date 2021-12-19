@@ -2276,7 +2276,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	 * @param int|string $key Key to check for
 	 * @return bool TRUE if key exists, FALSE if not
 	 */
-	public function offsetExists( $key )
+	public function offsetExists( $key ) : bool
 	{
 		return isset( $this->list[$key] );
 	}
