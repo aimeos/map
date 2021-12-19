@@ -2447,6 +2447,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param int|string $key Key to return the element for
 	 * @return mixed Value associated to the given key
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet( $key )
 	{
 		return $this->list[$key] ?? null;
@@ -2467,7 +2468,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param int|string|null $key Key to set the element for or NULL to append value
 	 * @param mixed $value New value set for the key
 	 */
-	public function offsetSet( $key, $value )
+	public function offsetSet( $key, $value ) : void
 	{
 		if( $key !== null ) {
 			$this->list[$key] = $value;
@@ -2489,7 +2490,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param int|string $key Key for unsetting the item
 	 */
-	public function offsetUnset( $key )
+	public function offsetUnset( $key ) : void
 	{
 		unset( $this->list[$key] );
 	}
