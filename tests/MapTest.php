@@ -31,38 +31,38 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testMagicCall()
 	{
 		$m = new Map( ['a' => new TestMapObject(), 'b' => new TestMapObject()] );
-		$this->assertEquals( ['a' => 1, 'b' => 2], $m->setId( 1 )->getCode()->toArray() );
+		$this->assertSame( ['a' => 1, 'b' => 2], $m->setId( 1 )->getCode()->toArray() );
 	}
 
 
 	public function testMagicToArray()
 	{
 		$m = new Map( ['name' => 'Hello'] );
-		$this->assertEquals( ['name' => 'Hello'], $m->__toArray() );
+		$this->assertSame( ['name' => 'Hello'], $m->__toArray() );
 	}
 
 
 	public function testAfter()
 	{
-		$this->assertEquals( [1 => 'a'], Map::from( [0 => 'b', 1 => 'a'] )->after( 'b' )->toArray() );
+		$this->assertSame( [1 => 'a'], Map::from( [0 => 'b', 1 => 'a'] )->after( 'b' )->toArray() );
 	}
 
 
 	public function testAfterInt()
 	{
-		$this->assertEquals( ['b' => 0], Map::from( ['a' => 1, 'b' => 0] )->after( 1 )->toArray() );
+		$this->assertSame( ['b' => 0], Map::from( ['a' => 1, 'b' => 0] )->after( 1 )->toArray() );
 	}
 
 
 	public function testAfterNone()
 	{
-		$this->assertEquals( [], Map::from( [0 => 'b', 1 => 'a'] )->after( 'c' )->toArray() );
+		$this->assertSame( [], Map::from( [0 => 'b', 1 => 'a'] )->after( 'c' )->toArray() );
 	}
 
 
 	public function testAfterCallback()
 	{
-		$this->assertEquals( [2 => 'b'], Map::from( ['a', 'c', 'b'] )->after( function( $item, $key ) {
+		$this->assertSame( [2 => 'b'], Map::from( ['a', 'c', 'b'] )->after( function( $item, $key ) {
 			return $item >= 'c';
 		} )->toArray() );
 	}
@@ -71,7 +71,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testAll()
 	{
 		$m = new Map( ['name' => 'Hello'] );
-		$this->assertEquals( ['name' => 'Hello'], $m->all() );
+		$this->assertSame( ['name' => 'Hello'], $m->all() );
 	}
 
 
@@ -80,7 +80,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$m = ( new Map( [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2] ) )->arsort();
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( [6 => 4, 7 => 3, 9 => 2, 8 => 1, 5 => 0, 4 => -1, 2 => -2, 1 => -3, 3 => -4], $m->toArray() );
+		$this->assertSame( [6 => 4, 7 => 3, 9 => 2, 8 => 1, 5 => 0, 4 => -1, 2 => -2, 1 => -3, 3 => -4], $m->toArray() );
 	}
 
 
@@ -89,7 +89,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$m = ( new Map( ['c' => 'bar-10', 1 => 'bar-1', 'a' => 'foo'] ) )->arsort();
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( ['a' => 'foo', 1 => 'bar-1', 'c' => 'bar-10'], $m->toArray() );
+		$this->assertSame( ['a' => 'foo', 'c' => 'bar-10', 1 => 'bar-1'], $m->toArray() );
 	}
 
 
@@ -97,8 +97,8 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	{
 		$m = ( new Map( [0 => 'C', 1 => 'b'] ) );
 
-		$this->assertEquals( [1 => 'b', 0 => 'C'], $m->arsort()->toArray() );
-		$this->assertEquals( [0 => 'C', 1 => 'b'], $m->arsort( SORT_STRING|SORT_FLAG_CASE )->toArray() );
+		$this->assertSame( [1 => 'b', 0 => 'C'], $m->arsort()->toArray() );
+		$this->assertSame( [0 => 'C', 1 => 'b'], $m->arsort( SORT_STRING|SORT_FLAG_CASE )->toArray() );
 	}
 
 
@@ -107,7 +107,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$m = ( new Map( [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2] ) )->asort();
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( [3 => -4, 1 => -3, 2 => -2, 4 => -1, 5 => 0, 8 => 1, 9 => 2, 7 => 3, 6 => 4], $m->toArray() );
+		$this->assertSame( [3 => -4, 1 => -3, 2 => -2, 4 => -1, 5 => 0, 8 => 1, 9 => 2, 7 => 3, 6 => 4], $m->toArray() );
 	}
 
 
@@ -116,7 +116,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$m = ( new Map( ['a' => 'foo', 'c' => 'bar-10', 1 => 'bar-1'] ) )->asort();
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( ['c' => 'bar-10', 1 => 'bar-1', 'a' => 'foo'], $m->toArray() );
+		$this->assertSame( [1 => 'bar-1', 'c' => 'bar-10', 'a' => 'foo'], $m->toArray() );
 	}
 
 
@@ -124,32 +124,56 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	{
 		$m = ( new Map( [0 => 'C', 1 => 'b'] ) );
 
-		$this->assertEquals( [0 => 'C', 1 => 'b'], $m->asort()->toArray() );
-		$this->assertEquals( [1 => 'b', 0 => 'C'], $m->asort( SORT_STRING|SORT_FLAG_CASE )->toArray() );
+		$this->assertSame( [0 => 'C', 1 => 'b'], $m->asort()->toArray() );
+		$this->assertSame( [1 => 'b', 0 => 'C'], $m->asort( SORT_STRING|SORT_FLAG_CASE )->toArray() );
+	}
+
+
+	public function testAt()
+	{
+		$this->assertSame( 1, Map::from( [1, 3, 5] )->at( 0 ) );
+		$this->assertSame( 3, Map::from( [1, 3, 5] )->at( 1 ) );
+		$this->assertSame( 5, Map::from( [1, 3, 5] )->at( -1 ) );
+		$this->assertNull( Map::from( [1, 3, 5] )->at( 3 ) );
+	}
+
+
+	public function testAvg()
+	{
+		$this->assertSame( 3.0, Map::from( [1, 3, 5] )->avg() );
+		$this->assertSame( 2.0, Map::from( [1, null, 5] )->avg() );
+		$this->assertSame( 2.0, Map::from( [1, 'sum', 5] )->avg() );
+	}
+
+
+	public function testAvgPath()
+	{
+		$this->assertSame( 30.0, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( 'p' ) );
+		$this->assertSame( 40.0, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( 'i/p' ) );
 	}
 
 
 	public function testBefore()
 	{
-		$this->assertEquals( [0 => 'b'], Map::from( [0 => 'b', 1 => 'a'] )->before( 'a' )->toArray() );
+		$this->assertSame( [0 => 'b'], Map::from( [0 => 'b', 1 => 'a'] )->before( 'a' )->toArray() );
 	}
 
 
 	public function testBeforeInt()
 	{
-		$this->assertEquals( ['a' => 1], Map::from( ['a' => 1, 'b' => 0] )->before( 0 )->toArray() );
+		$this->assertSame( ['a' => 1], Map::from( ['a' => 1, 'b' => 0] )->before( 0 )->toArray() );
 	}
 
 
 	public function testBeforeNone()
 	{
-		$this->assertEquals( [], Map::from( [0 => 'b', 1 => 'a'] )->before( 'b' )->toArray() );
+		$this->assertSame( [], Map::from( [0 => 'b', 1 => 'a'] )->before( 'b' )->toArray() );
 	}
 
 
 	public function testBeforeCallback()
 	{
-		$this->assertEquals( [0 => 'a'], Map::from( ['a', 'c', 'b'] )->before( function( $item, $key ) {
+		$this->assertSame( [0 => 'a'], Map::from( ['a', 'c', 'b'] )->before( function( $item, $key ) {
 			return $key >= 1;
 		} )->toArray() );
 	}
@@ -159,15 +183,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	{
 		$m = new Map( ['a' => new TestMapObject(), 'b' => new TestMapObject()] );
 
-		$this->assertEquals( ['a' => 'p1', 'b' => 'p2'], $m->call( 'get', [1] )->toArray() );
-		$this->assertEquals( ['a' => ['prop' => 'p3'], 'b' => ['prop' => 'p4']], $m->call( 'toArray' )->toArray() );
+		$this->assertSame( ['a' => 'p1', 'b' => 'p2'], $m->call( 'get', [1] )->toArray() );
+		$this->assertSame( ['a' => ['prop' => 'p3'], 'b' => ['prop' => 'p4']], $m->call( 'toArray' )->toArray() );
 	}
 
 
 	public function testChunk()
 	{
 		$m = new Map( [0, 1, 2, 3, 4] );
-		$this->assertEquals( [[0, 1, 2], [3, 4]], $m->chunk( 3 )->toArray() );
+		$this->assertSame( [[0, 1, 2], [3, 4]], $m->chunk( 3 )->toArray() );
 	}
 
 
@@ -181,7 +205,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testChunkKeys()
 	{
 		$m = new Map( ['a' => 0, 'b' => 1, 'c' => 2] );
-		$this->assertEquals( [['a' => 0, 'b' => 1], ['c' => 2]], $m->chunk( 2, true )->toArray() );
+		$this->assertSame( [['a' => 0, 'b' => 1], ['c' => 2]], $m->chunk( 2, true )->toArray() );
 	}
 
 
@@ -210,7 +234,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$r = $map->col( 'bar' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( [0 => 'two'], $r->toArray() );
+		$this->assertSame( [0 => 'two'], $r->toArray() );
 	}
 
 
@@ -220,7 +244,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$r = $map->col( 'bar', 'foo' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['one' => 'two'], $r->toArray() );
+		$this->assertSame( ['one' => 'two'], $r->toArray() );
 	}
 
 
@@ -230,7 +254,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$r = $map->col( null, 'id' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['ix' => ['id' => 'ix', 'val' => 'v2']], $r->toArray() );
+		$this->assertSame( ['ix' => ['id' => 'ix', 'val' => 'v2']], $r->toArray() );
 	}
 
 
@@ -240,7 +264,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$r = $map->col( 'bar', 'foo' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['two'], $r->toArray() );
+		$this->assertSame( ['two'], $r->toArray() );
 	}
 
 
@@ -250,7 +274,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$r = $map->col( null, 'foo' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['one' => ['foo' => 'one', 'bar' => 'two']], $r->toArray() );
+		$this->assertSame( ['one' => ['foo' => 'one', 'bar' => 'two']], $r->toArray() );
 	}
 
 
@@ -260,7 +284,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$r = $map->col( 'foo/baz', 'foo/bar' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['one' => 'two'], $r->toArray() );
+		$this->assertSame( ['one' => 'two'], $r->toArray() );
 	}
 
 
@@ -270,7 +294,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$r = $map->col( 'foo/baz', 'foo/bar' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['one' => null], $r->toArray() );
+		$this->assertSame( ['one' => null], $r->toArray() );
 	}
 
 
@@ -280,42 +304,42 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$r = $map->col( 'foo/baz', 'foo/bar' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['two'], $r->toArray() );
+		$this->assertSame( ['two'], $r->toArray() );
 	}
 
 
 	public function testCollapse()
 	{
 		$m = Map::from( [0 => ['a' => 0, 'b' => 1], 1 => ['c' => 2, 'd' => 3]]);
-		$this->assertEquals( ['a' => 0, 'b' => 1, 'c' => 2, 'd' => 3], $m->collapse()->toArray() );
+		$this->assertSame( ['a' => 0, 'b' => 1, 'c' => 2, 'd' => 3], $m->collapse()->toArray() );
 	}
 
 
 	public function testCollapseOverwrite()
 	{
 		$m = Map::from( [0 => ['a' => 0, 'b' => 1], 1 => ['a' => 2]] );
-		$this->assertEquals( ['a' => 2, 'b' => 1], $m->collapse()->toArray() );
+		$this->assertSame( ['a' => 2, 'b' => 1], $m->collapse()->toArray() );
 	}
 
 
 	public function testCollapseRecursive()
 	{
 		$m = Map::from( [0 => [0 => 0, 1 => 1], 1 => [0 => ['a' => 2, 0 => 3], 1 => 4]] );
-		$this->assertEquals( [0 => 3, 1 => 4, 'a' => 2], $m->collapse()->toArray() );
+		$this->assertSame( [0 => 3, 1 => 4, 'a' => 2], $m->collapse()->toArray() );
 	}
 
 
 	public function testCollapseDepth()
 	{
 		$m = Map::from( [0 => [0 => 0, 'a' => 1], 1 => [0 => ['b' => 2, 0 => 3], 1 => 4]] );
-		$this->assertEquals( [0 => ['b' => 2, 0 => 3], 1 => 4, 'a' => 1], $m->collapse( 1 )->toArray() );
+		$this->assertSame( [0 => ['b' => 2, 0 => 3], 'a' => 1, 1 => 4], $m->collapse( 1 )->toArray() );
 	}
 
 
 	public function testCollapseIterable()
 	{
 		$m = Map::from( [0 => [0 => 0, 'a' => 1], 1 => Map::from( [0 => ['b' => 2, 0 => 3], 1 => 4] )] );
-		$this->assertEquals( [0 => 3, 'a' => 1, 'b' => 2, 1 => 4], $m->collapse()->toArray() );
+		$this->assertSame( [0 => 3, 'a' => 1, 'b' => 2, 1 => 4], $m->collapse()->toArray() );
 	}
 
 
@@ -329,7 +353,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testCombine()
 	{
 		$r = Map::from( ['name', 'age'] )->combine( ['Tom', 29] );
-		$this->assertEquals( ['name' => 'Tom', 'age' => 29], $r->toArray() );
+		$this->assertSame( ['name' => 'Tom', 'age' => 29], $r->toArray() );
 	}
 
 
@@ -339,7 +363,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$r = $first->concat( ['a', 'b'] )->concat( ['x' => 'foo', 'y' => 'bar'] );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( [1, 2, 'a', 'b', 'foo', 'bar'], $r->toArray() );
+		$this->assertSame( [1, 2, 'a', 'b', 'foo', 'bar'], $r->toArray() );
 	}
 
 
@@ -352,7 +376,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$r = $first->concat( $second )->concat( $third );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( [1, 2, 'a', 'b', 'foo', 'bar'], $r->toArray() );
+		$this->assertSame( [1, 2, 'a', 'b', 'foo', 'bar'], $r->toArray() );
 	}
 
 
@@ -370,7 +394,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertInstanceOf( Map::class, $firstMap );
 		$this->assertInstanceOf( Map::class, $secondMap );
-		$this->assertEquals( ['foo' => 'bar'], $secondMap->toArray() );
+		$this->assertSame( ['foo' => 'bar'], $secondMap->toArray() );
 	}
 
 
@@ -379,21 +403,21 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$map = new Map( ['foo' => 'bar'] );
 
 		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( ['foo' => 'bar'], $map->toArray() );
+		$this->assertSame( ['foo' => 'bar'], $map->toArray() );
 	}
 
 
 	public function testConstructTraversable()
 	{
 		$map = new Map( new \ArrayObject( [1, 2, 3] ) );
-		$this->assertEquals( [1, 2, 3], $map->toArray() );
+		$this->assertSame( [1, 2, 3], $map->toArray() );
 	}
 
 
 	public function testConstructTraversableKeys()
 	{
 		$map = new Map( new \ArrayObject( ['foo' => 1, 'bar' => 2, 'baz' => 3] ) );
-		$this->assertEquals( ['foo' => 1, 'bar' => 2, 'baz' => 3], $map->toArray() );
+		$this->assertSame( ['foo' => 1, 'bar' => 2, 'baz' => 3], $map->toArray() );
 	}
 
 
@@ -438,7 +462,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$r = Map::from( [1, 'foo', 2, 'foo', 1] )->countBy();
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( [1 => 2, 'foo' => 2, 2 => 1], $r->toArray() );
+		$this->assertSame( [1 => 2, 'foo' => 2, 2 => 1], $r->toArray() );
 	}
 
 
@@ -449,7 +473,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		} );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['gmail.com' => 2, 'yahoo.com' => 1], $r->toArray() );
+		$this->assertSame( ['gmail.com' => 2, 'yahoo.com' => 1], $r->toArray() );
 	}
 
 
@@ -458,16 +482,16 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$r = Map::from( [1.11, 3.33, 3.33, 9.99] )->countBy();
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['1.11' => 1, '3.33' => 2, '9.99' => 1], $r->toArray() );
+		$this->assertSame( ['1.11' => 1, '3.33' => 2, '9.99' => 1], $r->toArray() );
 	}
 
 
 	public function testDelimiter()
 	{
-		$this->assertEquals( '/', Map::delimiter() );
-		$this->assertEquals( '/', Map::delimiter( '.' ) );
-		$this->assertEquals( '.', Map::delimiter( '/' ) );
-		$this->assertEquals( '/', Map::delimiter() );
+		$this->assertSame( '/', Map::delimiter() );
+		$this->assertSame( '/', Map::delimiter( '.' ) );
+		$this->assertSame( '.', Map::delimiter( '/' ) );
+		$this->assertSame( '/', Map::delimiter() );
 	}
 
 
@@ -477,7 +501,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$r = $m->diff( new Map( ['first_word' => 'Hello', 'last_word' => 'World'] ) );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['id' => 1], $r->toArray() );
+		$this->assertSame( ['id' => 1], $r->toArray() );
 	}
 
 
@@ -488,7 +512,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertInstanceOf( Map::class, $r );
 		// demonstrate that diffKeys wont support case insensitivity
-		$this->assertEquals( ['en_GB', 'fr', 'HR'], $r->values()->toArray() );
+		$this->assertSame( ['en_GB', 'fr', 'HR'], $r->values()->toArray() );
 	}
 
 
@@ -501,11 +525,11 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		// demonstrate that the case of the keys will affect the output when diff is used
 		$this->assertInstanceOf( Map::class, $r1 );
-		$this->assertEquals( ['a' => 'green', 'b' => 'brown', 'c' => 'blue'], $r1->toArray() );
+		$this->assertSame( ['a' => 'green', 'b' => 'brown', 'c' => 'blue'], $r1->toArray() );
 
 		// allow for case insensitive difference
 		$this->assertInstanceOf( Map::class, $r2 );
-		$this->assertEquals( ['b' => 'brown', 'c' => 'blue'], $r2->toArray() );
+		$this->assertSame( ['b' => 'brown', 'c' => 'blue'], $r2->toArray() );
 	}
 
 
@@ -516,7 +540,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$r = $m1->diffAssoc( $m2 );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['id' => 1, 'first_word' => 'Hello'], $r->toArray() );
+		$this->assertSame( ['id' => 1, 'first_word' => 'Hello'], $r->toArray() );
 	}
 
 
@@ -529,11 +553,11 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		// demonstrate that the case of the keys will affect the output when diffAssoc is used
 		$this->assertInstanceOf( Map::class, $r1 );
-		$this->assertEquals( ['a' => 'green', 'b' => 'brown', 'c' => 'blue', 'red'], $r1->toArray() );
+		$this->assertSame( ['a' => 'green', 'b' => 'brown', 'c' => 'blue', 'red'], $r1->toArray() );
 
 		// allow for case insensitive difference
 		$this->assertInstanceOf( Map::class, $r2 );
-		$this->assertEquals( ['b' => 'brown', 'c' => 'blue', 'red'], $r2->toArray() );
+		$this->assertSame( ['b' => 'brown', 'c' => 'blue', 'red'], $r2->toArray() );
 	}
 
 
@@ -544,7 +568,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$r = $m1->diffKeys( $m2 );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['first_word' => 'Hello'], $r->toArray() );
+		$this->assertSame( ['first_word' => 'Hello'], $r->toArray() );
 	}
 
 
@@ -557,11 +581,11 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		// demonstrate that diffKeys wont support case insensitivity
 		$this->assertInstanceOf( Map::class, $r1 );
-		$this->assertEquals( ['id'=>1, 'first_word'=> 'Hello'], $r1->toArray() );
+		$this->assertSame( ['id'=>1, 'first_word'=> 'Hello'], $r1->toArray() );
 
 		// allow for case insensitive difference
 		$this->assertInstanceOf( Map::class, $r2 );
-		$this->assertEquals( ['first_word' => 'Hello'], $r2->toArray() );
+		$this->assertSame( ['first_word' => 'Hello'], $r2->toArray() );
 	}
 
 
@@ -589,7 +613,7 @@ Array
 		$r = Map::from( [1, 2, '1', 3] )->duplicates();
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( [2 => '1'], $r->toArray() );
+		$this->assertSame( [2 => '1'], $r->toArray() );
 	}
 
 
@@ -598,7 +622,7 @@ Array
 		$r = Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->duplicates( 'p' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( [1 => ['p' => 1]], $r->toArray() );
+		$this->assertSame( [1 => ['p' => 1]], $r->toArray() );
 	}
 
 
@@ -607,7 +631,7 @@ Array
 		$r = Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i/p' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( [1 => ['i' => ['p' => '1']]], $r->toArray() );
+		$this->assertSame( [1 => ['i' => ['p' => 1]]], $r->toArray() );
 	}
 
 
@@ -621,7 +645,7 @@ Array
 		} );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( $original, $result );
+		$this->assertSame( $original, $result );
 	}
 
 
@@ -638,7 +662,7 @@ Array
 		} );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( [1, 2, 'foo' => 'bar'], $result );
+		$this->assertSame( [1, 2, 'foo' => 'bar'], $result );
 	}
 
 
@@ -718,8 +742,8 @@ Array
 
 	public function testExcept()
 	{
-		$this->assertEquals( ['a' => 1, 'c' => 3], Map::from( ['a' => 1, 'b' => 2, 'c' => 3] )->except( 'b' )->toArray() );
-		$this->assertEquals( [2 => 'b'], Map::from( [1 => 'a', 2 => 'b', 3 => 'c'] )->except( [1, 3] )->toArray() );
+		$this->assertSame( ['a' => 1, 'c' => 3], Map::from( ['a' => 1, 'b' => 2, 'c' => 3] )->except( 'b' )->toArray() );
+		$this->assertSame( [2 => 'b'], Map::from( [1 => 'a', 2 => 'b', 3 => 'c'] )->except( [1, 3] )->toArray() );
 	}
 
 
@@ -728,7 +752,7 @@ Array
 		$map = Map::explode( ',', 'a,b,c' );
 
 		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( ['a', 'b', 'c'], $map->toArray() );
+		$this->assertSame( ['a', 'b', 'c'], $map->toArray() );
 	}
 
 
@@ -737,7 +761,7 @@ Array
 		$map = Map::explode( '<-->', 'a a<-->b b<-->c c' );
 
 		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( ['a a', 'b b', 'c c'], $map->toArray() );
+		$this->assertSame( ['a a', 'b b', 'c c'], $map->toArray() );
 	}
 
 
@@ -746,7 +770,7 @@ Array
 		$map = Map::explode( '', 'string' );
 
 		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( ['s', 't', 'r', 'i', 'n', 'g'], $map->toArray() );
+		$this->assertSame( ['s', 't', 'r', 'i', 'n', 'g'], $map->toArray() );
 	}
 
 
@@ -755,7 +779,7 @@ Array
 		$map = Map::explode( '', 'string', 6 );
 
 		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( ['s', 't', 'r', 'i', 'n', 'g'], $map->toArray() );
+		$this->assertSame( ['s', 't', 'r', 'i', 'n', 'g'], $map->toArray() );
 	}
 
 
@@ -764,7 +788,7 @@ Array
 		$map = Map::explode( '|', 'a|b|c', 2 );
 
 		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( ['a', 'b|c'], $map->toArray() );
+		$this->assertSame( ['a', 'b|c'], $map->toArray() );
 	}
 
 
@@ -773,7 +797,7 @@ Array
 		$map = Map::explode( '', 'string', 2 );
 
 		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( ['s', 't', 'ring'], $map->toArray() );
+		$this->assertSame( ['s', 't', 'ring'], $map->toArray() );
 	}
 
 
@@ -782,7 +806,7 @@ Array
 		$map = Map::explode( '|', 'a|b|c|d', -2 );
 
 		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( ['a', 'b'], $map->toArray() );
+		$this->assertSame( ['a', 'b'], $map->toArray() );
 	}
 
 
@@ -791,7 +815,7 @@ Array
 		$map = Map::explode( '', 'string', -3 );
 
 		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( ['s', 't', 'r'], $map->toArray() );
+		$this->assertSame( ['s', 't', 'r'], $map->toArray() );
 	}
 
 
@@ -799,7 +823,7 @@ Array
 	{
 		$m = new Map( [['id' => 1, 'name' => 'Hello'], ['id' => 2, 'name' => 'World']] );
 
-		$this->assertEquals( [1 => ['id' => 2, 'name' => 'World']], $m->filter( function( $item ) {
+		$this->assertSame( [1 => ['id' => 2, 'name' => 'World']], $m->filter( function( $item ) {
 			return $item['id'] == 2;
 		} )->toArray() );
 	}
@@ -811,7 +835,7 @@ Array
 		$r = $m->filter();
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['Hello', 'World'], $r->values()->toArray() );
+		$this->assertSame( ['Hello', 'World'], $r->values()->toArray() );
 	}
 
 
@@ -819,7 +843,7 @@ Array
 	{
 		$m = new Map( ['id' => 1, 'first' => 'Hello', 'second' => 'World'] );
 
-		$this->assertEquals( ['first' => 'Hello', 'second' => 'World'], $m->filter( function( $item, $key ) {
+		$this->assertSame( ['first' => 'Hello', 'second' => 'World'], $m->filter( function( $item, $key ) {
 			return $key != 'id';
 		} )->toArray() );
 	}
@@ -831,7 +855,7 @@ Array
 		$result = $m->find( function( $value, $key ) {
 			return !strncmp( $value, 'ba', 2 );
 		} );
-		$this->assertEquals( 'bar', $result );
+		$this->assertSame( 'bar', $result );
 	}
 
 
@@ -841,7 +865,7 @@ Array
 		$result = $m->find( function( $value, $key ) {
 			return !strncmp( $value, 'ba', 2 );
 		}, null, true );
-		$this->assertEquals( 'baz', $result );
+		$this->assertSame( 'baz', $result );
 	}
 
 
@@ -851,7 +875,7 @@ Array
 		$result = $m->find( function( $value ) {
 			return false;
 		}, 'none' );
-		$this->assertEquals( 'none', $result );
+		$this->assertSame( 'none', $result );
 	}
 
 
@@ -870,7 +894,7 @@ Array
 	public function testFirst()
 	{
 		$m = new Map( ['foo', 'bar'] );
-		$this->assertEquals( 'foo', $m->first() );
+		$this->assertSame( 'foo', $m->first() );
 	}
 
 
@@ -878,7 +902,7 @@ Array
 	{
 		$m = new Map;
 		$result = $m->first( 'default' );
-		$this->assertEquals( 'default', $result );
+		$this->assertSame( 'default', $result );
 	}
 
 
@@ -902,48 +926,48 @@ Array
 
 	public function testFirstKey()
 	{
-		$this->assertEquals( 'a', Map::from( ['a' => 1, 'b' => 2] )->firstKey() );
+		$this->assertSame( 'a', Map::from( ['a' => 1, 'b' => 2] )->firstKey() );
 	}
 
 
 	public function testFirstKeyEmpty()
 	{
-		$this->assertEquals( null, Map::from( [] )->firstKey() );
+		$this->assertSame( null, Map::from( [] )->firstKey() );
 	}
 
 
 	public function testFlat()
 	{
 		$m = Map::from( [[0, 1], [2, 3]] );
-		$this->assertEquals( [0, 1, 2, 3], $m->flat()->toArray() );
+		$this->assertSame( [0, 1, 2, 3], $m->flat()->toArray() );
 	}
 
 
 	public function testFlatNone()
 	{
 		$m = Map::from( [[0, 1], [2, 3]] );
-		$this->assertEquals( [[0, 1], [2, 3]], $m->flat( 0 )->toArray() );
+		$this->assertSame( [[0, 1], [2, 3]], $m->flat( 0 )->toArray() );
 	}
 
 
 	public function testFlatRecursive()
 	{
 		$m = Map::from( [[0, 1], [[2, 3], 4]] );
-		$this->assertEquals( [0, 1, 2, 3, 4], $m->flat()->toArray() );
+		$this->assertSame( [0, 1, 2, 3, 4], $m->flat()->toArray() );
 	}
 
 
 	public function testFlatDepth()
 	{
 		$m = Map::from( [[0, 1], [[2, 3], 4]] );
-		$this->assertEquals( [0, 1, [2, 3], 4], $m->flat( 1 )->toArray() );
+		$this->assertSame( [0, 1, [2, 3], 4], $m->flat( 1 )->toArray() );
 	}
 
 
 	public function testFlatTraversable()
 	{
 		$m = Map::from( [[0, 1], Map::from( [[2, 3], 4] )] );
-		$this->assertEquals( [0, 1, 2, 3, 4], $m->flat()->toArray() );
+		$this->assertSame( [0, 1, 2, 3, 4], $m->flat()->toArray() );
 	}
 
 
@@ -957,7 +981,7 @@ Array
 	public function testFlip()
 	{
 		$m = Map::from( ['a' => 'X', 'b' => 'Y'] );
-		$this->assertEquals( ['X' => 'a', 'Y' => 'b'], $m->flip()->toArray() );
+		$this->assertSame( ['X' => 'a', 'Y' => 'b'], $m->flip()->toArray() );
 	}
 
 
@@ -966,7 +990,7 @@ Array
 		$m = Map::from( null );
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( [], $m->toArray() );
+		$this->assertSame( [], $m->toArray() );
 	}
 
 
@@ -975,7 +999,7 @@ Array
 		$m = Map::from( 'a' );
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( [0 => 'a'], $m->toArray() );
+		$this->assertSame( [0 => 'a'], $m->toArray() );
 	}
 
 
@@ -995,7 +1019,7 @@ Array
 		$map = Map::from( ['foo' => 'bar'] );
 
 		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( ['foo' => 'bar'], $map->toArray() );
+		$this->assertSame( ['foo' => 'bar'], $map->toArray() );
 	}
 
 
@@ -1004,7 +1028,7 @@ Array
 		$map = Map::fromJson( '["a", "b"]' );
 
 		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( ['a', 'b'], $map->toArray() );
+		$this->assertSame( ['a', 'b'], $map->toArray() );
 	}
 
 
@@ -1013,7 +1037,7 @@ Array
 		$map = Map::fromJson( '{"a": "b"}' );
 
 		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( ['a' => 'b'], $map->toArray() );
+		$this->assertSame( ['a' => 'b'], $map->toArray() );
 	}
 
 
@@ -1022,7 +1046,7 @@ Array
 		$map = Map::fromJson( '""' );
 
 		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( [''], $map->toArray() );
+		$this->assertSame( [''], $map->toArray() );
 	}
 
 
@@ -1059,20 +1083,20 @@ Array
 	{
 		$m = new Map( ['foo'] );
 		$this->assertInstanceOf( \ArrayIterator::class, $m->getIterator() );
-		$this->assertEquals( ['foo'], $m->getIterator()->getArrayCopy() );
+		$this->assertSame( ['foo'], $m->getIterator()->getArrayCopy() );
 	}
 
 
 	public function testGet()
 	{
 		$map = new Map( ['a' => 1, 'b' => 2, 'c' => 3] );
-		$this->assertEquals( 2, $map->get( 'b' ) );
+		$this->assertSame( 2, $map->get( 'b' ) );
 	}
 
 
 	public function testGetPath()
 	{
-		$this->assertEquals( 'Y', Map::from( ['a' => ['b' => ['c' => 'Y']]] )->get( 'a/b/c' ) );
+		$this->assertSame( 'Y', Map::from( ['a' => ['b' => ['c' => 'Y']]] )->get( 'a/b/c' ) );
 	}
 
 
@@ -1081,7 +1105,7 @@ Array
 		$obj = new \stdClass;
 		$obj->b = 'X';
 
-		$this->assertEquals( 'X', Map::from( ['a' => $obj] )->get( 'a/b' ) );
+		$this->assertSame( 'X', Map::from( ['a' => $obj] )->get( 'a/b' ) );
 	}
 
 
@@ -1115,7 +1139,7 @@ Array
 		$r = Map::from( ['ab', 'bc', 'cd'] )->grep( '/b/' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['ab', 'bc'], $r->toArray() );
+		$this->assertSame( ['ab', 'bc'], $r->toArray() );
 	}
 
 
@@ -1124,7 +1148,7 @@ Array
 		$r = Map::from( ['ab', 'bc', 'cd'] )->grep( '/a/', PREG_GREP_INVERT );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( [1 => 'bc', 2 => 'cd'], $r->toArray() );
+		$this->assertSame( [1 => 'bc', 2 => 'cd'], $r->toArray() );
 	}
 
 
@@ -1154,7 +1178,7 @@ Array
 		$r = Map::from( [1.5, 0, 0.0, 'a'] )->grep( '/^(\d+)?\.\d+$/' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( [1.5], $r->toArray() );
+		$this->assertSame( [1.5], $r->toArray() );
 	}
 
 
@@ -1173,7 +1197,7 @@ Array
 		$r = Map::from( $list )->groupBy( 'aid' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( $expected, $r->toArray() );
+		$this->assertSame( $expected, $r->toArray() );
 	}
 
 
@@ -1194,7 +1218,7 @@ Array
 		} );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( $expected, $r->toArray() );
+		$this->assertSame( $expected, $r->toArray() );
 	}
 
 
@@ -1216,7 +1240,7 @@ Array
 		$r = Map::from( $list )->groupBy( 'xid' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( $expected, $r->toArray() );
+		$this->assertSame( $expected, $r->toArray() );
 	}
 
 
@@ -1276,7 +1300,7 @@ Array
 		);
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['b'], $r->all() );
+		$this->assertSame( ['b'], $r->all() );
 	}
 
 
@@ -1289,7 +1313,7 @@ Array
 		);
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( [], $r->all() );
+		$this->assertSame( [], $r->all() );
 	}
 
 
@@ -1302,7 +1326,7 @@ Array
 		);
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( [], $r->all() );
+		$this->assertSame( [], $r->all() );
 	}
 
 
@@ -1313,7 +1337,7 @@ Array
 		} );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['a', 'b', 'c'], $r->all() );
+		$this->assertSame( ['a', 'b', 'c'], $r->all() );
 	}
 
 
@@ -1324,7 +1348,39 @@ Array
 		} );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['b'], $r->all() );
+		$this->assertSame( ['b'], $r->all() );
+	}
+
+
+	public function testIfEmpty()
+	{
+		$r = Map::from( [] )->ifEmpty(
+			function( Map $_ ) { return ['a']; }
+		);
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['a'], $r->all() );
+	}
+
+
+	public function testIfEmptyFalse()
+	{
+		$r = Map::from( ['a'] )->ifEmpty(
+			function( Map $m ) { return $m->push( 'b' ); },
+			function( Map $m ) { return $m->push( 'c' ); }
+		);
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['a', 'c'], $r->all() );
+	}
+
+
+	public function testIfEmptyNone()
+	{
+		$r = Map::from( ['a'] )->ifEmpty();
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['a'], $r->all() );
 	}
 
 
@@ -1349,7 +1405,7 @@ Array
 	{
 		$m = new Map( [4 => 'a', 8 => 'b'] );
 
-		$this->assertEquals( 1, $m->index( '8' ) );
+		$this->assertSame( 1, $m->index( '8' ) );
 	}
 
 
@@ -1357,7 +1413,7 @@ Array
 	{
 		$m = new Map( [4 => 'a', 8 => 'b'] );
 
-		$this->assertEquals( 1, $m->index( function( $key ) {
+		$this->assertSame( 1, $m->index( function( $key ) {
 			return $key == '8';
 		} ) );
 	}
@@ -1386,7 +1442,7 @@ Array
 		$r = Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAfter( 'foo', 'baz' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['a' => 'foo', 0 => 'baz', 'b' => 'bar'], $r->toArray() );
+		$this->assertSame( ['a' => 'foo', 0 => 'baz', 'b' => 'bar'], $r->toArray() );
 	}
 
 
@@ -1395,7 +1451,7 @@ Array
 		$r = Map::from( ['foo', 'bar'] )->insertAfter( 'foo', ['baz', 'boo'] );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['foo', 'baz', 'boo', 'bar'], $r->toArray() );
+		$this->assertSame( ['foo', 'baz', 'boo', 'bar'], $r->toArray() );
 	}
 
 
@@ -1404,7 +1460,51 @@ Array
 		$r = Map::from( ['foo', 'bar'] )->insertAfter( null, 'baz' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['foo', 'bar', 'baz'], $r->toArray() );
+		$this->assertSame( ['foo', 'bar', 'baz'], $r->toArray() );
+	}
+
+
+	public function testInsertAt()
+	{
+		$r = Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 1, 'baz', 'c' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['a' => 'foo', 'c' => 'baz', 'b' => 'bar'], $r->toArray() );
+	}
+
+
+	public function testInsertAtBegin()
+	{
+		$r = Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 0, 'baz' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [0 => 'baz', 'a' => 'foo', 'b' => 'bar'], $r->toArray() );
+	}
+
+
+	public function testInsertAtEnd()
+	{
+		$r = Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 5, 'baz' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['a' => 'foo', 'b' => 'bar', 0 => 'baz'], $r->toArray() );
+	}
+
+
+	public function testInsertAtNegative()
+	{
+		$r = Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( -1, 'baz' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['a' => 'foo', 0 => 'baz', 'b' => 'bar'], $r->toArray() );
+	}
+
+	public function testInsertAtNegativeKey()
+	{
+		$r = Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( -1, 'baz', 'c' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['a' => 'foo', 'c' => 'baz', 'b' => 'bar'], $r->toArray() );
 	}
 
 
@@ -1413,7 +1513,7 @@ Array
 		$r = Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertBefore( 'bar', 'baz' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['a' => 'foo', 0 => 'baz', 'b' => 'bar'], $r->toArray() );
+		$this->assertSame( ['a' => 'foo', 0 => 'baz', 'b' => 'bar'], $r->toArray() );
 	}
 
 
@@ -1422,7 +1522,7 @@ Array
 		$r = Map::from( ['foo', 'bar'] )->insertBefore( 'bar', ['baz', 'boo'] );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['foo', 'baz', 'boo', 'bar'], $r->toArray() );
+		$this->assertSame( ['foo', 'baz', 'boo', 'bar'], $r->toArray() );
 	}
 
 
@@ -1431,7 +1531,7 @@ Array
 		$r = Map::from( ['foo', 'bar'] )->insertBefore( null, 'baz' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['foo', 'bar', 'baz'], $r->toArray() );
+		$this->assertSame( ['foo', 'bar', 'baz'], $r->toArray() );
 	}
 
 
@@ -1442,7 +1542,7 @@ Array
 		$r = $m->intersect( $i );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['first_word' => 'Hello'], $r->toArray() );
+		$this->assertSame( ['first_word' => 'Hello'], $r->toArray() );
 	}
 
 
@@ -1453,7 +1553,7 @@ Array
 		$r = $m->intersect( $i, 'strcasecmp' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['first_word' => 'Hello', 'last_word' => 'World'], $r->toArray() );
+		$this->assertSame( ['first_word' => 'Hello', 'last_word' => 'World'], $r->toArray() );
 	}
 
 
@@ -1464,7 +1564,7 @@ Array
 		$r = $m->intersectAssoc( $i );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['name' => 'Mateus'], $r->toArray() );
+		$this->assertSame( ['name' => 'Mateus'], $r->toArray() );
 	}
 
 
@@ -1475,7 +1575,7 @@ Array
 		$r = $m->intersectAssoc( $i, 'strcasecmp' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['first_word' => 'Hello'], $r->toArray() );
+		$this->assertSame( ['first_word' => 'Hello'], $r->toArray() );
 	}
 
 
@@ -1486,7 +1586,7 @@ Array
 		$r = $m->intersectKeys( $i );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['name' => 'Mateus'], $r->toArray() );
+		$this->assertSame( ['name' => 'Mateus'], $r->toArray() );
 	}
 
 
@@ -1497,7 +1597,7 @@ Array
 		$r = $m->intersectKeys( $i, 'strcasecmp' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['first_word' => 'Hello', 'last_word' => 'World'], $r->toArray() );
+		$this->assertSame( ['first_word' => 'Hello', 'last_word' => 'World'], $r->toArray() );
 	}
 
 
@@ -1538,8 +1638,15 @@ Array
 	public function testJoin()
 	{
 		$m = new Map( ['a', 'b', null, false] );
-		$this->assertEquals( 'ab', $m->join() );
-		$this->assertEquals( 'a-b--', $m->join( '-' ) );
+		$this->assertSame( 'ab', $m->join() );
+		$this->assertSame( 'a-b--', $m->join( '-' ) );
+	}
+
+
+	public function testJsonSerialize()
+	{
+		$this->assertSame( '["a","b"]', json_encode( new Map( ['a', 'b'] ) ) );
+		$this->assertSame( '{"a":0,"b":1}', json_encode( new Map( ['a' => 0, 'b' => 1] ) ) );
 	}
 
 
@@ -1548,7 +1655,7 @@ Array
 		$m = ( new Map( ['name' => 'test', 'last' => 'user'] ) )->keys();
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( ['name', 'last'], $m->toArray() );
+		$this->assertSame( ['name', 'last'], $m->toArray() );
 	}
 
 
@@ -1557,7 +1664,7 @@ Array
 		$m = ( new Map( [6 => 4, 7 => 3, 9 => 2, 8 => 1, 5 => 0, 4 => -1, 2 => -2, 1 => -3, 3 => -4] ) )->krsort();
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( [9 => 2, 8 => 1, 7 => 3, 6 => 4, 5 => 0, 4 => -1, 3 => -4, 2 => -2, 1 => -3], $m->toArray() );
+		$this->assertSame( [9 => 2, 8 => 1, 7 => 3, 6 => 4, 5 => 0, 4 => -1, 3 => -4, 2 => -2, 1 => -3], $m->toArray() );
 	}
 
 
@@ -1566,7 +1673,7 @@ Array
 		$m = ( new Map( [1 => 'bar-1', 'a' => 'foo', 'c' => 'bar-10'] ) )->krsort();
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( ['c' => 'bar-10', 'a' => 'foo', 1 => 'bar-1'], $m->toArray() );
+		$this->assertSame( [1 => 'bar-1', 'c' => 'bar-10', 'a' => 'foo'], $m->toArray() );
 	}
 
 
@@ -1575,7 +1682,7 @@ Array
 		$m = ( new Map( [3 => -4, 1 => -3, 2 => -2, 4 => -1, 5 => 0, 8 => 1, 9 => 2, 7 => 3, 6 => 4] ) )->ksort();
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2], $m->toArray() );
+		$this->assertSame( [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2], $m->toArray() );
 	}
 
 
@@ -1584,14 +1691,14 @@ Array
 		$m = ( new Map( ['a' => 'foo', 'c' => 'bar-10', 1 => 'bar-1'] ) )->ksort();
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( [1 => 'bar-1', 'a' => 'foo', 'c' => 'bar-10'], $m->toArray() );
+		$this->assertSame( ['a' => 'foo', 'c' => 'bar-10', 1 => 'bar-1'], $m->toArray() );
 	}
 
 
 	public function testLast()
 	{
 		$m = new Map( ['foo', 'bar'] );
-		$this->assertEquals( 'bar', $m->last() );
+		$this->assertSame( 'bar', $m->last() );
 	}
 
 
@@ -1599,7 +1706,7 @@ Array
 	{
 		$m = new Map;
 		$result = $m->last( 'default' );
-		$this->assertEquals( 'default', $result );
+		$this->assertSame( 'default', $result );
 	}
 
 
@@ -1623,13 +1730,13 @@ Array
 
 	public function testLastKey()
 	{
-		$this->assertEquals( 'b', Map::from( ['a' => 1, 'b' => 2] )->lastKey() );
+		$this->assertSame( 'b', Map::from( ['a' => 1, 'b' => 2] )->lastKey() );
 	}
 
 
 	public function testLastKeyEmpty()
 	{
-		$this->assertEquals( null, Map::from( [] )->lastKey() );
+		$this->assertSame( null, Map::from( [] )->lastKey() );
 	}
 
 
@@ -1641,14 +1748,14 @@ Array
 		} );
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( ['first' => 'first-tset', 'last' => 'last-resu'], $m->toArray() );
+		$this->assertSame( ['first' => 'first-tset', 'last' => 'last-resu'], $m->toArray() );
 	}
 
 
 	public function testMax()
 	{
-		$this->assertEquals( 5, Map::from( [1, 3, 2, 5, 4] )->max() );
-		$this->assertEquals( 'foo', Map::from( ['bar', 'foo', 'baz'] )->max() );
+		$this->assertSame( 5, Map::from( [1, 3, 2, 5, 4] )->max() );
+		$this->assertSame( 'foo', Map::from( ['bar', 'foo', 'baz'] )->max() );
 	}
 
 
@@ -1660,8 +1767,8 @@ Array
 
 	public function testMaxPath()
 	{
-		$this->assertEquals( 50, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' ) );
-		$this->assertEquals( 50, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( 'i/p' ) );
+		$this->assertSame( 50, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' ) );
+		$this->assertSame( 50, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( 'i/p' ) );
 	}
 
 
@@ -1671,7 +1778,7 @@ Array
 		$r = $m->merge( ['id' => 1] );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['name' => 'Hello', 'id' => 1], $r->toArray() );
+		$this->assertSame( ['name' => 'Hello', 'id' => 1], $r->toArray() );
 	}
 
 
@@ -1681,7 +1788,7 @@ Array
 		$r = $m->merge( new Map( ['name' => 'World', 'id' => 1] ) );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['name' => 'World', 'id' => 1], $r->toArray() );
+		$this->assertSame( ['name' => 'World', 'id' => 1], $r->toArray() );
 	}
 
 
@@ -1690,7 +1797,7 @@ Array
 		$r = Map::from( ['a' => 1, 'b' => 2] )->merge( ['b' => 4, 'c' => 6], true );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['a' => 1, 'b' => [2, 4], 'c' => 6], $r->toArray() );
+		$this->assertSame( ['a' => 1, 'b' => [2, 4], 'c' => 6], $r->toArray() );
 	}
 
 
@@ -1716,7 +1823,7 @@ Array
 
 		$m = new Map( ['a', 'aa', 'aaa'] );
 
-		$this->assertEquals( ['a', 'aa', 'aaa'], $m->foo() );
+		$this->assertSame( ['a', 'aa', 'aaa'], $m->foo() );
 	}
 
 
@@ -1749,8 +1856,8 @@ Array
 
 	public function testMin()
 	{
-		$this->assertEquals( 1, Map::from( [2, 3, 1, 5, 4] )->min() );
-		$this->assertEquals( 'bar', Map::from( ['baz', 'foo', 'bar'] )->min() );
+		$this->assertSame( 1, Map::from( [2, 3, 1, 5, 4] )->min() );
+		$this->assertSame( 'bar', Map::from( ['baz', 'foo', 'bar'] )->min() );
 	}
 
 
@@ -1762,8 +1869,8 @@ Array
 
 	public function testMinPath()
 	{
-		$this->assertEquals( 10, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' ) );
-		$this->assertEquals( 30, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( 'i/p' ) );
+		$this->assertSame( 10, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' ) );
+		$this->assertSame( 30, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( 'i/p' ) );
 	}
 
 
@@ -1771,25 +1878,25 @@ Array
 	{
 		$m = Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] );
 
-		$this->assertEquals( [0 => 'a', 2 => 'c', 4 => 'e'], $m->nth( 2 )->toArray() );
-		$this->assertEquals( [1 => 'b', 3 => 'd', 5 => 'f'], $m->nth( 2, 1 )->toArray() );
+		$this->assertSame( [0 => 'a', 2 => 'c', 4 => 'e'], $m->nth( 2 )->toArray() );
+		$this->assertSame( [1 => 'b', 3 => 'd', 5 => 'f'], $m->nth( 2, 1 )->toArray() );
 	}
 
 
 	public function testOffsetAccess()
 	{
 		$m = new Map( ['name' => 'test'] );
-		$this->assertEquals( 'test', $m['name'] );
+		$this->assertSame( 'test', $m['name'] );
 
 		$m['name'] = 'foo';
-		$this->assertEquals( 'foo', $m['name'] );
+		$this->assertSame( 'foo', $m['name'] );
 		$this->assertTrue( isset( $m['name'] ) );
 
 		unset( $m['name'] );
 		$this->assertFalse( isset( $m['name'] ) );
 
 		$m[] = 'bar';
-		$this->assertEquals( 'bar', $m[0] );
+		$this->assertSame( 'bar', $m[0] );
 	}
 
 
@@ -1808,8 +1915,8 @@ Array
 	{
 		$m = new Map( ['foo', 'bar'] );
 
-		$this->assertEquals( 'foo', $m->offsetGet( 0 ) );
-		$this->assertEquals( 'bar', $m->offsetGet( 1 ) );
+		$this->assertSame( 'foo', $m->offsetGet( 0 ) );
+		$this->assertSame( 'bar', $m->offsetGet( 1 ) );
 	}
 
 
@@ -1818,7 +1925,7 @@ Array
 		$m = new Map( ['foo', 'foo'] );
 		$m->offsetSet( 1, 'bar' );
 
-		$this->assertEquals( 'bar', $m[1] );
+		$this->assertSame( 'bar', $m[1] );
 	}
 
 
@@ -1827,7 +1934,7 @@ Array
 		$m = new Map( ['foo', 'foo'] );
 		$m->offsetSet( null, 'qux' );
 
-		$this->assertEquals( 'qux', $m[2] );
+		$this->assertSame( 'qux', $m[2] );
 	}
 
 
@@ -1842,18 +1949,18 @@ Array
 
 	public function testOnly()
 	{
-		$this->assertEquals( ['a' => 1], Map::from( ['a' => 1, 0 => 'b'] )->only( 'a' )->toArray() );
-		$this->assertEquals( [0 => 'b', 1 => 'c'], Map::from( ['a' => 1, 0 => 'b', 1 => 'c'] )->only( [0, 1] )->toArray() );
+		$this->assertSame( ['a' => 1], Map::from( ['a' => 1, 0 => 'b'] )->only( 'a' )->toArray() );
+		$this->assertSame( [0 => 'b', 1 => 'c'], Map::from( ['a' => 1, 0 => 'b', 1 => 'c'] )->only( [0, 1] )->toArray() );
 	}
 
 
 	public function testPad()
 	{
-		$this->assertEquals( [1, 2, 3, null, null], Map::from( [1, 2, 3] )->pad( 5 )->toArray() );
-		$this->assertEquals( [null, null, 1, 2, 3], Map::from( [1, 2, 3] )->pad( -5 )->toArray() );
+		$this->assertSame( [1, 2, 3, null, null], Map::from( [1, 2, 3] )->pad( 5 )->toArray() );
+		$this->assertSame( [null, null, 1, 2, 3], Map::from( [1, 2, 3] )->pad( -5 )->toArray() );
 
-		$this->assertEquals( [1, 2, 3, '0', '0'], Map::from( [1, 2, 3] )->pad( 5, '0' )->toArray() );
-		$this->assertEquals( [1, 2, 3], Map::from( [1, 2, 3] )->pad( 2 )->toArray() );
+		$this->assertSame( [1, 2, 3, '0', '0'], Map::from( [1, 2, 3] )->pad( 5, '0' )->toArray() );
+		$this->assertSame( [1, 2, 3], Map::from( [1, 2, 3] )->pad( 2 )->toArray() );
 	}
 
 
@@ -1861,7 +1968,7 @@ Array
 	{
 		$expected = [[0 => 1, 1 => 2], [2 => 3, 3 => 4], [4 => 5]];
 
-		$this->assertEquals( $expected, Map::from( [1, 2, 3, 4, 5] )->partition( 3 )->toArray() );
+		$this->assertSame( $expected, Map::from( [1, 2, 3, 4, 5] )->partition( 3 )->toArray() );
 	}
 
 
@@ -1869,7 +1976,7 @@ Array
 	{
 		$expected = [[0 => 1, 3 => 4], [1 => 2, 4 => 5], [2 => 3]];
 
-		$this->assertEquals( $expected, Map::from( [1, 2, 3, 4, 5] )->partition( function( $val, $idx ) {
+		$this->assertSame( $expected, Map::from( [1, 2, 3, 4, 5] )->partition( function( $val, $idx ) {
 			return $idx % 3;
 		} )->toArray() );
 	}
@@ -1877,7 +1984,7 @@ Array
 
 	public function testPartitionEmpty()
 	{
-		$this->assertEquals( [], Map::from( [] )->partition( 2 )->toArray() );
+		$this->assertSame( [], Map::from( [] )->partition( 2 )->toArray() );
 	}
 
 
@@ -1892,7 +1999,7 @@ Array
 	{
 		$map = new Map( [1, 2, 3] );
 
-		$this->assertEquals( 3, $map->pipe( function( $map ) {
+		$this->assertSame( 3, $map->pipe( function( $map ) {
 			return $map->last();
 		} ) );
 	}
@@ -1904,7 +2011,7 @@ Array
 		$r = $map->pluck( 'bar' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( [0 => 'two'], $r->toArray() );
+		$this->assertSame( [0 => 'two'], $r->toArray() );
 	}
 
 
@@ -1912,8 +2019,8 @@ Array
 	{
 		$m = new Map( ['foo', 'bar'] );
 
-		$this->assertEquals( 'bar', $m->pop() );
-		$this->assertEquals( ['foo'], $m->toArray() );
+		$this->assertSame( 'bar', $m->pop() );
+		$this->assertSame( ['foo'], $m->toArray() );
 	}
 
 
@@ -1921,7 +2028,7 @@ Array
 	{
 		$m = new Map( [4 => 'a', 8 => 'b'] );
 
-		$this->assertEquals( 1, $m->pos( 'b' ) );
+		$this->assertSame( 1, $m->pos( 'b' ) );
 	}
 
 
@@ -1929,7 +2036,7 @@ Array
 	{
 		$m = new Map( [4 => 'a', 8 => 'b'] );
 
-		$this->assertEquals( 1, $m->pos( function( $item, $key ) {
+		$this->assertSame( 1, $m->pos( function( $item, $key ) {
 			return $item === 'b';
 		} ) );
 	}
@@ -1949,10 +2056,10 @@ Array
 			return ( ord( $item ) + ord( $key ) ) . '-';
 		};
 
-		$this->assertEquals( ['1-a', '1-b'], Map::from( ['a', 'b'] )->prefix( '1-' )->toArray() );
-		$this->assertEquals( ['1-a', ['1-b']], Map::from( ['a', ['b']] )->prefix( '1-' )->toArray() );
-		$this->assertEquals( ['1-a', ['b']], Map::from( ['a', ['b']] )->prefix( '1-', 1 )->toArray() );
-		$this->assertEquals( ['145-a', '147-b'], Map::from( ['a', 'b'] )->prefix( $fcn )->toArray() );
+		$this->assertSame( ['1-a', '1-b'], Map::from( ['a', 'b'] )->prefix( '1-' )->toArray() );
+		$this->assertSame( ['1-a', ['1-b']], Map::from( ['a', ['b']] )->prefix( '1-' )->toArray() );
+		$this->assertSame( ['1-a', ['b']], Map::from( ['a', ['b']] )->prefix( '1-', 1 )->toArray() );
+		$this->assertSame( ['145-a', '147-b'], Map::from( ['a', 'b'] )->prefix( $fcn )->toArray() );
 	}
 
 
@@ -1960,7 +2067,7 @@ Array
 	{
 		$m = ( new Map( ['one', 'two', 'three', 'four'] ) )->prepend( 'zero' );
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( ['zero', 'one', 'two', 'three', 'four'], $m->toArray() );
+		$this->assertSame( ['zero', 'one', 'two', 'three', 'four'], $m->toArray() );
 	}
 
 
@@ -1968,8 +2075,8 @@ Array
 	{
 		$m = new Map( ['foo', 'bar'] );
 
-		$this->assertEquals( 'foo', $m->pull( 0 ) );
-		$this->assertEquals( [1 => 'bar'], $m->toArray() );
+		$this->assertSame( 'foo', $m->pull( 0 ) );
+		$this->assertSame( [1 => 'bar'], $m->toArray() );
 	}
 
 
@@ -1977,7 +2084,7 @@ Array
 	{
 		$m = new Map( [] );
 		$value = $m->pull( 0, 'foo' );
-		$this->assertEquals( 'foo', $value );
+		$this->assertSame( 'foo', $value );
 	}
 
 
@@ -2004,7 +2111,7 @@ Array
 		$m = ( new Map( [] ) )->push( 'foo' );
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( ['foo'], $m->toArray() );
+		$this->assertSame( ['foo'], $m->toArray() );
 	}
 
 
@@ -2058,7 +2165,7 @@ Array
 	public function testReduce()
 	{
 		$m = new Map( [1, 2, 3] );
-		$this->assertEquals( 6, $m->reduce( function( $carry, $element ) {
+		$this->assertSame( 6, $m->reduce( function( $carry, $element ) {
 			return $carry += $element;
 		} ) );
 	}
@@ -2068,7 +2175,7 @@ Array
 	{
 		$m = new Map( [2 => 'a', 6 => null, 13 => 'm'] );
 
-		$this->assertEquals( [6 => null], $m->reject()->toArray() );
+		$this->assertSame( [6 => null], $m->reject()->toArray() );
 	}
 
 
@@ -2076,7 +2183,7 @@ Array
 	{
 		$m = new Map( [2 => 'a', 6 => 'b', 13 => 'm', 30 => 'z'] );
 
-		$this->assertEquals( [13 => 'm', 30 => 'z'], $m->reject( function( $value ) {
+		$this->assertSame( [13 => 'm', 30 => 'z'], $m->reject( function( $value ) {
 			return $value < 'm';
 		} )->toArray() );
 	}
@@ -2088,7 +2195,7 @@ Array
 		$r = $m->reject( 'm' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( [2 => 'a', 30 => 'z'], $r->toArray() );
+		$this->assertSame( [2 => 'a', 30 => 'z'], $r->toArray() );
 	}
 
 
@@ -2100,7 +2207,7 @@ Array
 		} );
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( ['key-a' => 2, 'key-b' => 4], $m->toArray() );
+		$this->assertSame( ['key-a' => 2, 'key-b' => 4], $m->toArray() );
 	}
 
 
@@ -2154,7 +2261,7 @@ Array
 		$r = $m->replace( [1 => 'd', 2 => 'e'] );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['a', 'd', 'e'], $r->toArray() );
+		$this->assertSame( ['a', 'd', 'e'], $r->toArray() );
 	}
 
 
@@ -2164,7 +2271,7 @@ Array
 		$r = $m->replace( new Map( [1 => 'd', 2 => 'e'] ) );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['a', 'd', 'e'], $r->toArray() );
+		$this->assertSame( ['a', 'd', 'e'], $r->toArray() );
 	}
 
 
@@ -2174,7 +2281,7 @@ Array
 		$r = $m->replace( [1 => 'd', 2 => [1 => 'f']], false );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['a', 'd', [1 => 'f']], $r->toArray() );
+		$this->assertSame( ['a', 'd', [1 => 'f']], $r->toArray() );
 	}
 
 
@@ -2184,7 +2291,7 @@ Array
 		$r = $m->replace( ['z', 2 => [1 => 'e']] );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['z', 'b', ['c', 'e']], $r->toArray() );
+		$this->assertSame( ['z', 'b', ['c', 'e']], $r->toArray() );
 	}
 
 
@@ -2194,7 +2301,7 @@ Array
 		$r = $m->replace( new Map( ['z', 2 => [1 => 'e']] ) );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['z', 'b', ['c', 'e']], $r->toArray() );
+		$this->assertSame( ['z', 'b', ['c', 'e']], $r->toArray() );
 	}
 
 
@@ -2223,7 +2330,7 @@ Array
 		$m = ( new Map( [-1, -3, -2, -4, -5, 0, 5, 3, 1, 2, 4] ) )->rsort();
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( [5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5], $m->toArray() );
+		$this->assertSame( [5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5], $m->toArray() );
 	}
 
 
@@ -2232,7 +2339,7 @@ Array
 		$m = ( new Map( ['bar-10', 'foo', 'bar-1'] ) )->rsort();
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( ['foo', 'bar-10', 'bar-1'], $m->toArray() );
+		$this->assertSame( ['foo', 'bar-10', 'bar-1'], $m->toArray() );
 	}
 
 
@@ -2242,17 +2349,17 @@ Array
 
 		$this->assertNull( $m->search( 'false' ) );
 		$this->assertNull( $m->search( '1' ) );
-		$this->assertEquals( 0, $m->search( false ) );
-		$this->assertEquals( 1, $m->search( 0 ) );
-		$this->assertEquals( 2, $m->search( 1 ) );
-		$this->assertEquals( 3, $m->search( [] ) );
-		$this->assertEquals( 4, $m->search( '' ) );
+		$this->assertSame( 0, $m->search( false ) );
+		$this->assertSame( 1, $m->search( 0 ) );
+		$this->assertSame( 2, $m->search( 1 ) );
+		$this->assertSame( 3, $m->search( [] ) );
+		$this->assertSame( 4, $m->search( '' ) );
 	}
 
 
 	public function testSep()
 	{
-		$this->assertEquals( 'baz', Map::from( ['foo' => ['bar' => 'baz']] )->sep( '/' )->get( 'foo/bar' ) );
+		$this->assertSame( 'baz', Map::from( ['foo' => ['bar' => 'baz']] )->sep( '/' )->get( 'foo/bar' ) );
 	}
 
 
@@ -2290,9 +2397,9 @@ Array
 	{
 		$m = new Map( ['foo', 'bar'] );
 
-		$this->assertEquals( 'foo', $m->shift() );
-		$this->assertEquals( 'bar', $m->first() );
-		$this->assertEquals( 1, $m->count() );
+		$this->assertSame( 'foo', $m->shift() );
+		$this->assertSame( 'bar', $m->first() );
+		$this->assertSame( 1, $m->count() );
 	}
 
 
@@ -2319,14 +2426,14 @@ Array
 		$this->assertFalse( $map->is( $result, true ) );
 
 		foreach( $map as $key => $value ) {
-			$this->assertEquals( $value, $result[$key] );
+			$this->assertSame( $value, $result[$key] );
 		}
 	}
 
 
 	public function testSkip()
 	{
-		$this->assertEquals( [2 => 3, 3 => 4], Map::from( [1, 2, 3, 4] )->skip( 2 )->toArray() );
+		$this->assertSame( [2 => 3, 3 => 4], Map::from( [1, 2, 3, 4] )->skip( 2 )->toArray() );
 	}
 
 
@@ -2336,7 +2443,7 @@ Array
 			return $item < 4;
 		};
 
-		$this->assertEquals( [3 => 4], Map::from( [1, 2, 3, 4] )->skip( $fcn )->toArray() );
+		$this->assertSame( [3 => 4], Map::from( [1, 2, 3, 4] )->skip( $fcn )->toArray() );
 	}
 
 
@@ -2352,7 +2459,7 @@ Array
 		$map = ( new Map( [1, 2, 3, 4, 5, 6, 7, 8] ) )->slice( 3 );
 
 		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( [4, 5, 6, 7, 8], $map->values()->toArray() );
+		$this->assertSame( [4, 5, 6, 7, 8], $map->values()->toArray() );
 	}
 
 
@@ -2361,7 +2468,7 @@ Array
 		$map = ( new Map( [1, 2, 3, 4, 5, 6, 7, 8] ) )->slice( -3 );
 
 		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( [6, 7, 8], $map->values()->toArray() );
+		$this->assertSame( [6, 7, 8], $map->values()->toArray() );
 	}
 
 
@@ -2370,7 +2477,7 @@ Array
 		$map = ( new Map( [1, 2, 3, 4, 5, 6, 7, 8] ) )->slice( 3, 3 );
 
 		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( [4, 5, 6], $map->values()->toArray() );
+		$this->assertSame( [4, 5, 6], $map->values()->toArray() );
 	}
 
 
@@ -2379,7 +2486,7 @@ Array
 		$map = ( new Map( [1, 2, 3, 4, 5, 6, 7, 8] ) )->slice( 3, -1 );
 
 		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( [4, 5, 6, 7], $map->values()->toArray() );
+		$this->assertSame( [4, 5, 6, 7], $map->values()->toArray() );
 	}
 
 
@@ -2388,7 +2495,7 @@ Array
 		$map = ( new Map( [1, 2, 3, 4, 5, 6, 7, 8] ) )->slice( -5, 3 );
 
 		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( [4, 5, 6], $map->values()->toArray() );
+		$this->assertSame( [4, 5, 6], $map->values()->toArray() );
 	}
 
 
@@ -2397,7 +2504,7 @@ Array
 		$map = ( new Map( [1, 2, 3, 4, 5, 6, 7, 8] ) )->slice( -6, -2 );
 
 		$this->assertInstanceOf( Map::class, $map );
-		$this->assertEquals( [3, 4, 5, 6], $map->values()->toArray() );
+		$this->assertSame( [3, 4, 5, 6], $map->values()->toArray() );
 	}
 
 
@@ -2445,7 +2552,7 @@ Array
 		$m = ( new Map( [-1, -3, -2, -4, -5, 0, 5, 3, 1, 2, 4] ) )->sort();
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5], $m->toArray() );
+		$this->assertSame( [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5], $m->toArray() );
 	}
 
 
@@ -2454,7 +2561,7 @@ Array
 		$m = ( new Map( ['foo', 'bar-10', 'bar-1'] ) )->sort();
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( ['bar-1', 'bar-10', 'foo'], $m->toArray() );
+		$this->assertSame( ['bar-1', 'bar-10', 'foo'], $m->toArray() );
 	}
 
 
@@ -2464,7 +2571,7 @@ Array
 		$r = $m->splice( 1 );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['foo'], $m->toArray() );
+		$this->assertSame( ['foo'], $m->toArray() );
 	}
 
 
@@ -2474,7 +2581,7 @@ Array
 		$r = $m->splice( 1, 0, 'bar' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['foo', 'bar', 'baz'], $m->toArray() );
+		$this->assertSame( ['foo', 'bar', 'baz'], $m->toArray() );
 	}
 
 
@@ -2484,7 +2591,7 @@ Array
 		$r = $m->splice( 1, 1 );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['foo'], $m->toArray() );
+		$this->assertSame( ['foo'], $m->toArray() );
 	}
 
 
@@ -2494,8 +2601,8 @@ Array
 		$r = $m->splice( 1, 1, 'bar' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['foo', 'bar'], $m->toArray() );
-		$this->assertEquals( ['baz'], $r->toArray() );
+		$this->assertSame( ['foo', 'bar'], $m->toArray() );
+		$this->assertSame( ['baz'], $r->toArray() );
 	}
 
 
@@ -2505,7 +2612,7 @@ Array
 		$r = $m->splice( 1, null, ['bar'] );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['foo', 'bar'], $m->toArray() );
+		$this->assertSame( ['foo', 'bar'], $m->toArray() );
 	}
 
 
@@ -2515,42 +2622,42 @@ Array
 			return '-' . ( ord( $item ) + ord( $key ) );
 		};
 
-		$this->assertEquals( ['a-1', 'b-1'], Map::from( ['a', 'b'] )->suffix( '-1' )->toArray() );
-		$this->assertEquals( ['a-1', ['b-1']], Map::from( ['a', ['b']] )->suffix( '-1' )->toArray() );
-		$this->assertEquals( ['a-1', ['b']], Map::from( ['a', ['b']] )->suffix( '-1', 1 )->toArray() );
-		$this->assertEquals( ['a-145', 'b-147'], Map::from( ['a', 'b'] )->suffix( $fcn )->toArray() );
+		$this->assertSame( ['a-1', 'b-1'], Map::from( ['a', 'b'] )->suffix( '-1' )->toArray() );
+		$this->assertSame( ['a-1', ['b-1']], Map::from( ['a', ['b']] )->suffix( '-1' )->toArray() );
+		$this->assertSame( ['a-1', ['b']], Map::from( ['a', ['b']] )->suffix( '-1', 1 )->toArray() );
+		$this->assertSame( ['a-145', 'b-147'], Map::from( ['a', 'b'] )->suffix( $fcn )->toArray() );
 	}
 
 
 	public function testSum()
 	{
-		$this->assertEquals( 9, Map::from( [1, 3, 5] )->sum() );
-		$this->assertEquals( 6, Map::from( [1, 'sum', 5] )->sum() );
+		$this->assertSame( 9.0, Map::from( [1, 3, 5] )->sum() );
+		$this->assertSame( 6.0, Map::from( [1, 'sum', 5] )->sum() );
 	}
 
 
 	public function testSumPath()
 	{
-		$this->assertEquals( 90, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' ) );
-		$this->assertEquals( 80, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( 'i/p' ) );
+		$this->assertSame( 90.0, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' ) );
+		$this->assertSame( 80.0, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( 'i/p' ) );
 	}
 
 
 	public function testTake()
 	{
-		$this->assertEquals( [1, 2], Map::from( [1, 2, 3, 4] )->take( 2 )->toArray() );
+		$this->assertSame( [1, 2], Map::from( [1, 2, 3, 4] )->take( 2 )->toArray() );
 	}
 
 
 	public function testTakeOffset()
 	{
-		$this->assertEquals( [1 => 2, 2 => 3], Map::from( [1, 2, 3, 4] )->take( 2, 1 )->toArray() );
+		$this->assertSame( [1 => 2, 2 => 3], Map::from( [1, 2, 3, 4] )->take( 2, 1 )->toArray() );
 	}
 
 
 	public function testTakeNegativeOffset()
 	{
-		$this->assertEquals( [2 => 3, 3 => 4], Map::from( [1, 2, 3, 4] )->take( 2, -2 )->toArray() );
+		$this->assertSame( [2 => 3, 3 => 4], Map::from( [1, 2, 3, 4] )->take( 2, -2 )->toArray() );
 	}
 
 
@@ -2560,7 +2667,7 @@ Array
 			return $item < 2;
 		};
 
-		$this->assertEquals( [1 => 2, 2 => 3], Map::from( [1, 2, 3, 4] )->take( 2, $fcn )->toArray() );
+		$this->assertSame( [1 => 2, 2 => 3], Map::from( [1, 2, 3, 4] )->take( 2, $fcn )->toArray() );
 	}
 
 
@@ -2575,7 +2682,7 @@ Array
 	{
 		$map = new Map( [1, 2, 3] );
 
-		$this->assertEquals( 3, $map->tap( function( $map ) {
+		$this->assertSame( 3, $map->tap( function( $map ) {
 			return $map->clear();
 		} )->count() );
 	}
@@ -2583,7 +2690,7 @@ Array
 
 	public function testTimes()
 	{
-		$this->assertEquals( [0 => 0, 1 => 10, 2 => 20], Map::times( 3, function( $num ) {
+		$this->assertSame( [0 => 0, 1 => 10, 2 => 20], Map::times( 3, function( $num ) {
 			return $num * 10;
 		} )->toArray() );
 	}
@@ -2591,7 +2698,7 @@ Array
 
 	public function testTimesKeys()
 	{
-		$this->assertEquals( [0 => 0, 2 => 5, 4 => 10], Map::times( 3, function( $num, &$key ) {
+		$this->assertSame( [0 => 0, 2 => 5, 4 => 10], Map::times( 3, function( $num, &$key ) {
 			$key = $num * 2;
 			return $num * 5;
 	   } )->toArray() );
@@ -2624,7 +2731,7 @@ Array
 			]
 		]] )->traverse();
 
-		$this->assertEquals( $expected, $r->toArray() );
+		$this->assertSame( $expected, $r->toArray() );
 	}
 
 
@@ -2639,7 +2746,7 @@ Array
 			return str_repeat( '-', $level ) . '- ' . $entry['name'];
 		} );
 
-		$this->assertEquals( ['- n1', '-- n2', '-- n3'], $r->toArray() );
+		$this->assertSame( ['- n1', '-- n2', '-- n3'], $r->toArray() );
 	}
 
 
@@ -2654,7 +2761,7 @@ Array
 			return str_repeat( '-', $level ) . '- ' . $entry->name;
 		} );
 
-		$this->assertEquals( ['- n1', '-- n2', '-- n3'], $r->toArray() );
+		$this->assertSame( ['- n1', '-- n2', '-- n3'], $r->toArray() );
 	}
 
 
@@ -2673,7 +2780,7 @@ Array
 			]
 		]] )->traverse( null, 'nodes' );
 
-		$this->assertEquals( $expected, $r->toArray() );
+		$this->assertSame( $expected, $r->toArray() );
 	}
 
 
@@ -2705,41 +2812,41 @@ Array
 		];
 
 		$m = new Map( $data );
-		$this->assertEquals( $expected, $m->tree( 'id', 'pid' )->toArray() );
+		$this->assertSame( $expected, $m->tree( 'id', 'pid' )->toArray() );
 	}
 
 
 	public function testToArray()
 	{
 		$m = new Map( ['name' => 'Hello'] );
-		$this->assertEquals( ['name' => 'Hello'], $m->toArray() );
+		$this->assertSame( ['name' => 'Hello'], $m->toArray() );
 	}
 
 
 	public function testToJson()
 	{
 		$m = new Map( ['name' => 'Hello'] );
-		$this->assertEquals( '{"name":"Hello"}', $m->toJson() );
+		$this->assertSame( '{"name":"Hello"}', $m->toJson() );
 	}
 
 
 	public function testToJsonOptions()
 	{
 		$m = new Map( ['name', 'Hello'] );
-		$this->assertEquals( '{"0":"name","1":"Hello"}', $m->toJson( JSON_FORCE_OBJECT ) );
+		$this->assertSame( '{"0":"name","1":"Hello"}', $m->toJson( JSON_FORCE_OBJECT ) );
 	}
 
 
 	public function testToUrl()
 	{
-		$this->assertEquals( 'a=1&b=2', Map::from( ['a' => 1, 'b' => 2] )->toUrl() );
+		$this->assertSame( 'a=1&b=2', Map::from( ['a' => 1, 'b' => 2] )->toUrl() );
 	}
 
 
 	public function testToUrlNested()
 	{
 		$url = Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
-		$this->assertEquals( 'a%5Bb%5D=abc&a%5Bc%5D=def&d=123', $url );
+		$this->assertSame( 'a%5Bb%5D=abc&a%5Bc%5D=def&d=123', $url );
 	}
 
 
@@ -2758,7 +2865,7 @@ Array
 			2022 => [50, 100, 200]
 		];
 
-		$this->assertEquals( $expected, $m->transpose()->toArray() );
+		$this->assertSame( $expected, $m->transpose()->toArray() );
 	}
 
 
@@ -2777,7 +2884,7 @@ Array
 			2022 => [50]
 		];
 
-		$this->assertEquals( $expected, $m->transpose()->toArray() );
+		$this->assertSame( $expected, $m->transpose()->toArray() );
 	}
 
 
@@ -2788,7 +2895,7 @@ Array
 		} );
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( ['c' => 'bar-10', 1 => 'bar-1', 'a' => 'foo'], $m->toArray() );
+		$this->assertSame( ['c' => 'bar-10', 1 => 'bar-1', 'a' => 'foo'], $m->toArray() );
 	}
 
 
@@ -2799,7 +2906,7 @@ Array
 		} );
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( [1 => 'bar-1', 'a' => 'foo', 'c' => 'bar-10'], $m->toArray() );
+		$this->assertSame( [1 => 'bar-1', 'a' => 'foo', 'c' => 'bar-10'], $m->toArray() );
 	}
 
 
@@ -2810,7 +2917,7 @@ Array
 		} );
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( ['bar-10', 'bar-1', 'foo'], $m->toArray() );
+		$this->assertSame( ['bar-10', 'bar-1', 'foo'], $m->toArray() );
 	}
 
 
@@ -2820,7 +2927,7 @@ Array
 		$r = $m->union( ['id' => 1] );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['name' => 'Hello', 'id' => 1], $r->toArray() );
+		$this->assertSame( ['name' => 'Hello', 'id' => 1], $r->toArray() );
 	}
 
 
@@ -2830,7 +2937,7 @@ Array
 		$r = $m->union( new Map( ['name' => 'World', 'id' => 1] ) );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['name' => 'Hello', 'id' => 1], $r->toArray() );
+		$this->assertSame( ['name' => 'Hello', 'id' => 1], $r->toArray() );
 	}
 
 
@@ -2840,7 +2947,7 @@ Array
 		$r = $m->unique();
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['Hello', 'World'], $r->toArray() );
+		$this->assertSame( ['Hello', 'World'], $r->toArray() );
 	}
 
 
@@ -2850,7 +2957,7 @@ Array
 		$r = $m->unique( 'p' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( [['p' => 1], ['p' => 2]], $r->toArray() );
+		$this->assertSame( [['p' => 1], ['p' => 2]], $r->toArray() );
 	}
 
 
@@ -2860,7 +2967,7 @@ Array
 		$r = $m->unique( 'i/p' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( [['i' => ['p' => '1']]], $r->toArray() );
+		$this->assertSame( [['i' => ['p' => 1]]], $r->toArray() );
 	}
 
 
@@ -2868,7 +2975,7 @@ Array
 	{
 		$m = ( new Map( ['one', 'two', 'three', 'four'] ) )->unshift( 'zero' );
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( ['zero', 'one', 'two', 'three', 'four'], $m->toArray() );
+		$this->assertSame( ['zero', 'one', 'two', 'three', 'four'], $m->toArray() );
 	}
 
 
@@ -2876,7 +2983,7 @@ Array
 	{
 		$m = ( new Map( ['one' => 1, 'two' => 2] ) )->unshift( 0, 'zero' );
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertEquals( ['zero' => 0, 'one' => 1, 'two' => 2], $m->toArray() );
+		$this->assertSame( ['zero' => 0, 'one' => 1, 'two' => 2], $m->toArray() );
 	}
 
 
@@ -2886,7 +2993,7 @@ Array
 		$r = $m->values();
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( [1, 'Hello'], $r->toArray() );
+		$this->assertSame( [1, 'Hello'], $r->toArray() );
 	}
 
 
@@ -2898,7 +3005,7 @@ Array
 		} );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['A', 'B', ['C', 'D'], 'E'], $r->toArray() );
+		$this->assertSame( ['A', 'B', ['C', 'D'], 'E'], $r->toArray() );
 	}
 
 
@@ -2910,7 +3017,7 @@ Array
 		}, null, false );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['A', 'B', ['c', 'd'], 'E'], $r->toArray() );
+		$this->assertSame( ['A', 'B', ['c', 'd'], 'E'], $r->toArray() );
 	}
 
 
@@ -2922,7 +3029,7 @@ Array
 		}, [1 => 'one', 2 => 'two'] );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertEquals( ['one', 'two', 3], $r->toArray() );
+		$this->assertSame( ['one', 'two', 3], $r->toArray() );
 	}
 
 
@@ -2931,14 +3038,14 @@ Array
 		$m = Map::from( [['p' => 10], ['p' => 20], ['p' => 30]] );
 
 		$this->assertInstanceOf( Map::class, $m->where( 'p', '!=', null ) );
-		$this->assertEquals( [['p' => 10]], $m->where( 'p', '==', 10 )->toArray() );
-		$this->assertEquals( [], $m->where( 'p', '===', '10' )->toArray() );
-		$this->assertEquals( [1 => ['p' => 20], 2 => ['p' => 30]], $m->where( 'p', '!=', 10 )->toArray() );
-		$this->assertEquals( [['p' => 10], ['p' => 20], ['p' => 30]], $m->where( 'p', '!==', '10' )->toArray() );
-		$this->assertEquals( [1 => ['p' => 20], 2 => ['p' => 30]], $m->where( 'p', '>', 10 )->toArray() );
-		$this->assertEquals( [['p' => 10], ['p' => 20]], $m->where( 'p', '<', 30 )->toArray() );
-		$this->assertEquals( [['p' => 10], ['p' => 20]], $m->where( 'p', '<=', 20 )->toArray() );
-		$this->assertEquals( [1 => ['p' => 20], 2 => ['p' => 30]], $m->where( 'p', '>=', 20 )->toArray() );
+		$this->assertSame( [['p' => 10]], $m->where( 'p', '==', 10 )->toArray() );
+		$this->assertSame( [], $m->where( 'p', '===', '10' )->toArray() );
+		$this->assertSame( [1 => ['p' => 20], 2 => ['p' => 30]], $m->where( 'p', '!=', 10 )->toArray() );
+		$this->assertSame( [['p' => 10], ['p' => 20], ['p' => 30]], $m->where( 'p', '!==', '10' )->toArray() );
+		$this->assertSame( [1 => ['p' => 20], 2 => ['p' => 30]], $m->where( 'p', '>', 10 )->toArray() );
+		$this->assertSame( [['p' => 10], ['p' => 20]], $m->where( 'p', '<', 30 )->toArray() );
+		$this->assertSame( [['p' => 10], ['p' => 20]], $m->where( 'p', '<=', 20 )->toArray() );
+		$this->assertSame( [1 => ['p' => 20], 2 => ['p' => 30]], $m->where( 'p', '>=', 20 )->toArray() );
 	}
 
 
@@ -2946,9 +3053,9 @@ Array
 	{
 		$m = Map::from( [['p' => 10], ['p' => 20], ['p' => 30]] );
 
-		$this->assertEquals( [['p' => 10], ['p' => 20]], $m->where( 'p', '-', [10, 20] )->toArray() );
-		$this->assertEquals( [['p' => 10]], $m->where( 'p', '-', [10] )->toArray() );
-		$this->assertEquals( [['p' => 10]], $m->where( 'p', '-', 10 )->toArray() );
+		$this->assertSame( [['p' => 10], ['p' => 20]], $m->where( 'p', '-', [10, 20] )->toArray() );
+		$this->assertSame( [['p' => 10]], $m->where( 'p', '-', [10] )->toArray() );
+		$this->assertSame( [['p' => 10]], $m->where( 'p', '-', 10 )->toArray() );
 	}
 
 
@@ -2956,14 +3063,14 @@ Array
 	{
 		$m = Map::from( [['p' => 10], ['p' => 20], ['p' => 30]] );
 
-		$this->assertEquals( [['p' => 10], 2 => ['p' => 30]], $m->where( 'p', 'in', [10, 30] )->toArray() );
-		$this->assertEquals( [['p' => 10]], $m->where( 'p', 'in', 10 )->toArray() );
+		$this->assertSame( [['p' => 10], 2 => ['p' => 30]], $m->where( 'p', 'in', [10, 30] )->toArray() );
+		$this->assertSame( [['p' => 10]], $m->where( 'p', 'in', 10 )->toArray() );
 	}
 
 
 	public function testWhereNotFound()
 	{
-		$this->assertEquals( [], Map::from( [['p' => 10]] )->where( 'x', '==', [0] )->toArray() );
+		$this->assertSame( [], Map::from( [['p' => 10]] )->where( 'x', '==', [0] )->toArray() );
 	}
 
 
@@ -2971,7 +3078,7 @@ Array
 	{
 		$m = Map::from( [['item' => ['id' => 3, 'price' => 10]], ['item' => ['id' => 4, 'price' => 50]]] );
 
-		$this->assertEquals( [1 => ['item' => ['id' => 4, 'price' => 50]]], $m->where( 'item/price', '>', 30 )->toArray() );
+		$this->assertSame( [1 => ['item' => ['id' => 4, 'price' => 50]]], $m->where( 'item/price', '>', 30 )->toArray() );
 	}
 
 
@@ -2987,7 +3094,7 @@ Array
 			[3, 'three', 'tres'],
 		];
 
-		$this->assertEquals( $expected, $m->zip( $en, $es )->toArray() );
+		$this->assertSame( $expected, $m->zip( $en, $es )->toArray() );
 	}
 }
 

@@ -7,8 +7,8 @@
 
 # PHP arrays and collections made easy
 
-Easy and elegant handling of PHP arrays and collections by using an array-like
-map object as offered by jQuery and Laravel Collections.
+Easy and elegant handling of PHP arrays by using an array-like collection object
+as offered by jQuery and Laravel Collections.
 
 ```bash
 composer req aimeos/map
@@ -120,6 +120,8 @@ will return:
 <a href="#all">all</a>
 <a href="#arsort">arsort</a>
 <a href="#asort">asort</a>
+<a href="#at">at</a>
+<a href="#avg">avg</a>
 <a href="#before">before</a>
 <a href="#call">call</a>
 <a href="#chunk">chunk</a>
@@ -160,10 +162,12 @@ will return:
 <a href="#groupby">groupBy</a>
 <a href="#has">has</a>
 <a href="#if">if</a>
+<a href="#ifempty">ifEmpty</a>
 <a href="#in">in</a>
 <a href="#includes">includes</a>
 <a href="#index">index</a>
 <a href="#insertafter">insertAfter</a>
+<a href="#insertat">insertAt</a>
 <a href="#insertbefore">insertBefore</a>
 <a href="#intersect">intersect</a>
 <a href="#intersectassoc">intersectAssoc</a>
@@ -171,6 +175,7 @@ will return:
 <a href="#is">is</a>
 <a href="#isempty">isEmpty</a>
 <a href="#join">join</a>
+<a href="#jsonserialize">jsonSerialize</a>
 <a href="#keys">keys</a>
 <a href="#krsort">krsort</a>
 <a href="#ksort">ksort</a>
@@ -258,6 +263,7 @@ will return:
 * [__call()](#__call) : Calls a custom method
 * [__callStatic()](#__callstatic) : Calls a custom method statically
 * [all()](#all) : Returns the plain array
+* [at()](#at) : RetuReturns the value at the given position
 * [call()](#call) : Calls the given method on all items
 * [find()](#find) : Returns the first/last matching element
 * [first()](#first) : Returns the first element
@@ -276,12 +282,12 @@ will return:
 * [toArray()](#toarray) : Returns the plain array
 * [unique()](#unique) : Returns all unique elements preserving keys
 * [values()](#values) : Returns all elements with new keys
-* [where()](#where) : Filters the list of elements by a given condition
 
 ### Add
 
 * [concat()](#concat) : Adds all elements with new keys
 * [insertAfter()](#insertafter) : Inserts the value after the given element
+* [insertAt()](#insertat) : Inserts the element at the given position in the map
 * [insertBefore()](#insertbefore) : Inserts the value before the given element
 * [merge()](#merge) : Combines elements overwriting existing ones
 * [pad()](#pad) : Fill up to the specified length with the given value
@@ -294,6 +300,7 @@ will return:
 
 ### Aggregate
 
+* [avg()](#avg) : Returns the average of all values
 * [count()](#count) : Returns the total number of elements
 * [countBy()](#countby) : Counts how often the same values are in the map
 * [max()](#max) : Returns the maximum value of all elements
@@ -344,6 +351,7 @@ will return:
 * [skip()](#skip) : Skips the given number of items and return the rest
 * [slice()](#slice) : Returns a slice of the map
 * [take()](#take) : Returns a new map with the given number of items
+* [where()](#where) : Filters the list of elements by a given condition
 
 ### Test
 
@@ -355,6 +363,7 @@ will return:
 * [every()](#every) : Verifies that all elements pass the test of the given callback
 * [has()](#has) : Tests if a key exists
 * [if()](#if) : Executes callbacks depending on the condition
+* [ifEmpty()](#ifempty) : Executes callbacks if the map is empty
 * [in()](#in) : Tests if element is included
 * [includes()](#includes) : Tests if element is included
 * [is()](#is) : Tests if the map consists of the same keys and values
@@ -392,7 +401,7 @@ will return:
 
 * [delimiter()](#delimiter) : Sets or returns the seperator for paths to multi-dimensional arrays
 * [getIterator()](#getiterator) : Returns an iterator for the elements
-* [if()](#if) : Conditionally executes a callable
+* [jsonSerialize()](#jsonserialize) : Specifies the data which should be serialized to JSON
 * [method()](#method) : Registers a custom method
 * [offsetExists()](#offsetexists) : Checks if the key exists
 * [offsetGet()](#offsetget) : Returns an element by key
@@ -680,6 +689,74 @@ Map::from( [0 => 'C', 1 => 'b'] )->asort();
 
 Map::from( [0 => 'C', 1 => 'b'] )->arsort( SORT_STRING|SORT_FLAG_CASE );
 // [1 => 'b', 0 => 'C'] because 'C' -> 'c' and 'c' > 'b'
+```
+
+
+### at()
+
+Returns the value at the given position.
+
+```php
+public function at( int $pos )
+```
+
+* @param int `$pos` Position of the value in the map
+* @return mixed&#134;null Value at the given position or NULL if no value is available
+
+The position starts from zero and a position of "0" returns the first element
+of the map, "1" the second and so on. If the position is negative, the sequence
+will start from the end of the map.
+
+**Examples:**
+
+```php
+Map::from( [1, 3, 5] )->at( 0 );
+// 1
+
+Map::from( [1, 3, 5] )->at( 1 );
+// 3
+
+Map::from( [1, 3, 5] )->at( -1 );
+// 5
+
+Map::from( [1, 3, 5] )->at( 3 );
+// NULL
+```
+
+
+### avg()
+
+Returns the average of all integer and float values in the map.
+
+```php
+public function avg( string $key = null ) : float
+```
+
+* @param string&#124;null `$key` Key or path to the values in the nested array or object to compute the average for
+* @return float Average of all elements or 0 if there are no elements in the map
+
+This does also work for multi-dimensional arrays by passing the keys
+of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+to get "val" from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
+public properties of objects or objects implementing `__isset()` and `__get()` methods.
+
+**Examples:**
+
+```php
+Map::from( [1, 3, 5] )->avg();
+// 3
+
+Map::from( [1, null, 5] )->avg();
+// 2
+
+Map::from( [1, 'sum', 5] )->avg();
+// 2
+
+Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( 'p' );
+// 30
+
+Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( 'i/p' );
+// 40
 ```
 
 
@@ -1947,15 +2024,53 @@ Map::from( ['a' => 1, 'b' => 0] )->if(
 );
 // else
 
- Map::from( ['a', 'b'] )->if( true, function( $map ) {
+Map::from( ['a', 'b'] )->if( true, function( $map ) {
     return $map->push( 'c' );
- } );
+} );
 // ['a', 'b', 'c']
 
 Map::from( ['a', 'b'] )->if( false, null, function( $map ) {
   return $map->pop();
 } );
 // ['b']
+```
+
+Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
+(a short form for anonymous closures) as parameters. The automatically have access
+to previously defined variables but can not modify them. Also, they can not have
+a void return type and must/will always return something. Details about
+[PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
+
+
+### ifEmpty()
+
+* Executes callbacks depending if the map is empty or not.
+
+```php
+public function ifEmpty( \Closure $then = null, \Closure $else = null ) : self
+```
+
+* @param \Closure|null $then Function with (map, condition) parameter (optional)
+* @param \Closure|null $else Function with (map, condition) parameter (optional)
+* @return self<int|string,mixed> Same map for fluid interface
+
+If callbacks for "then" and/or "else" are passed, these callbacks will be
+executed and their returned value is passed back within a Map object. In
+case no "then" or "else" closure is given, the method will return the same
+map object.
+
+**Examples:**
+
+```php
+Map::from( [] )->ifEmpty( function( $map ) {
+    $map->push( 'a' );
+} );
+// ['a']
+
+Map::from( ['a'] )->ifEmpty( null, function( $map ) {
+    return $map->push( 'b' );
+} );
+// ['a', 'b']
 ```
 
 Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
@@ -2084,6 +2199,36 @@ Map::from( ['foo', 'bar'] )->insertAfter( 'foo', ['baz', 'boo'] );
 
 Map::from( ['foo', 'bar'] )->insertAfter( null, 'baz' );
 // ['foo', 'bar', 'baz']
+```
+
+
+### insertAt()
+
+Inserts the item at the given position in the map.
+
+```php
+public function insertAt( int $pos, $element, $key = null ) : self
+```
+
+* @param int `$pos` Position the element it should be inserted at
+* @param mixed `$element` Element to be inserted
+* @param mixed&#124;null `$key` Element key or NULL to assign an integer key automatically
+* @param self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 0, 'baz' );
+// [0 => 'baz', 'a' => 'foo', 'b' => 'bar']
+
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 1, 'baz', 'c' );
+// ['a' => 'foo', 'c' => 'baz', 'b' => 'bar']
+
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 5, 'baz' );
+// ['a' => 'foo', 'b' => 'bar', 'c' => 'baz']
+
+Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( -1, 'baz', 'c' );
+// ['a' => 'foo', 'c' => 'baz', 'b' => 'bar']
 ```
 
 
@@ -2302,6 +2447,27 @@ Map::from( ['a', 'b', false] )->join();
 
 Map::from( ['a', 'b', null, false] )->join( '-' );
 // 'a-b--'
+```
+
+
+### jsonSerialize()
+
+Specifies the data which should be serialized to JSON by json_encode().
+
+```php
+public function jsonSerialize()
+```
+
+* @return array&#60;int&#124;string,mixed&#62; Data to serialize to JSON
+
+**Examples:**
+
+```php
+json_encode( Map::from( ['a', 'b'] ) );
+// ["a", "b"]
+
+json_encode( Map::from( ['a' => 0, 'b' => 1] ) );
+// {"a":0,"b":1}
 ```
 
 

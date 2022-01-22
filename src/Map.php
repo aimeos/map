@@ -16,7 +16,7 @@ namespace Aimeos;
  * @template-implements \ArrayAccess<int|string,mixed>
  * @template-implements \IteratorAggregate<int|string,mixed>
  */
-class Map implements \ArrayAccess, \Countable, \IteratorAggregate
+class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializable
 {
 	/**
 	 * @var array<string,\Closure>
@@ -455,6 +455,62 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	{
 		asort( $this->list, $options );
 		return $this;
+	}
+
+
+	/**
+	 * Returns the value at the given position.
+	 *
+	 * Examples:
+	 *  Map::from( [1, 3, 5] )->at( 0 );
+	 *  Map::from( [1, 3, 5] )->at( 1 );
+	 *  Map::from( [1, 3, 5] )->at( -1 );
+	 *  Map::from( [1, 3, 5] )->at( 3 );
+	 *
+	 * Results:
+	 * The first line will return "1", the second one "3", the third one "5" and
+	 * the last one NULL.
+	 *
+	 * The position starts from zero and a position of "0" returns the first element
+	 * of the map, "1" the second and so on. If the position is negative, the
+	 * sequence will start from the end of the map.
+	 *
+	 * @param int $pos Position of the value in the map
+	 * @return mixed|null Value at the given position or NULL if no value is available
+	 */
+	public function at( int $pos )
+	{
+		$pair = array_slice( $this->list, $pos, 1 );
+		return !empty( $pair ) ? current( $pair ) : null;
+	}
+
+
+	/**
+	 * Returns the average of all integer and float values in the map.
+	 *
+	 * Examples:
+	 *  Map::from( [1, 3, 5] )->avg();
+	 *  Map::from( [1, null, 5] )->avg();
+	 *  Map::from( [1, 'sum', 5] )->avg();
+	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( 'p' );
+	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( 'i/p' );
+	 *
+	 * Results:
+	 * The first line will return "3", the second and third one "2", the forth
+	 * one "30" and the last one "40".
+	 *
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
+	 *
+	 * @param string|null $key Key or path to the values in the nested array or object to compute the average for
+	 * @return float Average of all elements or 0 if there are no elements in the map
+	 */
+	public function avg( string $key = null ) : float
+	{
+		$cnt = count( $this->list );
+		return $cnt > 0 ? $this->sum( $key ) / $cnt : 0;
 	}
 
 
@@ -1601,12 +1657,50 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 		}
 
 		if( $condition ) {
-			return $then ? new static( $then( $this, $condition ) ) : $this;
+			return $then ? static::from( $then( $this, $condition ) ) : $this;
 		} elseif( $else ) {
-			return new static( $else( $this, $condition ) );
+			return static::from( $else( $this, $condition ) );
 		}
 
 		return $this;
+	}
+
+
+	/**
+	 * Executes callbacks depending if the map is empty or not.
+	 *
+	 * If callbacks for "then" and/or "else" are passed, these callbacks will be
+	 * executed and their returned value is passed back within a Map object. In
+	 * case no "then" or "else" closure is given, the method will return the same
+	 * map object.
+	 *
+	 * Examples:
+	 *  Map::from( [] )->ifEmpty( function( $map ) {
+	 *    $map->push( 'a' );
+	 *  } );
+	 *
+	 *  Map::from( ['a'] )->ifEmpty( null, function( $map ) {
+	 *    return $map->push( 'b' );
+	 *  } );
+	 *
+	 * Results:
+	 * The first example returns a Map containing ['a'] because the the initial Map
+	 * is empty. The second one returns  a Map with ['a', 'b'] because the initial
+	 * Map is not empty and the "else" closure is used.
+	 *
+	 * Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
+	 * (a short form for anonymous closures) as parameters. The automatically have access
+	 * to previously defined variables but can not modify them. Also, they can not have
+	 * a void return type and must/will always return something. Details about
+	 * [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
+	 *
+	 * @param \Closure|null $then Function with (map, condition) parameter (optional)
+	 * @param \Closure|null $else Function with (map, condition) parameter (optional)
+	 * @return self<int|string,mixed> Same map for fluid interface
+	 */
+	public function ifEmpty( \Closure $then = null, \Closure $else = null ) : self
+	{
+		return $this->if( empty( $this->list ), $then, $else );
 	}
 
 
@@ -1732,6 +1826,45 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	{
 		$position = ( $element !== null && ( $pos = $this->pos( $element ) ) !== null ? $pos : count( $this->list ) );
 		array_splice( $this->list, $position + 1, 0, $this->getArray( $value ) );
+
+		return $this;
+	}
+
+
+	/**
+	 * Inserts the item at the given position in the map.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 0, 'baz' );
+	 *  Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 1, 'baz', 'c' );
+	 *  Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 4, 'baz' );
+	 *  Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( -1, 'baz', 'c' );
+	 *
+	 * Results:
+	 *  [0 => 'baz', 'a' => 'foo', 'b' => 'bar']
+	 *  ['a' => 'foo', 'c' => 'baz', 'b' => 'bar']
+	 *  ['a' => 'foo', 'b' => 'bar', 'c' => 'baz']
+	 *  ['a' => 'foo', 'c' => 'baz', 'b' => 'bar']
+	 *
+	 * @param int $pos Position the element it should be inserted at
+	 * @param mixed $element Element to be inserted
+	 * @param mixed|null $key Element key or NULL to assign an integer key automatically
+	 * @return self<int|string,mixed> Updated map for fluid interface
+	 */
+	public function insertAt( int $pos, $element, $key = null ) : self
+	{
+		if( $key !== null )
+		{
+			$this->list = array_merge(
+				array_slice( $this->list, 0, $pos, true ),
+				[$key => $element],
+				array_slice( $this->list, $pos, null, true )
+			);
+		}
+		else
+		{
+			array_splice( $this->list, $pos, 0, [$element] );
+		}
 
 		return $this;
 	}
@@ -1958,6 +2091,25 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate
 	public function join( string $glue = '' ) : string
 	{
 		return implode( $glue, $this->list );
+	}
+
+
+	/**
+	 * Specifies the data which should be serialized to JSON by json_encode().
+	 *
+	 * Examples:
+	 *   json_encode( Map::from( ['a', 'b'] ) );
+	 *   json_encode( Map::from( ['a' => 0, 'b' => 1] ) );
+	 *
+	 * Results:
+	 *   ["a", "b"]
+	 *   {"a":0,"b":1}
+	 *
+	 * @return array<int|string,mixed> Data to serialize to JSON
+	 */
+	public function jsonSerialize()
+	{
+		return $this->list;
 	}
 
 
