@@ -2107,6 +2107,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @return array<int|string,mixed> Data to serialize to JSON
 	 */
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize()
 	{
 		return $this->list;
