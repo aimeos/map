@@ -1705,6 +1705,40 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Tests if all entries in the map are objects implementing the given interface.
+	 *
+	 * Examples:
+	 *  Map::from( [new Map(), new Map()] )->implements( '\Countable' );
+	 *  Map::from( [new Map(), new stdClass()] )->implements( '\Countable' );
+	 *  Map::from( [new Map(), 123] )->implements( '\Countable' );
+	 *
+	 * Results:
+	 *  The first example returns TRUE while the second and third one return FALSE.
+	 *
+	 * @param string $interface Name of the interface that must be implemented
+	 * @param bool $throw Passing TRUE will throw an UnexpectedValueException instead of returning FALSE
+	 * @return bool TRUE if all entries implement the interface or FALSE if at least one doesn't
+	 * @throws UnexpectedValueException If the second parameter is TRUE and one entry doesn't implement the interface
+	 */
+	public function implements( string $interface, bool $throw = false ) : bool
+	{
+		foreach( $this->list as $entry )
+		{
+			if( !( $entry instanceof $interface ) )
+			{
+				if( $throw ) {
+					throw new \UnexpectedValueException( "Does not implement $interface: " . print_r( $entry, true ) );
+				}
+
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+
+	/**
 	 * Tests if the passed element or elements are part of the map.
 	 *
 	 * Examples:

@@ -163,6 +163,7 @@ will return:
 <a href="#has">has</a>
 <a href="#if">if</a>
 <a href="#ifempty">ifEmpty</a>
+<a href="#implements">implements</a>
 <a href="#in">in</a>
 <a href="#includes">includes</a>
 <a href="#index">index</a>
@@ -369,6 +370,7 @@ will return:
 * [includes()](#includes) : Tests if element is included
 * [is()](#is) : Tests if the map consists of the same keys and values
 * [isEmpty()](#isempty) : Tests if map is empty
+* [implements()](#implements) : Tests if all entries are objects implementing the interface
 * [none()](#none) : Tests if none of the elements are part of the map
 * [some()](#some) : Tests if at least one element is included
 
@@ -2080,6 +2082,36 @@ Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')
 to previously defined variables but can not modify them. Also, they can not have
 a void return type and must/will always return something. Details about
 [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
+
+
+# implements()
+
+Tests if all entries in the map are objects implementing the given interface.
+
+```php
+public function implements( string $interface, bool $throw = false ) : bool
+```
+
+* @param string $interface Name of the interface that must be implemented
+* @param bool $throw Passing TRUE will throw an UnexpectedValueException instead of returning FALSE
+* @return bool TRUE if all entries implement the interface or FALSE if at least one doesn't
+* @throws UnexpectedValueException If the second parameter is TRUE and one entry doesn't implement the interface
+
+**Examples:**
+
+```php
+Map::from( [new Map(), new Map()] )->implements( '\Countable' );
+// true
+
+Map::from( [new Map(), new \stdClass()] )->implements( '\Countable' );
+// false
+
+Map::from( [new Map(), 123] )->implements( '\Countable' );
+// false
+
+Map::from( [new Map(), 123] )->implements( '\Countable', true );
+// throws \UnexpectedValueException
+```
 
 
 ### in()

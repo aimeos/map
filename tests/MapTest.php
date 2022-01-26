@@ -1384,6 +1384,17 @@ Array
 	}
 
 
+	public function testImplements()
+	{
+		$this->assertTrue( Map::from( [new Map(), new Map()] )->implements( '\Countable' ) );
+		$this->assertFalse( Map::from( [new Map(), new \stdClass()] )->implements( '\Countable' ) );
+		$this->assertFalse( Map::from( [new Map(), 123] )->implements( '\Countable' ) );
+
+		$this->expectException( \UnexpectedValueException::class );
+		Map::from( [new Map(), 123] )->implements( '\Countable', true );
+	}
+
+
 	public function testIn()
 	{
 		$this->assertTrue( Map::from( ['a', 'b'] )->in( 'a' ) );
