@@ -1874,6 +1874,16 @@ Array
 	}
 
 
+	public function testNone()
+	{
+		$this->assertFalse( Map::from( ['a', 'b'] )->none( 'a' ) );
+		$this->assertFalse( Map::from( ['a', 'b'] )->none( ['a', 'b'] ) );
+		$this->assertFalse( Map::from( ['a', 'b'] )->none( ['a', 'x'] ) );
+		$this->assertTrue( Map::from( ['a', 'b'] )->none( 'x' ) );
+		$this->assertTrue( Map::from( ['1', '2'] )->none( 2, true ) );
+	}
+
+
 	public function testNth()
 	{
 		$m = Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] );

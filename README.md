@@ -186,6 +186,7 @@ will return:
 <a href="#merge">merge</a>
 <a href="#method">method</a>
 <a href="#min">min</a>
+<a href="#none">none</a>
 <a href="#nth">nth</a>
 <a href="#offsetexists">offsetExists</a>
 <a href="#offsetget">offsetGet</a>
@@ -368,6 +369,7 @@ will return:
 * [includes()](#includes) : Tests if element is included
 * [is()](#is) : Tests if the map consists of the same keys and values
 * [isEmpty()](#isempty) : Tests if map is empty
+* [none()](#none) : Tests if none of the elements are part of the map
 * [some()](#some) : Tests if at least one element is included
 
 ### Transform
@@ -2779,6 +2781,38 @@ Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( 'i/p' );
 ```
 
 
+### none()
+
+Tests if none of the elements are part of the map.
+
+```php
+public function none( $element, bool $strict = false ) : bool
+```
+
+* @param mixed&#124;array `$element` Element or elements to search for in the map
+* @param bool `$strict` TRUE to check the type too, using FALSE '1' and 1 will be the same
+* @return bool TRUE if none of the elements is part of the map, FALSE if at least one is
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b'] )->none( 'x' );
+// true
+
+Map::from( ['1', '2'] )->none( 2, true );
+// true
+
+Map::from( ['a', 'b'] )->none( 'a' );
+// false
+
+Map::from( ['a', 'b'] )->none( ['a', 'b'] );
+// false
+
+Map::from( ['a', 'b'] )->none( ['a', 'x'] );
+// false
+```
+
+
 ### nth()
 
 Returns every nth element from the map.
@@ -2800,6 +2834,7 @@ Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] )->nth( 2 );
 Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] )->nth( 2, 1 );
 // ['b', 'd', 'f']
 ```
+
 
 ### offsetExists()
 

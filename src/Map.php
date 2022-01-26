@@ -2384,6 +2384,40 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Tests if none of the elements are part of the map.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'b'] )->none( 'x' );
+	 *  Map::from( ['1', '2'] )->none( 2, true );
+	 *  Map::from( ['a', 'b'] )->none( 'a' );
+	 *  Map::from( ['a', 'b'] )->none( ['a', 'b'] );
+	 *  Map::from( ['a', 'b'] )->none( ['a', 'x'] );
+	 *
+	 * Results:
+	 * The first two examples will return TRUE while the other ones will return FALSE
+	 *
+	 * @param mixed|array $element Element or elements to search for in the map
+	 * @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
+	 * @return bool TRUE if none of the elements is part of the map, FALSE if at least one is
+	 */
+	public function none( $element, bool $strict = false ) : bool
+	{
+		if( !is_array( $element ) ) {
+			return !in_array( $element, $this->list, $strict );
+		};
+
+		foreach( $element as $entry )
+		{
+			if( in_array( $entry, $this->list, $strict ) === true ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+
+	/**
 	 * Returns every nth element from the map.
 	 *
 	 * Examples:
