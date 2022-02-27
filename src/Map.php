@@ -3906,9 +3906,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function tree( string $idKey, string $parentKey, string $nestKey = 'children' ) : self
 	{
+		$this->list();
 		$trees = $refs = [];
 
-		foreach( $this->list() as &$node )
+		foreach( $this->list as &$node )
 		{
 			$node[$nestKey] = [];
 			$refs[$node[$idKey]] = &$node;
