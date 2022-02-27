@@ -1053,7 +1053,7 @@ Array
 	public function testFromJsonException()
 	{
 		$this->expectException( '\RuntimeException' );
-		Map::fromJson( '' );
+		Map::fromJson( '' )->toArray();
 	}
 
 
