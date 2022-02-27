@@ -709,9 +709,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		foreach( $this->list() as $item )
 		{
-			$v = $valuecol ? $this->getValue( $item, $vparts ) : $item;
+			$v = $valuecol ? $this->val( $item, $vparts ) : $item;
 
-			if( $indexcol !== null && ( $key = $this->getValue( $item, $iparts ) ) !== null ) {
+			if( $indexcol !== null && ( $key = $this->val( $item, $iparts ) ) !== null ) {
 				$list[(string) $key] = $v;
 			} else {
 				$list[] = $v;
@@ -776,7 +776,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function combine( iterable $values ) : self
 	{
-		return new static( array_combine( $this->list(), $this->getArray( $values ) ) );
+		return new static( array_combine( $this->list(), $this->array( $values ) ) );
 	}
 
 
@@ -957,10 +957,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function diff( iterable $elements, callable $callback = null ) : self
 	{
 		if( $callback ) {
-			return new static( array_udiff( $this->list(), $this->getArray( $elements ), $callback ) );
+			return new static( array_udiff( $this->list(), $this->array( $elements ), $callback ) );
 		}
 
-		return new static( array_diff( $this->list(), $this->getArray( $elements ) ) );
+		return new static( array_diff( $this->list(), $this->array( $elements ) ) );
 	}
 
 
@@ -996,10 +996,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function diffAssoc( iterable $elements, callable $callback = null ) : self
 	{
 		if( $callback ) {
-			return new static( array_diff_uassoc( $this->list(), $this->getArray( $elements ), $callback ) );
+			return new static( array_diff_uassoc( $this->list(), $this->array( $elements ), $callback ) );
 		}
 
-		return new static( array_diff_assoc( $this->list(), $this->getArray( $elements ) ) );
+		return new static( array_diff_assoc( $this->list(), $this->array( $elements ) ) );
 	}
 
 
@@ -1034,10 +1034,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function diffKeys( iterable $elements, callable $callback = null ) : self
 	{
 		if( $callback ) {
-			return new static( array_diff_ukey( $this->list(), $this->getArray( $elements ), $callback ) );
+			return new static( array_diff_ukey( $this->list(), $this->array( $elements ), $callback ) );
 		}
 
-		return new static( array_diff_key( $this->list(), $this->getArray( $elements ) ) );
+		return new static( array_diff_key( $this->list(), $this->array( $elements ) ) );
 	}
 
 
@@ -1178,7 +1178,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function equals( iterable $elements ) : bool
 	{
 		$list = $this->list();
-		$elements = $this->getArray( $elements );
+		$elements = $this->array( $elements );
 
 		return array_diff( $list, $elements ) === [] && array_diff( $elements, $list ) === [];
 	}
@@ -1455,7 +1455,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return $list[$key];
 		}
 
-		if( ( $v = $this->getValue( $list, explode( $this->sep, (string) $key ) ) ) !== null ) {
+		if( ( $v = $this->val( $list, explode( $this->sep, (string) $key ) ) ) !== null ) {
 			return $v;
 		}
 
@@ -1615,7 +1615,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		foreach( (array) $key as $entry )
 		{
 			if( array_key_exists( $entry, $list ) === false
-				&& $this->getValue( $list, explode( $this->sep, (string) $entry ) ) === null
+				&& $this->val( $list, explode( $this->sep, (string) $entry ) ) === null
 			) {
 				return false;
 			}
@@ -1885,7 +1885,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function insertAfter( $element, $value ) : self
 	{
 		$position = ( $element !== null && ( $pos = $this->pos( $element ) ) !== null ? $pos : count( $this->list() ) );
-		array_splice( $this->list(), $position + 1, 0, $this->getArray( $value ) );
+		array_splice( $this->list(), $position + 1, 0, $this->array( $value ) );
 
 		return $this;
 	}
@@ -1954,7 +1954,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function insertBefore( $element, $value ) : self
 	{
 		$position = ( $element !== null && ( $pos = $this->pos( $element ) ) !== null ? $pos : count( $this->list() ) );
-		array_splice( $this->list(), $position, 0, $this->getArray( $value ) );
+		array_splice( $this->list(), $position, 0, $this->array( $value ) );
 
 		return $this;
 	}
@@ -1990,7 +1990,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function intersect( iterable $elements, callable $callback = null ) : self
 	{
 		$list = $this->list();
-		$elements = $this->getArray( $elements );
+		$elements = $this->array( $elements );
 
 		if( $callback ) {
 			return new static( array_uintersect( $list, $elements, $callback ) );
@@ -2033,7 +2033,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function intersectAssoc( iterable $elements, callable $callback = null ) : self
 	{
-		$elements = $this->getArray( $elements );
+		$elements = $this->array( $elements );
 
 		if( $callback ) {
 			return new static( array_uintersect_assoc( $this->list(), $elements, $callback ) );
@@ -2075,7 +2075,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function intersectKeys( iterable $elements, callable $callback = null ) : self
 	{
 		$list = $this->list();
-		$elements = $this->getArray( $elements );
+		$elements = $this->array( $elements );
 
 		if( $callback ) {
 			return new static( array_intersect_ukey( $list, $elements, $callback ) );
@@ -2105,7 +2105,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function is( iterable $list, bool $strict = false ) : bool
 	{
-		$list = $this->getArray( $list );
+		$list = $this->array( $list );
 
 		if( $strict ) {
 			return $this->list() === $list;
@@ -2408,9 +2408,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function merge( iterable $elements, bool $recursive = false ) : self
 	{
 		if( $recursive ) {
-			$this->list = array_merge_recursive( $this->list(), $this->getArray( $elements ) );
+			$this->list = array_merge_recursive( $this->list(), $this->array( $elements ) );
 		} else {
-			$this->list = array_merge( $this->list(), $this->getArray( $elements ) );
+			$this->list = array_merge( $this->list(), $this->array( $elements ) );
 		}
 
 		return $this;
@@ -2620,7 +2620,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function only( $keys ) : self
 	{
-		return $this->intersectKeys( array_flip( $this->getArray( $keys ) ) );
+		return $this->intersectKeys( array_flip( $this->array( $keys ) ) );
 	}
 
 
@@ -2650,7 +2650,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		$result = [];
 		$list = $this->list();
 
-		foreach( $this->getArray( $keys ) as $key ) {
+		foreach( $this->array( $keys ) as $key ) {
 			$result[$key] = $list[$key] ?? null;
 		}
 
@@ -3111,7 +3111,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function remove( $keys ) : self
 	{
-		foreach( $this->getArray( $keys ) as $key ) {
+		foreach( $this->array( $keys ) as $key ) {
 			unset( $this->list()[$key] );
 		}
 
@@ -3140,9 +3140,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function replace( iterable $elements, bool $recursive = true ) : self
 	{
 		if( $recursive ) {
-			$this->list = array_replace_recursive( $this->list(), $this->getArray( $elements ) );
+			$this->list = array_replace_recursive( $this->list(), $this->array( $elements ) );
 		} else {
-			$this->list = array_replace( $this->list(), $this->getArray( $elements ) );
+			$this->list = array_replace( $this->list(), $this->array( $elements ) );
 		}
 
 		return $this;
@@ -4004,7 +4004,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function union( iterable $elements ) : self
 	{
-		$this->list = $this->list() + $this->getArray( $elements );
+		$this->list = $this->list() + $this->array( $elements );
 		return $this;
 	}
 
@@ -4233,7 +4233,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	{
 		return $this->filter( function( $item ) use ( $key, $op, $value ) {
 
-			if( ( $val = $this->getValue( $item, explode( $this->sep, $key ) ) ) !== null )
+			if( ( $val = $this->val( $item, explode( $this->sep, $key ) ) ) !== null )
 			{
 				switch( $op )
 				{
@@ -4278,7 +4278,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function zip( ...$arrays ) : self
 	{
 		$args = array_map( function( $items ) {
-			return $this->getArray( $items );
+			return $this->array( $items );
 		}, $arrays );
 
 		return new static( array_map( null, $this->list(), ...$args ) );
@@ -4291,7 +4291,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $elements List of elements or single value
 	 * @return array<int|string,mixed> Plain array
 	 */
-	protected function getArray( $elements ) : array
+	protected function array( $elements ) : array
 	{
 		if( is_array( $elements ) ) {
 			return $elements;
@@ -4334,30 +4334,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Returns a configuration value from an array.
-	 *
-	 * @param array<mixed>|object $entry The array or object to look at
-	 * @param array<string> $parts Path parts to look for inside the array or object
-	 * @return mixed Found value or null if no value is available
-	 */
-	protected function getValue( $entry, array $parts )
-	{
-		foreach( $parts as $part )
-		{
-			if( ( is_array( $entry ) || $entry instanceof \ArrayAccess ) && isset( $entry[$part] ) ) {
-				$entry = $entry[$part];
-			} elseif( is_object( $entry ) && isset( $entry->{$part} ) ) {
-				$entry = $entry->{$part};
-			} else {
-				return null;
-			}
-		}
-
-		return $entry;
-	}
-
-
-	/**
 	 * Flattens a multi-dimensional array or map into a single level array.
 	 *
 	 * @param iterable<int|string,mixed> $entries Single of multi-level array, map or everything foreach can be used with
@@ -4385,10 +4361,34 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	protected function &list() : array
 	{
 		if( !is_array( $this->list ) ) {
-			$this->list = $this->getArray( $this->list );
+			$this->list = $this->array( $this->list );
 		}
 
 		return $this->list;
+	}
+
+
+	/**
+	 * Returns a configuration value from an array.
+	 *
+	 * @param array<mixed>|object $entry The array or object to look at
+	 * @param array<string> $parts Path parts to look for inside the array or object
+	 * @return mixed Found value or null if no value is available
+	 */
+	protected function val( $entry, array $parts )
+	{
+		foreach( $parts as $part )
+		{
+			if( ( is_array( $entry ) || $entry instanceof \ArrayAccess ) && isset( $entry[$part] ) ) {
+				$entry = $entry[$part];
+			} elseif( is_object( $entry ) && isset( $entry->{$part} ) ) {
+				$entry = $entry->{$part};
+			} else {
+				return null;
+			}
+		}
+
+		return $entry;
 	}
 
 

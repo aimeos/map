@@ -1062,7 +1062,7 @@ Array
 		$map = new Map;
 
 		$class = new \ReflectionClass( $map );
-		$method = $class->getMethod( 'getArray' );
+		$method = $class->getMethod( 'array' );
 		$method->setAccessible( true );
 
 		$items = new \ArrayIterator( ['foo' => 'bar'] );
