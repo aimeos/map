@@ -1975,6 +1975,16 @@ Array
 	}
 
 
+	public function testOrder()
+	{
+		$m = Map::from( ['a' => 1, 1 => 'c', 0 => 'b'] );
+
+		$this->assertSame( [0 => 'b', 1 => 'c', 'a' => 1], $m->order( [0, 1, 'a'] )->toArray() );
+		$this->assertSame( [0 => 'b', 1 => 'c', 2 => null], $m->order( [0, 1, 2] )->toArray() );
+		$this->assertSame( [0 => 'b', 1 => 'c'], $m->order( [0, 1] )->toArray() );
+	}
+
+
 	public function testPad()
 	{
 		$this->assertSame( [1, 2, 3, null, null], Map::from( [1, 2, 3] )->pad( 5 )->toArray() );

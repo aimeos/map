@@ -23,7 +23,7 @@ composer req aimeos/map
     * [Add](#add)
     * [Aggregate](#aggregate)
     * [Debug](#debug)
-    * [Order](#order)
+    * [Order](#orderby)
     * [Shorten](#shorten)
     * [Test](#test)
     * [Transform](#transform)
@@ -194,6 +194,7 @@ will return:
 <a href="#offsetset">offsetSet</a>
 <a href="#offsetunset">offsetUnset</a>
 <a href="#only">only</a>
+<a href="#order">order</a>
 <a href="#pad">pad</a>
 <a href="#partition">partition</a>
 <a href="#pipe">pipe</a>
@@ -315,12 +316,13 @@ will return:
 * [dump()](#dump) : Prints the map content
 * [tap()](#tap) : Passes a clone of the map to the given callback
 
-### Order
+### OrderBy
 
 * [arsort()](#arsort) : Reverse sort elements preserving keys
 * [asort()](#asort) : Sort elements preserving keys
 * [krsort()](#krsort) : Reverse sort elements by keys
 * [ksort()](#ksort) : Sort elements by keys
+* [order()](#order) : Orders elements by the passed keys
 * [reverse()](#reverse) : Reverses the array order preserving keys
 * [rsort()](#rsort) : Reverse sort elements using new keys
 * [shuffle()](#shuffle) : Randomizes the element order
@@ -2978,6 +2980,31 @@ Map::from( ['a' => 1, 0 => 'b'] )->only( 'a' );
 // ['a' => 1]
 
 Map::from( ['a' => 1, 0 => 'b', 1 => 'c'] )->only( [0, 1] );
+// [0 => 'b', 1 => 'c']
+```
+
+
+### order()
+
+Returns a new map with elements ordered by the passed keys.
+
+```php
+public function order( iterable $keys ) : self
+```
+
+* @param iterable&#60;mixed&#62; `$keys` Keys of the elements in the required order
+* @return self&#60;int&#124;string,mixed&#62; New map with elements ordered by the passed keys
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 1 => 'c', 0 => 'b'] )->order( [0, 1, 'a'] );
+// [0 => 'b', 1 => 'c', 'a' => 1]
+
+Map::from( ['a' => 1, 1 => 'c', 0 => 'b'] )->order( [0, 1, 2] );
+// [0 => 'b', 1 => 'c', 2 => null]
+
+Map::from( ['a' => 1, 1 => 'c', 0 => 'b'] )->order( [0, 1] );
 // [0 => 'b', 1 => 'c']
 ```
 

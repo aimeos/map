@@ -2586,6 +2586,40 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Returns a new map with elements ordered by the passed keys.
+	 *
+	 * If there are less keys passed than available in the map, the remaining
+	 * elements are removed. Otherwise, if keys are passed that are not in the
+	 * map, they will be also available in the returned map but their value is
+	 * NULL.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 1, 1 => 'c', 0 => 'b'] )->order( [0, 1, 'a'] );
+	 *  Map::from( ['a' => 1, 1 => 'c', 0 => 'b'] )->order( [0, 1, 2] );
+	 *  Map::from( ['a' => 1, 1 => 'c', 0 => 'b'] )->order( [0, 1] );
+	 *
+	 * Results:
+	 *  [0 => 'b', 1 => 'c', 'a' => 1]
+	 *  [0 => 'b', 1 => 'c', 2 => null]
+	 *  [0 => 'b', 1 => 'c']
+	 *
+	 * @param iterable<mixed> $keys Keys of the elements in the required order
+	 * @return self<int|string,mixed> New map with elements ordered by the passed keys
+	 */
+	public function order( iterable $keys ) : self
+	{
+		$result = [];
+		$list = $this->list();
+
+		foreach( $this->array( $keys ) as $key ) {
+			$result[$key] = $list[$key] ?? null;
+		}
+
+		return new static( $result );
+	}
+
+
+	/**
 	 * Fill up to the specified length with the given value
 	 *
 	 * In case the given number is smaller than the number of element that are
