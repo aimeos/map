@@ -4687,6 +4687,40 @@ $map->push( 'z' )->push( 'y' )->push( 'x' )->reverse(); // use push() for adding
 
 ## Upgrade guide
 
+### 2.x -> 3.x
+
+#### Use list() method
+
+When adding own methods to the Map object, don't access the `$this->list` class
+variable directly. It's not guaranteed to be an array any more but will store
+the value passed to the Map constructor. Instead, use the `list() method to get
+a reference to the array of elements:
+
+```php
+$this->list();
+```
+
+As it's a reference to the array of elements, you can modify it directly or even
+use PHP functions that require a variable reference:
+
+```php
+$this->list()[] = 123;
+reset( $this->list() );
+```
+
+#### Renamed internal methods
+
+Two internal methods have been renamed and you have to use their new name if you
+have added own methods to the Map object:
+
+```php
+// instead of $this->getArray( $array )
+$this->array( $array )
+
+ // instead of $this->getValue( $entry, array $parts )
+$this->val( $entry, array $parts )
+```
+
 ### 1.x -> 2.x
 
 #### jQuery style method calls
