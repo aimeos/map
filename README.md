@@ -454,20 +454,28 @@ function map( $elements = [] ) : \Aimeos\Map
 **Examples:**
 
 ```php
-Map::from( [] );
-// internal: []
+// array
+map( [] );
 
-Map::from( null );
-// internal: []
+// null
+map( null );
 
-Map::from( 'a' );
-// internal: ['a']
+// scalar
+map( 'a' );
 
-Map::from( new Map() );
-// internal: []
+// object
+map( new \stdClass() );
 
-Map::from( new ArrayObject() );
-// internal: []
+// map object
+map( new Map() );
+
+// iterable object
+map( new ArrayObject() );
+
+// closure evaluated lazily
+map( function() {
+    return [];
+} );
 ```
 
 
@@ -484,23 +492,28 @@ public function __construct( $elements = [] )
 **Examples:**
 
 ```php
-new Map();
-// internal: []
-
+// array
 new Map( [] );
-// internal: []
 
+// null
 new Map( null );
-// internal: []
 
+// scalar
 new Map( 'a' );
-// internal: ['a']
 
+// object
+new Map( new \stdClass() );
+
+// map object
 new Map( new Map() );
-// internal: []
 
+// iterable object
 new Map( new ArrayObject() );
-// internal: []
+
+// closure evaluated lazily
+new Map( function() {
+    return [];
+} );
 ```
 
 
@@ -1731,20 +1744,28 @@ public static function from( $elements = [] ) : self
 **Examples:**
 
 ```php
+// array
 Map::from( [] );
-// internal: []
 
+// null
 Map::from( null );
-// internal: []
 
+// scalar
 Map::from( 'a' );
-// internal: ['a']
 
+// object
+Map::from( new \stdClass() );
+
+// map object
 Map::from( new Map() );
-// internal: []
 
+// iterable object
 Map::from( new ArrayObject() );
-// internal: []
+
+// closure evaluated lazily
+Map::from( function() {
+    return [];
+} );
 ```
 
 
