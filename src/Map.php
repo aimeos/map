@@ -1737,14 +1737,18 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( [new Map(), new Map()] )->implements( '\Countable' );
 	 *  Map::from( [new Map(), new stdClass()] )->implements( '\Countable' );
 	 *  Map::from( [new Map(), 123] )->implements( '\Countable' );
+	 *  Map::from( [new Map(), 123] )->implements( '\Countable', true );
+	 *  Map::from( [new Map(), 123] )->implements( '\Countable', '\RuntimeException' );
 	 *
 	 * Results:
 	 *  The first example returns TRUE while the second and third one return FALSE.
+	 *  The forth example will throw an UnexpectedValueException while the last one
+	 *  throws a RuntimeException.
 	 *
 	 * @param string $interface Name of the interface that must be implemented
-	 * @param \Throwable|bool $throw Passing TRUE or an exception object will throw the exception instead of returning FALSE
+	 * @param \Throwable|bool $throw Passing TRUE or an exception name will throw the exception instead of returning FALSE
 	 * @return bool TRUE if all entries implement the interface or FALSE if at least one doesn't
-	 * @throws UnexpectedValueException If the second parameter is TRUE and one entry doesn't implement the interface
+	 * @throws \UnexpectedValueException|\Throwable If one entry doesn't implement the interface
 	 */
 	public function implements( string $interface, $throw = false ) : bool
 	{
