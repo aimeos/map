@@ -2091,13 +2091,13 @@ a void return type and must/will always return something. Details about
 Tests if all entries in the map are objects implementing the given interface.
 
 ```php
-public function implements( string $interface, bool $throw = false ) : bool
+public function implements( string $interface, $throw = false ) : bool
 ```
 
 * @param string $interface Name of the interface that must be implemented
-* @param bool $throw Passing TRUE will throw an UnexpectedValueException instead of returning FALSE
+* @param \Throwable&#124;bool $throw Passing TRUE or an exception name will throw the exception instead of returning FALSE
 * @return bool TRUE if all entries implement the interface or FALSE if at least one doesn't
-* @throws UnexpectedValueException If the second parameter is TRUE and one entry doesn't implement the interface
+* @throws \UnexpectedValueException&#124;\Throwable If one entry doesn't implement the interface
 
 **Examples:**
 
@@ -2113,6 +2113,9 @@ Map::from( [new Map(), 123] )->implements( '\Countable' );
 
 Map::from( [new Map(), 123] )->implements( '\Countable', true );
 // throws \UnexpectedValueException
+
+Map::from( [new Map(), 123] )->implements( '\Countable', '\RuntimeException' );
+// throws \RuntimeException
 ```
 
 
