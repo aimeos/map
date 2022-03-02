@@ -4309,7 +4309,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return (array) $elements();
 		}
 
-		if( is_object( $elements ) && method_exists( $elements, 'toArray' ) ) {
+		if( $elements instanceof \Aimeos\Map ) {
 			return $elements->toArray();
 		}
 
