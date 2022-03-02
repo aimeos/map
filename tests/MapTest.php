@@ -1903,6 +1903,7 @@ Array
 		$this->assertFalse( Map::from( ['a', 'b'] )->none( ['a', 'x'] ) );
 		$this->assertTrue( Map::from( ['a', 'b'] )->none( 'x' ) );
 		$this->assertTrue( Map::from( ['1', '2'] )->none( 2, true ) );
+		$this->assertTrue( Map::from( ['a', 'b'] )->none( ['x', 'y'] ) );
 	}
 
 
