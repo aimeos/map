@@ -1742,18 +1742,20 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  The first example returns TRUE while the second and third one return FALSE.
 	 *
 	 * @param string $interface Name of the interface that must be implemented
-	 * @param bool $throw Passing TRUE will throw an UnexpectedValueException instead of returning FALSE
+	 * @param \Throwable|bool $throw Passing TRUE or an exception object will throw the exception instead of returning FALSE
 	 * @return bool TRUE if all entries implement the interface or FALSE if at least one doesn't
 	 * @throws UnexpectedValueException If the second parameter is TRUE and one entry doesn't implement the interface
 	 */
-	public function implements( string $interface, bool $throw = false ) : bool
+	public function implements( string $interface, $throw = false ) : bool
 	{
 		foreach( $this->list() as $entry )
 		{
 			if( !( $entry instanceof $interface ) )
 			{
-				if( $throw ) {
-					throw new \UnexpectedValueException( "Does not implement $interface: " . print_r( $entry, true ) );
+				if( $throw )
+				{
+					$name = is_string( $throw ) ? $throw : '\UnexpectedValueException';
+					throw new $name( "Does not implement $interface: " . print_r( $entry, true ) );
 				}
 
 				return false;
