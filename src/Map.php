@@ -2465,13 +2465,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'b'] )->none( 'x' );
+	 *  Map::from( ['a', 'b'] )->none( ['x', 'y'] );
 	 *  Map::from( ['1', '2'] )->none( 2, true );
 	 *  Map::from( ['a', 'b'] )->none( 'a' );
 	 *  Map::from( ['a', 'b'] )->none( ['a', 'b'] );
 	 *  Map::from( ['a', 'b'] )->none( ['a', 'x'] );
 	 *
 	 * Results:
-	 * The first two examples will return TRUE while the other ones will return FALSE
+	 * The first three examples will return TRUE while the other ones will return FALSE
 	 *
 	 * @param mixed|array $element Element or elements to search for in the map
 	 * @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
@@ -4308,7 +4309,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return (array) $elements();
 		}
 
-		if( is_object( $elements ) && method_exists( $elements, 'toArray' ) ) {
+		if( $elements instanceof \Aimeos\Map ) {
 			return $elements->toArray();
 		}
 
