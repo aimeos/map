@@ -135,7 +135,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function __toArray() : array
 	{
-		return $this->list();
+		return $this->list = $this->array( $this->list );
 	}
 
 
@@ -398,7 +398,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function all() : array
 	{
-		return $this->list();
+		return $this->list = $this->array( $this->list );
 	}
 
 
@@ -1481,7 +1481,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function getIterator() : \ArrayIterator
 	{
-		return new \ArrayIterator( $this->list() );
+		return new \ArrayIterator( $this->list = $this->array( $this->list ) );
 	}
 
 
@@ -2180,7 +2180,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	#[\ReturnTypeWillChange]
 	public function jsonSerialize()
 	{
-		return $this->list();
+		return $this->list = $this->array( $this->list );
 	}
 
 
@@ -3700,7 +3700,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function toArray() : array
 	{
-		return $this->list();
+		return $this->list = $this->array( $this->list );
 	}
 
 
