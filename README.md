@@ -3691,6 +3691,8 @@ Similar for the length:
 - If length is given and is negative then the sequence will stop that many elements from the end
 - If it is omitted, then the sequence will have everything from offset up until the end
 
+The keys of the items returned in the new map are the same as in the original one.
+
 **Examples:**
 
 ```php
