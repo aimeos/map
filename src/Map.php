@@ -3411,6 +3411,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * - If length is given and is negative then the sequence will stop that many elements from the end
 	 * - If it is omitted, then the sequence will have everything from offset up until the end
 	 *
+	 * The keys of the items returned in the new map are the same as in the original one.
+	 *
 	 * @param int $offset Number of elements to start from
 	 * @param int|null $length Number of elements to return or NULL for no limit
 	 * @return self<int|string,mixed> New map
