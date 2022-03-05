@@ -902,6 +902,8 @@ public function clone() : self
 The objects within the Map are NOT the same as before but new cloned objects.
 This is different to [`copy()`](#copy), which doesn't clone the objects within.
 
+The keys are preserved using this method.
+
 **Examples:**
 
 ```php
@@ -1007,6 +1009,8 @@ public function concat( iterable $elements ) : self
 * @param iterable&#60;int&#124;string,mixed&#62; `$elements` List of elements
 * @param self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
 
+The keys of the passed elements are NOT preserved!
+
 **Examples:**
 
 ```php
@@ -1052,6 +1056,8 @@ if the map contains at least one of the passed values or conditions.
 * @param string&#124;null `$op` Operator used for comparison
 * @param mixed `$value` Value used for comparison
 * @return bool TRUE if at least one element is available in map, FALSE if the map contains none of them
+
+Check the `[where()](#where)` method for available operators.
 
 **Examples:**
 
@@ -1239,10 +1245,12 @@ Map::from( ['b' => 'a'] )->diff( ['c' => 'A'], function( $valA, $valB ) {
 All examples will return an empty map because both contain the same values
 when compared case insensitive.
 
+The keys are preserved using this method.
+
 
 ### diffAssoc()
 
-Returns the keys/values in the map whose keys and values are not present in the passed elements in a new map.
+Returns the keys/values in the map whose keys AND values are not present in the passed elements in a new map.
 
 ```php
 public function diffAssoc( iterable $elements, callable $callback = null ) : self
@@ -1280,6 +1288,8 @@ Map::from( ['b' => 'a'] )->diffAssoc( ['c' => 'A'], function( $valA, $valB ) {
 The first and second example will return an empty map because both contain the
 same values when compared case insensitive. In the third example, the keys doesn't
 match ("b" vs. "c").
+
+The keys are preserved using this method.
 
 
 ### diffKeys()
@@ -1322,6 +1332,8 @@ Map::from( ['b' => 'a'] )->diffKeys( ['c' => 'a'], function( $keyA, $keyB ) {
 The first and second example will return an empty map because both contain
 the same keys when compared case insensitive. The third example will return
 ['b' => 'a'] because the keys doesn't match ("b" vs. "c").
+
+The keys are preserved using this method.
 
 
 ### dump()
@@ -1369,6 +1381,9 @@ public function duplicates( string $col = null ) : self
 
 * @param string&#124;null $col Key of the nested array or object to check for
 * @param self&#60;int&#124;string,mixed&#62; New map
+
+For nested arrays, you have to pass the name of the column of the nested array which
+should be used to check for duplicates.
 
 This does also work to map values from multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
@@ -1510,6 +1525,8 @@ public function except( $keys ) : self
 * @param iterable&#60;int&#124;string&#62;&#124;array&#60;int&#124;string&#62;&#124;string&#124;int `$keys` List of keys to remove
 * @param self&#60;int&#124;string,mixed&#62; New map
 
+The keys in the result map are preserved.
+
 **Examples:**
 
 ```php
@@ -1536,6 +1553,9 @@ public static function explode( string $delimiter , string $string , int $limit 
 
 A limit of "0" is treated the same as "1". If limit is negative, the rest of
 the string is dropped and not part of the returned map.
+
+This method creates a lazy Map and the string is split after calling
+another method that operates on the Map contents.
 
 **Examples:**
 
@@ -1580,9 +1600,14 @@ removed if their value converted to boolean is FALSE:
 (bool) $value === false
 ```
 
+The keys in the result map are preserved.
+
 **Examples:**
 
 ```php
+Map::from( [null, 0, 1, '', '0', 'a'] )->filter();
+// [1, 'a']
+
 Map::from( [2 => 'a', 6 => 'b', 13 => 'm', 30 => 'z'] )->filter( function( $value, $key ) {
     return $key < 10 && $value < 'n';
 } );
@@ -1679,7 +1704,7 @@ Map::from( [] )->lastKey();
 
 ### flat()
 
-Creates a new map with all sub-array elements added recursively
+Creates a new map with all sub-array elements added recursively.
 
 ```php
 public function flat( int $depth = null ) : self
@@ -1694,6 +1719,7 @@ indexed from 0-n. Flattening does also work if elements implement the
 "Traversable" interface (which the Map object does).
 
 This method is similar than [collapse()](#collapse) but doesn't replace existing elements.
+Keys are NOT preserved using this method!
 
 **Examples:**
 
@@ -1779,11 +1805,16 @@ public static function fromJson( string $json, int $options = JSON_BIGINT_AS_STR
 
 * @param int `$options` Combination of JSON_* constants
 * @param self&#60;int&#124;string,mixed&#62; Map from decoded JSON string
+* @throws \RuntimeException If the passed JSON string is invalid
 
 There are several options available for decoding the JSON string which are described in
 the [PHP json_decode() manual](https://www.php.net/manual/en/function.json-decode.php).
 The parameter can be a single JSON_* constant or a bitmask of several constants combine
 by bitwise OR (&#124;), e.g.:
+
+This method creates a lazy Map and the string is decoded after calling
+another method that operates on the Map contents. Thus, the exception in
+case of an error isn't thrown immediately but after calling the next method.
 
 ```php
 JSON_BIGINT_AS_STRING|JSON_INVALID_UTF8_IGNORE
@@ -2332,13 +2363,14 @@ public function intersect( iterable $elements, callable $callback = null ) : sel
 * @param  callable&#124;null `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @param self&#60;int&#124;string,mixed&#62; New map
 
+The keys are preserved using this method.
+
 **Examples:**
 
 ```php
 Map::from( ['a' => 'foo', 'b' => 'bar'] )->intersect( ['bar'] );
 // ['b' => 'bar']
 ```
-
 
 If a callback is passed, the given function will be used to compare the values.
 The function must accept two parameters (vaA, valB) and must return
@@ -2370,6 +2402,8 @@ public function intersectAssoc( iterable $elements, callable $callback = null ) 
 * @param iterable&#60;int&#124;string,mixed&#62; `$elements` List of elements
 * @param  callable&#124;null `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @param self&#60;int&#124;string,mixed&#62; New map
+
+The keys are preserved using this method.
 
 **Examples:**
 
@@ -2408,6 +2442,8 @@ public function intersectKeys( iterable $elements, callable $callback = null ) :
 * @param iterable&#60;int&#124;string,mixed&#62; `$elements` List of elements
 * @param  callable&#124;null `$callback` Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
 * @param self&#60;int&#124;string,mixed&#62; New map
+
+The keys are preserved using this method.
 
 **Examples:**
 
@@ -2676,6 +2712,8 @@ public function map( callable $callback ) : self
 * @param callable `$callback` Function with (value, key) parameters and returns computed result
 * @param self&#60;int&#124;string,mixed&#62; New map with the original keys and the computed values
 
+The keys are preserved using this method.
+
 **Examples:**
 
 ```php
@@ -2740,6 +2778,8 @@ same numeric keys will be added.
 The method is similar to [replace()](#replace) but doesn't replace elements with the same
 numeric keys. If you want to be sure that all passed elements are added without
 replacing existing ones, use [concat()](#concat) instead.
+
+The keys are preserved using this method.
 
 **Examples:**
 
@@ -2997,6 +3037,8 @@ public function only( $keys ) : self
 * @param iterable&#60;mixed&#62;&#124;array&#60;mixed&#62;&#124;string&#124;int `$keys` Keys of the elements that should be returned
 * @param self&#60;int&#124;string,mixed&#62; New map with only the elements specified by the keys
 
+The keys are preserved using this method.
+
 **Examples:**
 
 ```php
@@ -3018,6 +3060,8 @@ public function order( iterable $keys ) : self
 
 * @param iterable&#60;mixed&#62; `$keys` Keys of the elements in the required order
 * @return self&#60;int&#124;string,mixed&#62; New map with elements ordered by the passed keys
+
+The keys are preserved using this method.
 
 **Examples:**
 
@@ -3050,6 +3094,9 @@ already in the list, the map is unchanged. If the size is positive, the
 new elements are padded on the right, if it's negative then the elements
 are padded on the left.
 
+Associative keys are preserved, numerical keys are replaced and numerical
+keys are used for the new elements.
+
 **Examples:**
 
 ```php
@@ -3064,6 +3111,12 @@ Map::from( [1, 2, 3] )->pad( 5, '0' );
 
 Map::from( [1, 2, 3] )->pad( 2 );
 // [1, 2, 3]
+
+Map::from( [10 => 1, 20 => 2] )->pad( 3 );
+// [0 => 1, 1 => 2, 2 => null]
+
+Map::from( ['a' => 1, 'b' => 2] )->pad( 3, 3 );
+// ['a' => 1, 'b' => 2, 0 => 3]
 ```
 
 
@@ -3188,6 +3241,7 @@ public function prefix( $prefix, int $depth = null ) : self
 * @param self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
 
 By default, nested arrays are walked recusively so all entries at all levels are prefixed.
+The keys of the original map are preserved in the returned map.
 
 **Examples:**
 
@@ -3371,7 +3425,7 @@ This method is the inverse of the [filter()](#filter) and should return TRUE
 if the item should be removed from the returned map.
 
 If no callback is passed, all values which are NOT empty, null or false will be
-removed.
+removed. The keys of the original map are preserved in the returned map.
 
 **Examples:**
 
@@ -3447,6 +3501,8 @@ public function replace( iterable $elements, bool $recursive = true ) : self
 The method is similar to [merge()](#merge) but also replaces elements with numeric keys.
 These would be added by `merge()` with a new numeric key.
 
+The keys are preserved in the returned map.
+
 **Examples:**
 
 ```php
@@ -3468,11 +3524,16 @@ public function reverse() : self
 
 * @param self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
 
+The keys are preserved using this method.
+
 **Examples:**
 
 ```php
 Map::from( ['a', 'b'] )->reverse();
 // ['b', 'a']
+
+Map::from( ['name' => 'test', 'last' => 'user'] )->reverse();
+// ['last' => 'user', 'name' => 'test']
 ```
 
 
@@ -3796,7 +3857,7 @@ Similar for the length:
 - If length is given and is negative then the sequence will stop that many elements from the end
 - If it is omitted, then the sequence will have everything from offset up until the end
 
-Numerical array indexes are not preserved.
+Numerical array indexes are NOT preserved.
 
 **Examples:**
 
@@ -3822,6 +3883,7 @@ public function suffix( $suffix, int $depth = null ) : self
 * @param self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
 
 By defaul, nested arrays are walked recusively so all entries at all levels are suffixed.
+The keys are preserved using this method.
 
 **Examples:**
 
@@ -3948,6 +4010,10 @@ public static function times( int $num, \Closure $callback ) : self
 * @param int $num Number of times the function is called
 * @param \Closure $callback Function with (value, key) parameters and returns new value
 * @param self&#60;int&#124;string,mixed&#62; New map with the generated elements
+
+This method creates a lazy Map and the entries are generated after calling
+another method that operates on the Map contents. Thus, the passed callback
+is not called immediately!
 
 **Examples:**
 
@@ -4285,6 +4351,7 @@ public function union( iterable $elements ) : self
 * @param self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
 
 If list entries should be overwritten, use [merge()](#merge) instead.
+The keys are preserved using this method and no new map is created.
 
 **Examples:**
 
@@ -4341,6 +4408,8 @@ public function unshift( $value, $key = null ) : self
 * @param mixed `$value` Item to add at the beginning
 * @param int&#124;string&#124;null `$key` Key for the item or NULL to reindex all numerical keys
 * @param self&#60;int&#124;string,mixed&#62; Same map for fluid interface
+
+The keys of the elements are only preserved in the new map if no key is passed.
 
 **Examples:**
 
@@ -4487,6 +4556,8 @@ Available operators are:
 * '>' : Greater
 * 'in' : Array of value which are in the list of values
 * '-' : Values between array of start and end value, e.g. [10, 100] (inclusive)
+
+The keys of the original map are preserved in the returned map.
 
 **Examples:**
 

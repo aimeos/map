@@ -147,11 +147,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * the separator of an existing map, use the sep() method instead.
 	 *
 	 * Examples:
-	 *  Map::delimiter( '/' );
-	 *  Map::from( ['foo' => ['bar' => 'baz']] )->get( 'foo/bar' );
+	 *  Map::delimiter( '.' );
+	 *  Map::from( ['foo' => ['bar' => 'baz']] )->get( 'foo.bar' );
 	 *
 	 * Results:
-	 *  '.'
+	 *  '/'
 	 *  'baz'
 	 *
 	 * @param string|null $char Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
@@ -171,6 +171,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 	/**
 	 * Creates a new map with the string splitted by the delimiter.
+	 *
+	 * This method creates a lazy Map and the string is split after calling
+	 * another method that operates on the Map contents.
 	 *
 	 * Examples:
 	 *  Map::explode( ',', 'a,b,c' );
@@ -256,6 +259,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	/**
 	 * Creates a new map instance from a JSON string.
 	 *
+	 * This method creates a lazy Map and the string is decoded after calling
+	 * another method that operates on the Map contents. Thus, the exception in
+	 * case of an error isn't thrown immediately but after calling the next method.
+	 *
 	 * Examples:
 	 *  Map::fromJson( '["a", "b"]' );
 	 *  Map::fromJson( '{"a": "b"}' );
@@ -275,6 +282,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param int $options Combination of JSON_* constants
 	 * @return self<int|string,mixed> Map from decoded JSON string
+	 * @throws \RuntimeException If the passed JSON string is invalid
 	 */
 	public static function fromJson( string $json, int $options = JSON_BIGINT_AS_STRING ) : self
 	{
@@ -321,6 +329,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 	/**
 	 * Creates a new map by invoking the closure the given number of times.
+	 *
+	 * This method creates a lazy Map and the entries are generated after calling
+	 * another method that operates on the Map contents. Thus, the passed callback
+	 * is not called immediately!
 	 *
 	 * Examples:
 	 *  Map::times( 3, function( $num ) {
@@ -648,6 +660,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The objects within the Map are NOT the same as before but new cloned objects.
 	 * This is different to copy(), which doesn't clone the objects within.
 	 *
+	 * The keys are preserved using this method.
+	 *
 	 * @return self<int|string,mixed> New instance with cloned objects
 	 */
 	public function clone() : self
@@ -789,6 +803,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 *  ['foo', 'bar']
 	 *
+	 * The keys of the passed elements are NOT preserved!
+	 *
 	 * @param iterable<int|string,mixed> $elements List of elements
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
@@ -823,6 +839,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * All method calls will return TRUE because at least "a" is included in the
 	 * map or there's a "type" key with a value "name" like in the last two
 	 * examples.
+	 *
+	 * Check the where() method for available operators.
 	 *
 	 * @param \Closure|iterable|mixed $values Anonymous function with (item, key) parameter, element or list of elements to test against
 	 * @param string|null $op Operator used for comparison
@@ -950,6 +968,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * All examples will return an empty map because both contain the same values
 	 * when compared case insensitive.
 	 *
+	 * The keys are preserved using this method.
+	 *
 	 * @param iterable<int|string,mixed> $elements List of elements
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self<int|string,mixed> New map
@@ -965,7 +985,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Returns the keys/values in the map whose keys and values are not present in the passed elements in a new map.
+	 * Returns the keys/values in the map whose keys AND values are not present in the passed elements in a new map.
 	 *
 	 * Examples:
 	 *  Map::from( ['a' => 'foo', 'b' => 'bar'] )->diffAssoc( new Map( ['foo', 'b' => 'bar'] ) );
@@ -988,6 +1008,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * values when compared case insensitive. The second and third example will return
 	 * an empty map because 'A' is part of the passed array but the keys doesn't match
 	 * ("b" vs. "B" and "b" vs. "c").
+	 *
+	 * The keys are preserved using this method.
 	 *
 	 * @param iterable<int|string,mixed> $elements List of elements
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
@@ -1026,6 +1048,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The first and second example will return an empty map because both contain
 	 * the same keys when compared case insensitive. The third example will return
 	 * ['b' => 'a'] because the keys doesn't match ("b" vs. "c").
+	 *
+	 * The keys are preserved using this method.
 	 *
 	 * @param iterable<int|string,mixed> $elements List of elements
 	 * @param  callable|null $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
@@ -1076,9 +1100,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	/**
 	 * Returns the duplicate values from the map.
 	 *
-	 * The keys in the result map are the same as in the original one. For nested
-	 * arrays, you have to pass the name of the column of the nested array which
-	 * should be used to check for duplicates.
+	 * For nested arrays, you have to pass the name of the column of the nested
+	 * array which should be used to check for duplicates.
 	 *
 	 * Examples:
 	 *  Map::from( [1, 2, '1', 3] )->duplicates()
@@ -1087,12 +1110,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * Results:
 	 *  [2 => '1']
+	 *  [1 => ['p' => 1]]
 	 *  [1 => ['i' => ['p' => '1']]]
 	 *
 	 * This does also work for multi-dimensional arrays by passing the keys
 	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
 	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
 	 * public properties of objects or objects implementing __isset() and __get() methods.
+	 *
+	 * The keys are preserved using this method.
 	 *
 	 * @param string|null $key Key or path of the nested array or object to check for
 	 * @return self<int|string,mixed> New map
@@ -1226,6 +1252,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  ['a' => 1, 'c' => 3]
 	 *  [2 => 'b']
 	 *
+	 * The keys in the result map are preserved.
+	 *
 	 * @param iterable<string|int>|array<string|int>|string|int $keys List of keys to remove
 	 * @return self<int|string,mixed> New map
 	 */
@@ -1239,16 +1267,20 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Applies a filter to all elements of the map and returns a new map.
 	 *
 	 * Examples:
+	 *  Map::from( [null, 0, 1, '', '0', 'a'] )->filter();
 	 *  Map::from( [2 => 'a', 6 => 'b', 13 => 'm', 30 => 'z'] )->filter( function( $value, $key ) {
 	 *      return $key < 10 && $value < 'n';
 	 *  } );
 	 *
 	 * Results:
+	 *  [1, 'a']
 	 *  ['a', 'b']
 	 *
 	 * If no callback is passed, all values which are empty, null or false will be
 	 * removed if their value converted to boolean is FALSE:
 	 *  (bool) $value === false
+	 *
+	 * The keys in the result map are preserved.
 	 *
 	 * @param  callable|null $callback Function with (item) parameter and returns TRUE/FALSE
 	 * @return self<int|string,mixed> New map
@@ -1388,6 +1420,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * "Traversable" interface (which the Map object does).
 	 *
 	 * This method is similar than collapse() but doesn't replace existing elements.
+	 * Keys are NOT preserved using this method!
 	 *
 	 * @param int|null $depth Number of levels to flatten multi-dimensional arrays or NULL for all
 	 * @return self<int|string,mixed> New map with all sub-array elements added into it recursively, up to the specified depth
@@ -1989,6 +2022,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * All examples will return a map containing ['a'] because both contain the same
 	 * values when compared case insensitive.
 	 *
+	 * The keys are preserved using this method.
+	 *
 	 * @param iterable<int|string,mixed> $elements List of elements
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self<int|string,mixed> New map
@@ -2033,6 +2068,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * values when compared case insensitive. The second and third example will return
 	 * an empty map because the keys doesn't match ("b" vs. "B" and "b" vs. "c").
 	 *
+	 * The keys are preserved using this method.
+	 *
 	 * @param iterable<int|string,mixed> $elements List of elements
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self<int|string,mixed> New map
@@ -2073,6 +2110,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * return a map with ['b' => 'a'] because both contain the same keys when compared
 	 * case insensitive. The third example will return an empty map because the keys
 	 * doesn't match ("b" vs. "c").
+	 *
+	 * The keys are preserved using this method.
 	 *
 	 * @param iterable<int|string,mixed> $elements List of elements
 	 * @param  callable|null $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
@@ -2337,6 +2376,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 *  ['a' => 4, 'b' => 8]
 	 *
+	 * The keys are preserved using this method.
+	 *
 	 * @param callable $callback Function with (value, key) parameters and returns computed result
 	 * @return self<int|string,mixed> New map with the original keys and the computed values
 	 */
@@ -2406,6 +2447,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The method is similar to replace() but doesn't replace elements with
 	 * the same numeric keys. If you want to be sure that all passed elements
 	 * are added without replacing existing ones, use concat() instead.
+	 *
+	 * The keys are preserved using this method.
 	 *
 	 * @param iterable<int|string,mixed> $elements List of elements
 	 * @param bool $recursive TRUE to merge nested arrays too, FALSE for first level elements only
@@ -2622,6 +2665,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  ['a' => 1]
 	 *  [0 => 'b', 1 => 'c']
 	 *
+	 * The keys are preserved using this method.
+	 *
 	 * @param iterable<mixed>|array<mixed>|string|int $keys Keys of the elements that should be returned
 	 * @return self<int|string,mixed> New map with only the elements specified by the keys
 	 */
@@ -2648,6 +2693,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  [0 => 'b', 1 => 'c', 'a' => 1]
 	 *  [0 => 'b', 1 => 'c', 2 => null]
 	 *  [0 => 'b', 1 => 'c']
+	 *
+	 * The keys are preserved using this method.
 	 *
 	 * @param iterable<mixed> $keys Keys of the elements in the required order
 	 * @return self<int|string,mixed> New map with elements ordered by the passed keys
@@ -2678,12 +2725,19 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( [1, 2, 3] )->pad( -5 );
 	 *  Map::from( [1, 2, 3] )->pad( 5, '0' );
 	 *  Map::from( [1, 2, 3] )->pad( 2 );
+	 *  Map::from( [10 => 1, 20 => 2] )->pad( 3 );
+	 *  Map::from( ['a' => 1, 'b' => 2] )->pad( 3, 3 );
 	 *
 	 * Results:
 	 *  [1, 2, 3, null, null]
 	 *  [null, null, 1, 2, 3]
 	 *  [1, 2, 3, '0', '0']
 	 *  [1, 2, 3]
+	 *  [0 => 1, 1 => 2, 2 => null]
+	 *  ['a' => 1, 'b' => 2, 0 => 3]
+	 *
+	 * Associative keys are preserved, numerical keys are replaced and numerical
+	 * keys are used for the new elements.
 	 *
 	 * @param int $size Total number of elements that should be in the list
 	 * @param mixed $value Value to fill up with if the map length is smaller than the given size
@@ -2867,6 +2921,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  level only so it will return ['1-a', ['b']]. The forth example passing
 	 *  the closure will return ['145-a', '147-b'].
 	 *
+	 * The keys of the original map are preserved in the returned map.
+	 *
 	 * @param \Closure|string $prefix Prefix string or anonymous function with ($item, $key) as parameters
 	 * @param int|null $depth Maximum depth to dive into multi-dimensional arrays starting from "1"
 	 * @return self<int|string,mixed> Updated map for fluid interface
@@ -2922,7 +2978,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * pass an exception as default value, it will throw that exception if the map
 	 * contains no elements. In the fourth example, a random value generated by the
 	 * closure function will be returned.
-	 *
 	 *
 	 * @param int|string $key Key to retrieve the value for
 	 * @param mixed $default Default value if key isn't available
@@ -3063,7 +3118,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * item should be removed from the returned map.
 	 *
 	 * If no callback is passed, all values which are NOT empty, null or false will be
-	 * removed.
+	 * removed. The keys of the original map are preserved in the returned map.
 	 *
 	 * @param Closure|mixed $callback Function with (item) parameter which returns TRUE/FALSE or value to compare with
 	 * @return self<int|string,mixed> New map
@@ -3140,6 +3195,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The method is similar to merge() but it also replaces elements with numeric
 	 * keys. These would be added by merge() with a new numeric key.
 	 *
+	 * The keys are preserved using this method.
+	 *
 	 * @param iterable<int|string,mixed> $elements List of elements
 	 * @param bool $recursive TRUE to replace recursively (default), FALSE to replace elements only
 	 * @return self<int|string,mixed> Updated map for fluid interface
@@ -3161,9 +3218,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'b'] )->reverse();
+	 *  Map::from( ['name' => 'test', 'last' => 'user'] )->reverse();
 	 *
 	 * Results:
 	 *  ['b', 'a']
+	 *  ['last' => 'user', 'name' => 'test']
+	 *
+	 * The keys are preserved using this method.
 	 *
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
@@ -3261,7 +3322,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['a'] )->set( 0, 'b' );
 	 *
 	 * Results:
-	 * The first example results in ['a', 'b'] while the second one produces ['b']
+	 *  ['a', 'b']
+	 *  ['b']
 	 *
 	 * @param int|string $key Key to set the new value for
 	 * @param mixed $value New element that should be set
@@ -3346,8 +3408,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	/**
 	 * Returns a new map with the given number of items skipped.
 	 *
-	 * The keys of the items returned in the new map are the same as in the original one.
-	 *
 	 * Examples:
 	 *  Map::from( [1, 2, 3, 4] )->skip( 2 );
 	 *  Map::from( [1, 2, 3, 4] )->skip( function( $item, $key ) {
@@ -3357,6 +3417,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 *  [2 => 3, 3 => 4]
 	 *  [3 => 4]
+	 *
+	 * The keys of the items returned in the new map are the same as in the original one.
 	 *
 	 * @param \Closure|int $offset Number of items to skip or function($item, $key) returning true for skipped items
 	 * @return self<int|string,mixed> New map
@@ -3529,7 +3591,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * - If length is given and is negative then the sequence will stop that many elements from the end
 	 * - If it is omitted, then the sequence will have everything from offset up until the end
 	 *
-	 * Numerical array indexes are not preserved.
+	 * Numerical array indexes are NOT preserved.
 	 *
 	 * @param int $offset Number of elements to start from
 	 * @param int|null $length Number of elements to remove, NULL for all
@@ -3564,6 +3626,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  ['a-1', ['b-1']]. In the third example, the depth is limited to the first
 	 *  level only so it will return ['a-1', ['b']]. The forth example passing
 	 *  the closure will return ['a-145', 'b-147'].
+	 *
+	 * The keys are preserved using this method.
 	 *
 	 * @param \Closure|string $suffix Suffix string or anonymous function with ($item, $key) as parameters
 	 * @param int|null $depth Maximum depth to dive into multi-dimensional arrays starting from "1"
@@ -3635,6 +3699,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  [1 => 2, 2 => 3]
 	 *  [2 => 3, 3 => 4]
 	 *  [1 => 2, 2 => 3]
+	 *
+	 * The keys of the items returned in the new map are the same as in the original one.
 	 *
 	 * @param int $size Number of items to return
 	 * @param \Closure|int $offset Number of items to skip or function($item, $key) returning true for skipped items
@@ -4008,6 +4074,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * list: ['a' => 1, 'b' => 2, 'c' => 1].
 	 *
 	 * If list entries should be overwritten,  please use merge() instead!
+	 * The keys are preserved using this method and no new map is created.
 	 *
 	 * @param iterable<int|string,mixed> $elements List of elements
 	 * @return self<int|string,mixed> Updated map for fluid interface
@@ -4058,8 +4125,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['a', 'b'] )->unshift( 'd', 'first' );
 	 *
 	 * Results:
-	 * The first example will result in ['d', 'a', 'b'] while the second one will
-	 * produce ['first' => 'd', 0 => 'a', 1 => 'b'].
+	 *  ['d', 'a', 'b']
+	 *  ['first' => 'd', 0 => 'a', 1 => 'b']
+	 *
+	 * The keys of the elements are only preserved in the new map if no key is passed.
 	 *
 	 * Performance note:
 	 * The bigger the list, the higher the performance impact because unshift()
@@ -4233,6 +4302,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
 	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
 	 * public properties of objects or objects implementing __isset() and __get() methods.
+	 *
+	 * The keys of the original map are preserved in the returned map.
 	 *
 	 * @param string $key Key or path of the value in the array or object used for comparison
 	 * @param string $op Operator used for comparison
