@@ -2004,6 +2004,9 @@ Array
 
 		$this->assertSame( [1, 2, 3, '0', '0'], Map::from( [1, 2, 3] )->pad( 5, '0' )->toArray() );
 		$this->assertSame( [1, 2, 3], Map::from( [1, 2, 3] )->pad( 2 )->toArray() );
+
+		$this->assertSame( [0 => 1, 1 => 2, 2 => null], Map::from( [10 => 1, 20 => 2] )->pad( 3 )->toArray() );
+		$this->assertSame( ['a' => 1, 'b' => 2, 0 => 3], Map::from( ['a' => 1, 'b' => 2] )->pad( 3, 3 )->toArray() );
 	}
 
 
