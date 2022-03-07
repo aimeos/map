@@ -4387,7 +4387,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		}
 
 		if( is_iterable( $elements ) ) {
-			return iterator_to_array( $elements );
+			return iterator_to_array( $elements, true );
 		}
 
 		return $elements !== null ? [$elements] : [];
