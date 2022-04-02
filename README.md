@@ -266,7 +266,7 @@ will return:
 * [__call()](#__call) : Calls a custom method
 * [__callStatic()](#__callstatic) : Calls a custom method statically
 * [all()](#all) : Returns the plain array
-* [at()](#at) : RetuReturns the value at the given position
+* [at()](#at) : Returns the value at the given position
 * [call()](#call) : Calls the given method on all items
 * [find()](#find) : Returns the first/last matching element
 * [first()](#first) : Returns the first element
