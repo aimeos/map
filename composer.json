@@ -1,8 +1,8 @@
 {
 	"name": "aimeos/map",
-	"description": "Easy and elegant handling of PHP arrays as array-like map objects similar to jQuery and Laravel Collections",
+	"description": "Easy and elegant handling of PHP arrays as array-like collection objects similar to jQuery and Laravel Collections",
 	"license": "MIT",
-	"keywords": ["php", "array", "map", "collection"],
+	"keywords": ["php", "array", "collection", "map"],
 	"require": {
 		"php": "^7.1||^8.0"
 	},
