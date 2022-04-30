@@ -162,6 +162,7 @@ will return:
 <a href="#groupby">groupBy</a>
 <a href="#has">has</a>
 <a href="#if">if</a>
+<a href="#ifany">ifAny</a>
 <a href="#ifempty">ifEmpty</a>
 <a href="#implements">implements</a>
 <a href="#in">in</a>
@@ -367,6 +368,7 @@ will return:
 * [every()](#every) : Verifies that all elements pass the test of the given callback
 * [has()](#has) : Tests if a key exists
 * [if()](#if) : Executes callbacks depending on the condition
+* [ifAny()](#ifany) : Executes callbacks if the map contains elements
 * [ifEmpty()](#ifempty) : Executes callbacks if the map is empty
 * [in()](#in) : Tests if element is included
 * [includes()](#includes) : Tests if element is included
@@ -2091,6 +2093,49 @@ Map::from( ['a', 'b'] )->if( false, null, function( $map ) {
   return $map->pop();
 } );
 // ['b']
+```
+
+Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
+(a short form for anonymous closures) as parameters. The automatically have access
+to previously defined variables but can not modify them. Also, they can not have
+a void return type and must/will always return something. Details about
+[PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
+
+
+### ifAny()
+
+* Executes callbacks depending if the map contains elements or not.
+
+```php
+public function ifAny( \Closure $then = null, \Closure $else = null ) : self
+```
+
+* @param \Closure|null $then Function with (map, condition) parameter (optional)
+* @param \Closure|null $else Function with (map, condition) parameter (optional)
+* @return self<int|string,mixed> Same map for fluid interface
+
+If callbacks for "then" and/or "else" are passed, these callbacks will be
+executed and their returned value is passed back within a Map object. In
+case no "then" or "else" closure is given, the method will return the same
+map object.
+
+**Examples:**
+
+```php
+Map::from( ['a'] )->ifAny( function( $map ) {
+  $map->push( 'b' );
+} );
+// ['a', 'b']
+
+Map::from( [] )->ifAny( null, function( $map ) {
+  return $map->push( 'b' );
+} );
+// ['b']
+
+Map::from( ['a'] )->ifAny( function( $map ) {
+  return 'c';
+} );
+// ['c']
 ```
 
 Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`

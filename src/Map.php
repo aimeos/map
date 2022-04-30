@@ -1726,6 +1726,49 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Executes callbacks depending if the map contains elements or not.
+	 *
+	 * If callbacks for "then" and/or "else" are passed, these callbacks will be
+	 * executed and their returned value is passed back within a Map object. In
+	 * case no "then" or "else" closure is given, the method will return the same
+	 * map object.
+	 *
+	 * Examples:
+	 *  Map::from( ['a'] )->ifAny( function( $map ) {
+	 *    $map->push( 'b' );
+	 *  } );
+	 *
+	 *  Map::from( [] )->ifAny( null, function( $map ) {
+	 *    return $map->push( 'b' );
+	 *  } );
+	 *
+	 *  Map::from( ['a'] )->ifAny( function( $map ) {
+	 *    return 'c';
+	 *  } );
+	 *
+	 * Results:
+	 * The first example returns a Map containing ['a', 'b'] because the the initial
+	 * Map is not empty. The second one returns  a Map with ['b'] because the initial
+	 * Map is empty and the "else" closure is used. The last example returns ['c']
+	 * as new map content.
+	 *
+	 * Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
+	 * (a short form for anonymous closures) as parameters. The automatically have access
+	 * to previously defined variables but can not modify them. Also, they can not have
+	 * a void return type and must/will always return something. Details about
+	 * [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
+	 *
+	 * @param \Closure|null $then Function with (map, condition) parameter (optional)
+	 * @param \Closure|null $else Function with (map, condition) parameter (optional)
+	 * @return self<int|string,mixed> Same map for fluid interface
+	 */
+	public function ifAny( \Closure $then = null, \Closure $else = null ) : self
+	{
+		return $this->if( !empty( $this->list() ), $then, $else );
+	}
+
+
+	/**
 	 * Executes callbacks depending if the map is empty or not.
 	 *
 	 * If callbacks for "then" and/or "else" are passed, these callbacks will be

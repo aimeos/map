@@ -1352,32 +1352,32 @@ Array
 	}
 
 
-	public function testIfEmpty()
+	public function testIfAny()
 	{
-		$r = Map::from( [] )->ifEmpty(
-			function( Map $_ ) { return ['a']; }
+		$r = Map::from( ['a'] )->ifAny(
+			function( Map $_ ) { return ['b']; }
 		);
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( ['a'], $r->all() );
+		$this->assertSame( ['b'], $r->all() );
 	}
 
 
-	public function testIfEmptyFalse()
+	public function testIfAnyFalse()
 	{
-		$r = Map::from( ['a'] )->ifEmpty(
+		$r = Map::from( [] )->ifAny(
 			function( Map $m ) { return $m->push( 'b' ); },
 			function( Map $m ) { return $m->push( 'c' ); }
 		);
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( ['a', 'c'], $r->all() );
+		$this->assertSame( ['c'], $r->all() );
 	}
 
 
-	public function testIfEmptyNone()
+	public function testIfAnyNone()
 	{
-		$r = Map::from( ['a'] )->ifEmpty();
+		$r = Map::from( ['a'] )->ifAny();
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( ['a'], $r->all() );
