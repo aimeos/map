@@ -595,7 +595,7 @@ Returns the elements after the given one.
 public function after( $value ) : self
 ```
 
-* @param \Closure&#124;int&#124;string $value Value or function with (item, key) parameters
+* @param \Closure&#124;int&#124;string `$value` Value or function with (item, key) parameters
 * @return self&#60;int&#124;string,mixed&#62; New map with the elements after the given one
 
 The keys are preserved using this method.
@@ -789,7 +789,7 @@ Returns the elements before the given one.
 public function before( $value ) : self
 ```
 
-* @param \Closure&#124;int&#124;string $value Value or function with (item, key) parameters
+* @param \Closure&#124;int&#124;string `$value` Value or function with (item, key) parameters
 * @return self&#60;int&#124;string,mixed&#62; New map with the elements before the given one
 
 The keys are preserved using this method.
@@ -821,8 +821,8 @@ Calls the given method on all items and returns the result.
 public function call( string $name, array $params = [] ) : self
 ```
 
-* @param string $name Method name
-* @param array&#60;mixed&#62; $params List of parameters
+* @param string `$name` Method name
+* @param array&#60;mixed&#62; `$params` List of parameters
 * @return self&#60;int&#124;string,mixed&#62; New map with results from all elements
 
 This method can call methods on the map entries that are also implemented
@@ -1381,7 +1381,7 @@ Returns the duplicate values from the map.
 public function duplicates( string $col = null ) : self
 ```
 
-* @param string&#124;null $col Key of the nested array or object to check for
+* @param string&#124;null `$col` Key of the nested array or object to check for
 * @return self&#60;int&#124;string,mixed&#62; New map
 
 For nested arrays, you have to pass the name of the column of the nested array which
@@ -1933,7 +1933,7 @@ Groups associative array elements or objects by the passed key or closure.
 public function groupBy( $key ) : self
 ```
 
-* @param \Closure&#124;string&#124;int $key Closure function with (item, idx) parameters returning the key or the key itself to group by
+* @param \Closure&#124;string&#124;int `$key` Closure function with (item, idx) parameters returning the key or the key itself to group by
 * @return self&#60;int&#124;string,mixed&#62; New map with elements grouped by the given key
 
 Instead of overwriting items with the same keys like to the [col()](#col) method does,
@@ -2051,7 +2051,7 @@ Executes callbacks depending on the condition.
 public function if( $condition, \Closure $then, \Closure $else = null ) : self
 ```
 
-* @param \Closure&#124;bool $condition Boolean or function with (map) parameter returning a boolean
+* @param \Closure&#124;bool `$condition` Boolean or function with (map) parameter returning a boolean
 * @param \Closure `$then` Function with (map) parameter
 * @param \Closure&#124;null `$else` Function with (map) parameter (optional)
 * @return self&#60;int&#124;string,mixed&#62; New map for fluid interface
@@ -2110,8 +2110,8 @@ a void return type and must/will always return something. Details about
 public function ifAny( \Closure $then = null, \Closure $else = null ) : self
 ```
 
-* @param \Closure|null $then Function with (map, condition) parameter (optional)
-* @param \Closure|null $else Function with (map, condition) parameter (optional)
+* @param \Closure|null `$then` Function with (map, condition) parameter (optional)
+* @param \Closure|null `$else` Function with (map, condition) parameter (optional)
 * @return self<int|string,mixed> New map for fluid interface
 
 If callbacks for "then" and/or "else" are passed, these callbacks will be
@@ -2153,8 +2153,8 @@ a void return type and must/will always return something. Details about
 public function ifEmpty( \Closure $then = null, \Closure $else = null ) : self
 ```
 
-* @param \Closure|null $then Function with (map, condition) parameter (optional)
-* @param \Closure|null $else Function with (map, condition) parameter (optional)
+* @param \Closure|null `$then` Function with (map, condition) parameter (optional)
+* @param \Closure|null `$else` Function with (map, condition) parameter (optional)
 * @return self<int|string,mixed> New map for fluid interface
 
 If callbacks for "then" and/or "else" are passed, these callbacks will be
@@ -2191,8 +2191,8 @@ Tests if all entries in the map are objects implementing the given interface.
 public function implements( string $interface, $throw = false ) : bool
 ```
 
-* @param string $interface Name of the interface that must be implemented
-* @param \Throwable&#124;bool $throw Passing TRUE or an exception name will throw the exception instead of returning FALSE
+* @param string `$interface` Name of the interface that must be implemented
+* @param \Throwable&#124;bool `$throw` Passing TRUE or an exception name will throw the exception instead of returning FALSE
 * @return bool TRUE if all entries implement the interface or FALSE if at least one doesn't
 * @throws \UnexpectedValueException&#124;\Throwable If one entry doesn't implement the interface
 
@@ -2291,7 +2291,7 @@ Returns the numerical index of the given key.
 public function index( $value ) : ?int
 ```
 
-* @param \Closure&#124;string&#124;int $value Key to search for or function with (key) parameters return TRUE if key is found
+* @param \Closure&#124;string&#124;int `$value` Key to search for or function with (key) parameters return TRUE if key is found
 * @return int&#124;null Position of the found value (zero based) or NULL if not found
 
 **Examples:**
@@ -2777,7 +2777,7 @@ Returns the maximum value of all elements.
 public function max( string $col = null )
 ```
 
-* @param string&#124;null $col Key in the nested array or object to check for
+* @param string&#124;null `$col` Key in the nested array or object to check for
 * @return mixed Maximum value or NULL if there are no elements in the map
 
 This does also work to map values from multi-dimensional arrays by passing the keys
@@ -2814,7 +2814,7 @@ public function merge( iterable $elements, bool $recursive = false ) : self
 ```
 
 * @param iterable&#60;int&#124;string,mixed&#62; `$elements` List of elements
-* @param bool $recursive TRUE to merge nested arrays too, FALSE for first level elements only
+* @param bool `$recursive` TRUE to merge nested arrays too, FALSE for first level elements only
 * @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
 
 Elements with the same non-numeric keys will be overwritten, elements with the
@@ -2896,7 +2896,7 @@ Returns the minimum value of all elements.
 public function min( string $col = null )
 ```
 
-* @param string&#124;null $col Key in the nested array or object to check for
+* @param string&#124;null `$col` Key in the nested array or object to check for
 * @return mixed Minimum value or NULL if there are no elements in the map
 
 This does also work to map values from multi-dimensional arrays by passing the keys
@@ -3131,7 +3131,7 @@ public function pad( int $size, $value = null ) : self
 ```
 
 * @param int `$size` Total number of elements that should be in the list
-* @param mixed $value Value to fill up with if the map length is smaller than the given size
+* @param mixed `$value` Value to fill up with if the map length is smaller than the given size
 * @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
 
 In case the given number is smaller than the number of element that are
@@ -3254,7 +3254,7 @@ Returns the numerical index of the value.
 public function pos( $value ) : ?int
 ```
 
-* @param \Closure&#124;mixed $value Value to search for or function with (item, key) parameters return TRUE if value is found
+* @param \Closure&#124;mixed `$value` Value to search for or function with (item, key) parameters return TRUE if value is found
 * @return int&#124;null Position of the found value (zero based) or NULL if not found
 
 **Examples:**
@@ -3282,7 +3282,7 @@ public function prefix( $prefix, int $depth = null ) : self
 ```
 
 * @param \Closure&#124;string `$prefix` Function with map as parameter which returns arbitrary result
-* @param int&#124;null $depth Maximum depth to dive into multi-dimensional arrays starting from "1"
+* @param int&#124;null `$depth` Maximum depth to dive into multi-dimensional arrays starting from "1"
 * @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
 
 By default, nested arrays are walked recusively so all entries at all levels are prefixed.
@@ -3735,7 +3735,7 @@ Shuffles the elements in the map without returning a new map.
 public function shuffle( bool $assoc = false ) : self
 ```
 
-* @param bool $assoc True to preserve keys, false to assign new keys
+* @param bool `$assoc` True to preserve keys, false to assign new keys
 * @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
 
 **Examples:**
@@ -3757,7 +3757,7 @@ Returns a new map with the given number of items skipped.
 public function skip( $offset ) : self
 ```
 
-* @param \Closure&#124;int $offset Number of items to skip or function($item, $key) returning true for skipped items
+* @param \Closure&#124;int `$offset` Number of items to skip or function($item, $key) returning true for skipped items
 * @return self&#60;int&#124;string,mixed&#62; New map
 
 The keys of the items returned in the new map are the same as in the original one.
@@ -3924,7 +3924,7 @@ public function suffix( $suffix, int $depth = null ) : self
 ```
 
 * @param \Closure&#124;string `$suffix` Function with map as parameter which returns arbitrary result
-* @param int&#124;null $depth Maximum depth to dive into multi-dimensional arrays starting from "1"
+* @param int&#124;null `$depth` Maximum depth to dive into multi-dimensional arrays starting from "1"
 * @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
 
 By defaul, nested arrays are walked recusively so all entries at all levels are suffixed.
@@ -3957,7 +3957,7 @@ Returns the sum of all integer and float values in the map.
 public function sum( string $col = null ) : float
 ```
 
-* @param string&#124;null $col Key in the nested array or object to sum up
+* @param string&#124;null `$col` Key in the nested array or object to sum up
 * @return float Sum of all elements or 0 if there are no elements in the map
 
 This does also work to map values from multi-dimensional arrays by passing the keys
@@ -3991,7 +3991,7 @@ public function take( int $size, $offset = 0 ) : self
 ```
 
 * @param int `$size` Number of items to return
-* @param \Closure&#124;int $offset Number of items to skip or function($item, $key) returning true for skipped items
+* @param \Closure&#124;int `$offset` Number of items to skip or function($item, $key) returning true for skipped items
 * @return self&#60;int&#124;string,mixed&#62; New map
 
 The keys of the items returned in the new map are the same as in the original one.
@@ -4052,8 +4052,8 @@ Creates a new map by invoking the closure the given number of times.
 public static function times( int $num, \Closure $callback ) : self
 ```
 
-* @param int $num Number of times the function is called
-* @param \Closure $callback Function with (value, key) parameters and returns new value
+* @param int `$num` Number of times the function is called
+* @param \Closure `$callback` Function with (value, key) parameters and returns new value
 * @return self&#60;int&#124;string,mixed&#62; New map with the generated elements
 
 This method creates a lazy Map and the entries are generated after calling
@@ -4417,7 +4417,7 @@ Returns only unique elements from the map in a new map
 public function unique( string $key = null ) : self
 ```
 
-* @param string&#124;null $key Key or path of the nested array or object to check for
+* @param string&#124;null `$key` Key or path of the nested array or object to check for
 * @return self&#60;int&#124;string,mixed&#62; New map
 
 Two elements are considered equal if comparing their string representions returns TRUE:
