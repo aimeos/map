@@ -572,7 +572,7 @@ public static function __callStatic( string $name, array $params )
 * @param **string** `$name` Method name
 * @param **array&#60;mixed&#62;** `$params` List of parameters
 * @return **mixed** Result from called function or new map with results from the element methods
-* @throws \BadMethodCallException
+* @throws **\BadMethodCallException** If no method has been registered for that name
 
 Calls a custom method added by [Map::method()](#method) statically. The called method
 has no access to the internal array because no object is available.
@@ -853,7 +853,7 @@ public function chunk( int $size, bool $preserve = false ) : self
 * @param **int** `$size` Maximum size of the sub-arrays
 * @param **bool** `$preserve` Preserve keys in new map
 * @return **self&#60;int&#124;string,mixed&#62;** New map with elements chunked in sub-arrays
-* @throws \InvalidArgumentException If size is smaller than 1
+* @throws **\InvalidArgumentException** If size is smaller than 1
 
 The last chunk may contain less elements than the given number.
 
@@ -1805,7 +1805,7 @@ public static function fromJson( string $json, int $options = JSON_BIGINT_AS_STR
 
 * @param **int** `$options` Combination of JSON_* constants
 * @return **self&#60;int&#124;string,mixed&#62;** New map from decoded JSON string
-* @throws \RuntimeException If the passed JSON string is invalid
+* @throws **\RuntimeException** If the passed JSON string is invalid
 
 There are several options available for decoding the JSON string which are described in
 the [PHP json_decode() manual](https://www.php.net/manual/en/function.json-decode.php).
@@ -2149,7 +2149,7 @@ public function implements( string $interface, $throw = false ) : bool
 * @param **string** `$interface` Name of the interface that must be implemented
 * @param **\Throwable&#124;bool** `$throw` Passing TRUE or an exception name will throw the exception instead of returning FALSE
 * @return **bool** TRUE if all entries implement the interface or FALSE if at least one doesn't
-* @throws \UnexpectedValueException&#124;\Throwable If one entry doesn't implement the interface
+* @throws **\UnexpectedValueException&#124;\Throwable** If one entry doesn't implement the interface
 
 **Examples:**
 
@@ -3365,7 +3365,7 @@ public function random( int $max = 1 ) : self
 
 * @param **int** `$max` Maximum number of elements that should be returned
 * @return **self&#60;int&#124;string,mixed&#62;** New map with key/element pairs from original map in random order
-* @throws \InvalidArgumentException If requested number of elements is less than 1
+* @throws **\InvalidArgumentException** If requested number of elements is less than 1
 
 The less elements are in the map, the less random the order will be, especially
 if the maximum number of values is high or close to the number of elements.
