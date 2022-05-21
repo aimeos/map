@@ -66,7 +66,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param string $name Method name
 	 * @param array<mixed> $params List of parameters
-	 * @return mixed Result from called function
+	 * @return mixed Result from called function or new map with results from the element methods
 	 *
 	 * @throws \BadMethodCallException
 	 */
@@ -107,7 +107,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param string $name Method name
 	 * @param array<mixed> $params List of parameters
-	 * @return mixed|self Result from called function or map with results from the element methods
+	 * @return mixed|self Result from called function or new map with results from the element methods
 	 */
 	public function __call( string $name, array $params )
 	{
@@ -244,7 +244,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * is passed, it will be returned instead of creating a new instance.
 	 *
 	 * @param mixed $elements List of elements or single element
-	 * @return self<int|string,mixed> Map object
+	 * @return self<int|string,mixed> New map object
 	 */
 	public static function from( $elements = [] ) : self
 	{
@@ -281,7 +281,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  JSON_BIGINT_AS_STRING|JSON_INVALID_UTF8_IGNORE
 	 *
 	 * @param int $options Combination of JSON_* constants
-	 * @return self<int|string,mixed> Map from decoded JSON string
+	 * @return self<int|string,mixed> New map from decoded JSON string
 	 * @throws \RuntimeException If the passed JSON string is invalid
 	 */
 	public static function fromJson( string $json, int $options = JSON_BIGINT_AS_STRING ) : self
@@ -588,7 +588,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param string $name Method name
 	 * @param array<mixed> $params List of parameters
-	 * @return self<int|string,mixed> Map with results from all elements
+	 * @return self<int|string,mixed> New map with results from all elements
 	 */
 	public function call( string $name, array $params = [] ) : self
 	{
@@ -639,7 +639,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	/**
 	 * Removes all elements from the current map.
 	 *
-	 * @return self<int|string,mixed> Same map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function clear() : self
 	{
@@ -662,7 +662,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * The keys are preserved using this method.
 	 *
-	 * @return self<int|string,mixed> New instance with cloned objects
+	 * @return self<int|string,mixed> New map with cloned objects
 	 */
 	public function clone() : self
 	{
@@ -708,7 +708,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param string|null $valuecol Name or path of the value property
 	 * @param string|null $indexcol Name or path of the index property
-	 * @return self<int|string,mixed> New instance with mapped entries
+	 * @return self<int|string,mixed> New map with mapped entries
 	 */
 	public function col( string $valuecol = null, string $indexcol = null ) : self
 	{
@@ -1510,7 +1510,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * This method will be used by e.g. foreach() to loop over all entries:
 	 *  foreach( Map::from( ['a', 'b'] ) as $value )
 	 *
-	 * @return \ArrayIterator<int|string,mixed> Over map elements
+	 * @return \ArrayIterator<int|string,mixed> Iterator for map elements
 	 */
 	public function getIterator() : \ArrayIterator
 	{
@@ -1707,7 +1707,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|bool $condition Boolean or function with (map) parameter returning a boolean
 	 * @param \Closure|null $then Function with (map, condition) parameter (optional)
 	 * @param \Closure|null $else Function with (map, condition) parameter (optional)
-	 * @return self<int|string,mixed> Same map for fluid interface
+	 * @return self<int|string,mixed> New map
 	 */
 	public function if( $condition, \Closure $then = null, \Closure $else = null ) : self
 	{
@@ -1760,7 +1760,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param \Closure|null $then Function with (map, condition) parameter (optional)
 	 * @param \Closure|null $else Function with (map, condition) parameter (optional)
-	 * @return self<int|string,mixed> Same map for fluid interface
+	 * @return self<int|string,mixed> New map
 	 */
 	public function ifAny( \Closure $then = null, \Closure $else = null ) : self
 	{
@@ -1798,7 +1798,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param \Closure|null $then Function with (map, condition) parameter (optional)
 	 * @param \Closure|null $else Function with (map, condition) parameter (optional)
-	 * @return self<int|string,mixed> Same map for fluid interface
+	 * @return self<int|string,mixed> New map
 	 */
 	public function ifEmpty( \Closure $then = null, \Closure $else = null ) : self
 	{
@@ -2874,7 +2874,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param string|null $valuecol Name or path of the value property
 	 * @param string|null $indexcol Name or path of the index property
-	 * @return self<int|string,mixed> New instance with mapped entries
+	 * @return self<int|string,mixed> New map with mapped entries
 	 */
 	public function pluck( string $valuecol = null, string $indexcol = null ) : self
 	{
@@ -2998,7 +2998,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param mixed $value Item to add at the beginning
 	 * @param int|string|null $key Key for the item or NULL to reindex all numerical keys
-	 * @return self<int|string,mixed> Same map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function prepend( $value, $key = null ) : self
 	{
@@ -3045,7 +3045,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  ['a', 'b', 'aa']
 	 *
 	 * @param mixed $value Value to add to the end
-	 * @return self<int|string,mixed> Same map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function push( $value ) : self
 	{
@@ -3069,7 +3069,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param int|string $key Key to set the new value for
 	 * @param mixed $value New element that should be set
-	 * @return self<int|string,mixed> Same map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function put( $key, $value ) : self
 	{
@@ -3212,7 +3212,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * in an empty list
 	 *
 	 * @param iterable<string|int>|array<string|int>|string|int $keys List of keys to remove
-	 * @return self<int|string,mixed> Same map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function remove( $keys ) : self
 	{
@@ -3370,7 +3370,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param int|string $key Key to set the new value for
 	 * @param mixed $value New element that should be set
-	 * @return self<int|string,mixed> Same map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function set( $key, $value ) : self
 	{
@@ -4185,7 +4185,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param mixed $value Item to add at the beginning
 	 * @param int|string|null $key Key for the item or NULL to reindex all numerical keys
-	 * @return self<int|string,mixed> Same map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function unshift( $value, $key = null ) : self
 	{
@@ -4279,7 +4279,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param callable $callback Function with (item, key, data) parameters
 	 * @param mixed $data Arbitrary data that will be passed to the callback as third parameter
 	 * @param bool $recursive TRUE to traverse sub-arrays recursively (default), FALSE to iterate Map elements only
-	 * @return self<int|string,mixed> Map for fluid interface
+	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
 	public function walk( callable $callback, $data = null, bool $recursive = true ) : self
 	{
