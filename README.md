@@ -2110,9 +2110,9 @@ a void return type and must/will always return something. Details about
 public function ifAny( \Closure $then = null, \Closure $else = null ) : self
 ```
 
-* @param \Closure|null `$then` Function with (map, condition) parameter (optional)
-* @param \Closure|null `$else` Function with (map, condition) parameter (optional)
-* @return self<int|string,mixed> New map for fluid interface
+* @param **\Closure|null** `$then` Function with (map, condition) parameter (optional)
+* @param **\Closure|null** `$else` Function with (map, condition) parameter (optional)
+* @return **self<int|string,mixed>** New map for fluid interface
 
 If callbacks for "then" and/or "else" are passed, these callbacks will be
 executed and their returned value is passed back within a Map object. In
