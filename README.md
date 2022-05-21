@@ -427,7 +427,7 @@ Tests if the variable is a map object
 function is_map( $var ) : bool
 ```
 
-* @param mixed `$var` Variable to test
+* @param **mixed** `$var` Variable to test
 
 **Examples:**
 
@@ -448,8 +448,8 @@ Returns a new map for the passed elements.
 function map( $elements = [] ) : \Aimeos\Map
 ```
 
-* @param mixed `$elements` List of elements or single value
-* @return \Aimeos\Map Map instance
+* @param **mixed** `$elements` List of elements or single value
+* @return **\Aimeos\Map** Map instance
 
 **Examples:**
 
@@ -487,7 +487,7 @@ Creates a new map object.
 public function __construct( $elements = [] )
 ```
 
-* @param mixed `$elements` Single element, list of elements, Map object, iterable objects or iterators, everything else
+* @param **mixed** `$elements` Single element, list of elements, Map object, iterable objects or iterators, everything else
 
 **Examples:**
 
@@ -525,9 +525,9 @@ Handles dynamic calls to custom methods for the class.
 public function __call( string $name, array $params )
 ```
 
-* @param string `$name` Method name
-* @param array&#60;mixed&#62; `$params` List of parameters
-* @return mixed Result from called function or new map with results from the element methods
+* @param **string** `$name` Method name
+* @param **array&#60;mixed&#62;** `$params` List of parameters
+* @return **mixed** Result from called function or new map with results from the element methods
 
 Calls a custom method added by [Map::method()](#method). The called method
 has access to the internal array by using `$this->items`.
@@ -569,9 +569,9 @@ Handles static calls to custom methods for the class.
 public static function __callStatic( string $name, array $params )
 ```
 
-* @param string `$name` Method name
-* @param array&#60;mixed&#62; `$params` List of parameters
-* @return mixed Result from called function or new map with results from the element methods
+* @param **string** `$name` Method name
+* @param **array&#60;mixed&#62;** `$params` List of parameters
+* @return **mixed** Result from called function or new map with results from the element methods
 * @throws \BadMethodCallException
 
 Calls a custom method added by [Map::method()](#method) statically. The called method
@@ -593,8 +593,8 @@ Returns the elements after the given one.
 public function after( $value ) : self
 ```
 
-* @param \Closure&#124;int&#124;string `$value` Value or function with (item, key) parameters
-* @return self&#60;int&#124;string,mixed&#62; New map with the elements after the given one
+* @param **\Closure&#124;int&#124;string** `$value` Value or function with (item, key) parameters
+* @return **self&#60;int&#124;string,mixed&#62;** New map with the elements after the given one
 
 The keys are preserved using this method.
 
@@ -625,7 +625,7 @@ Returns the elements as a plain array.
 public function all() : array
 ```
 
-* @return array Plain array
+* @return **array** Plain array
 
 **Examples:**
 
@@ -643,8 +643,8 @@ Sorts all elements in reverse order and maintains the key association.
 public function arsort( int $options = SORT_REGULAR ) : self
 ```
 
-* @param int `$options` Sort options for `arsort()`
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **int** `$options` Sort options for `arsort()`
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 The keys are preserved using this method and no new map is created.
 
@@ -681,8 +681,8 @@ Sorts all elements and maintains the key association.
 public function asort( int $options = SORT_REGULAR ) : self
 ```
 
-* @param int `$options` Sort options for `asort()`
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **int** `$options` Sort options for `asort()`
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 The keys are preserved using this method and no new map is created.
 
@@ -719,8 +719,8 @@ Returns the value at the given position.
 public function at( int $pos )
 ```
 
-* @param int `$pos` Position of the value in the map
-* @return mixed&#134;null Value at the given position or NULL if no value is available
+* @param **int** `$pos` Position of the value in the map
+* @return **mixed&#134;null** Value at the given position or NULL if no value is available
 
 The position starts from zero and a position of "0" returns the first element
 of the map, "1" the second and so on. If the position is negative, the sequence
@@ -751,8 +751,8 @@ Returns the average of all integer and float values in the map.
 public function avg( string $key = null ) : float
 ```
 
-* @param string&#124;null `$key` Key or path to the values in the nested array or object to compute the average for
-* @return float Average of all elements or 0 if there are no elements in the map
+* @param **string&#124;null** `$key` Key or path to the values in the nested array or object to compute the average for
+* @return **float** Average of all elements or 0 if there are no elements in the map
 
 This does also work for multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
@@ -787,8 +787,8 @@ Returns the elements before the given one.
 public function before( $value ) : self
 ```
 
-* @param \Closure&#124;int&#124;string `$value` Value or function with (item, key) parameters
-* @return self&#60;int&#124;string,mixed&#62; New map with the elements before the given one
+* @param **\Closure&#124;int&#124;string** `$value` Value or function with (item, key) parameters
+* @return **self&#60;int&#124;string,mixed&#62;** New map with the elements before the given one
 
 The keys are preserved using this method.
 
@@ -819,9 +819,9 @@ Calls the given method on all items and returns the result.
 public function call( string $name, array $params = [] ) : self
 ```
 
-* @param string `$name` Method name
-* @param array&#60;mixed&#62; `$params` List of parameters
-* @return self&#60;int&#124;string,mixed&#62; New map with results from all elements
+* @param **string** `$name` Method name
+* @param **array&#60;mixed&#62;** `$params` List of parameters
+* @return **self&#60;int&#124;string,mixed&#62;** New map with results from all elements
 
 This method can call methods on the map entries that are also implemented
 by the map object itself and are therefore not reachable when using the
@@ -850,9 +850,9 @@ Chunks the map into arrays with the given number of elements.
 public function chunk( int $size, bool $preserve = false ) : self
 ```
 
-* @param int `$size` Maximum size of the sub-arrays
-* @param bool `$preserve` Preserve keys in new map
-* @return self&#60;int&#124;string,mixed&#62; New map with elements chunked in sub-arrays
+* @param **int** `$size` Maximum size of the sub-arrays
+* @param **bool** `$preserve` Preserve keys in new map
+* @return **self&#60;int&#124;string,mixed&#62;** New map with elements chunked in sub-arrays
 * @throws \InvalidArgumentException If size is smaller than 1
 
 The last chunk may contain less elements than the given number.
@@ -879,7 +879,7 @@ Removes all elements from the current map.
 public function clear() : self
 ```
 
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 **Examples:**
 
@@ -897,7 +897,7 @@ Clones the map and all objects within.
 public function clone() : self
 ```
 
-* @return self&#60;int&#124;string,mixed&#62; New map with cloned objects
+* @return **self&#60;int&#124;string,mixed&#62;** New map with cloned objects
 
 The objects within the Map are NOT the same as before but new cloned objects.
 This is different to [`copy()`](#copy), which doesn't clone the objects within.
@@ -920,9 +920,9 @@ Returns the values of a single column/property from an array of arrays or list o
 public function col( string $valuecol = null, string $indexcol = null ) : self
 ```
 
-* @param string&#124;null `$valuecol` Name or path of the value property
-* @param string&#124;null `$indexcol` Name or path of the index property
-* @return self&#60;int&#124;string,mixed&#62; New map with mapped entries
+* @param **string&#124;null** `$valuecol` Name or path of the value property
+* @param **string&#124;null** `$indexcol` Name or path of the index property
+* @return **self&#60;int&#124;string,mixed&#62;** New map with mapped entries
 
 If $indexcol is omitted, it's value is NULL or not set, the result will be indexed from 0-n.
 Items with the same value for $indexcol will overwrite previous items and only the last one
@@ -967,8 +967,8 @@ Collapses all sub-array elements recursively to a new map.
 public function collapse( int $depth = null ) : self
 ```
 
-* @param int&#124;null `$depth` Number of levels to collapse for multi-dimensional arrays or NULL for all
-* @return self&#60;int&#124;string,mixed&#62; New map with all sub-array elements added into it recursively, up to the specified depth
+* @param **int&#124;null** `$depth` Number of levels to collapse for multi-dimensional arrays or NULL for all
+* @return **self&#60;int&#124;string,mixed&#62;** New map with all sub-array elements added into it recursively, up to the specified depth
 
 The keys are preserved and already existing elements will be overwritten. This
 is also true for numeric keys! This method is similar than [flat()](#flat) but replaces
@@ -1006,8 +1006,8 @@ Pushs all of the given elements onto the map without creating a new map.
 public function concat( iterable $elements ) : self
 ```
 
-* @param iterable&#60;int&#124;string,mixed&#62; `$elements` List of elements
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **iterable&#60;int&#124;string,mixed&#62;** `$elements` List of elements
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 The keys of the passed elements are NOT preserved!
 
@@ -1030,8 +1030,8 @@ Combines the values of the map as keys with the passed elements as values.
 public function combine( iterable $values ) : self
 ```
 
-* @param iterable&#60;int&#124;string,mixed&#62; `$values` Values of the new map
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @param **iterable&#60;int&#124;string,mixed&#62;** `$values` Values of the new map
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 **Examples:**
 
@@ -1052,10 +1052,10 @@ public function contains( $key, string $operator = null, $value = null ) : bool
 This method combines the power of the `where()` method with `some()` to check
 if the map contains at least one of the passed values or conditions.
 
-* @param \Closure&#124;iterable&#124;mixed `$values` Anonymous function with (item, key) parameter, element or list of elements to test against
-* @param string&#124;null `$op` Operator used for comparison
-* @param mixed `$value` Value used for comparison
-* @return bool TRUE if at least one element is available in map, FALSE if the map contains none of them
+* @param **\Closure&#124;iterable&#124;mixed** `$values` Anonymous function with (item, key) parameter, element or list of elements to test against
+* @param **string&#124;null** `$op` Operator used for comparison
+* @param **mixed** `$value` Value used for comparison
+* @return **bool** TRUE if at least one element is available in map, FALSE if the map contains none of them
 
 Check the `[where()](#where)` method for available operators.
 
@@ -1089,7 +1089,7 @@ Creates a new map with the same elements.
 public function copy() : self
 ```
 
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 Both maps share the same array until one of the map objects modifies the
 array. Then, the array is copied and the copy is modfied (copy on write).
@@ -1112,7 +1112,7 @@ Counts the number of elements in the map.
 public function count() : int
 ```
 
-* @return int Number of elements
+* @return **int** Number of elements
 
 **Examples:**
 
@@ -1130,8 +1130,8 @@ Counts how often the same values are in the map.
 public function countBy( callable $callback = null ) : self
 ```
 
-* @param  callable&#124;null `$callback` Function with (value, key) parameters which returns the value to use for counting
-* @return self&#60;int&#124;string,mixed&#62; New map with values as keys and their count as value
+* @param **callable&#124;null** `$callback` Function with (value, key) parameters which returns the value to use for counting
+* @return **self&#60;int&#124;string,mixed&#62;** New map with values as keys and their count as value
 
 **Examples:**
 
@@ -1157,7 +1157,7 @@ Dumps the map content and terminates the script.
 public function dd( callable $callback = null ) : void
 ```
 
-* @param callable&#124;null `$callback` Function receiving the map elements as parameter (optional)
+* @param **callable&#124;null** `$callback` Function receiving the map elements as parameter (optional)
 
 The `dd()` method is very helpful to see what are the map elements passed
 between two map methods in a method call chain. It stops execution of the
@@ -1187,8 +1187,8 @@ Sets or returns the seperator for paths to values in multi-dimensional arrays or
 public static function delimiter( ?string $char = null ) : string
 ```
 
-* @param string `$char` Separator character, e.g. "." for "key.to.value" instaed of "key/to/value"
-* @return string Separator used up to now
+* @param **string** `$char` Separator character, e.g. "." for "key.to.value" instaed of "key/to/value"
+* @return **string** Separator used up to now
 
 The static method only changes the separator for new maps created afterwards.
 Already existing maps will continue to use the previous separator. To change
@@ -1213,9 +1213,9 @@ Returns the keys/values in the map whose values are not present in the passed el
 public function diff( iterable $elements, callable $callback = null ) : self
 ```
 
-* @param iterable&#60;int&#124;string,mixed&#62; `$elements` List of elements
-* @param  callable&#124;null `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @param **iterable&#60;int&#124;string,mixed&#62;** `$elements` List of elements
+* @param **callable&#124;null** `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 **Examples:**
 
@@ -1256,9 +1256,9 @@ Returns the keys/values in the map whose keys AND values are not present in the 
 public function diffAssoc( iterable $elements, callable $callback = null ) : self
 ```
 
-* @param iterable&#60;int&#124;string,mixed&#62; `$elements` List of elements
-* @param  callable&#124;null `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @param **iterable&#60;int&#124;string,mixed&#62;** `$elements` List of elements
+* @param **callable&#124;null** `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 **Examples:**
 
@@ -1300,9 +1300,9 @@ Returns the key/value pairs from the map whose keys are not present in the passe
 public function diffKeys( iterable $elements, callable $callback = null ) : self
 ```
 
-* @param iterable&#60;int&#124;string,mixed&#62; `$elements` List of elements
-* @param  callable&#124;null `$callback` Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @param **iterable&#60;int&#124;string,mixed&#62;** `$elements` List of elements
+* @param **callable&#124;null** `$callback` Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 **Examples:**
 
@@ -1344,8 +1344,8 @@ Dumps the map content using the given function (print_r by default).
 public function dump( callable $callback = null ) : self
 ```
 
-* @param callable&#124;null `$callback` Function receiving the map elements as parameter (optional)
-* @return self&#60;int&#124;string,mixed&#62; Same map for fluid interface
+* @param **callable&#124;null** `$callback` Function receiving the map elements as parameter (optional)
+* @return **self&#60;int&#124;string,mixed&#62;** Same map for fluid interface
 
 The `dump()` method is very helpful to see what are the map elements passed
 between two map methods in a method call chain.
@@ -1379,8 +1379,8 @@ Returns the duplicate values from the map.
 public function duplicates( string $col = null ) : self
 ```
 
-* @param string&#124;null `$col` Key of the nested array or object to check for
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @param **string&#124;null** `$col` Key of the nested array or object to check for
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 For nested arrays, you have to pass the name of the column of the nested array which
 should be used to check for duplicates.
@@ -1414,8 +1414,8 @@ Executes a callback over each entry until FALSE is returned.
 public function each( \Closure $callback ) : self
 ```
 
-* @param \Closure `$callback` Function with (value, key) parameters and returns TRUE/FALSE
-* @return self&#60;int&#124;string,mixed&#62; Same map for fluid interface
+* @param **\Closure** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
+* @return **self&#60;int&#124;string,mixed&#62;** Same map for fluid interface
 
 **Examples:**
 
@@ -1440,7 +1440,7 @@ Determines if the map is empty or not.
 public function empty() : bool
 ```
 
-* @return bool TRUE if map is empty, FALSE if not
+* @return **bool** TRUE if map is empty, FALSE if not
 
 The method is equivalent to isEmpty().
 
@@ -1463,8 +1463,8 @@ Tests if the passed elements are equal to the elements in the map.
 public function equals( iterable $elements ) : bool
 ```
 
-* @param iterable&#60;int&#124;string,mixed&#62; `$elements` List of elements to test against
-* @return bool TRUE if both are equal, FALSE if not
+* @param **iterable&#60;int&#124;string,mixed&#62;** `$elements` List of elements to test against
+* @return **bool** TRUE if both are equal, FALSE if not
 
 The method differs to [is()](#is) in the fact that it doesn't care about the keys
 by default. The elements are only loosely compared and the keys are ignored.
@@ -1496,8 +1496,8 @@ Verifies that all elements pass the test of the given callback.
 public function every( \Closure $callback ) : bool
 ```
 
-* @param \Closure `$callback` Function with (value, key) parameters and returns TRUE/FALSE
-* @return bool True if all elements pass the test, false if if fails for at least one element
+* @param **\Closure** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
+* @return **bool** True if all elements pass the test, false if if fails for at least one element
 
 **Examples:**
 
@@ -1522,8 +1522,8 @@ Returns a new map without the passed element keys.
 public function except( $keys ) : self
 ```
 
-* @param iterable&#60;int&#124;string&#62;&#124;array&#60;int&#124;string&#62;&#124;string&#124;int `$keys` List of keys to remove
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @param **iterable&#60;int&#124;string&#62;&#124;array&#60;int&#124;string&#62;&#124;string&#124;int** `$keys` List of keys to remove
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 The keys in the result map are preserved.
 
@@ -1546,10 +1546,10 @@ Creates a new map with the string splitted by the delimiter.
 public static function explode( string $delimiter , string $string , int $limit = PHP_INT_MAX ) : self
 ```
 
-* @param string `$delimiter` Delimiter character, string or empty string
-* @param string `$string` String to split
-* @param int `$limit` Maximum number of element with the last element containing the rest of the string
-* @return self&#60;int&#124;string,mixed&#62; New map with splitted parts
+* @param **string** `$delimiter` Delimiter character, string or empty string
+* @param **string** `$string` String to split
+* @param **int** `$limit` Maximum number of element with the last element containing the rest of the string
+* @return **self&#60;int&#124;string,mixed&#62;** New map with splitted parts
 
 A limit of "0" is treated the same as "1". If limit is negative, the rest of
 the string is dropped and not part of the returned map.
@@ -1591,8 +1591,8 @@ Runs a filter over each element of the map and returns a new map.
 public function filter( callable $callback = null ) : self
 ```
 
-* @param  callable&#124;null `$callback` Function with (item) parameter and returns TRUE/FALSE
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @param **callable&#124;null** `$callback` Function with (item) parameter and returns TRUE/FALSE
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 If no callback is passed, all values which are empty, null or false will be
 removed if their value converted to boolean is FALSE:
@@ -1623,10 +1623,10 @@ Returns the first matching element where the callback returns TRUE.
 public function find( \Closure $callback, $default = null, bool $reverse = false )
 ```
 
-* @param \Closure `$callback` Function with (value, key) parameters and returns TRUE/FALSE
-* @param mixed `$default` Default value or exception if the map contains no elements
-* @param bool `$reverse` TRUE to test elements from back to front, FALSE for front to back (default)
-* @return mixed&#124;null First matching value, passed default value or an exception
+* @param **\Closure** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
+* @param **mixed** `$default` Default value or exception if the map contains no elements
+* @param **bool** `$reverse` TRUE to test elements from back to front, FALSE for front to back (default)
+* @return **mixed&#124;null** First matching value, passed default value or an exception
 
 **Examples:**
 
@@ -1661,8 +1661,8 @@ Returns the first element from the map.
 public function first( $default = null )
 ```
 
-* @param mixed `$default` Default value or exception if the map contains no elements
-* @return mixed First value of map, (generated) default value or an exception
+* @param **mixed** `$default` Default value or exception if the map contains no elements
+* @return **mixed** First value of map, (generated) default value or an exception
 
 **Examples:**
 
@@ -1689,7 +1689,7 @@ Returns the first key from the map.
 public function firstKey()
 ```
 
-* @return mixed First key of map or NULL if empty
+* @return **mixed** First key of map or NULL if empty
 
 **Examples:**
 
@@ -1710,8 +1710,8 @@ Creates a new map with all sub-array elements added recursively.
 public function flat( int $depth = null ) : self
 ```
 
-* @param int&#124;null `$depth` Number of levels to flatten multi-dimensional arrays
-* @return self&#60;int&#124;string,mixed&#62; New map with all sub-array elements added into it recursively, up to the specified depth
+* @param **int&#124;null** `$depth` Number of levels to flatten multi-dimensional arrays
+* @return **self&#60;int&#124;string,mixed&#62;** New map with all sub-array elements added into it recursively, up to the specified depth
 
 The keys are not preserved and the new map elements will be numbered from
 0-n. A value smaller than 1 for depth will return the same map elements
@@ -1746,7 +1746,7 @@ Exchanges the keys with their values and vice versa.
 public function flip() : self
 ```
 
-* @return self&#60;int&#124;string,mixed&#62; New map with keys as values and values as keys
+* @return **self&#60;int&#124;string,mixed&#62;** New map with keys as values and values as keys
 
 **Examples:**
 
@@ -1764,8 +1764,8 @@ Creates a new map instance if the value isn't one already.
 public static function from( $elements = [] ) : self
 ```
 
-* @param mixed `$elements` List of elements or single value
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @param **mixed** `$elements` List of elements or single value
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 **Examples:**
 
@@ -1803,8 +1803,8 @@ Creates a new map instance from a JSON string.
 public static function fromJson( string $json, int $options = JSON_BIGINT_AS_STRING ) : self
 ```
 
-* @param int `$options` Combination of JSON_* constants
-* @return self&#60;int&#124;string,mixed&#62; New map from decoded JSON string
+* @param **int** `$options` Combination of JSON_* constants
+* @return **self&#60;int&#124;string,mixed&#62;** New map from decoded JSON string
 * @throws \RuntimeException If the passed JSON string is invalid
 
 There are several options available for decoding the JSON string which are described in
@@ -1842,9 +1842,9 @@ Returns an element from the map by key.
 public function get( $key, $default = null )
 ```
 
-* @param int&#124;string `$key` Key or path to the requested item
-* @param mixed `$default` Default value if no element matches
-* @return mixed Value from map or default value
+* @param **int&#124;string** `$key` Key or path to the requested item
+* @param **mixed** `$default` Default value if no element matches
+* @return **mixed** Value from map or default value
 
 This does also work to map values from multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
@@ -1879,7 +1879,7 @@ Returns an iterator for the elements.
 public function getIterator() : \ArrayIterator
 ```
 
-* @return \Iterator Over map elements
+* @return **\Iterator** Over map elements
 
 This method will be used by e.g. `foreach()` to loop over all entries.
 
@@ -1900,9 +1900,9 @@ Returns only items which matches the regular expression.
 public function grep( string $pattern, int $flags = 0 ) : self
 ```
 
-* @param string `$pattern` Regular expression pattern, e.g. "/ab/"
-* @param int `$flags` PREG_GREP_INVERT to return elements not matching the pattern
-* @return self&#60;int&#124;string,mixed&#62; New map containing only the matched elements
+* @param **string** `$pattern` Regular expression pattern, e.g. "/ab/"
+* @param **int** `$flags` PREG_GREP_INVERT to return elements not matching the pattern
+* @return **self&#60;int&#124;string,mixed&#62;** New map containing only the matched elements
 
 All items are converted to string first before they are compared to the
 regular expression. Thus, fractions of ".0" will be removed in float numbers
@@ -1931,8 +1931,8 @@ Groups associative array elements or objects by the passed key or closure.
 public function groupBy( $key ) : self
 ```
 
-* @param \Closure&#124;string&#124;int `$key` Closure function with (item, idx) parameters returning the key or the key itself to group by
-* @return self&#60;int&#124;string,mixed&#62; New map with elements grouped by the given key
+* @param **\Closure&#124;string&#124;int** `$key` Closure function with (item, idx) parameters returning the key or the key itself to group by
+* @return **self&#60;int&#124;string,mixed&#62;** New map with elements grouped by the given key
 
 Instead of overwriting items with the same keys like to the [col()](#col) method does,
 [groupBy()](#groupby) keeps all entries in sub-arrays. It's preserves the keys of the
@@ -2007,8 +2007,8 @@ Determines if a key or several keys exists in the map.
 public function has( $key ) : bool
 ```
 
-* @param array&#60;int&#124;string&#60;&#124;int&#124;string `$key` Key or path to the requested item
-* @return bool TRUE if key is available in map, FALSE if not
+* @param **array&#60;int&#124;string&#60;&#124;int&#124;string** `$key` Key or path to the requested item
+* @return **bool** TRUE if key is available in map, FALSE if not
 
 If several keys are passed as array, all keys must exist in the map to
 return TRUE.
@@ -2049,10 +2049,10 @@ Executes callbacks depending on the condition.
 public function if( $condition, \Closure $then, \Closure $else = null ) : self
 ```
 
-* @param \Closure&#124;bool `$condition` Boolean or function with (map) parameter returning a boolean
-* @param \Closure `$then` Function with (map) parameter
-* @param \Closure&#124;null `$else` Function with (map) parameter (optional)
-* @return self&#60;int&#124;string,mixed&#62; New map for fluid interface
+* @param **\Closure&#124;bool** `$condition` Boolean or function with (map) parameter returning a boolean
+* @param **\Closure** `$then` Function with (map) parameter
+* @param **\Closure&#124;null** `$else` Function with (map) parameter (optional)
+* @return **self&#60;int&#124;string,mixed&#62;** New map for fluid interface
 
 If callbacks for "then" and/or "else" are passed, these callbacks will be
 executed and their returned value is passed back within a Map object. In
@@ -2108,9 +2108,9 @@ a void return type and must/will always return something. Details about
 public function ifEmpty( \Closure $then = null, \Closure $else = null ) : self
 ```
 
-* @param \Closure|null `$then` Function with (map, condition) parameter (optional)
-* @param \Closure|null `$else` Function with (map, condition) parameter (optional)
-* @return self<int|string,mixed> New map for fluid interface
+* @param **\Closure|null** `$then` Function with (map, condition) parameter (optional)
+* @param **\Closure|null** `$else` Function with (map, condition) parameter (optional)
+* @return **self<int|string,mixed>** New map for fluid interface
 
 If callbacks for "then" and/or "else" are passed, these callbacks will be
 executed and their returned value is passed back within a Map object. In
@@ -2146,9 +2146,9 @@ Tests if all entries in the map are objects implementing the given interface.
 public function implements( string $interface, $throw = false ) : bool
 ```
 
-* @param string `$interface` Name of the interface that must be implemented
-* @param \Throwable&#124;bool `$throw` Passing TRUE or an exception name will throw the exception instead of returning FALSE
-* @return bool TRUE if all entries implement the interface or FALSE if at least one doesn't
+* @param **string** `$interface` Name of the interface that must be implemented
+* @param **\Throwable&#124;bool** `$throw` Passing TRUE or an exception name will throw the exception instead of returning FALSE
+* @return **bool** TRUE if all entries implement the interface or FALSE if at least one doesn't
 * @throws \UnexpectedValueException&#124;\Throwable If one entry doesn't implement the interface
 
 **Examples:**
@@ -2179,9 +2179,9 @@ Tests if the passed element or elements are part of the map.
 public function in( $element, bool $strict = false ) : bool
 ```
 
-* @param mixed&#124;array `$element` Element or elements to search for in the map
-* @param bool `$strict` TRUE to check the type too, using FALSE '1' and 1 will be the same
-* @return bool TRUE if all elements are available in map, FALSE if not
+* @param **mixed&#124;array** `$element` Element or elements to search for in the map
+* @param **bool** `$strict` TRUE to check the type too, using FALSE '1' and 1 will be the same
+* @return **bool** TRUE if all elements are available in map, FALSE if not
 
 **Examples:**
 
@@ -2211,9 +2211,9 @@ Tests if the passed element or elements are part of the map.
 public function includes( $element, bool $strict = false ) : bool
 ```
 
-* @param mixed&#124;array `$element` Element or elements to search for in the map
-* @param bool `$strict` TRUE to check the type too, using FALSE '1' and 1 will be the same
-* @return bool TRUE if all elements are available in map, FALSE if not
+* @param **mixed&#124;array** `$element` Element or elements to search for in the map
+* @param **bool** `$strict` TRUE to check the type too, using FALSE '1' and 1 will be the same
+* @return **bool** TRUE if all elements are available in map, FALSE if not
 
 This method is an alias for [in()](#in). For performance reasons, `in()` should be preferred
 because it uses one method call less than `includes()`.
@@ -2246,8 +2246,8 @@ Returns the numerical index of the given key.
 public function index( $value ) : ?int
 ```
 
-* @param \Closure&#124;string&#124;int `$value` Key to search for or function with (key) parameters return TRUE if key is found
-* @return int&#124;null Position of the found value (zero based) or NULL if not found
+* @param **\Closure&#124;string&#124;int** `$value` Key to search for or function with (key) parameters return TRUE if key is found
+* @return **int&#124;null** Position of the found value (zero based) or NULL if not found
 
 **Examples:**
 
@@ -2273,9 +2273,9 @@ Inserts the value or values after the given element.
 public function insertAfter( $element, $value ) : self
 ```
 
-* @param mixed `$element` Element after the value is inserted
-* @param mixed `$value` Element or list of elements to insert
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **mixed** `$element` Element after the value is inserted
+* @param **mixed** `$value` Element or list of elements to insert
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 Numerical array indexes are not preserved.
 
@@ -2301,10 +2301,10 @@ Inserts the item at the given position in the map.
 public function insertAt( int $pos, $element, $key = null ) : self
 ```
 
-* @param int `$pos` Position the element it should be inserted at
-* @param mixed `$element` Element to be inserted
-* @param mixed&#124;null `$key` Element key or NULL to assign an integer key automatically
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **int** `$pos` Position the element it should be inserted at
+* @param **mixed** `$element` Element to be inserted
+* @param **mixed&#124;null** `$key` Element key or NULL to assign an integer key automatically
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 **Examples:**
 
@@ -2331,9 +2331,9 @@ Inserts the value or values before the given element.
 public function insertBefore( $element, $value ) : self
 ```
 
-* @param mixed `$element` Element before the value is inserted
-* @param mixed `$value` Element or list of elements to insert
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **mixed** `$element` Element before the value is inserted
+* @param **mixed** `$value` Element or list of elements to insert
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 Numerical array indexes are not preserved.
 
@@ -2359,9 +2359,9 @@ Returns all values in a new map that are available in both, the map and the give
 public function intersect( iterable $elements, callable $callback = null ) : self
 ```
 
-* @param iterable&#60;int&#124;string,mixed&#62; `$elements` List of elements
-* @param  callable&#124;null `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @param **iterable&#60;int&#124;string,mixed&#62;** `$elements` List of elements
+* @param **callable&#124;null** `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 The keys are preserved using this method.
 
@@ -2399,9 +2399,9 @@ Returns all values in a new map that are available in both, the map and the give
 public function intersectAssoc( iterable $elements, callable $callback = null ) : self
 ```
 
-* @param iterable&#60;int&#124;string,mixed&#62; `$elements` List of elements
-* @param  callable&#124;null `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @param **iterable&#60;int&#124;string,mixed&#62;** `$elements` List of elements
+* @param **callable&#124;null** `$callback` Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 The keys are preserved using this method.
 
@@ -2439,9 +2439,9 @@ Returns all values in a new map that are available in both, the map and the give
 public function intersectKeys( iterable $elements, callable $callback = null ) : self
 ```
 
-* @param iterable&#60;int&#124;string,mixed&#62; `$elements` List of elements
-* @param  callable&#124;null `$callback` Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @param **iterable&#60;int&#124;string,mixed&#62;** `$elements` List of elements
+* @param **callable&#124;null** `$callback` Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 The keys are preserved using this method.
 
@@ -2479,9 +2479,9 @@ Tests if the map consists of the same keys and values
 public function is( iterable $list, bool $strict = false ) : bool
 ```
 
-* @param iterable&#60;int&#124;string,mixed&#62; `$list` List of key/value pairs to compare with
-* @param bool `$strict` TRUE for comparing order of elements too, FALSE for key/values only
-* @return bool TRUE if given list is equal, FALSE if not
+* @param **iterable&#60;int&#124;string,mixed&#62;** `$list` List of key/value pairs to compare with
+* @param **bool** `$strict` TRUE for comparing order of elements too, FALSE for key/values only
+* @return **bool** TRUE if given list is equal, FALSE if not
 
 **Examples:**
 
@@ -2505,7 +2505,7 @@ Determines if the map is empty or not.
 public function isEmpty() : bool
 ```
 
-* @return bool TRUE if map is empty, FALSE if not
+* @return **bool** TRUE if map is empty, FALSE if not
 
 The method is equivalent to [empty()](#empty).
 
@@ -2528,8 +2528,8 @@ Concatenates the string representation of all elements.
 public function join( $glue = '' ) : string
 ```
 
-* @param string `$glue` Character or string added between elements
-* @return string String of concatenated map elements
+* @param **string** `$glue` Character or string added between elements
+* @return **string** String of concatenated map elements
 
 Objects that implement `__toString()` does also work, otherwise (and in case
 of arrays) a PHP notice is generated. NULL and FALSE values are treated as
@@ -2554,7 +2554,7 @@ Specifies the data which should be serialized to JSON by json_encode().
 public function jsonSerialize()
 ```
 
-* @return array&#60;int&#124;string,mixed&#62; Data to serialize to JSON
+* @return **array&#60;int&#124;string,mixed&#62;** Data to serialize to JSON
 
 **Examples:**
 
@@ -2575,7 +2575,7 @@ Returns the keys of the map elements in a new map object.
 public function keys() : self
 ```
 
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 **Examples:**
 
@@ -2596,8 +2596,8 @@ Sorts the elements by their keys in reverse order.
 public function krsort( int $options = SORT_REGULAR ) : self
 ```
 
-* @param int `$options` Sort options for `krsort()`
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **int** `$options` Sort options for `krsort()`
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 The parameter modifies how the keys are compared. Possible values are:
 - SORT_REGULAR : compare elements normally (don't change types)
@@ -2628,8 +2628,8 @@ Sorts the elements by their keys.
 public function ksort( int $options = SORT_REGULAR ) : self
 ```
 
-* @param int `$options` Sort options for `ksort()`
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **int** `$options` Sort options for `ksort()`
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 The parameter modifies how the keys are compared. Possible values are:
 - SORT_REGULAR : compare elements normally (don't change types)
@@ -2660,8 +2660,8 @@ Returns the last element from the map.
 public function last( $default = null )
 ```
 
-* @param mixed `$default` Default value or exception if the map contains no elements
-* @return mixed Last value of map, (generated) default value or an exception
+* @param **mixed** `$default` Default value or exception if the map contains no elements
+* @return **mixed** Last value of map, (generated) default value or an exception
 
 **Examples:**
 
@@ -2688,7 +2688,7 @@ Returns the last key from the map.
 public function lastKey()
 ```
 
-* @return mixed Last key of map or NULL if empty
+* @return **mixed** Last key of map or NULL if empty
 
 **Examples:**
 
@@ -2709,8 +2709,8 @@ Calls the passed function once for each element and returns a new map for the re
 public function map( callable $callback ) : self
 ```
 
-* @param callable `$callback` Function with (value, key) parameters and returns computed result
-* @return self&#60;int&#124;string,mixed&#62; New map with the original keys and the computed values
+* @param **callable** `$callback` Function with (value, key) parameters and returns computed result
+* @return **self&#60;int&#124;string,mixed&#62;** New map with the original keys and the computed values
 
 The keys are preserved using this method.
 
@@ -2732,8 +2732,8 @@ Returns the maximum value of all elements.
 public function max( string $col = null )
 ```
 
-* @param string&#124;null `$col` Key in the nested array or object to check for
-* @return mixed Maximum value or NULL if there are no elements in the map
+* @param **string&#124;null** `$col` Key in the nested array or object to check for
+* @return **mixed** Maximum value or NULL if there are no elements in the map
 
 This does also work to map values from multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
@@ -2768,9 +2768,9 @@ Merges the map with the given elements without returning a new map.
 public function merge( iterable $elements, bool $recursive = false ) : self
 ```
 
-* @param iterable&#60;int&#124;string,mixed&#62; `$elements` List of elements
-* @param bool `$recursive` TRUE to merge nested arrays too, FALSE for first level elements only
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **iterable&#60;int&#124;string,mixed&#62;** `$elements` List of elements
+* @param **bool** `$recursive` TRUE to merge nested arrays too, FALSE for first level elements only
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 Elements with the same non-numeric keys will be overwritten, elements with the
 same numeric keys will be added.
@@ -2803,9 +2803,9 @@ Registers a custom method or returns the existing one.
 public static function method( string $method, \Closure $fcn = null ) : ?\Closure
 ```
 
-* @param string `$method` Method name
-* @param \Closure&#124;null `$fcn` Anonymous function or NULL to return the closure if available
-* @return \Closure&#124;null Registered anonymous function or NULL if none has been registered
+* @param **string** `$method` Method name
+* @param **\Closure&#124;null** `$fcn` Anonymous function or NULL to return the closure if available
+* @return **\Closure&#124;null** Registered anonymous function or NULL if none has been registered
 
 The registed method has access to the class properties if called non-static.
 
@@ -2851,8 +2851,8 @@ Returns the minimum value of all elements.
 public function min( string $col = null )
 ```
 
-* @param string&#124;null `$col` Key in the nested array or object to check for
-* @return mixed Minimum value or NULL if there are no elements in the map
+* @param **string&#124;null** `$col` Key in the nested array or object to check for
+* @return **mixed** Minimum value or NULL if there are no elements in the map
 
 This does also work to map values from multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
@@ -2887,9 +2887,9 @@ Tests if none of the elements are part of the map.
 public function none( $element, bool $strict = false ) : bool
 ```
 
-* @param mixed&#124;array `$element` Element or elements to search for in the map
-* @param bool `$strict` TRUE to check the type too, using FALSE '1' and 1 will be the same
-* @return bool TRUE if none of the elements is part of the map, FALSE if at least one is
+* @param **mixed&#124;array** `$element` Element or elements to search for in the map
+* @param **bool** `$strict` TRUE to check the type too, using FALSE '1' and 1 will be the same
+* @return **bool** TRUE if none of the elements is part of the map, FALSE if at least one is
 
 **Examples:**
 
@@ -2919,9 +2919,9 @@ Returns every nth element from the map.
 public function nth( int $step, int $offset = 0 ) : self
 ```
 
-* @param int `$step` Step width
-* @param int `$offset` Number of element to start from (0-based)
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @param **int** `$step` Step width
+* @param **int** `$offset` Number of element to start from (0-based)
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 **Examples:**
 
@@ -2942,8 +2942,8 @@ Determines if an element exists at an offset.
 public function offsetExists( $key )
 ```
 
-* @param int&#124;string `$key` Key to check for
-* @return bool TRUE if key exists, FALSE if not
+* @param **int&#124;string** `$key` Key to check for
+* @return **bool** TRUE if key exists, FALSE if not
 
 **Examples:**
 
@@ -2969,8 +2969,8 @@ Returns an element at a given offset.
 public function offsetGet( $key )
 ```
 
-* @param int&#124;string `$key` Key to return the element for
-* @return mixed Value associated to the given key
+* @param **int&#124;string** `$key` Key to return the element for
+* @return **mixed** Value associated to the given key
 
 **Examples:**
 
@@ -2990,8 +2990,8 @@ Sets the element at a given offset.
 public function offsetSet( $key, $value )
 ```
 
-* @param int&#124;string&#124;null `$key` Key to set the element for or NULL to append value
-* @param mixed `$value` New value set for the key
+* @param **int&#124;string&#124;null** `$key` Key to set the element for or NULL to append value
+* @param **mixed** `$value` New value set for the key
 
 **Examples:**
 
@@ -3014,7 +3014,7 @@ Unsets the element at a given offset.
 public function offsetUnset( $key )
 ```
 
-* @param int&#124;string `$key` Key for unsetting the item
+* @param **int&#124;string** `$key` Key for unsetting the item
 
 **Examples:**
 
@@ -3034,8 +3034,8 @@ Returns a new map with only those elements specified by the given keys.
 public function only( $keys ) : self
 ```
 
-* @param iterable&#60;mixed&#62;&#124;array&#60;mixed&#62;&#124;string&#124;int `$keys` Keys of the elements that should be returned
-* @return self&#60;int&#124;string,mixed&#62; New map with only the elements specified by the keys
+* @param **iterable&#60;mixed&#62;&#124;array&#60;mixed&#62;&#124;string&#124;int** `$keys` Keys of the elements that should be returned
+* @return **self&#60;int&#124;string,mixed&#62;** New map with only the elements specified by the keys
 
 The keys are preserved using this method.
 
@@ -3058,8 +3058,8 @@ Returns a new map with elements ordered by the passed keys.
 public function order( iterable $keys ) : self
 ```
 
-* @param iterable&#60;mixed&#62; `$keys` Keys of the elements in the required order
-* @return self&#60;int&#124;string,mixed&#62; New map with elements ordered by the passed keys
+* @param **iterable&#60;mixed&#62;** `$keys` Keys of the elements in the required order
+* @return **self&#60;int&#124;string,mixed&#62;** New map with elements ordered by the passed keys
 
 The keys are preserved using this method.
 
@@ -3085,9 +3085,9 @@ Fill up to the specified length with the given value
 public function pad( int $size, $value = null ) : self
 ```
 
-* @param int `$size` Total number of elements that should be in the list
-* @param mixed `$value` Value to fill up with if the map length is smaller than the given size
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **int** `$size` Total number of elements that should be in the list
+* @param **mixed** `$value` Value to fill up with if the map length is smaller than the given size
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 In case the given number is smaller than the number of element that are
 already in the list, the map is unchanged. If the size is positive, the
@@ -3128,8 +3128,8 @@ Breaks the list of elements into the given number of groups.
 public function partition( $num ) : self
 ```
 
-* @param \Closure&#124;int `$number` Function with (value, index) as arguments returning the bucket key or number of groups
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @param **\Closure&#124;int** `$number` Function with (value, index) as arguments returning the bucket key or number of groups
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 The keys of the original map are preserved in the returned map.
 
@@ -3154,8 +3154,8 @@ Passes the map to the given callback and return the result.
 public function pipe( \Closure $callback )
 ```
 
-* @param \Closure `$callback` Function with map as parameter which returns arbitrary result
-* @return mixed Result returned by the callback
+* @param **\Closure** `$callback` Function with map as parameter which returns arbitrary result
+* @return **mixed** Result returned by the callback
 
 **Examples:**
 
@@ -3175,9 +3175,9 @@ Returns the values of a single column/property from an array of arrays or list o
 public function pluck( string $valuecol = null, string $indexcol = null ) : self
 ```
 
-* @param string&#124;null `$valuecol` Name or path of the value property
-* @param string&#124;null `$indexcol` Name or path of the index property
-* @return self&#60;int&#124;string,mixed&#62; New map with mapped entries
+* @param **string&#124;null** `$valuecol` Name or path of the value property
+* @param **string&#124;null** `$indexcol` Name or path of the index property
+* @return **self&#60;int&#124;string,mixed&#62;** New map with mapped entries
 
 This method is an alias for [col()](#col). For performance reasons, `col()` should
 be preferred because it uses one method call less than `pluck()`.
@@ -3191,7 +3191,7 @@ Returns and removes the last element from the map.
 public function pop()
 ```
 
-* @return mixed Last element of the map or null if empty
+* @return **mixed** Last element of the map or null if empty
 
 **Examples:**
 
@@ -3209,8 +3209,8 @@ Returns the numerical index of the value.
 public function pos( $value ) : ?int
 ```
 
-* @param \Closure&#124;mixed `$value` Value to search for or function with (item, key) parameters return TRUE if value is found
-* @return int&#124;null Position of the found value (zero based) or NULL if not found
+* @param **\Closure&#124;mixed** `$value` Value to search for or function with (item, key) parameters return TRUE if value is found
+* @return **int&#124;null** Position of the found value (zero based) or NULL if not found
 
 **Examples:**
 
@@ -3236,9 +3236,9 @@ Adds a prefix in front of each map entry.
 public function prefix( $prefix, int $depth = null ) : self
 ```
 
-* @param \Closure&#124;string `$prefix` Function with map as parameter which returns arbitrary result
-* @param int&#124;null `$depth` Maximum depth to dive into multi-dimensional arrays starting from "1"
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **\Closure&#124;string** `$prefix` Function with map as parameter which returns arbitrary result
+* @param **int&#124;null** `$depth` Maximum depth to dive into multi-dimensional arrays starting from "1"
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 By default, nested arrays are walked recusively so all entries at all levels are prefixed.
 The keys of the original map are preserved in the returned map.
@@ -3270,9 +3270,9 @@ Pushes an element onto the beginning of the map without returning a new map.
 public function prepend( $value, $key = null ) : self
 ```
 
-* @param mixed `$value` Item to add at the beginning
-* @param int&#124;string&#124;null `$key` Key for the item or NULL to reindex all numerical keys
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **mixed** `$value` Item to add at the beginning
+* @param **int&#124;string&#124;null** `$key` Key for the item or NULL to reindex all numerical keys
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 This method is an alias for the [unshift()](#unshift) method.
 
@@ -3295,9 +3295,9 @@ Returns and removes an element from the map by its key.
 public function pull( $key, $default = null )
 ```
 
-* @param int&#124;string `$key` Key to retrieve the value for
-* @param mixed `$default` Default value if key isn't available
-* @return mixed Value from map or default value
+* @param **int&#124;string** `$key` Key to retrieve the value for
+* @param **mixed** `$default` Default value if key isn't available
+* @return **mixed** Value from map or default value
 
 **Examples:**
 
@@ -3318,8 +3318,8 @@ Adds an element onto the end of the map without returning a new map.
 public function push( $value ) : self
 ```
 
-* @param mixed `$value` Value to add to the end
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **mixed** `$value` Value to add to the end
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 **Examples:**
 
@@ -3340,9 +3340,9 @@ public function put( $key, $value ) : self
 This method is an alias for `set()`. For performance reasons, `set()` should be
 preferred because it uses one method call less than `put()`.
 
-* @param int&#124;string `$key` Key to set the new value for
-* @param mixed `$value` New element that should be set
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **int&#124;string** `$key` Key to set the new value for
+* @param **mixed** `$value` New element that should be set
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 **Examples:**
 
@@ -3363,8 +3363,8 @@ Returns one or more random element from the map.
 public function random( int $max = 1 ) : self
 ```
 
-* @param int `$max` Maximum number of elements that should be returned
-* @return self&#60;int&#124;string,mixed&#62; New map with key/element pairs from original map in random order
+* @param **int** `$max` Maximum number of elements that should be returned
+* @return **self&#60;int&#124;string,mixed&#62;** New map with key/element pairs from original map in random order
 * @throws \InvalidArgumentException If requested number of elements is less than 1
 
 The less elements are in the map, the less random the order will be, especially
@@ -3394,9 +3394,9 @@ Iteratively reduces the array to a single value using a callback function.
 public function reduce( callable $callback, $initial = null )
 ```
 
-* @param callable `$callback` Function with (result, value) parameters and returns result
-* @param mixed `$initial` Initial value when computing the result
-* @return mixed Value computed by the callback function
+* @param **callable** `$callback` Function with (result, value) parameters and returns result
+* @param **mixed** `$initial` Initial value when computing the result
+* @return **mixed** Value computed by the callback function
 
 Afterwards, the map will be empty.
 
@@ -3418,8 +3418,8 @@ Removes all matched elements and returns a new map.
 public function reject( $callback = true ) : self
 ```
 
-* @param  Closure&#124;mixed `$callback` Function with (item) parameter which returns TRUE/FALSE or value to compare with
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @param **Closure&#124;mixed** `$callback` Function with (item) parameter which returns TRUE/FALSE or value to compare with
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 This method is the inverse of the [filter()](#filter) and should return TRUE
 if the item should be removed from the returned map.
@@ -3451,8 +3451,8 @@ Changes the keys according to the passed function.
 public function rekey( callable $callback ) : self
 ```
 
-* @param callable `$callback` Function with (value, key) parameters and returns new key
-* @return self&#60;int&#124;string,mixed&#62; New map with new keys and original values
+* @param **callable** `$callback` Function with (value, key) parameters and returns new key
+* @return **self&#60;int&#124;string,mixed&#62;** New map with new keys and original values
 
 **Examples:**
 
@@ -3472,8 +3472,8 @@ Removes one or more elements from the map by its keys without returning a new ma
 public function remove( $keys ) : self
 ```
 
-* @param iterable&#60;int&#124;string&#62;&#124;array&#60;int&#124;string&#62;&#124;string&#124;int `$keys` List of keys
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **iterable&#60;int&#124;string&#62;&#124;array&#60;int&#124;string&#62;&#124;string&#124;int** `$keys` List of keys
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 **Examples:**
 
@@ -3494,9 +3494,9 @@ Replaces elements in the map with the given elements without returning a new map
 public function replace( iterable $elements, bool $recursive = true ) : self
 ```
 
-* @param iterable&#60;int&#124;string,mixed&#62; `$elements` List of elements
-* @param bool `$recursive` TRUE to replace recursively (default), FALSE to replace elements only
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **iterable&#60;int&#124;string,mixed&#62;** `$elements` List of elements
+* @param **bool** `$recursive` TRUE to replace recursively (default), FALSE to replace elements only
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 The method is similar to [merge()](#merge) but also replaces elements with numeric keys.
 These would be added by `merge()` with a new numeric key.
@@ -3522,7 +3522,7 @@ Reverses the element order without returning a new map.
 public function reverse() : self
 ```
 
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 The keys are preserved using this method.
 
@@ -3545,8 +3545,8 @@ Sorts all elements in reverse order without maintaining the key association.
 public function rsort( int $options = SORT_REGULAR ) : self
 ```
 
-* @param int `$options` Sort options for `rsort()`
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **int** `$options` Sort options for `rsort()`
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 The parameter modifies how the values are compared. Possible parameter values are:
 - SORT_REGULAR : compare elements normally (don't change types)
@@ -3583,9 +3583,9 @@ Searches the map for a given value and return the corresponding key if successfu
 public function search( $value, $strict = true )
 ```
 
-* @param mixed `$value` Item to search for
-* @param bool `$strict` TRUE if type of the element should be checked too
-* @return mixed&#124;null Value from map or null if not found
+* @param **mixed** `$value` Item to search for
+* @param **bool** `$strict` TRUE if type of the element should be checked too
+* @return **mixed&#124;null** Value from map or null if not found
 
 **Examples:**
 
@@ -3606,8 +3606,8 @@ Sets the seperator for paths to values in multi-dimensional arrays or objects.
 public static function sep( string $char ) : self
 ```
 
-* @param string `$char` Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
-* @return self&#60;int&#124;string,mixed&#62; Same map for fluid interface
+* @param **string** `$char` Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
+* @return **self&#60;int&#124;string,mixed&#62;** Same map for fluid interface
 
 This method only changes the separator for the current map instance. To
 change the separator for all maps created afterwards, use the static
@@ -3629,9 +3629,9 @@ Sets an element in the map by key without returning a new map.
 public function set( $key, $value ) : self
 ```
 
-* @param int&#124;string `$key` Key to set the new value for
-* @param mixed `$value` New element that should be set
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **int&#124;string** `$key` Key to set the new value for
+* @param **mixed** `$value` New element that should be set
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 **Examples:**
 
@@ -3652,7 +3652,7 @@ Returns and removes the first element from the map.
 public function shift()
 ```
 
-* @return mixed&#124;null Value from map or null if not found
+* @return **mixed&#124;null** Value from map or null if not found
 
 **Examples:**
 
@@ -3690,8 +3690,8 @@ Shuffles the elements in the map without returning a new map.
 public function shuffle( bool $assoc = false ) : self
 ```
 
-* @param bool `$assoc` True to preserve keys, false to assign new keys
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **bool** `$assoc` True to preserve keys, false to assign new keys
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 **Examples:**
 
@@ -3712,8 +3712,8 @@ Returns a new map with the given number of items skipped.
 public function skip( $offset ) : self
 ```
 
-* @param \Closure&#124;int `$offset` Number of items to skip or function($item, $key) returning true for skipped items
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @param **\Closure&#124;int** `$offset` Number of items to skip or function($item, $key) returning true for skipped items
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 The keys of the items returned in the new map are the same as in the original one.
 
@@ -3738,9 +3738,9 @@ Returns a map with the slice from the original map.
 public function slice( int $offset, int $length = null ) : self
 ```
 
-* @param int `$offset` Number of elements to start from
-* @param int&#124;null `$length` Number of elements to return or NULL for no limit
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @param **int** `$offset` Number of elements to start from
+* @param **int&#124;null** `$length` Number of elements to return or NULL for no limit
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 The rules for offsets are:
 - If offset is non-negative, the sequence will start at that offset
@@ -3776,9 +3776,9 @@ Tests if at least one element passes the test or is part of the map.
 public function some( $values, bool $strict = false ) : bool
 ```
 
-* @param \Closure&#124;iterable&#124;mixed `$values` Anonymous function with (item, key) parameter, element or list of elements to test against
-* @param bool `$strict` TRUE to check the type too, using FALSE '1' and 1 will be the same
-* @return bool TRUE if at least one element is available in map, FALSE if the map contains none of them
+* @param **\Closure&#124;iterable&#124;mixed** `$values` Anonymous function with (item, key) parameter, element or list of elements to test against
+* @param **bool** `$strict` TRUE to check the type too, using FALSE '1' and 1 will be the same
+* @return **bool** TRUE if at least one element is available in map, FALSE if the map contains none of them
 
 **Examples:**
 
@@ -3810,8 +3810,8 @@ Sorts all elements without maintaining the key association.
 public function sort( int $options = SORT_REGULAR ) : self
 ```
 
-* @param int `$options` Sort options for `sort()`
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **int** `$options` Sort options for `sort()`
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 The parameter modifies how the values are compared. Possible parameter values are:
 - SORT_REGULAR : compare elements normally (don't change types)
@@ -3842,10 +3842,10 @@ Removes a portion of the map and replace it with the given replacement, then ret
 public function splice( int $offset, int $length = null, $replacement = [] ) : self
 ```
 
-* @param int `$offset` Number of elements to start from
-* @param int&#124;null `$length` Number of elements to remove, NULL for all
-* @param mixed `$replacement` List of elements to insert
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @param **int** `$offset` Number of elements to start from
+* @param **int&#124;null** `$length` Number of elements to remove, NULL for all
+* @param **mixed** `$replacement` List of elements to insert
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 The rules for offsets are:
 - If offset is non-negative, the sequence will start at that offset
@@ -3878,9 +3878,9 @@ Adds a suffix at the end of each map entry.
 public function suffix( $suffix, int $depth = null ) : self
 ```
 
-* @param \Closure&#124;string `$suffix` Function with map as parameter which returns arbitrary result
-* @param int&#124;null `$depth` Maximum depth to dive into multi-dimensional arrays starting from "1"
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **\Closure&#124;string** `$suffix` Function with map as parameter which returns arbitrary result
+* @param **int&#124;null** `$depth` Maximum depth to dive into multi-dimensional arrays starting from "1"
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 By defaul, nested arrays are walked recusively so all entries at all levels are suffixed.
 The keys are preserved using this method.
@@ -3912,8 +3912,8 @@ Returns the sum of all integer and float values in the map.
 public function sum( string $col = null ) : float
 ```
 
-* @param string&#124;null `$col` Key in the nested array or object to sum up
-* @return float Sum of all elements or 0 if there are no elements in the map
+* @param **string&#124;null** `$col` Key in the nested array or object to sum up
+* @return **float** Sum of all elements or 0 if there are no elements in the map
 
 This does also work to map values from multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
@@ -3945,9 +3945,9 @@ Returns a new map with the given number of items.
 public function take( int $size, $offset = 0 ) : self
 ```
 
-* @param int `$size` Number of items to return
-* @param \Closure&#124;int `$offset` Number of items to skip or function($item, $key) returning true for skipped items
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @param **int** `$size` Number of items to return
+* @param **\Closure&#124;int** `$offset` Number of items to skip or function($item, $key) returning true for skipped items
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 The keys of the items returned in the new map are the same as in the original one.
 
@@ -3978,8 +3978,8 @@ Passes a clone of the map to the given callback.
 public function tap( callable $callback ) : self
 ```
 
-* @param callable `$callback` Function receiving ($map) parameter
-* @return self&#60;int&#124;string,mixed&#62; Same map for fluid interface
+* @param **callable** `$callback` Function receiving ($map) parameter
+* @return **self&#60;int&#124;string,mixed&#62;** Same map for fluid interface
 
 Use it to "tap" into a chain of methods to check the state between two
 method calls. The original map is not altered by anything done in the
@@ -4007,9 +4007,9 @@ Creates a new map by invoking the closure the given number of times.
 public static function times( int $num, \Closure $callback ) : self
 ```
 
-* @param int `$num` Number of times the function is called
-* @param \Closure `$callback` Function with (value, key) parameters and returns new value
-* @return self&#60;int&#124;string,mixed&#62; New map with the generated elements
+* @param **int** `$num` Number of times the function is called
+* @param **\Closure** `$callback` Function with (value, key) parameters and returns new value
+* @return **self&#60;int&#124;string,mixed&#62;** New map with the generated elements
 
 This method creates a lazy Map and the entries are generated after calling
 another method that operates on the Map contents. Thus, the passed callback
@@ -4044,7 +4044,7 @@ Returns the elements as a plain array.
 public function toArray() : array
 ```
 
-* @return array Plain array
+* @return **array** Plain array
 
 **Examples:**
 
@@ -4062,8 +4062,8 @@ Returns the elements encoded as JSON string.
 public function toJson( int $options = 0 ) : ?string
 ```
 
-* @param int `$options` Combination of JSON_* constants
-* @return string&#124;null Array encoded as JSON string or NULL on failure
+* @param **int** `$options` Combination of JSON_* constants
+* @return **string&#124;null** Array encoded as JSON string or NULL on failure
 
 There are several options available to modify the JSON string which are described in
 the [PHP json_encode() manual](https://www.php.net/manual/en/function.json-encode.php).
@@ -4096,7 +4096,7 @@ Creates a HTTP query string from the map elements.
 public function toUrl() : string
 ```
 
-* @return string Parameter string for GET requests
+* @return **string** Parameter string for GET requests
 
 **Examples:**
 
@@ -4117,7 +4117,7 @@ Exchanges rows and columns for a two dimensional map.
 public function transpose() : self
 ```
 
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 **Examples:**
 
@@ -4160,9 +4160,9 @@ Traverses trees of nested items passing each item to the callback.
 public function traverse( \Closure $callback = null, string $nestKey = 'children' ) : self
 ```
 
-* @param \Closure&#124;null `$callback` Callback with (entry, key, level) arguments, returns the entry added to result
-* @param string `$nestKey` Key to the children of each item
-* @return self&#60;int&#124;string,mixed&#62; New map with all items as flat list
+* @param **\Closure&#124;null** `$callback` Callback with (entry, key, level) arguments, returns the entry added to result
+* @param **string** `$nestKey` Key to the children of each item
+* @return **self&#60;int&#124;string,mixed&#62;** New map with all items as flat list
 
 This does work for nested arrays and objects with public properties or
 objects implementing `__isset()` and `__get()` methods. To build trees
@@ -4217,10 +4217,10 @@ Creates a tree structure from the list items.
 public function tree( string $idKey, string $parentKey, string $nestKey = 'children' ) : self
 ```
 
-* @param string `$idKey` Name of the key with the unique ID of the node
-* @param string `$parentKey` Name of the key with the ID of the parent node
-* @param string `$nestKey` Name of the key with will contain the children of the node
-* @return self&#60;int&#124;string,mixed&#62; New map with one or more root tree nodes
+* @param **string** `$idKey` Name of the key with the unique ID of the node
+* @param **string** `$parentKey` Name of the key with the ID of the parent node
+* @param **string** `$nestKey` Name of the key with will contain the children of the node
+* @return **self&#60;int&#124;string,mixed&#62;** New map with one or more root tree nodes
 
 Use this method to rebuild trees e.g. from database records. To traverse
 trees, use the [traverse()](#traverse) method.
@@ -4284,8 +4284,8 @@ Sorts all elements using a callback and maintains the key association.
 public function uasort( callable $callback ) : self
 ```
 
-* @param callable `$callback` Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **callable** `$callback` Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 The given callback will be used to compare the values. The callback must accept
 two parameters (item A and B) and must return -1 if item A is smaller than
@@ -4315,8 +4315,8 @@ Sorts the map elements by their keys using a callback.
 public function uksort( callable $callback ) : self
 ```
 
-* @param callable `$callback` Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **callable** `$callback` Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 The given callback will be used to compare the keys. The callback must accept
 two parameters (key A and B) and must return -1 if key A is smaller than
@@ -4347,8 +4347,8 @@ Existing keys in the map will not be overwritten
 public function union( iterable $elements ) : self
 ```
 
-* @param iterable&#60;int&#124;string,mixed&#62; `$elements` List of elements
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **iterable&#60;int&#124;string,mixed&#62;** `$elements` List of elements
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 If list entries should be overwritten, use [merge()](#merge) instead.
 The keys are preserved using this method and no new map is created.
@@ -4372,8 +4372,8 @@ Returns only unique elements from the map in a new map
 public function unique( string $key = null ) : self
 ```
 
-* @param string&#124;null `$key` Key or path of the nested array or object to check for
-* @return self&#60;int&#124;string,mixed&#62; New map
+* @param **string&#124;null** `$key` Key or path of the nested array or object to check for
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 Two elements are considered equal if comparing their string representions returns TRUE:
 
@@ -4405,9 +4405,9 @@ Pushes an element onto the beginning of the map without returning a new map.
 public function unshift( $value, $key = null ) : self
 ```
 
-* @param mixed `$value` Item to add at the beginning
-* @param int&#124;string&#124;null `$key` Key for the item or NULL to reindex all numerical keys
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **mixed** `$value` Item to add at the beginning
+* @param **int&#124;string&#124;null** `$key` Key for the item or NULL to reindex all numerical keys
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 The keys of the elements are only preserved in the new map if no key is passed.
 
@@ -4447,8 +4447,8 @@ Sorts all elements using a callback without maintaining the key association.
 public function usort( callable $callback ) : self
 ```
 
-* @param callable `$callback` Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **callable** `$callback` Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 The given callback will be used to compare the values. The callback must accept
 two parameters (item A and B) and must return -1 if item A is smaller than
@@ -4478,7 +4478,7 @@ Resets the keys and return the values in a new map.
 public function values() : self
 ```
 
-* @return self&#60;int&#124;string,mixed&#62; New map of the values
+* @return **self&#60;int&#124;string,mixed&#62;** New map of the values
 
 **Examples:**
 
@@ -4496,10 +4496,10 @@ Applies the given callback to all elements.
 public function walk( callable $callback, $data = null, bool $recursive = true ) : self
 ```
 
-* @param callable `$callback` Function with (item, key, data) parameters
-* @param mixed `$data` Arbitrary data that will be passed to the callback as third parameter
-* @param bool `$recursive` TRUE to traverse sub-arrays recursively (default), FALSE to iterate Map elements only
-* @return self&#60;int&#124;string,mixed&#62; Updated map for fluid interface
+* @param **callable** `$callback` Function with (item, key, data) parameters
+* @param **mixed** `$data` Arbitrary data that will be passed to the callback as third parameter
+* @param **bool** `$recursive` TRUE to traverse sub-arrays recursively (default), FALSE to iterate Map elements only
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 To change the values of the Map, specify the value parameter as reference
 (`&$value`). You can only change the values but not the keys nor the array
@@ -4539,10 +4539,10 @@ Filters the list of elements by a given condition.
 public function where( string $key, string $op, $value ) : self
 ```
 
-* @param string `$key` Key or path of the value of the array or object used for comparison
-* @param string `$op` Operator used for comparison
-* @param mixed `$value` Value used for comparison
-* @return self&#60;int&#124;string,mixed&#62; New map for fluid interface
+* @param **string** `$key` Key or path of the value of the array or object used for comparison
+* @param **string** `$op` Operator used for comparison
+* @param **mixed** `$value` Value used for comparison
+* @return **self&#60;int&#124;string,mixed&#62;** New map for fluid interface
 
 Available operators are:
 
@@ -4623,8 +4623,8 @@ Merges the values of all arrays at the corresponding index.
 public function zip( $array1, ... ) : self
 ```
 
-* @param array&#60;int&#124;string,mixed&#62;&#124;\Traversable&#60;int&#124;string,mixed&#62;&#124;\Iterator&#60;int&#124;string,mixed&#62; `$array1` List of arrays to merge with at the same position
-* @return self&#60;int&#124;string,mixed&#62; New map of arrays
+* @param **array&#60;int&#124;string,mixed&#62;&#124;\Traversable&#60;int&#124;string,mixed&#62;&#124;\Iterator&#60;int&#124;string,mixed&#62;** `$array1` List of arrays to merge with at the same position
+* @return **self&#60;int&#124;string,mixed&#62;** New map of arrays
 
 **Examples:**
 
