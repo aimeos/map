@@ -1282,7 +1282,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * The keys in the result map are preserved.
 	 *
-	 * @param  callable|null $callback Function with (item) parameter and returns TRUE/FALSE
+	 * @param  callable|null $callback Function with (item, key) parameters and returns TRUE/FALSE
 	 * @return self<int|string,mixed> New map
 	 */
 	public function filter( callable $callback = null ) : self

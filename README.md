@@ -1591,7 +1591,7 @@ Runs a filter over each element of the map and returns a new map.
 public function filter( callable $callback = null ) : self
 ```
 
-* @param **callable&#124;null** `$callback` Function with (item) parameter and returns TRUE/FALSE
+* @param **callable&#124;null** `$callback` Function with (item, key) parameters and returns TRUE/FALSE
 * @return **self&#60;int&#124;string,mixed&#62;** New map
 
 If no callback is passed, all values which are empty, null or false will be
