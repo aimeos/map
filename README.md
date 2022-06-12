@@ -176,6 +176,7 @@ will return:
 <a href="#intersectkeys">intersectKeys</a>
 <a href="#is">is</a>
 <a href="#isempty">isEmpty</a>
+<a href="#isobject">isObject</a>
 <a href="#join">join</a>
 <a href="#jsonserialize">jsonSerialize</a>
 <a href="#keys">keys</a>
@@ -361,7 +362,7 @@ will return:
 ### Test
 
 * [function is_map()](#is_map-function) : Tests if the variable is a map object
-* [contains()](#contains) : Determines if an item exists in the map
+* [contains()](#contains) : Tests if an item exists in the map
 * [each()](#each) : Applies a callback to each element
 * [empty()](#empty) : Tests if map is empty
 * [equals()](#equals) : Tests if map contents are equal
@@ -374,6 +375,7 @@ will return:
 * [includes()](#includes) : Tests if element is included
 * [is()](#is) : Tests if the map consists of the same keys and values
 * [isEmpty()](#isempty) : Tests if map is empty
+* [isObject()](#isobject) : Tests if all entries are objects
 * [implements()](#implements) : Tests if all entries are objects implementing the interface
 * [none()](#none) : Tests if none of the elements are part of the map
 * [some()](#some) : Tests if at least one element is included
@@ -2561,6 +2563,30 @@ Map::from( [] )->isEmpty();
 // true
 
 Map::from( ['a'] )-isEmpty();
+// false
+```
+
+
+### isObject()
+
+Determines if all entries are objects.
+
+```php
+public function isObject() : bool
+```
+
+* @return **bool** TRUE if all map entries are objects, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( [] )->isObject();
+// true
+
+Map::from( [new stdClass] )->isObject();
+// true
+
+Map::from( [1] )->isObject();
 // false
 ```
 

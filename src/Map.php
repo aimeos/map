@@ -2224,6 +2224,34 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Determines if all entries are objects.
+	 *
+	 * Examples:
+	 *  Map::from( [] )->isObject();
+	 *  Map::from( [new stdClass] )->isObject();
+	 *  Map::from( [1] )->isObject();
+	 *
+	 * Results:
+	 *  The first two examples return TRUE while the last one return FALSE
+	 *
+	 * @return bool TRUE if all map entries are objects, FALSE if not
+	 */
+	public function isObject() : bool
+	{
+		$result = true;
+
+		foreach( $this->list() as $val )
+		{
+			if( !is_object( $val ) ) {
+				$result = false;
+			}
+		}
+
+		return $result;
+	}
+
+
+	/**
 	 * Concatenates the string representation of all elements.
 	 *
 	 * Objects that implement __toString() does also work, otherwise (and in case

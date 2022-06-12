@@ -1657,6 +1657,15 @@ Array
 	}
 
 
+	public function testIsObject()
+	{
+		$this->assertTrue( Map::from( [] )->isObject() );
+		$this->assertTrue( Map::from( [new \stdClass] )->isObject() );
+
+		$this->assertFalse( Map::from( [1] )->isObject() );
+	}
+
+
 	public function testJoin()
 	{
 		$m = new Map( ['a', 'b', null, false] );
