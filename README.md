@@ -177,6 +177,7 @@ will return:
 <a href="#is">is</a>
 <a href="#isempty">isEmpty</a>
 <a href="#isobject">isObject</a>
+<a href="#isscalar">isScalar</a>
 <a href="#join">join</a>
 <a href="#jsonserialize">jsonSerialize</a>
 <a href="#keys">keys</a>
@@ -376,6 +377,7 @@ will return:
 * [is()](#is) : Tests if the map consists of the same keys and values
 * [isEmpty()](#isempty) : Tests if map is empty
 * [isObject()](#isobject) : Tests if all entries are objects
+* [isScalar()](#isscalar) : Tests if all entries are scalar values.
 * [implements()](#implements) : Tests if all entries are objects implementing the interface
 * [none()](#none) : Tests if none of the elements are part of the map
 * [some()](#some) : Tests if at least one element is included
@@ -2587,6 +2589,48 @@ Map::from( [new stdClass] )->isObject();
 // true
 
 Map::from( [1] )->isObject();
+// false
+```
+
+
+### isScalar()
+
+Determines if all entries are scalar values.
+
+```php
+public function isScalar() : bool
+```
+
+* @return **bool** TRUE if all map entries are scalar values, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( [] )->isScalar();
+// true
+
+Map::from( [1] )->isScalar();
+// true
+
+Map::from( [1.1] )->isScalar();
+// true
+
+Map::from( ['abc'] )->isScalar();
+// true
+
+Map::from( [true, false] )->isScalar();
+// true
+
+Map::from( [new stdClass] )->isScalar();
+// false
+
+Map::from( [resource] )->isScalar();
+// false
+
+Map::from( [null] )->isScalar();
+// false
+
+Map::from( [[1]] )->isScalar();
 // false
 ```
 

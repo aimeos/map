@@ -1666,6 +1666,20 @@ Array
 	}
 
 
+	public function testIsScalar()
+	{
+		$this->assertTrue( Map::from( [] )->isScalar() );
+		$this->assertTrue( Map::from( [1] )->isScalar() );
+		$this->assertTrue( Map::from( [1.1] )->isScalar() );
+		$this->assertTrue( Map::from( ['abc'] )->isScalar() );
+		$this->assertTrue( Map::from( [true, false] )->isScalar() );
+
+		$this->assertFalse( Map::from( [new \stdClass] )->isScalar() );
+		$this->assertFalse( Map::from( [null] )->isScalar() );
+		$this->assertFalse( Map::from( [[1]] )->isScalar() );
+	}
+
+
 	public function testJoin()
 	{
 		$m = new Map( ['a', 'b', null, false] );

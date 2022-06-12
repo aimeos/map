@@ -2252,6 +2252,40 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Determines if all entries are scalar values.
+	 *
+	 * Examples:
+	 *  Map::from( [] )->isScalar();
+	 *  Map::from( [1] )->isScalar();
+	 *  Map::from( [1.1] )->isScalar();
+	 *  Map::from( ['abc'] )->isScalar();
+	 *  Map::from( [true, false] )->isScalar();
+	 *  Map::from( [new stdClass] )->isScalar();
+	 *  Map::from( [#resource] )->isScalar();
+	 *  Map::from( [null] )->isScalar();
+	 *  Map::from( [[1]] )->isScalar();
+	 *
+	 * Results:
+	 *  The first five examples return TRUE while the others return FALSE
+	 *
+	 * @return bool TRUE if all map entries are scalar values, FALSE if not
+	 */
+	public function isScalar() : bool
+	{
+		$result = true;
+
+		foreach( $this->list() as $val )
+		{
+			if( !is_scalar( $val ) ) {
+				$result = false;
+			}
+		}
+
+		return $result;
+	}
+
+
+	/**
 	 * Concatenates the string representation of all elements.
 	 *
 	 * Objects that implement __toString() does also work, otherwise (and in case
