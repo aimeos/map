@@ -1657,6 +1657,30 @@ Array
 	}
 
 
+	public function testIsNumeric()
+	{
+		$this->assertTrue( Map::from( [] )->isNumeric() );
+		$this->assertTrue( Map::from( [1] )->isNumeric() );
+		$this->assertTrue( Map::from( [1.1] )->isNumeric() );
+		$this->assertTrue( Map::from( [010] )->isNumeric() );
+		$this->assertTrue( Map::from( [0x10] )->isNumeric() );
+		$this->assertTrue( Map::from( [0b10] )->isNumeric() );
+		$this->assertTrue( Map::from( ['010'] )->isNumeric() );
+		$this->assertTrue( Map::from( ['10'] )->isNumeric() );
+		$this->assertTrue( Map::from( ['10.1'] )->isNumeric() );
+		$this->assertTrue( Map::from( [' 10 '] )->isNumeric() );
+		$this->assertTrue( Map::from( ['10e2'] )->isNumeric() );
+
+		$this->assertFalse( Map::from( ['0b10'] )->isNumeric() );
+		$this->assertFalse( Map::from( ['0x10'] )->isNumeric() );
+		$this->assertFalse( Map::from( ['null'] )->isNumeric() );
+		$this->assertFalse( Map::from( [null] )->isNumeric() );
+		$this->assertFalse( Map::from( [true] )->isNumeric() );
+		$this->assertFalse( Map::from( [[]] )->isNumeric() );
+		$this->assertFalse( Map::from( [''] )->isNumeric() );
+	}
+
+
 	public function testIsObject()
 	{
 		$this->assertTrue( Map::from( [] )->isObject() );

@@ -2224,6 +2224,49 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Determines if all entries are numeric values.
+	 *
+	 * Examples:
+	 *  Map::from( [] )->isNumeric();
+	 *  Map::from( [1] )->isNumeric();
+	 *  Map::from( [1.1] )->isNumeric();
+	 *  Map::from( [010] )->isNumeric();
+	 *  Map::from( [0x10] )->isNumeric();
+	 *  Map::from( [0b10] )->isNumeric();
+	 *  Map::from( ['010'] )->isNumeric();
+	 *  Map::from( ['10'] )->isNumeric();
+	 *  Map::from( ['10.1'] )->isNumeric();
+	 *  Map::from( [' 10 '] )->isNumeric();
+	 *  Map::from( ['10e2'] )->isNumeric();
+	 *  Map::from( ['0b10'] )->isNumeric();
+	 *  Map::from( ['0x10'] )->isNumeric();
+	 *  Map::from( ['null'] )->isNumeric();
+	 *  Map::from( [null] )->isNumeric();
+	 *  Map::from( [true] )->isNumeric();
+	 *  Map::from( [[]] )->isNumeric();
+	 *  Map::from( [''] )->isNumeric();
+	 *
+	 * Results:
+	 *  The first eleven examples return TRUE while the last seven return FALSE
+	 *
+	 * @return bool TRUE if all map entries are numeric values, FALSE if not
+	 */
+	public function isNumeric() : bool
+	{
+		$result = true;
+
+		foreach( $this->list() as $val )
+		{
+			if( !is_numeric( $val ) ) {
+				$result = false;
+			}
+		}
+
+		return $result;
+	}
+
+
+	/**
 	 * Determines if all entries are objects.
 	 *
 	 * Examples:

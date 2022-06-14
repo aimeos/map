@@ -176,6 +176,7 @@ will return:
 <a href="#intersectkeys">intersectKeys</a>
 <a href="#is">is</a>
 <a href="#isempty">isEmpty</a>
+<a href="#isnumeric">isNumeric</a>
 <a href="#isobject">isObject</a>
 <a href="#isscalar">isScalar</a>
 <a href="#join">join</a>
@@ -376,6 +377,7 @@ will return:
 * [includes()](#includes) : Tests if element is included
 * [is()](#is) : Tests if the map consists of the same keys and values
 * [isEmpty()](#isempty) : Tests if map is empty
+* [isNumeric()](#isnumeric) : Tests if all entries are numeric values
 * [isObject()](#isobject) : Tests if all entries are objects
 * [isScalar()](#isscalar) : Tests if all entries are scalar values.
 * [implements()](#implements) : Tests if all entries are objects implementing the interface
@@ -2589,6 +2591,75 @@ Map::from( [new stdClass] )->isObject();
 // true
 
 Map::from( [1] )->isObject();
+// false
+```
+
+
+### isNumeric()
+
+Determines if all entries are numeric values.
+
+```php
+public function isNumeric() : bool
+```
+
+* @return **bool** TRUE if all map entries are numeric values, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( [] )->isNumeric();
+// true
+
+Map::from( [1] )->isNumeric();
+// true
+
+Map::from( [1.1] )->isNumeric();
+// true
+
+Map::from( [010] )->isNumeric();
+// true
+
+Map::from( [0x10] )->isNumeric();
+// true
+
+Map::from( [0b10] )->isNumeric();
+// true
+
+Map::from( ['010'] )->isNumeric();
+// true
+
+Map::from( ['10'] )->isNumeric();
+// true
+
+Map::from( ['10.1'] )->isNumeric();
+// true
+
+Map::from( [' 10 '] )->isNumeric();
+// true
+
+Map::from( ['10e2'] )->isNumeric();
+// true
+
+Map::from( ['0b10'] )->isNumeric();
+// false
+
+Map::from( ['0x10'] )->isNumeric();
+// false
+
+Map::from( ['null'] )->isNumeric();
+// false
+
+Map::from( [null] )->isNumeric();
+// false
+
+Map::from( [true] )->isNumeric();
+// false
+
+Map::from( [[]] )->isNumeric();
+// false
+
+Map::from( [''] )->isNumeric();
 // false
 ```
 
