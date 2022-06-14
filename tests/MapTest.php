@@ -1667,8 +1667,8 @@ Array
 		$this->assertTrue( Map::from( [0b10] )->isNumeric() );
 		$this->assertTrue( Map::from( ['010'] )->isNumeric() );
 		$this->assertTrue( Map::from( ['10'] )->isNumeric() );
+		$this->assertTrue( Map::from( [' 10'] )->isNumeric() );
 		$this->assertTrue( Map::from( ['10.1'] )->isNumeric() );
-		$this->assertTrue( Map::from( [' 10 '] )->isNumeric() );
 		$this->assertTrue( Map::from( ['10e2'] )->isNumeric() );
 
 		$this->assertFalse( Map::from( ['0b10'] )->isNumeric() );
