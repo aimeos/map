@@ -162,6 +162,7 @@ will return:
 <a href="#groupby">groupBy</a>
 <a href="#has">has</a>
 <a href="#if">if</a>
+<a href="#ifany">ifAny</a>
 <a href="#ifempty">ifEmpty</a>
 <a href="#implements">implements</a>
 <a href="#in">in</a>
@@ -175,6 +176,9 @@ will return:
 <a href="#intersectkeys">intersectKeys</a>
 <a href="#is">is</a>
 <a href="#isempty">isEmpty</a>
+<a href="#isnumeric">isNumeric</a>
+<a href="#isobject">isObject</a>
+<a href="#isscalar">isScalar</a>
 <a href="#join">join</a>
 <a href="#jsonserialize">jsonSerialize</a>
 <a href="#keys">keys</a>
@@ -360,18 +364,22 @@ will return:
 ### Test
 
 * [function is_map()](#is_map-function) : Tests if the variable is a map object
-* [contains()](#contains) : Determines if an item exists in the map
+* [contains()](#contains) : Tests if an item exists in the map
 * [each()](#each) : Applies a callback to each element
 * [empty()](#empty) : Tests if map is empty
 * [equals()](#equals) : Tests if map contents are equal
 * [every()](#every) : Verifies that all elements pass the test of the given callback
 * [has()](#has) : Tests if a key exists
 * [if()](#if) : Executes callbacks depending on the condition
+* [ifAny()](#ifany) : Executes callbacks if the map contains elements
 * [ifEmpty()](#ifempty) : Executes callbacks if the map is empty
 * [in()](#in) : Tests if element is included
 * [includes()](#includes) : Tests if element is included
 * [is()](#is) : Tests if the map consists of the same keys and values
 * [isEmpty()](#isempty) : Tests if map is empty
+* [isNumeric()](#isnumeric) : Tests if all entries are numeric values
+* [isObject()](#isobject) : Tests if all entries are objects
+* [isScalar()](#isscalar) : Tests if all entries are scalar values.
 * [implements()](#implements) : Tests if all entries are objects implementing the interface
 * [none()](#none) : Tests if none of the elements are part of the map
 * [some()](#some) : Tests if at least one element is included
@@ -2100,6 +2108,49 @@ a void return type and must/will always return something. Details about
 [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
 
 
+### ifAny()
+
+* Executes callbacks depending if the map contains elements or not.
+
+```php
+public function ifAny( \Closure $then = null, \Closure $else = null ) : self
+```
+
+* @param **\Closure|null** `$then` Function with (map, condition) parameter (optional)
+* @param **\Closure|null** `$else` Function with (map, condition) parameter (optional)
+* @return **self<int|string,mixed>** New map for fluid interface
+
+If callbacks for "then" and/or "else" are passed, these callbacks will be
+executed and their returned value is passed back within a Map object. In
+case no "then" or "else" closure is given, the method will return the same
+map object.
+
+**Examples:**
+
+```php
+Map::from( ['a'] )->ifAny( function( $map ) {
+  $map->push( 'b' );
+} );
+// ['a', 'b']
+
+Map::from( [] )->ifAny( null, function( $map ) {
+  return $map->push( 'b' );
+} );
+// ['b']
+
+Map::from( ['a'] )->ifAny( function( $map ) {
+  return 'c';
+} );
+// ['c']
+```
+
+Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
+(a short form for anonymous closures) as parameters. The automatically have access
+to previously defined variables but can not modify them. Also, they can not have
+a void return type and must/will always return something. Details about
+[PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
+
+
 ### ifEmpty()
 
 * Executes callbacks depending if the map is empty or not.
@@ -2516,6 +2567,141 @@ Map::from( [] )->isEmpty();
 // true
 
 Map::from( ['a'] )-isEmpty();
+// false
+```
+
+
+### isObject()
+
+Determines if all entries are objects.
+
+```php
+public function isObject() : bool
+```
+
+* @return **bool** TRUE if all map entries are objects, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( [] )->isObject();
+// true
+
+Map::from( [new stdClass] )->isObject();
+// true
+
+Map::from( [1] )->isObject();
+// false
+```
+
+
+### isNumeric()
+
+Determines if all entries are numeric values.
+
+```php
+public function isNumeric() : bool
+```
+
+* @return **bool** TRUE if all map entries are numeric values, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( [] )->isNumeric();
+// true
+
+Map::from( [1] )->isNumeric();
+// true
+
+Map::from( [1.1] )->isNumeric();
+// true
+
+Map::from( [010] )->isNumeric();
+// true
+
+Map::from( [0x10] )->isNumeric();
+// true
+
+Map::from( [0b10] )->isNumeric();
+// true
+
+Map::from( ['010'] )->isNumeric();
+// true
+
+Map::from( ['10'] )->isNumeric();
+// true
+
+Map::from( ['10.1'] )->isNumeric();
+// true
+
+Map::from( [' 10 '] )->isNumeric();
+// true
+
+Map::from( ['10e2'] )->isNumeric();
+// true
+
+Map::from( ['0b10'] )->isNumeric();
+// false
+
+Map::from( ['0x10'] )->isNumeric();
+// false
+
+Map::from( ['null'] )->isNumeric();
+// false
+
+Map::from( [null] )->isNumeric();
+// false
+
+Map::from( [true] )->isNumeric();
+// false
+
+Map::from( [[]] )->isNumeric();
+// false
+
+Map::from( [''] )->isNumeric();
+// false
+```
+
+
+### isScalar()
+
+Determines if all entries are scalar values.
+
+```php
+public function isScalar() : bool
+```
+
+* @return **bool** TRUE if all map entries are scalar values, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( [] )->isScalar();
+// true
+
+Map::from( [1] )->isScalar();
+// true
+
+Map::from( [1.1] )->isScalar();
+// true
+
+Map::from( ['abc'] )->isScalar();
+// true
+
+Map::from( [true, false] )->isScalar();
+// true
+
+Map::from( [new stdClass] )->isScalar();
+// false
+
+Map::from( [resource] )->isScalar();
+// false
+
+Map::from( [null] )->isScalar();
+// false
+
+Map::from( [[1]] )->isScalar();
 // false
 ```
 

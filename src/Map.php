@@ -1726,6 +1726,49 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Executes callbacks depending if the map contains elements or not.
+	 *
+	 * If callbacks for "then" and/or "else" are passed, these callbacks will be
+	 * executed and their returned value is passed back within a Map object. In
+	 * case no "then" or "else" closure is given, the method will return the same
+	 * map object.
+	 *
+	 * Examples:
+	 *  Map::from( ['a'] )->ifAny( function( $map ) {
+	 *    $map->push( 'b' );
+	 *  } );
+	 *
+	 *  Map::from( [] )->ifAny( null, function( $map ) {
+	 *    return $map->push( 'b' );
+	 *  } );
+	 *
+	 *  Map::from( ['a'] )->ifAny( function( $map ) {
+	 *    return 'c';
+	 *  } );
+	 *
+	 * Results:
+	 * The first example returns a Map containing ['a', 'b'] because the the initial
+	 * Map is not empty. The second one returns  a Map with ['b'] because the initial
+	 * Map is empty and the "else" closure is used. The last example returns ['c']
+	 * as new map content.
+	 *
+	 * Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
+	 * (a short form for anonymous closures) as parameters. The automatically have access
+	 * to previously defined variables but can not modify them. Also, they can not have
+	 * a void return type and must/will always return something. Details about
+	 * [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
+	 *
+	 * @param \Closure|null $then Function with (map, condition) parameter (optional)
+	 * @param \Closure|null $else Function with (map, condition) parameter (optional)
+	 * @return self<int|string,mixed> New map
+	 */
+	public function ifAny( \Closure $then = null, \Closure $else = null ) : self
+	{
+		return $this->if( !empty( $this->list() ), $then, $else );
+	}
+
+
+	/**
 	 * Executes callbacks depending if the map is empty or not.
 	 *
 	 * If callbacks for "then" and/or "else" are passed, these callbacks will be
@@ -2177,6 +2220,111 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function isEmpty() : bool
 	{
 		return empty( $this->list() );
+	}
+
+
+	/**
+	 * Determines if all entries are numeric values.
+	 *
+	 * Examples:
+	 *  Map::from( [] )->isNumeric();
+	 *  Map::from( [1] )->isNumeric();
+	 *  Map::from( [1.1] )->isNumeric();
+	 *  Map::from( [010] )->isNumeric();
+	 *  Map::from( [0x10] )->isNumeric();
+	 *  Map::from( [0b10] )->isNumeric();
+	 *  Map::from( ['010'] )->isNumeric();
+	 *  Map::from( ['10'] )->isNumeric();
+	 *  Map::from( ['10.1'] )->isNumeric();
+	 *  Map::from( [' 10 '] )->isNumeric();
+	 *  Map::from( ['10e2'] )->isNumeric();
+	 *  Map::from( ['0b10'] )->isNumeric();
+	 *  Map::from( ['0x10'] )->isNumeric();
+	 *  Map::from( ['null'] )->isNumeric();
+	 *  Map::from( [null] )->isNumeric();
+	 *  Map::from( [true] )->isNumeric();
+	 *  Map::from( [[]] )->isNumeric();
+	 *  Map::from( [''] )->isNumeric();
+	 *
+	 * Results:
+	 *  The first eleven examples return TRUE while the last seven return FALSE
+	 *
+	 * @return bool TRUE if all map entries are numeric values, FALSE if not
+	 */
+	public function isNumeric() : bool
+	{
+		$result = true;
+
+		foreach( $this->list() as $val )
+		{
+			if( !is_numeric( $val ) ) {
+				$result = false;
+			}
+		}
+
+		return $result;
+	}
+
+
+	/**
+	 * Determines if all entries are objects.
+	 *
+	 * Examples:
+	 *  Map::from( [] )->isObject();
+	 *  Map::from( [new stdClass] )->isObject();
+	 *  Map::from( [1] )->isObject();
+	 *
+	 * Results:
+	 *  The first two examples return TRUE while the last one return FALSE
+	 *
+	 * @return bool TRUE if all map entries are objects, FALSE if not
+	 */
+	public function isObject() : bool
+	{
+		$result = true;
+
+		foreach( $this->list() as $val )
+		{
+			if( !is_object( $val ) ) {
+				$result = false;
+			}
+		}
+
+		return $result;
+	}
+
+
+	/**
+	 * Determines if all entries are scalar values.
+	 *
+	 * Examples:
+	 *  Map::from( [] )->isScalar();
+	 *  Map::from( [1] )->isScalar();
+	 *  Map::from( [1.1] )->isScalar();
+	 *  Map::from( ['abc'] )->isScalar();
+	 *  Map::from( [true, false] )->isScalar();
+	 *  Map::from( [new stdClass] )->isScalar();
+	 *  Map::from( [#resource] )->isScalar();
+	 *  Map::from( [null] )->isScalar();
+	 *  Map::from( [[1]] )->isScalar();
+	 *
+	 * Results:
+	 *  The first five examples return TRUE while the others return FALSE
+	 *
+	 * @return bool TRUE if all map entries are scalar values, FALSE if not
+	 */
+	public function isScalar() : bool
+	{
+		$result = true;
+
+		foreach( $this->list() as $val )
+		{
+			if( !is_scalar( $val ) ) {
+				$result = false;
+			}
+		}
+
+		return $result;
 	}
 
 

@@ -1352,32 +1352,32 @@ Array
 	}
 
 
-	public function testIfEmpty()
+	public function testIfAny()
 	{
-		$r = Map::from( [] )->ifEmpty(
-			function( Map $_ ) { return ['a']; }
+		$r = Map::from( ['a'] )->ifAny(
+			function( Map $_ ) { return ['b']; }
 		);
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( ['a'], $r->all() );
+		$this->assertSame( ['b'], $r->all() );
 	}
 
 
-	public function testIfEmptyFalse()
+	public function testIfAnyFalse()
 	{
-		$r = Map::from( ['a'] )->ifEmpty(
+		$r = Map::from( [] )->ifAny(
 			function( Map $m ) { return $m->push( 'b' ); },
 			function( Map $m ) { return $m->push( 'c' ); }
 		);
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( ['a', 'c'], $r->all() );
+		$this->assertSame( ['c'], $r->all() );
 	}
 
 
-	public function testIfEmptyNone()
+	public function testIfAnyNone()
 	{
-		$r = Map::from( ['a'] )->ifEmpty();
+		$r = Map::from( ['a'] )->ifAny();
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( ['a'], $r->all() );
@@ -1654,6 +1654,53 @@ Array
 	{
 		$m = new Map( ['foo'] );
 		$this->assertFalse( $m->isEmpty() );
+	}
+
+
+	public function testIsNumeric()
+	{
+		$this->assertTrue( Map::from( [] )->isNumeric() );
+		$this->assertTrue( Map::from( [1] )->isNumeric() );
+		$this->assertTrue( Map::from( [1.1] )->isNumeric() );
+		$this->assertTrue( Map::from( [010] )->isNumeric() );
+		$this->assertTrue( Map::from( [0x10] )->isNumeric() );
+		$this->assertTrue( Map::from( [0b10] )->isNumeric() );
+		$this->assertTrue( Map::from( ['010'] )->isNumeric() );
+		$this->assertTrue( Map::from( ['10'] )->isNumeric() );
+		$this->assertTrue( Map::from( [' 10'] )->isNumeric() );
+		$this->assertTrue( Map::from( ['10.1'] )->isNumeric() );
+		$this->assertTrue( Map::from( ['10e2'] )->isNumeric() );
+
+		$this->assertFalse( Map::from( ['0b10'] )->isNumeric() );
+		$this->assertFalse( Map::from( ['0x10'] )->isNumeric() );
+		$this->assertFalse( Map::from( ['null'] )->isNumeric() );
+		$this->assertFalse( Map::from( [null] )->isNumeric() );
+		$this->assertFalse( Map::from( [true] )->isNumeric() );
+		$this->assertFalse( Map::from( [[]] )->isNumeric() );
+		$this->assertFalse( Map::from( [''] )->isNumeric() );
+	}
+
+
+	public function testIsObject()
+	{
+		$this->assertTrue( Map::from( [] )->isObject() );
+		$this->assertTrue( Map::from( [new \stdClass] )->isObject() );
+
+		$this->assertFalse( Map::from( [1] )->isObject() );
+	}
+
+
+	public function testIsScalar()
+	{
+		$this->assertTrue( Map::from( [] )->isScalar() );
+		$this->assertTrue( Map::from( [1] )->isScalar() );
+		$this->assertTrue( Map::from( [1.1] )->isScalar() );
+		$this->assertTrue( Map::from( ['abc'] )->isScalar() );
+		$this->assertTrue( Map::from( [true, false] )->isScalar() );
+
+		$this->assertFalse( Map::from( [new \stdClass] )->isScalar() );
+		$this->assertFalse( Map::from( [null] )->isScalar() );
+		$this->assertFalse( Map::from( [[1]] )->isScalar() );
 	}
 
 
