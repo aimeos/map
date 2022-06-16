@@ -188,7 +188,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$this->assertEquals( true, Map::from( ['a' => 'abc'] )->bool( 'a' ) );
 		$this->assertEquals( true, Map::from( ['a' => ['b' => ['c' => true]]] )->bool( 'a/b/c' ) );
 
-		$this->assertEquals( false, Map::from( [] )->bool( 'a' ) );
+		$this->assertEquals( false, Map::from( [] )->bool( 'b' ) );
 		$this->assertEquals( false, Map::from( ['b' => ''] )->bool( 'b' ) );
 		$this->assertEquals( false, Map::from( ['b' => null] )->bool( 'b' ) );
 		$this->assertEquals( false, Map::from( ['b' => [true]] )->bool( 'b' ) );

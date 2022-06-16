@@ -581,7 +581,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( [] )->bool( 'c', function() { return rand( 1, 2 ); } );
 	 *  Map::from( [] )->bool( 'a', true );
 	 *
-	 *  Map::from( [] )->bool( 'a' );
+	 *  Map::from( [] )->bool( 'b' );
 	 *  Map::from( ['b' => ''] )->bool( 'b' );
 	 *  Map::from( ['b' => null] )->bool( 'b' );
 	 *  Map::from( ['b' => [true]] )->bool( 'b' );
@@ -605,7 +605,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function bool( $key, $default = false ) : bool
 	{
-		return (bool) is_scalar( $val = $this->get( $key, $default ) ) ? $val : $default;
+		return (bool) ( is_scalar( $val = $this->get( $key, $default ) ) ? $val : $default );
 	}
 
 
