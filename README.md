@@ -1871,10 +1871,10 @@ Map::from( ['a' => 'X', 'b' => 'Y'] )->get( 'c', 'Z' );
 Map::from( ['a' => ['b' => ['c' => 'Y']]] )->get( 'a/b/c' );
 // 'Y'
 
-Map::from( [] )->get( new \Exception( 'error' ) );
+Map::from( [] )->get( 'c', new \Exception( 'error' ) );
 // throws \Exception
 
-Map::from( [] )->get( function() { return rand(); } );
+Map::from( [] )->get( 'c', function() { return rand(); } );
 // random integer
 ```
 
