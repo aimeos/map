@@ -123,6 +123,7 @@ will return:
 <a href="#at">at</a>
 <a href="#avg">avg</a>
 <a href="#before">before</a>
+<a href="#bool">bool</a>
 <a href="#call">call</a>
 <a href="#chunk">chunk</a>
 <a href="#clear">clear</a>
@@ -271,6 +272,7 @@ will return:
 * [__callStatic()](#__callstatic) : Calls a custom method statically
 * [all()](#all) : Returns the plain array
 * [at()](#at) : Returns the value at the given position
+* [bool()](#bool) : Returns an element by key and casts it to boolean
 * [call()](#call) : Calls the given method on all items
 * [find()](#find) : Returns the first/last matching element
 * [first()](#first) : Returns the first element
@@ -816,6 +818,73 @@ Map::from( ['a', 'c', 'b'] )->before( function( $item, $key ) {
     return $key >= 1;
 } );
 // [0 => 'a']
+```
+
+
+### bool()
+
+Returns an element by key and casts it to boolean if possible.
+
+```php
+public function bool( $key, $default = false ) : bool
+```
+
+* @param **int&#124;string** `$key` Key or path to the requested item
+* @param **mixed** `$default` Default value if key isn't found (will be casted to bool)
+* @return **bool** Value from map or default value
+
+This does also work to map values from multi-dimensional arrays by passing the keys
+of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
+to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
+public properties of objects or objects implementing `__isset()` and `__get()` methods.
+
+**Examples:**
+
+```php
+Map::from( ['a' => true] )->bool( 'a' );
+// true
+
+Map::from( ['a' => '1'] )->bool( 'a' );
+// true (casted to boolean)
+
+Map::from( ['a' => 1.1] )->bool( 'a' );
+// true (casted to boolean)
+
+Map::from( ['a' => '10'] )->bool( 'a' );
+// true (casted to boolean)
+
+Map::from( ['a' => 'abc'] )->bool( 'a' );
+// true (casted to boolean)
+
+Map::from( ['a' => ['b' => ['c' => true]]] )->bool( 'a/b/c' );
+// true
+
+Map::from( [] )->bool( 'c', function() { return rand( 1, 2 ); } );
+// true (value returned by closure is casted to boolean)
+
+Map::from( [] )->bool( 'a', true );
+// true (default value used)
+
+Map::from( [] )->bool( 'a' );
+// false
+
+Map::from( ['b' => ''] )->bool( 'b' );
+// false (casted to boolean)
+
+Map::from( ['b' => null] )->bool( 'b' );
+// false (null is not scalar)
+
+Map::from( ['b' => [true]] )->bool( 'b' );
+// false (arrays are not scalar)
+
+Map::from( ['b' => '#resource'] )->bool( 'b' );
+// false (resources are not scalar)
+
+Map::from( ['b' => new \stdClass] )->bool( 'b' );
+// false (objects are not scalar)
+
+Map::from( [] )->bool( 'c', new \Exception( 'error' ) );
+// throws exception
 ```
 
 

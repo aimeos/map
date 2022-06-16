@@ -569,6 +569,47 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Returns an element by key and casts it to boolean if possible.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => true] )->bool( 'a' );
+	 *  Map::from( ['a' => '1'] )->bool( 'a' );
+	 *  Map::from( ['a' => 1.1] )->bool( 'a' );
+	 *  Map::from( ['a' => '10'] )->bool( 'a' );
+	 *  Map::from( ['a' => 'abc'] )->bool( 'a' );
+	 *  Map::from( ['a' => ['b' => ['c' => true]]] )->bool( 'a/b/c' );
+	 *  Map::from( [] )->bool( 'c', function() { return rand( 1, 2 ); } );
+	 *  Map::from( [] )->bool( 'a', true );
+	 *
+	 *  Map::from( [] )->bool( 'a' );
+	 *  Map::from( ['b' => ''] )->bool( 'b' );
+	 *  Map::from( ['b' => null] )->bool( 'b' );
+	 *  Map::from( ['b' => [true]] )->bool( 'b' );
+	 *  Map::from( ['b' => resource] )->bool( 'b' );
+	 *  Map::from( ['b' => new \stdClass] )->bool( 'b' );
+	 *
+	 *  Map::from( [] )->bool( 'c', new \Exception( 'error' ) );
+	 *
+	 * Results:
+	 * The first eight examples will return TRUE while the 9th to 14th example
+	 * returns FALSE. The last example will throw an exception.
+	 *
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
+	 *
+	 * @param int|string $key Key or path to the requested item
+	 * @param mixed $default Default value if key isn't found (will be casted to bool)
+	 * @return bool Value from map or default value
+	 */
+	public function bool( $key, $default = false ) : bool
+	{
+		return (bool) is_scalar( $val = $this->get( $key, $default ) ) ? $val : $default;
+	}
+
+
+	/**
 	 * Calls the given method on all items and returns the result.
 	 *
 	 * This method can call methods on the map entries that are also implemented
@@ -1463,7 +1504,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->get( 'c', 'Z' );
 	 *  Map::from( ['a' => ['b' => ['c' => 'Y']]] )->get( 'a/b/c' );
 	 *  Map::from( [] )->get( 'Y', new \Exception( 'error' ) );
-	 *  Map::from( [] )->get( function() { return rand(); } );
+	 *  Map::from( [] )->get( 'Y', function() { return rand(); } );
 	 *
 	 * Results:
 	 * The first example will return 'X', the second 'Z' and the third 'Y'. The forth

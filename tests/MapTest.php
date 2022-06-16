@@ -179,6 +179,36 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testBool()
+	{
+		$this->assertEquals( true, Map::from( ['a' => true] )->bool( 'a' ) );
+		$this->assertEquals( true, Map::from( ['a' => '1'] )->bool( 'a' ) );
+		$this->assertEquals( true, Map::from( ['a' => 1.1] )->bool( 'a' ) );
+		$this->assertEquals( true, Map::from( ['a' => '10'] )->bool( 'a' ) );
+		$this->assertEquals( true, Map::from( ['a' => 'abc'] )->bool( 'a' ) );
+		$this->assertEquals( true, Map::from( ['a' => ['b' => ['c' => true]]] )->bool( 'a/b/c' ) );
+
+		$this->assertEquals( false, Map::from( [] )->bool( 'a' ) );
+		$this->assertEquals( false, Map::from( ['b' => ''] )->bool( 'b' ) );
+		$this->assertEquals( false, Map::from( ['b' => null] )->bool( 'b' ) );
+		$this->assertEquals( false, Map::from( ['b' => [true]] )->bool( 'b' ) );
+		$this->assertEquals( false, Map::from( ['b' => new \stdClass] )->bool( 'b' ) );
+	}
+
+
+	public function testBoolClosure()
+	{
+		$this->assertEquals( true, Map::from( [] )->bool( 'c', function() { return rand( 1, 2 ); } ) );
+	}
+
+
+	public function testBoolException()
+	{
+		$this->expectException( \RuntimeException::class );
+		Map::from( [] )->bool( 'c', new \RuntimeException( 'error' ) );
+	}
+
+
 	public function testCall()
 	{
 		$m = new Map( ['a' => new TestMapObject(), 'b' => new TestMapObject()] );
