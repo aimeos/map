@@ -172,6 +172,7 @@ will return:
 <a href="#insertafter">insertAfter</a>
 <a href="#insertat">insertAt</a>
 <a href="#insertbefore">insertBefore</a>
+<a href="#int">int</a>
 <a href="#intersect">intersect</a>
 <a href="#intersectassoc">intersectAssoc</a>
 <a href="#intersectkeys">intersectKeys</a>
@@ -279,6 +280,7 @@ will return:
 * [firstKey()](#firstkey) : Returns the first key
 * [get()](#get) : Returns an element by key
 * [index()](#index) : Returns the numerical index of the given key
+* [int()](#int) : Returns an element by key and casts it to integer
 * [keys()](#keys) : Returns all keys
 * [last()](#last) : Returns the last element
 * [lastKey()](#lastkey) : Returns the last key
@@ -2468,6 +2470,73 @@ Map::from( ['foo', 'bar'] )->insertBefore( 'bar', ['baz', 'boo'] );
 
 Map::from( ['foo', 'bar'] )->insertBefore( null, 'baz' );
 // ['foo', 'bar', 'baz']
+```
+
+
+### int()
+
+Returns an element by key and casts it to integer if possible.
+
+```php
+public function int( $key, $default = 0 ) : int
+```
+
+* @param **int&#124;string** `$key` Key or path to the requested item
+* @param **mixed** `$default` Default value if key isn't found (will be casted to int)
+* @return **int** Value from map or default value
+
+This does also work to map values from multi-dimensional arrays by passing the keys
+of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
+to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
+public properties of objects or objects implementing `__isset()` and `__get()` methods.
+
+**Examples:**
+
+```php
+Map::from( ['a' => true] )->int( 'a' );
+// 1
+
+Map::from( ['a' => '1'] )->int( 'a' );
+// 1 (casted to integer)
+
+Map::from( ['a' => 1.1] )->int( 'a' );
+// 1 (casted to integer)
+
+Map::from( ['a' => '10'] )->int( 'a' );
+// 10 (casted to integer)
+
+Map::from( ['a' => ['b' => ['c' => 1]]] )->int( 'a/b/c' );
+// 1
+
+Map::from( [] )->int( 'c', function() { return rand( 1, 1 ); } );
+// 1
+
+Map::from( [] )->int( 'a', 1 );
+// 1 (default value used)
+
+Map::from( [] )->int( 'a' );
+// 0
+
+Map::from( ['b' => ''] )->int( 'b' );
+// 0 (casted to integer)
+
+Map::from( ['a' => 'abc'] )->int( 'a' );
+// 0 (casted to integer)
+
+Map::from( ['b' => null] )->int( 'b' );
+// 0 (null is not scalar)
+
+Map::from( ['b' => [true]] )->int( 'b' );
+// 0 (arrays are not scalar)
+
+Map::from( ['b' => '#resource'] )->int( 'b' );
+// 0 (resources are not scalar)
+
+Map::from( ['b' => new \stdClass] )->int( 'b' );
+// 0 (objects are not scalar)
+
+Map::from( [] )->int( 'c', new \Exception( 'error' ) );
+// throws exception
 ```
 
 

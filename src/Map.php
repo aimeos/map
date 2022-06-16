@@ -2084,6 +2084,47 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Returns an element by key and casts it to integer if possible.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => true] )->int( 'a' );
+	 *  Map::from( ['a' => '1'] )->int( 'a' );
+	 *  Map::from( ['a' => 1.1] )->int( 'a' );
+	 *  Map::from( ['a' => '10'] )->int( 'a' );
+	 *  Map::from( ['a' => ['b' => ['c' => 1]]] )->int( 'a/b/c' );
+	 *  Map::from( [] )->int( 'c', function() { return rand( 1, 1 ); } );
+	 *  Map::from( [] )->int( 'a', 1 );
+	 *
+	 *  Map::from( [] )->int( 'b' );
+	 *  Map::from( ['b' => ''] )->int( 'b' );
+	 *  Map::from( ['b' => 'abc'] )->int( 'b' );
+	 *  Map::from( ['b' => null] )->int( 'b' );
+	 *  Map::from( ['b' => [1]] )->int( 'b' );
+	 *  Map::from( ['b' => #resource] )->int( 'b' );
+	 *  Map::from( ['b' => new \stdClass] )->int( 'b' );
+	 *
+	 *  Map::from( [] )->int( 'c', new \Exception( 'error' ) );
+	 *
+	 * Results:
+	 * The first seven examples will return 1 while the 8th to 14th example
+	 * returns 0. The last example will throw an exception.
+	 *
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
+	 *
+	 * @param int|string $key Key or path to the requested item
+	 * @param mixed $default Default value if key isn't found (will be casted to integer)
+	 * @return int Value from map or default value
+	 */
+	public function int( $key, $default = 0 ) : int
+	{
+		return (int) ( is_scalar( $val = $this->get( $key, $default ) ) ? $val : $default );
+	}
+
+
+	/**
 	 * Returns all values in a new map that are available in both, the map and the given elements.
 	 *
 	 * Examples:

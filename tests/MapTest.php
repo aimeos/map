@@ -1587,6 +1587,37 @@ Array
 	}
 
 
+	public function testInt()
+	{
+		$this->assertEquals( 1, Map::from( ['a' => true] )->int( 'a' ) );
+		$this->assertEquals( 1, Map::from( ['a' => '1'] )->int( 'a' ) );
+		$this->assertEquals( 1, Map::from( ['a' => 1.1] )->int( 'a' ) );
+		$this->assertEquals( 10, Map::from( ['a' => '10'] )->int( 'a' ) );
+		$this->assertEquals( 1, Map::from( ['a' => ['b' => ['c' => 1]]] )->int( 'a/b/c' ) );
+		$this->assertEquals( 1, Map::from( [] )->int( 'a', 1 ) );
+
+		$this->assertEquals( 0, Map::from( [] )->int( 'b' ) );
+		$this->assertEquals( 0, Map::from( ['b' => ''] )->int( 'b' ) );
+		$this->assertEquals( 0, Map::from( ['b' => 'abc'] )->int( 'b' ) );
+		$this->assertEquals( 0, Map::from( ['b' => null] )->int( 'b' ) );
+		$this->assertEquals( 0, Map::from( ['b' => [true]] )->int( 'b' ) );
+		$this->assertEquals( 0, Map::from( ['b' => new \stdClass] )->int( 'b' ) );
+	}
+
+
+	public function testIntClosure()
+	{
+		$this->assertEquals( 1, Map::from( [] )->int( 'c', function() { return rand( 1, 1 ); } ) );
+	}
+
+
+	public function testIntException()
+	{
+		$this->expectException( \RuntimeException::class );
+		Map::from( [] )->int( 'c', new \RuntimeException( 'error' ) );
+	}
+
+
 	public function testIntersect()
 	{
 		$m = new Map( ['id' => 1, 'first_word' => 'Hello'] );
