@@ -3839,6 +3839,45 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Returns an element by key and casts it to string if possible.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => true] )->string( 'a' );
+	 *  Map::from( ['a' => 1] )->string( 'a' );
+	 *  Map::from( ['a' => 1.1] )->string( 'a' );
+	 *  Map::from( ['a' => 'abc'] )->string( 'a' );
+	 *  Map::from( ['a' => ['b' => ['c' => 'yes']]] )->string( 'a/b/c' );
+	 *  Map::from( [] )->string( 'a', function() { return 'no'; } );
+	 *
+	 *  Map::from( [] )->string( 'b' );
+	 *  Map::from( ['b' => ''] )->string( 'b' );
+	 *  Map::from( ['b' => null] )->string( 'b' );
+	 *  Map::from( ['b' => [true]] )->string( 'b' );
+	 *  Map::from( ['b' => resource] )->string( 'b' );
+	 *  Map::from( ['b' => new \stdClass] )->string( 'b' );
+	 *
+	 *  Map::from( [] )->string( 'c', new \Exception( 'error' ) );
+	 *
+	 * Results:
+	 * The first six examples will return the value as string while the 9th to 12th
+	 * example returns an empty string. The last example will throw an exception.
+	 *
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
+	 *
+	 * @param int|string $key Key or path to the requested item
+	 * @param mixed $default Default value if key isn't found (will be casted to bool)
+	 * @return string Value from map or default value
+	 */
+	public function string( $key, $default = '' ) : string
+	{
+		return (string) ( is_scalar( $val = $this->get( $key, $default ) ) ? $val : $default );
+	}
+
+
+	/**
 	 * Adds a suffix at the end of each map entry.
 	 *
 	 * By defaul, nested arrays are walked recusively so all entries at all levels are suffixed.

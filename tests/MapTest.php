@@ -2770,6 +2770,36 @@ Array
 	}
 
 
+	public function testString()
+	{
+		$this->assertSame( '1', Map::from( ['a' => true] )->string( 'a' ) );
+		$this->assertSame( '1', Map::from( ['a' => 1] )->string( 'a' ) );
+		$this->assertSame( '1.1', Map::from( ['a' => 1.1] )->string( 'a' ) );
+		$this->assertSame( 'abc', Map::from( ['a' => 'abc'] )->string( 'a' ) );
+		$this->assertSame( 'yes', Map::from( ['a' => ['b' => ['c' => 'yes']]] )->string( 'a/b/c' ) );
+		$this->assertSame( 'no', Map::from( [] )->string( 'a', 'no' ) );
+
+		$this->assertSame( '', Map::from( [] )->string( 'b' ) );
+		$this->assertSame( '', Map::from( ['b' => ''] )->string( 'b' ) );
+		$this->assertSame( '', Map::from( ['b' => null] )->string( 'b' ) );
+		$this->assertSame( '', Map::from( ['b' => [true]] )->string( 'b' ) );
+		$this->assertSame( '', Map::from( ['b' => new \stdClass] )->string( 'b' ) );
+	}
+
+
+	public function testStringClosure()
+	{
+		$this->assertSame( 'no', Map::from( [] )->string( 'c', function() { return 'no'; } ) );
+	}
+
+
+	public function testStringException()
+	{
+		$this->expectException( \RuntimeException::class );
+		Map::from( [] )->string( 'c', new \RuntimeException( 'error' ) );
+	}
+
+
 	public function testSuffix()
 	{
 		$fcn = function( $item, $key ) {

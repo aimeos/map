@@ -231,6 +231,7 @@ will return:
 <a href="#sort">sort</a>
 <a href="#splice">splice</a>
 <a href="#split">split</a>
+<a href="#string">string</a>
 <a href="#suffix">suffix</a>
 <a href="#sum">sum</a>
 <a href="#take">take</a>
@@ -290,6 +291,7 @@ will return:
 * [random()](#random) : Returns random elements preserving keys
 * [search()](#search) : Find the key of an element
 * [shift()](#shift) : Returns and removes the first element
+* [string()](#string) : Returns an element by key and casts it to string
 * [toArray()](#toarray) : Returns the plain array
 * [unique()](#unique) : Returns all unique elements preserving keys
 * [values()](#values) : Returns all elements with new keys
@@ -4191,6 +4193,67 @@ Map::from( ['a', 'b', 'c'] )->splice( 1 );
 
 Map::from( ['a', 'b', 'c'] )->splice( 1, 1, ['x', 'y'] );
 // ['b'] and map contains ['a', 'x', 'y', 'c']
+```
+
+
+### string()
+
+Returns an element by key and casts it to string if possible.
+
+```php
+public function string( $key, $default = '' ) : string
+```
+
+* @param **int&#124;string** `$key` Key or path to the requested item
+* @param **mixed** `$default` Default value if key isn't found (will be casted to string)
+* @return **string** Value from map or default value
+
+This does also work to map values from multi-dimensional arrays by passing the keys
+of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
+to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
+public properties of objects or objects implementing `__isset()` and `__get()` methods.
+
+**Examples:**
+
+```php
+Map::from( ['a' => true] )->string( 'a' );
+// '1'
+
+Map::from( ['a' => 1] )->string( 'a' );
+// '1'
+
+Map::from( ['a' => 1.1] )->string( 'a' );
+// '1.1'
+
+Map::from( ['a' => 'abc'] )->string( 'a' );
+// 'abc'
+
+Map::from( ['a' => ['b' => ['c' => 'yes']]] )->string( 'a/b/c' );
+// 'yes'
+
+Map::from( [] )->string( 'c', function() { return 'no'; } );
+// 'no'
+
+Map::from( [] )->bool( 'b' );
+// ''
+
+Map::from( ['b' => ''] )->bool( 'b' );
+// ''
+
+Map::from( ['b' => null] )->bool( 'b' );
+// ''
+
+Map::from( ['b' => [true]] )->bool( 'b' );
+// ''
+
+Map::from( ['b' => '#resource'] )->bool( 'b' );
+// '' (resources are not scalar)
+
+Map::from( ['b' => new \stdClass] )->bool( 'b' );
+// '' (objects are not scalar)
+
+Map::from( [] )->bool( 'c', new \Exception( 'error' ) );
+// throws exception
 ```
 
 
