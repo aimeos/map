@@ -155,6 +155,7 @@ will return:
 <a href="#firstkey">firstKey</a>
 <a href="#flat">flat</a>
 <a href="#flip">flip</a>
+<a href="#float">float</a>
 <a href="#from">from</a>
 <a href="#fromjson">fromJson</a>
 <a href="#get">get</a>
@@ -282,6 +283,7 @@ will return:
 * [get()](#get) : Returns an element by key
 * [index()](#index) : Returns the numerical index of the given key
 * [int()](#int) : Returns an element by key and casts it to integer
+* [float()](#float) : Returns an element by key and casts it to float
 * [keys()](#keys) : Returns all keys
 * [last()](#last) : Returns the last element
 * [lastKey()](#lastkey) : Returns the last key
@@ -1834,6 +1836,73 @@ public function flip() : self
 ```php
 Map::from( ['a' => 'X', 'b' => 'Y'] )->flip();
 // ['X' => 'a', 'Y' => 'b']
+```
+
+
+### float()
+
+Returns an element by key and casts it to float if possible.
+
+```php
+public function float( $key, $default = 0.0 ) : float
+```
+
+* @param **int&#124;string** `$key` Key or path to the requested item
+* @param **mixed** `$default` Default value if key isn't found (will be casted to float)
+* @return **float** Value from map or default value
+
+This does also work to map values from multi-dimensional arrays by passing the keys
+of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
+to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
+public properties of objects or objects implementing `__isset()` and `__get()` methods.
+
+**Examples:**
+
+```php
+Map::from( ['a' => true] )->float( 'a' );
+// 1.0 (casted to float)
+
+Map::from( ['a' => 1] )->float( 'a' );
+// 1.0 (casted to float)
+
+Map::from( ['a' => '1.1'] )->float( 'a' );
+// 1.1 (casted to float)
+
+Map::from( ['a' => '10'] )->float( 'a' );
+// 10.0 (casted to float)
+
+Map::from( ['a' => ['b' => ['c' => 1.1]]] )->float( 'a/b/c' );
+// 1.1
+
+Map::from( [] )->float( 'c', function() { return 1.1; } );
+// 1.1
+
+Map::from( [] )->float( 'a', 1 );
+// 1.0 (default value used)
+
+Map::from( [] )->float( 'a' );
+// 0.0
+
+Map::from( ['b' => ''] )->float( 'b' );
+// 0.0 (casted to float)
+
+Map::from( ['a' => 'abc'] )->float( 'a' );
+// 0.0 (casted to float)
+
+Map::from( ['b' => null] )->float( 'b' );
+// 0.0 (null is not scalar)
+
+Map::from( ['b' => [true]] )->float( 'b' );
+// 0.0 (arrays are not scalar)
+
+Map::from( ['b' => '#resource'] )->float( 'b' );
+// 0.0 (resources are not scalar)
+
+Map::from( ['b' => new \stdClass] )->float( 'b' );
+// 0.0 (objects are not scalar)
+
+Map::from( [] )->float( 'c', new \Exception( 'error' ) );
+// throws exception
 ```
 
 

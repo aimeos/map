@@ -1497,6 +1497,47 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Returns an element by key and casts it to float if possible.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => true] )->float( 'a' );
+	 *  Map::from( ['a' => 1] )->float( 'a' );
+	 *  Map::from( ['a' => '1.1'] )->float( 'a' );
+	 *  Map::from( ['a' => '10'] )->float( 'a' );
+	 *  Map::from( ['a' => ['b' => ['c' => 1.1]]] )->float( 'a/b/c' );
+	 *  Map::from( [] )->float( 'c', function() { return 1.1; } );
+	 *  Map::from( [] )->float( 'a', 1.1 );
+	 *
+	 *  Map::from( [] )->float( 'b' );
+	 *  Map::from( ['b' => ''] )->float( 'b' );
+	 *  Map::from( ['b' => null] )->float( 'b' );
+	 *  Map::from( ['b' => 'abc'] )->float( 'b' );
+	 *  Map::from( ['b' => [1]] )->float( 'b' );
+	 *  Map::from( ['b' => #resource] )->float( 'b' );
+	 *  Map::from( ['b' => new \stdClass] )->float( 'b' );
+	 *
+	 *  Map::from( [] )->float( 'c', new \Exception( 'error' ) );
+	 *
+	 * Results:
+	 * The first eight examples will return the float values for the passed keys
+	 * while the 9th to 14th example returns 0. The last example will throw an exception.
+	 *
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
+	 *
+	 * @param int|string $key Key or path to the requested item
+	 * @param mixed $default Default value if key isn't found (will be casted to float)
+	 * @return float Value from map or default value
+	 */
+	public function float( $key, $default = 0.0 ) : float
+	{
+		return (float) ( is_scalar( $val = $this->get( $key, $default ) ) ? $val : $default );
+	}
+
+
+	/**
 	 * Returns an element from the map by key.
 	 *
 	 * Examples:

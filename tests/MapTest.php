@@ -1015,6 +1015,37 @@ Array
 	}
 
 
+	public function testFloat()
+	{
+		$this->assertSame( 1.0, Map::from( ['a' => true] )->float( 'a' ) );
+		$this->assertSame( 1.0, Map::from( ['a' => 1] )->float( 'a' ) );
+		$this->assertSame( 1.1, Map::from( ['a' => '1.1'] )->float( 'a' ) );
+		$this->assertSame( 10.0, Map::from( ['a' => '10'] )->float( 'a' ) );
+		$this->assertSame( 1.1, Map::from( ['a' => ['b' => ['c' => 1.1]]] )->float( 'a/b/c' ) );
+		$this->assertSame( 1.1, Map::from( [] )->float( 'a', 1.1 ) );
+
+		$this->assertSame( 0.0, Map::from( [] )->float( 'b' ) );
+		$this->assertSame( 0.0, Map::from( ['b' => ''] )->float( 'b' ) );
+		$this->assertSame( 0.0, Map::from( ['a' => 'abc'] )->float( 'a' ) );
+		$this->assertSame( 0.0, Map::from( ['b' => null] )->float( 'b' ) );
+		$this->assertSame( 0.0, Map::from( ['b' => [true]] )->float( 'b' ) );
+		$this->assertSame( 0.0, Map::from( ['b' => new \stdClass] )->float( 'b' ) );
+	}
+
+
+	public function testFloatClosure()
+	{
+		$this->assertSame( 1.1, Map::from( [] )->float( 'c', function() { return 1.1; } ) );
+	}
+
+
+	public function testFloatException()
+	{
+		$this->expectException( \RuntimeException::class );
+		Map::from( [] )->float( 'c', new \RuntimeException( 'error' ) );
+	}
+
+
 	public function testFromNull()
 	{
 		$m = Map::from( null );
