@@ -836,6 +836,43 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Compares the value against all map elements.
+	 *
+	 * Examples:
+	 *  Map::from( ['foo', 'bar'] )->compare( 'foo' );
+	 *  Map::from( ['foo', 'bar'] )->compare( 'Foo', false );
+	 *  Map::from( [123, 12.3] )->compare( '12.3' );
+	 *  Map::from( [false, true] )->compare( '1' );
+	 *  Map::from( ['foo', 'bar'] )->compare( 'Foo' );
+	 *  Map::from( ['foo', 'bar'] )->compare( 'baz' );
+	 *  Map::from( [new \stdClass(), 'bar'] )->compare( 'foo' );
+	 *
+	 * Results:
+	 * The first four examples return TRUE, the last three examples will return FALSE.
+	 *
+	 * All scalar values (bool, float, int and string) are casted to string values before
+	 * comparing to the given value. Non-scalar values in the map are ignored.
+	 *
+	 * @param string $value Value to compare map elements to
+	 * @param bool $case TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
+	 * @return bool TRUE If at least one element matches, FALSE if value is not in map
+	 */
+	public function compare( string $value, bool $case = true ) : bool
+	{
+		$fcn = $case ? 'strcmp' : 'strcasecmp';
+
+		foreach( $this->list() as $item )
+		{
+			if( is_scalar( $item ) && !$fcn( (string) $item, $value ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
+	/**
 	 * Pushs all of the given elements onto the map with new keys without creating a new map.
 	 *
 	 * Examples:
@@ -3550,7 +3587,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param mixed $value Item to search for
 	 * @param bool $strict TRUE if type of the element should be checked too
-	 * @return mixed|null Value from map or null if not found
+	 * @return mixed|null Key associated to the value or null if not found
 	 */
 	public function search( $value, $strict = true )
 	{

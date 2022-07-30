@@ -387,6 +387,18 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testCompare()
+	{
+		$this->assertEquals( true, Map::from( ['foo', 'bar'] )->compare( 'foo' ) );
+		$this->assertEquals( true, Map::from( ['foo', 'bar'] )->compare( 'Foo', false ) );
+		$this->assertEquals( true, Map::from( [123, 12.3] )->compare( '12.3' ) );
+		$this->assertEquals( true, Map::from( [false, true] )->compare( '1' ) );
+		$this->assertEquals( false, Map::from( ['foo', 'bar'] )->compare( 'Foo' ) );
+		$this->assertEquals( false, Map::from( ['foo', 'bar'] )->compare( 'baz' ) );
+		$this->assertEquals( false, Map::from( [new \stdClass(), 'bar'] )->compare( 'foo' ) );
+	}
+
+
 	public function testConcatWithArray()
 	{
 		$first = new Map( [1, 2] );
