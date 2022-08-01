@@ -2197,6 +2197,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		foreach( (array) $value as $val )
 		{
+			if( (string) $val === '' ) {
+				return true;
+			}
+
 			foreach( $this->list() as $item )
 			{
 				if( is_scalar( $item ) && $fcn( (string) $item, (string) $val ) !== false ) {
