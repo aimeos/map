@@ -174,6 +174,7 @@ will return:
 <a href="#insertafter">insertAfter</a>
 <a href="#insertat">insertAt</a>
 <a href="#insertbefore">insertBefore</a>
+<a href="#instring">inString</a>
 <a href="#int">int</a>
 <a href="#intersect">intersect</a>
 <a href="#intersectassoc">intersectAssoc</a>
@@ -385,6 +386,7 @@ will return:
 * [ifEmpty()](#ifempty) : Executes callbacks if the map is empty
 * [in()](#in) : Tests if element is included
 * [includes()](#includes) : Tests if element is included
+* [inString()](#instring) : Tests if the item is part of the strings in the map
 * [is()](#is) : Tests if the map consists of the same keys and values
 * [isEmpty()](#isempty) : Tests if map is empty
 * [isNumeric()](#isnumeric) : Tests if all entries are numeric values
@@ -2584,6 +2586,71 @@ Map::from( ['foo', 'bar'] )->insertBefore( 'bar', ['baz', 'boo'] );
 
 Map::from( ['foo', 'bar'] )->insertBefore( null, 'baz' );
 // ['foo', 'bar', 'baz']
+```
+
+
+### inString()
+
+Tests if the passed value or value are part of the strings in the map.
+
+```php
+public function inString( $value, bool $case = true ) : bool
+```
+
+* @param **array&#124;string** `$value` Value or values to compare the map elements, will be casted to string type
+* @param **bool** `$case` TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
+* @return **bool** TRUE If at least one element matches, FALSE if value is not in any string of the map
+
+All scalar values (bool, float, int and string) are casted to string values before
+comparing to the given value. Non-scalar values in the map are ignored.
+
+**Examples:**
+
+```php
+Map::from( ['abc'] )->inString( 'c' );
+// true ('abc' contains 'c')
+
+Map::from( ['abc'] )->inString( 'bc' );
+// true ('abc' contains 'bc')
+
+Map::from( [12345] )->inString( '23' );
+// true ('12345' contains '23')
+
+Map::from( [123.4] )->inString( 23.4 );
+// true ('123.4' contains '23.4')
+
+Map::from( [12345] )->inString( false );
+// true ('12345' contains '')
+
+Map::from( [12345] )->inString( true );
+// true ('12345' contains '1')
+
+Map::from( [false] )->inString( false );
+// true  ('' contains '')
+
+Map::from( ['abc'] )->inString( '' );
+// true ('abc' contains '')
+
+Map::from( [''] )->inString( false );
+// true ('' contains '')
+
+Map::from( ['abc'] )->inString( 'BC', false );
+// true ('abc' contains 'BC' when case-insentive)
+
+Map::from( ['abc', 'def'] )->inString( ['de', 'xy'] );
+// true ('def' contains 'de')
+
+Map::from( ['abc', 'def'] )->inString( ['E', 'x'] );
+// false (doesn't contain "E" when case sensitive)
+
+Map::from( ['abc', 'def'] )->inString( 'E' );
+// false (doesn't contain "E" when case sensitive)
+
+Map::from( [23456] )->inString( true );
+// false ('23456' doesn't contain '1')
+
+Map::from( [false] )->inString( 0 );
+// false ('' doesn't contain '0')
 ```
 
 

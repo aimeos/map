@@ -1630,6 +1630,26 @@ Array
 	}
 
 
+	public function testInString()
+	{
+		$this->assertEquals( true, Map::from( ['abc'] )->inString( 'c' ) );
+		$this->assertEquals( true, Map::from( ['abc'] )->inString( 'bc' ) );
+		$this->assertEquals( true, Map::from( [12345] )->inString( '23' ) );
+		$this->assertEquals( true, Map::from( [123.4] )->inString( 23.4 ) );
+		$this->assertEquals( true, Map::from( [12345] )->inString( false ) );
+		$this->assertEquals( true, Map::from( [12345] )->inString( true ) );
+		$this->assertEquals( true, Map::from( [false] )->inString( false ) );
+		$this->assertEquals( true, Map::from( ['abc'] )->inString( '' ) );
+		$this->assertEquals( true, Map::from( [''] )->inString( false ) );
+		$this->assertEquals( true, Map::from( ['abc'] )->inString( 'BC', false ) );
+		$this->assertEquals( true, Map::from( ['abc', 'def'] )->inString( ['de', 'xy'] ) );
+		$this->assertEquals( false, Map::from( ['abc', 'def'] )->inString( ['E', 'x'] ) );
+		$this->assertEquals( false, Map::from( ['abc', 'def'] )->inString( 'E' ) );
+		$this->assertEquals( false, Map::from( [23456] )->inString( true ) );
+		$this->assertEquals( false, Map::from( [false] )->inString( 0 ) );
+	}
+
+
 	public function testInt()
 	{
 		$this->assertEquals( 1, Map::from( ['a' => true] )->int( 'a' ) );

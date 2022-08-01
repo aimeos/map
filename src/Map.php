@@ -2162,6 +2162,54 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Tests if the passed value or value are part of the strings in the map.
+	 *
+	 * Examples:
+	 *  Map::from( ['abc'] )->inString( 'c' );
+	 *  Map::from( ['abc'] )->inString( 'bc' );
+	 *  Map::from( [12345] )->inString( '23' );
+	 *  Map::from( [123.4] )->inString( 23.4 );
+	 *  Map::from( [12345] )->inString( false );
+	 *  Map::from( [12345] )->inString( true );
+	 *  Map::from( [false] )->inString( false );
+	 *  Map::from( ['abc'] )->inString( '' );
+	 *  Map::from( [''] )->inString( false );
+	 *  Map::from( ['abc'] )->inString( 'BC', false );
+	 *  Map::from( ['abc', 'def'] )->inString( ['de', 'xy'] );
+	 *  Map::from( ['abc', 'def'] )->inString( ['E', 'x'] );
+	 *  Map::from( ['abc', 'def'] )->inString( 'E' );
+	 *  Map::from( [23456] )->inString( true );
+	 *  Map::from( [false] )->inString( 0 );
+	 *
+	 * Results:
+	 * The first eleven examples will return TRUE while the last four will return FALSE
+	 *
+	 * All scalar values (bool, float, int and string) are casted to string values before
+	 * comparing to the given value. Non-scalar values in the map are ignored.
+	 *
+	 * @param array|string $value Value or values to compare the map elements, will be casted to string type
+	 * @param bool $case TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
+	 * @return bool TRUE If at least one element matches, FALSE if value is not in any string of the map
+	 */
+	public function inString( $value, bool $case = true ) : bool
+	{
+		$fcn = $case ? 'strpos' : 'stripos';
+
+		foreach( (array) $value as $val )
+		{
+			foreach( $this->list() as $item )
+			{
+				if( is_scalar( $item ) && $fcn( (string) $item, (string) $val ) !== false ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+
+	/**
 	 * Returns an element by key and casts it to integer if possible.
 	 *
 	 * Examples:
