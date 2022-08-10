@@ -179,6 +179,36 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testBool()
+	{
+		$this->assertEquals( true, Map::from( ['a' => true] )->bool( 'a' ) );
+		$this->assertEquals( true, Map::from( ['a' => '1'] )->bool( 'a' ) );
+		$this->assertEquals( true, Map::from( ['a' => 1.1] )->bool( 'a' ) );
+		$this->assertEquals( true, Map::from( ['a' => '10'] )->bool( 'a' ) );
+		$this->assertEquals( true, Map::from( ['a' => 'abc'] )->bool( 'a' ) );
+		$this->assertEquals( true, Map::from( ['a' => ['b' => ['c' => true]]] )->bool( 'a/b/c' ) );
+
+		$this->assertEquals( false, Map::from( [] )->bool( 'b' ) );
+		$this->assertEquals( false, Map::from( ['b' => ''] )->bool( 'b' ) );
+		$this->assertEquals( false, Map::from( ['b' => null] )->bool( 'b' ) );
+		$this->assertEquals( false, Map::from( ['b' => [true]] )->bool( 'b' ) );
+		$this->assertEquals( false, Map::from( ['b' => new \stdClass] )->bool( 'b' ) );
+	}
+
+
+	public function testBoolClosure()
+	{
+		$this->assertEquals( true, Map::from( [] )->bool( 'c', function() { return rand( 1, 2 ); } ) );
+	}
+
+
+	public function testBoolException()
+	{
+		$this->expectException( \RuntimeException::class );
+		Map::from( [] )->bool( 'c', new \RuntimeException( 'error' ) );
+	}
+
+
 	public function testCall()
 	{
 		$m = new Map( ['a' => new TestMapObject(), 'b' => new TestMapObject()] );
@@ -354,6 +384,18 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	{
 		$r = Map::from( ['name', 'age'] )->combine( ['Tom', 29] );
 		$this->assertSame( ['name' => 'Tom', 'age' => 29], $r->toArray() );
+	}
+
+
+	public function testCompare()
+	{
+		$this->assertEquals( true, Map::from( ['foo', 'bar'] )->compare( 'foo' ) );
+		$this->assertEquals( true, Map::from( ['foo', 'bar'] )->compare( 'Foo', false ) );
+		$this->assertEquals( true, Map::from( [123, 12.3] )->compare( '12.3' ) );
+		$this->assertEquals( true, Map::from( [false, true] )->compare( '1' ) );
+		$this->assertEquals( false, Map::from( ['foo', 'bar'] )->compare( 'Foo' ) );
+		$this->assertEquals( false, Map::from( ['foo', 'bar'] )->compare( 'baz' ) );
+		$this->assertEquals( false, Map::from( [new \stdClass(), 'bar'] )->compare( 'foo' ) );
 	}
 
 
@@ -985,6 +1027,37 @@ Array
 	}
 
 
+	public function testFloat()
+	{
+		$this->assertSame( 1.0, Map::from( ['a' => true] )->float( 'a' ) );
+		$this->assertSame( 1.0, Map::from( ['a' => 1] )->float( 'a' ) );
+		$this->assertSame( 1.1, Map::from( ['a' => '1.1'] )->float( 'a' ) );
+		$this->assertSame( 10.0, Map::from( ['a' => '10'] )->float( 'a' ) );
+		$this->assertSame( 1.1, Map::from( ['a' => ['b' => ['c' => 1.1]]] )->float( 'a/b/c' ) );
+		$this->assertSame( 1.1, Map::from( [] )->float( 'a', 1.1 ) );
+
+		$this->assertSame( 0.0, Map::from( [] )->float( 'b' ) );
+		$this->assertSame( 0.0, Map::from( ['b' => ''] )->float( 'b' ) );
+		$this->assertSame( 0.0, Map::from( ['a' => 'abc'] )->float( 'a' ) );
+		$this->assertSame( 0.0, Map::from( ['b' => null] )->float( 'b' ) );
+		$this->assertSame( 0.0, Map::from( ['b' => [true]] )->float( 'b' ) );
+		$this->assertSame( 0.0, Map::from( ['b' => new \stdClass] )->float( 'b' ) );
+	}
+
+
+	public function testFloatClosure()
+	{
+		$this->assertSame( 1.1, Map::from( [] )->float( 'c', function() { return 1.1; } ) );
+	}
+
+
+	public function testFloatException()
+	{
+		$this->expectException( \RuntimeException::class );
+		Map::from( [] )->float( 'c', new \RuntimeException( 'error' ) );
+	}
+
+
 	public function testFromNull()
 	{
 		$m = Map::from( null );
@@ -1554,6 +1627,57 @@ Array
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( ['foo', 'bar', 'baz'], $r->toArray() );
+	}
+
+
+	public function testInString()
+	{
+		$this->assertEquals( true, Map::from( ['abc'] )->inString( 'c' ) );
+		$this->assertEquals( true, Map::from( ['abc'] )->inString( 'bc' ) );
+		$this->assertEquals( true, Map::from( [12345] )->inString( '23' ) );
+		$this->assertEquals( true, Map::from( [123.4] )->inString( 23.4 ) );
+		$this->assertEquals( true, Map::from( [12345] )->inString( false ) );
+		$this->assertEquals( true, Map::from( [12345] )->inString( true ) );
+		$this->assertEquals( true, Map::from( [false] )->inString( false ) );
+		$this->assertEquals( true, Map::from( ['abc'] )->inString( '' ) );
+		$this->assertEquals( true, Map::from( [''] )->inString( false ) );
+		$this->assertEquals( true, Map::from( ['abc'] )->inString( 'BC', false ) );
+		$this->assertEquals( true, Map::from( ['abc', 'def'] )->inString( ['de', 'xy'] ) );
+		$this->assertEquals( false, Map::from( ['abc', 'def'] )->inString( ['E', 'x'] ) );
+		$this->assertEquals( false, Map::from( ['abc', 'def'] )->inString( 'E' ) );
+		$this->assertEquals( false, Map::from( [23456] )->inString( true ) );
+		$this->assertEquals( false, Map::from( [false] )->inString( 0 ) );
+	}
+
+
+	public function testInt()
+	{
+		$this->assertEquals( 1, Map::from( ['a' => true] )->int( 'a' ) );
+		$this->assertEquals( 1, Map::from( ['a' => '1'] )->int( 'a' ) );
+		$this->assertEquals( 1, Map::from( ['a' => 1.1] )->int( 'a' ) );
+		$this->assertEquals( 10, Map::from( ['a' => '10'] )->int( 'a' ) );
+		$this->assertEquals( 1, Map::from( ['a' => ['b' => ['c' => 1]]] )->int( 'a/b/c' ) );
+		$this->assertEquals( 1, Map::from( [] )->int( 'a', 1 ) );
+
+		$this->assertEquals( 0, Map::from( [] )->int( 'b' ) );
+		$this->assertEquals( 0, Map::from( ['b' => ''] )->int( 'b' ) );
+		$this->assertEquals( 0, Map::from( ['b' => 'abc'] )->int( 'b' ) );
+		$this->assertEquals( 0, Map::from( ['b' => null] )->int( 'b' ) );
+		$this->assertEquals( 0, Map::from( ['b' => [true]] )->int( 'b' ) );
+		$this->assertEquals( 0, Map::from( ['b' => new \stdClass] )->int( 'b' ) );
+	}
+
+
+	public function testIntClosure()
+	{
+		$this->assertEquals( 1, Map::from( [] )->int( 'c', function() { return rand( 1, 1 ); } ) );
+	}
+
+
+	public function testIntException()
+	{
+		$this->expectException( \RuntimeException::class );
+		Map::from( [] )->int( 'c', new \RuntimeException( 'error' ) );
 	}
 
 
@@ -2706,6 +2830,36 @@ Array
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( ['foo', 'bar'], $m->toArray() );
+	}
+
+
+	public function testString()
+	{
+		$this->assertSame( '1', Map::from( ['a' => true] )->string( 'a' ) );
+		$this->assertSame( '1', Map::from( ['a' => 1] )->string( 'a' ) );
+		$this->assertSame( '1.1', Map::from( ['a' => 1.1] )->string( 'a' ) );
+		$this->assertSame( 'abc', Map::from( ['a' => 'abc'] )->string( 'a' ) );
+		$this->assertSame( 'yes', Map::from( ['a' => ['b' => ['c' => 'yes']]] )->string( 'a/b/c' ) );
+		$this->assertSame( 'no', Map::from( [] )->string( 'a', 'no' ) );
+
+		$this->assertSame( '', Map::from( [] )->string( 'b' ) );
+		$this->assertSame( '', Map::from( ['b' => ''] )->string( 'b' ) );
+		$this->assertSame( '', Map::from( ['b' => null] )->string( 'b' ) );
+		$this->assertSame( '', Map::from( ['b' => [true]] )->string( 'b' ) );
+		$this->assertSame( '', Map::from( ['b' => new \stdClass] )->string( 'b' ) );
+	}
+
+
+	public function testStringClosure()
+	{
+		$this->assertSame( 'no', Map::from( [] )->string( 'c', function() { return 'no'; } ) );
+	}
+
+
+	public function testStringException()
+	{
+		$this->expectException( \RuntimeException::class );
+		Map::from( [] )->string( 'c', new \RuntimeException( 'error' ) );
 	}
 
 

@@ -123,6 +123,7 @@ will return:
 <a href="#at">at</a>
 <a href="#avg">avg</a>
 <a href="#before">before</a>
+<a href="#bool">bool</a>
 <a href="#call">call</a>
 <a href="#chunk">chunk</a>
 <a href="#clear">clear</a>
@@ -130,6 +131,7 @@ will return:
 <a href="#col">col</a>
 <a href="#collapse">collapse</a>
 <a href="#combine">combine</a>
+<a href="#compare">compare</a>
 <a href="#concat">concat</a>
 <a href="#contains">contains</a>
 <a href="#copy">copy</a>
@@ -154,6 +156,7 @@ will return:
 <a href="#firstkey">firstKey</a>
 <a href="#flat">flat</a>
 <a href="#flip">flip</a>
+<a href="#float">float</a>
 <a href="#from">from</a>
 <a href="#fromjson">fromJson</a>
 <a href="#get">get</a>
@@ -171,6 +174,8 @@ will return:
 <a href="#insertafter">insertAfter</a>
 <a href="#insertat">insertAt</a>
 <a href="#insertbefore">insertBefore</a>
+<a href="#instring">inString</a>
+<a href="#int">int</a>
 <a href="#intersect">intersect</a>
 <a href="#intersectassoc">intersectAssoc</a>
 <a href="#intersectkeys">intersectKeys</a>
@@ -229,6 +234,7 @@ will return:
 <a href="#sort">sort</a>
 <a href="#splice">splice</a>
 <a href="#split">split</a>
+<a href="#string">string</a>
 <a href="#suffix">suffix</a>
 <a href="#sum">sum</a>
 <a href="#take">take</a>
@@ -271,12 +277,15 @@ will return:
 * [__callStatic()](#__callstatic) : Calls a custom method statically
 * [all()](#all) : Returns the plain array
 * [at()](#at) : Returns the value at the given position
+* [bool()](#bool) : Returns an element by key and casts it to boolean
 * [call()](#call) : Calls the given method on all items
 * [find()](#find) : Returns the first/last matching element
 * [first()](#first) : Returns the first element
 * [firstKey()](#firstkey) : Returns the first key
 * [get()](#get) : Returns an element by key
 * [index()](#index) : Returns the numerical index of the given key
+* [int()](#int) : Returns an element by key and casts it to integer
+* [float()](#float) : Returns an element by key and casts it to float
 * [keys()](#keys) : Returns all keys
 * [last()](#last) : Returns the last element
 * [lastKey()](#lastkey) : Returns the last key
@@ -286,6 +295,7 @@ will return:
 * [random()](#random) : Returns random elements preserving keys
 * [search()](#search) : Find the key of an element
 * [shift()](#shift) : Returns and removes the first element
+* [string()](#string) : Returns an element by key and casts it to string
 * [toArray()](#toarray) : Returns the plain array
 * [unique()](#unique) : Returns all unique elements preserving keys
 * [values()](#values) : Returns all elements with new keys
@@ -364,6 +374,7 @@ will return:
 ### Test
 
 * [function is_map()](#is_map-function) : Tests if the variable is a map object
+* [compare()](#compare) : Compares the value against all map elements
 * [contains()](#contains) : Tests if an item exists in the map
 * [each()](#each) : Applies a callback to each element
 * [empty()](#empty) : Tests if map is empty
@@ -375,6 +386,7 @@ will return:
 * [ifEmpty()](#ifempty) : Executes callbacks if the map is empty
 * [in()](#in) : Tests if element is included
 * [includes()](#includes) : Tests if element is included
+* [inString()](#instring) : Tests if the item is part of the strings in the map
 * [is()](#is) : Tests if the map consists of the same keys and values
 * [isEmpty()](#isempty) : Tests if map is empty
 * [isNumeric()](#isnumeric) : Tests if all entries are numeric values
@@ -819,6 +831,73 @@ Map::from( ['a', 'c', 'b'] )->before( function( $item, $key ) {
 ```
 
 
+### bool()
+
+Returns an element by key and casts it to boolean if possible.
+
+```php
+public function bool( $key, $default = false ) : bool
+```
+
+* @param **int&#124;string** `$key` Key or path to the requested item
+* @param **mixed** `$default` Default value if key isn't found (will be casted to bool)
+* @return **bool** Value from map or default value
+
+This does also work to map values from multi-dimensional arrays by passing the keys
+of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
+to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
+public properties of objects or objects implementing `__isset()` and `__get()` methods.
+
+**Examples:**
+
+```php
+Map::from( ['a' => true] )->bool( 'a' );
+// true
+
+Map::from( ['a' => '1'] )->bool( 'a' );
+// true (casted to boolean)
+
+Map::from( ['a' => 1.1] )->bool( 'a' );
+// true (casted to boolean)
+
+Map::from( ['a' => '10'] )->bool( 'a' );
+// true (casted to boolean)
+
+Map::from( ['a' => 'abc'] )->bool( 'a' );
+// true (casted to boolean)
+
+Map::from( ['a' => ['b' => ['c' => true]]] )->bool( 'a/b/c' );
+// true
+
+Map::from( [] )->bool( 'c', function() { return rand( 1, 2 ); } );
+// true (value returned by closure is casted to boolean)
+
+Map::from( [] )->bool( 'a', true );
+// true (default value used)
+
+Map::from( [] )->bool( 'a' );
+// false
+
+Map::from( ['b' => ''] )->bool( 'b' );
+// false (casted to boolean)
+
+Map::from( ['b' => null] )->bool( 'b' );
+// false (null is not scalar)
+
+Map::from( ['b' => [true]] )->bool( 'b' );
+// false (arrays are not scalar)
+
+Map::from( ['b' => '#resource'] )->bool( 'b' );
+// false (resources are not scalar)
+
+Map::from( ['b' => new \stdClass] )->bool( 'b' );
+// false (objects are not scalar)
+
+Map::from( [] )->bool( 'c', new \Exception( 'error' ) );
+// throws exception
+```
+
+
 ### call()
 
 Calls the given method on all items and returns the result.
@@ -1006,6 +1085,66 @@ Map::from( [0 => [0 => 0, 'a' => 1], 1 => Map::from( [0 => ['b' => 2, 0 => 3], 1
 ```
 
 
+### combine()
+
+Combines the values of the map as keys with the passed elements as values.
+
+```php
+public function combine( iterable $values ) : self
+```
+
+* @param **iterable&#60;int&#124;string,mixed&#62;** `$values` Values of the new map
+* @return **self&#60;int&#124;string,mixed&#62;** New map
+
+**Examples:**
+
+```php
+Map::from( ['name', 'age'] )->combine( ['Tom', 29] );
+// ['name' => 'Tom', 'age' => 29]
+```
+
+
+### compare()
+
+Compares the value against all map elements.
+
+```php
+public function compare( string $value, bool $case = true ) : bool
+```
+
+* @param **string** `$value` Value to compare map elements to
+* @param **bool** `$case` TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
+* @return **bool** TRUE If at least one element matches, FALSE if value is not in map
+
+All scalar values (bool, float, int and string) are casted to string values before
+comparing to the given value. Non-scalar values in the map are ignored.
+
+**Examples:**
+
+```php
+Map::from( ['foo', 'bar'] )->compare( 'foo' );
+// true
+
+Map::from( ['foo', 'bar'] )->compare( 'Foo', false );
+// true (case insensitive)
+
+Map::from( [123, 12.3] )->compare( '12.3' );
+// true
+
+Map::from( [false, true] )->compare( '1' );
+// true
+
+Map::from( ['foo', 'bar'] )->compare( 'Foo' );
+// false (case sensitive)
+
+Map::from( ['foo', 'bar'] )->compare( 'baz' );
+// false
+
+Map::from( [new \stdClass(), 'bar'] )->compare( 'foo' );
+// false
+```
+
+
 ### concat()
 
 Pushs all of the given elements onto the map without creating a new map.
@@ -1027,25 +1166,6 @@ Map::from( ['foo'] )->concat( ['bar'] );
 
 Map::from( ['foo'] )->concat( new Map( ['bar' => 'baz'] ) );
 // ['foo', 'baz']
-```
-
-
-### combine()
-
-Combines the values of the map as keys with the passed elements as values.
-
-```php
-public function combine( iterable $values ) : self
-```
-
-* @param **iterable&#60;int&#124;string,mixed&#62;** `$values` Values of the new map
-* @return **self&#60;int&#124;string,mixed&#62;** New map
-
-**Examples:**
-
-```php
-Map::from( ['name', 'age'] )->combine( ['Tom', 29] );
-// ['name' => 'Tom', 'age' => 29]
 ```
 
 
@@ -1764,6 +1884,73 @@ Map::from( ['a' => 'X', 'b' => 'Y'] )->flip();
 ```
 
 
+### float()
+
+Returns an element by key and casts it to float if possible.
+
+```php
+public function float( $key, $default = 0.0 ) : float
+```
+
+* @param **int&#124;string** `$key` Key or path to the requested item
+* @param **mixed** `$default` Default value if key isn't found (will be casted to float)
+* @return **float** Value from map or default value
+
+This does also work to map values from multi-dimensional arrays by passing the keys
+of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
+to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
+public properties of objects or objects implementing `__isset()` and `__get()` methods.
+
+**Examples:**
+
+```php
+Map::from( ['a' => true] )->float( 'a' );
+// 1.0 (casted to float)
+
+Map::from( ['a' => 1] )->float( 'a' );
+// 1.0 (casted to float)
+
+Map::from( ['a' => '1.1'] )->float( 'a' );
+// 1.1 (casted to float)
+
+Map::from( ['a' => '10'] )->float( 'a' );
+// 10.0 (casted to float)
+
+Map::from( ['a' => ['b' => ['c' => 1.1]]] )->float( 'a/b/c' );
+// 1.1
+
+Map::from( [] )->float( 'c', function() { return 1.1; } );
+// 1.1
+
+Map::from( [] )->float( 'a', 1 );
+// 1.0 (default value used)
+
+Map::from( [] )->float( 'a' );
+// 0.0
+
+Map::from( ['b' => ''] )->float( 'b' );
+// 0.0 (casted to float)
+
+Map::from( ['a' => 'abc'] )->float( 'a' );
+// 0.0 (casted to float)
+
+Map::from( ['b' => null] )->float( 'b' );
+// 0.0 (null is not scalar)
+
+Map::from( ['b' => [true]] )->float( 'b' );
+// 0.0 (arrays are not scalar)
+
+Map::from( ['b' => '#resource'] )->float( 'b' );
+// 0.0 (resources are not scalar)
+
+Map::from( ['b' => new \stdClass] )->float( 'b' );
+// 0.0 (objects are not scalar)
+
+Map::from( [] )->float( 'c', new \Exception( 'error' ) );
+// throws exception
+```
+
+
 ### from()
 
 Creates a new map instance if the value isn't one already.
@@ -2399,6 +2586,138 @@ Map::from( ['foo', 'bar'] )->insertBefore( 'bar', ['baz', 'boo'] );
 
 Map::from( ['foo', 'bar'] )->insertBefore( null, 'baz' );
 // ['foo', 'bar', 'baz']
+```
+
+
+### inString()
+
+Tests if the passed value or value are part of the strings in the map.
+
+```php
+public function inString( $value, bool $case = true ) : bool
+```
+
+* @param **array&#124;string** `$value` Value or values to compare the map elements, will be casted to string type
+* @param **bool** `$case` TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
+* @return **bool** TRUE If at least one element matches, FALSE if value is not in any string of the map
+
+All scalar values (bool, float, int and string) are casted to string values before
+comparing to the given value. Non-scalar values in the map are ignored.
+
+**Examples:**
+
+```php
+Map::from( ['abc'] )->inString( 'c' );
+// true ('abc' contains 'c')
+
+Map::from( ['abc'] )->inString( 'bc' );
+// true ('abc' contains 'bc')
+
+Map::from( [12345] )->inString( '23' );
+// true ('12345' contains '23')
+
+Map::from( [123.4] )->inString( 23.4 );
+// true ('123.4' contains '23.4')
+
+Map::from( [12345] )->inString( false );
+// true ('12345' contains '')
+
+Map::from( [12345] )->inString( true );
+// true ('12345' contains '1')
+
+Map::from( [false] )->inString( false );
+// true  ('' contains '')
+
+Map::from( ['abc'] )->inString( '' );
+// true ('abc' contains '')
+
+Map::from( [''] )->inString( false );
+// true ('' contains '')
+
+Map::from( ['abc'] )->inString( 'BC', false );
+// true ('abc' contains 'BC' when case-insentive)
+
+Map::from( ['abc', 'def'] )->inString( ['de', 'xy'] );
+// true ('def' contains 'de')
+
+Map::from( ['abc', 'def'] )->inString( ['E', 'x'] );
+// false (doesn't contain "E" when case sensitive)
+
+Map::from( ['abc', 'def'] )->inString( 'E' );
+// false (doesn't contain "E" when case sensitive)
+
+Map::from( [23456] )->inString( true );
+// false ('23456' doesn't contain '1')
+
+Map::from( [false] )->inString( 0 );
+// false ('' doesn't contain '0')
+```
+
+
+### int()
+
+Returns an element by key and casts it to integer if possible.
+
+```php
+public function int( $key, $default = 0 ) : int
+```
+
+* @param **int&#124;string** `$key` Key or path to the requested item
+* @param **mixed** `$default` Default value if key isn't found (will be casted to int)
+* @return **int** Value from map or default value
+
+This does also work to map values from multi-dimensional arrays by passing the keys
+of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
+to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
+public properties of objects or objects implementing `__isset()` and `__get()` methods.
+
+**Examples:**
+
+```php
+Map::from( ['a' => true] )->int( 'a' );
+// 1
+
+Map::from( ['a' => '1'] )->int( 'a' );
+// 1 (casted to integer)
+
+Map::from( ['a' => 1.1] )->int( 'a' );
+// 1 (casted to integer)
+
+Map::from( ['a' => '10'] )->int( 'a' );
+// 10 (casted to integer)
+
+Map::from( ['a' => ['b' => ['c' => 1]]] )->int( 'a/b/c' );
+// 1
+
+Map::from( [] )->int( 'c', function() { return rand( 1, 1 ); } );
+// 1
+
+Map::from( [] )->int( 'a', 1 );
+// 1 (default value used)
+
+Map::from( [] )->int( 'a' );
+// 0
+
+Map::from( ['b' => ''] )->int( 'b' );
+// 0 (casted to integer)
+
+Map::from( ['a' => 'abc'] )->int( 'a' );
+// 0 (casted to integer)
+
+Map::from( ['b' => null] )->int( 'b' );
+// 0 (null is not scalar)
+
+Map::from( ['b' => [true]] )->int( 'b' );
+// 0 (arrays are not scalar)
+
+Map::from( ['b' => '#resource'] )->int( 'b' );
+// 0 (resources are not scalar)
+
+Map::from( ['b' => new \stdClass] )->int( 'b' );
+// 0 (objects are not scalar)
+
+Map::from( [] )->int( 'c', new \Exception( 'error' ) );
+// throws exception
 ```
 
 
@@ -4053,6 +4372,67 @@ Map::from( ['a', 'b', 'c'] )->splice( 1 );
 
 Map::from( ['a', 'b', 'c'] )->splice( 1, 1, ['x', 'y'] );
 // ['b'] and map contains ['a', 'x', 'y', 'c']
+```
+
+
+### string()
+
+Returns an element by key and casts it to string if possible.
+
+```php
+public function string( $key, $default = '' ) : string
+```
+
+* @param **int&#124;string** `$key` Key or path to the requested item
+* @param **mixed** `$default` Default value if key isn't found (will be casted to string)
+* @return **string** Value from map or default value
+
+This does also work to map values from multi-dimensional arrays by passing the keys
+of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
+to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
+public properties of objects or objects implementing `__isset()` and `__get()` methods.
+
+**Examples:**
+
+```php
+Map::from( ['a' => true] )->string( 'a' );
+// '1'
+
+Map::from( ['a' => 1] )->string( 'a' );
+// '1'
+
+Map::from( ['a' => 1.1] )->string( 'a' );
+// '1.1'
+
+Map::from( ['a' => 'abc'] )->string( 'a' );
+// 'abc'
+
+Map::from( ['a' => ['b' => ['c' => 'yes']]] )->string( 'a/b/c' );
+// 'yes'
+
+Map::from( [] )->string( 'c', function() { return 'no'; } );
+// 'no'
+
+Map::from( [] )->bool( 'b' );
+// ''
+
+Map::from( ['b' => ''] )->bool( 'b' );
+// ''
+
+Map::from( ['b' => null] )->bool( 'b' );
+// ''
+
+Map::from( ['b' => [true]] )->bool( 'b' );
+// ''
+
+Map::from( ['b' => '#resource'] )->bool( 'b' );
+// '' (resources are not scalar)
+
+Map::from( ['b' => new \stdClass] )->bool( 'b' );
+// '' (objects are not scalar)
+
+Map::from( [] )->bool( 'c', new \Exception( 'error' ) );
+// throws exception
 ```
 
 

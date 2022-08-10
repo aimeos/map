@@ -569,6 +569,47 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Returns an element by key and casts it to boolean if possible.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => true] )->bool( 'a' );
+	 *  Map::from( ['a' => '1'] )->bool( 'a' );
+	 *  Map::from( ['a' => 1.1] )->bool( 'a' );
+	 *  Map::from( ['a' => '10'] )->bool( 'a' );
+	 *  Map::from( ['a' => 'abc'] )->bool( 'a' );
+	 *  Map::from( ['a' => ['b' => ['c' => true]]] )->bool( 'a/b/c' );
+	 *  Map::from( [] )->bool( 'c', function() { return rand( 1, 2 ); } );
+	 *  Map::from( [] )->bool( 'a', true );
+	 *
+	 *  Map::from( [] )->bool( 'b' );
+	 *  Map::from( ['b' => ''] )->bool( 'b' );
+	 *  Map::from( ['b' => null] )->bool( 'b' );
+	 *  Map::from( ['b' => [true]] )->bool( 'b' );
+	 *  Map::from( ['b' => resource] )->bool( 'b' );
+	 *  Map::from( ['b' => new \stdClass] )->bool( 'b' );
+	 *
+	 *  Map::from( [] )->bool( 'c', new \Exception( 'error' ) );
+	 *
+	 * Results:
+	 * The first eight examples will return TRUE while the 9th to 14th example
+	 * returns FALSE. The last example will throw an exception.
+	 *
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
+	 *
+	 * @param int|string $key Key or path to the requested item
+	 * @param mixed $default Default value if key isn't found (will be casted to bool)
+	 * @return bool Value from map or default value
+	 */
+	public function bool( $key, $default = false ) : bool
+	{
+		return (bool) ( is_scalar( $val = $this->get( $key, $default ) ) ? $val : $default );
+	}
+
+
+	/**
 	 * Calls the given method on all items and returns the result.
 	 *
 	 * This method can call methods on the map entries that are also implemented
@@ -791,6 +832,43 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function combine( iterable $values ) : self
 	{
 		return new static( array_combine( $this->list(), $this->array( $values ) ) );
+	}
+
+
+	/**
+	 * Compares the value against all map elements.
+	 *
+	 * Examples:
+	 *  Map::from( ['foo', 'bar'] )->compare( 'foo' );
+	 *  Map::from( ['foo', 'bar'] )->compare( 'Foo', false );
+	 *  Map::from( [123, 12.3] )->compare( '12.3' );
+	 *  Map::from( [false, true] )->compare( '1' );
+	 *  Map::from( ['foo', 'bar'] )->compare( 'Foo' );
+	 *  Map::from( ['foo', 'bar'] )->compare( 'baz' );
+	 *  Map::from( [new \stdClass(), 'bar'] )->compare( 'foo' );
+	 *
+	 * Results:
+	 * The first four examples return TRUE, the last three examples will return FALSE.
+	 *
+	 * All scalar values (bool, float, int and string) are casted to string values before
+	 * comparing to the given value. Non-scalar values in the map are ignored.
+	 *
+	 * @param string $value Value to compare map elements to
+	 * @param bool $case TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
+	 * @return bool TRUE If at least one element matches, FALSE if value is not in map
+	 */
+	public function compare( string $value, bool $case = true ) : bool
+	{
+		$fcn = $case ? 'strcmp' : 'strcasecmp';
+
+		foreach( $this->list() as $item )
+		{
+			if( is_scalar( $item ) && !$fcn( (string) $item, $value ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 
@@ -1456,6 +1534,47 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Returns an element by key and casts it to float if possible.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => true] )->float( 'a' );
+	 *  Map::from( ['a' => 1] )->float( 'a' );
+	 *  Map::from( ['a' => '1.1'] )->float( 'a' );
+	 *  Map::from( ['a' => '10'] )->float( 'a' );
+	 *  Map::from( ['a' => ['b' => ['c' => 1.1]]] )->float( 'a/b/c' );
+	 *  Map::from( [] )->float( 'c', function() { return 1.1; } );
+	 *  Map::from( [] )->float( 'a', 1.1 );
+	 *
+	 *  Map::from( [] )->float( 'b' );
+	 *  Map::from( ['b' => ''] )->float( 'b' );
+	 *  Map::from( ['b' => null] )->float( 'b' );
+	 *  Map::from( ['b' => 'abc'] )->float( 'b' );
+	 *  Map::from( ['b' => [1]] )->float( 'b' );
+	 *  Map::from( ['b' => #resource] )->float( 'b' );
+	 *  Map::from( ['b' => new \stdClass] )->float( 'b' );
+	 *
+	 *  Map::from( [] )->float( 'c', new \Exception( 'error' ) );
+	 *
+	 * Results:
+	 * The first eight examples will return the float values for the passed keys
+	 * while the 9th to 14th example returns 0. The last example will throw an exception.
+	 *
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
+	 *
+	 * @param int|string $key Key or path to the requested item
+	 * @param mixed $default Default value if key isn't found (will be casted to float)
+	 * @return float Value from map or default value
+	 */
+	public function float( $key, $default = 0.0 ) : float
+	{
+		return (float) ( is_scalar( $val = $this->get( $key, $default ) ) ? $val : $default );
+	}
+
+
+	/**
 	 * Returns an element from the map by key.
 	 *
 	 * Examples:
@@ -1463,7 +1582,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['a' => 'X', 'b' => 'Y'] )->get( 'c', 'Z' );
 	 *  Map::from( ['a' => ['b' => ['c' => 'Y']]] )->get( 'a/b/c' );
 	 *  Map::from( [] )->get( 'Y', new \Exception( 'error' ) );
-	 *  Map::from( [] )->get( function() { return rand(); } );
+	 *  Map::from( [] )->get( 'Y', function() { return rand(); } );
 	 *
 	 * Results:
 	 * The first example will return 'X', the second 'Z' and the third 'Y'. The forth
@@ -2039,6 +2158,99 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		array_splice( $this->list(), $position, 0, $this->array( $value ) );
 
 		return $this;
+	}
+
+
+	/**
+	 * Tests if the passed value or value are part of the strings in the map.
+	 *
+	 * Examples:
+	 *  Map::from( ['abc'] )->inString( 'c' );
+	 *  Map::from( ['abc'] )->inString( 'bc' );
+	 *  Map::from( [12345] )->inString( '23' );
+	 *  Map::from( [123.4] )->inString( 23.4 );
+	 *  Map::from( [12345] )->inString( false );
+	 *  Map::from( [12345] )->inString( true );
+	 *  Map::from( [false] )->inString( false );
+	 *  Map::from( ['abc'] )->inString( '' );
+	 *  Map::from( [''] )->inString( false );
+	 *  Map::from( ['abc'] )->inString( 'BC', false );
+	 *  Map::from( ['abc', 'def'] )->inString( ['de', 'xy'] );
+	 *  Map::from( ['abc', 'def'] )->inString( ['E', 'x'] );
+	 *  Map::from( ['abc', 'def'] )->inString( 'E' );
+	 *  Map::from( [23456] )->inString( true );
+	 *  Map::from( [false] )->inString( 0 );
+	 *
+	 * Results:
+	 * The first eleven examples will return TRUE while the last four will return FALSE
+	 *
+	 * All scalar values (bool, float, int and string) are casted to string values before
+	 * comparing to the given value. Non-scalar values in the map are ignored.
+	 *
+	 * @param array|string $value Value or values to compare the map elements, will be casted to string type
+	 * @param bool $case TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
+	 * @return bool TRUE If at least one element matches, FALSE if value is not in any string of the map
+	 */
+	public function inString( $value, bool $case = true ) : bool
+	{
+		$fcn = $case ? 'strpos' : 'stripos';
+
+		foreach( (array) $value as $val )
+		{
+			if( (string) $val === '' ) {
+				return true;
+			}
+
+			foreach( $this->list() as $item )
+			{
+				if( is_scalar( $item ) && $fcn( (string) $item, (string) $val ) !== false ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+
+	/**
+	 * Returns an element by key and casts it to integer if possible.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => true] )->int( 'a' );
+	 *  Map::from( ['a' => '1'] )->int( 'a' );
+	 *  Map::from( ['a' => 1.1] )->int( 'a' );
+	 *  Map::from( ['a' => '10'] )->int( 'a' );
+	 *  Map::from( ['a' => ['b' => ['c' => 1]]] )->int( 'a/b/c' );
+	 *  Map::from( [] )->int( 'c', function() { return rand( 1, 1 ); } );
+	 *  Map::from( [] )->int( 'a', 1 );
+	 *
+	 *  Map::from( [] )->int( 'b' );
+	 *  Map::from( ['b' => ''] )->int( 'b' );
+	 *  Map::from( ['b' => 'abc'] )->int( 'b' );
+	 *  Map::from( ['b' => null] )->int( 'b' );
+	 *  Map::from( ['b' => [1]] )->int( 'b' );
+	 *  Map::from( ['b' => #resource] )->int( 'b' );
+	 *  Map::from( ['b' => new \stdClass] )->int( 'b' );
+	 *
+	 *  Map::from( [] )->int( 'c', new \Exception( 'error' ) );
+	 *
+	 * Results:
+	 * The first seven examples will return 1 while the 8th to 14th example
+	 * returns 0. The last example will throw an exception.
+	 *
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
+	 *
+	 * @param int|string $key Key or path to the requested item
+	 * @param mixed $default Default value if key isn't found (will be casted to integer)
+	 * @return int Value from map or default value
+	 */
+	public function int( $key, $default = 0 ) : int
+	{
+		return (int) ( is_scalar( $val = $this->get( $key, $default ) ) ? $val : $default );
 	}
 
 
@@ -3427,7 +3639,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param mixed $value Item to search for
 	 * @param bool $strict TRUE if type of the element should be checked too
-	 * @return mixed|null Value from map or null if not found
+	 * @return mixed|null Key associated to the value or null if not found
 	 */
 	public function search( $value, $strict = true )
 	{
@@ -3753,6 +3965,45 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		}
 
 		return new static( array_splice( $this->list(), $offset, $length, (array) $replacement ) );
+	}
+
+
+	/**
+	 * Returns an element by key and casts it to string if possible.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => true] )->string( 'a' );
+	 *  Map::from( ['a' => 1] )->string( 'a' );
+	 *  Map::from( ['a' => 1.1] )->string( 'a' );
+	 *  Map::from( ['a' => 'abc'] )->string( 'a' );
+	 *  Map::from( ['a' => ['b' => ['c' => 'yes']]] )->string( 'a/b/c' );
+	 *  Map::from( [] )->string( 'a', function() { return 'no'; } );
+	 *
+	 *  Map::from( [] )->string( 'b' );
+	 *  Map::from( ['b' => ''] )->string( 'b' );
+	 *  Map::from( ['b' => null] )->string( 'b' );
+	 *  Map::from( ['b' => [true]] )->string( 'b' );
+	 *  Map::from( ['b' => resource] )->string( 'b' );
+	 *  Map::from( ['b' => new \stdClass] )->string( 'b' );
+	 *
+	 *  Map::from( [] )->string( 'c', new \Exception( 'error' ) );
+	 *
+	 * Results:
+	 * The first six examples will return the value as string while the 9th to 12th
+	 * example returns an empty string. The last example will throw an exception.
+	 *
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
+	 *
+	 * @param int|string $key Key or path to the requested item
+	 * @param mixed $default Default value if key isn't found (will be casted to bool)
+	 * @return string Value from map or default value
+	 */
+	public function string( $key, $default = '' ) : string
+	{
+		return (string) ( is_scalar( $val = $this->get( $key, $default ) ) ? $val : $default );
 	}
 
 
