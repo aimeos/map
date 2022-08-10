@@ -4413,25 +4413,25 @@ Map::from( ['a' => ['b' => ['c' => 'yes']]] )->string( 'a/b/c' );
 Map::from( [] )->string( 'c', function() { return 'no'; } );
 // 'no'
 
-Map::from( [] )->bool( 'b' );
+Map::from( [] )->string( 'b' );
 // ''
 
-Map::from( ['b' => ''] )->bool( 'b' );
+Map::from( ['b' => ''] )->string( 'b' );
 // ''
 
-Map::from( ['b' => null] )->bool( 'b' );
+Map::from( ['b' => null] )->string( 'b' );
 // ''
 
-Map::from( ['b' => [true]] )->bool( 'b' );
+Map::from( ['b' => [true]] )->string( 'b' );
 // ''
 
-Map::from( ['b' => '#resource'] )->bool( 'b' );
+Map::from( ['b' => '#resource'] )->string( 'b' );
 // '' (resources are not scalar)
 
-Map::from( ['b' => new \stdClass] )->bool( 'b' );
+Map::from( ['b' => new \stdClass] )->string( 'b' );
 // '' (objects are not scalar)
 
-Map::from( [] )->bool( 'c', new \Exception( 'error' ) );
+Map::from( [] )->string( 'c', new \Exception( 'error' ) );
 // throws exception
 ```
 
