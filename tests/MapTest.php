@@ -2886,6 +2886,18 @@ Array
 	}
 
 
+	public function testStrStarts()
+	{
+		$this->assertTrue( Map::from( ['abc'] )->strStarts( '' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strStarts( 'a' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strStarts( 'ab' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'b' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'c' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'd' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'ba' ) );
+	}
+
+
 	public function testSuffix()
 	{
 		$fcn = function( $item, $key ) {

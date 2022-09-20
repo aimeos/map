@@ -236,6 +236,7 @@ will return:
 <a href="#split">split</a>
 <a href="#strcontains">strContains</a>
 <a href="#strends">strEnds</a>
+<a href="#strstarts">strStarts</a>
 <a href="#string">string</a>
 <a href="#suffix">suffix</a>
 <a href="#sum">sum</a>
@@ -399,6 +400,7 @@ will return:
 * [some()](#some) : Tests if at least one element is included
 * [strContains()](#strcontains) : Tests if the passed string is part of one of the entries
 * [strEnds()](#strends) : Tests if one of the entries ends with the passed string
+* [strStarts()](#strstarts) : Tests if one of the entries starts with the passed string
 
 ### Transform
 
@@ -4508,6 +4510,43 @@ Map::from( ['b' => new \stdClass] )->string( 'b' );
 
 Map::from( [] )->string( 'c', new \Exception( 'error' ) );
 // throws exception
+```
+
+
+### strStarts()
+
+Tests if at least one of the entries starts with the passed string.
+
+```php
+public function strStarts( string $str ) : bool
+```
+
+* @param **string** `$str` The string to search for in each entry
+* @return **bool** TRUE if one of the entries starts with the string, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( ['abc'] )->strStarts( '' );
+// true
+
+Map::from( ['abc'] )->strStarts( 'a' );
+// true
+
+Map::from( ['abc'] )->strStarts( 'ab' );
+// true
+
+Map::from( ['abc'] )->strStarts( 'b' );
+// false
+
+Map::from( ['abc'] )->strStarts( 'c' );
+// false
+
+Map::from( ['abc'] )->strStarts( 'd' );
+// false
+
+Map::from( ['abc'] )->strStarts( 'ba' );
+// false
 ```
 
 

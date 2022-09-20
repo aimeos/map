@@ -4071,6 +4071,39 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Tests if at least one of the entries starts with the passed string.
+	 *
+	 * Examples:
+	 *  Map::from( ['abc'] )->strStarts( '' );
+	 *  Map::from( ['abc'] )->strStarts( 'a' );
+	 *  Map::from( ['abc'] )->strStarts( 'ab' );
+	 *  Map::from( ['abc'] )->strStarts( 'b' );
+	 *  Map::from( ['abc'] )->strStarts( 'c' );
+	 *  Map::from( ['abc'] )->strStarts( 'd' );
+	 *  Map::from( ['abc'] )->strStarts( 'ba' );
+	 *
+	 * Results:
+	 * The first three examples will return TRUE while the last four will return FALSE.
+	 *
+	 * @param string $str The string to search for in each entry
+	 * @return bool TRUE if one of the entries starts with the string, FALSE if not
+	 */
+	public function strStarts( string $str ) : bool
+	{
+		$len = strlen( $str );
+
+		foreach( $this->list() as $entry )
+		{
+			if( !strncmp( $entry, $str, $len ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
+	/**
 	 * Adds a suffix at the end of each map entry.
 	 *
 	 * By defaul, nested arrays are walked recusively so all entries at all levels are suffixed.
