@@ -3989,7 +3989,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	{
 		foreach( $this->list() as $entry )
 		{
-			if( strpos( $entry, $str ) !== false ) {
+			if( $str === '' || strpos( $entry, $str ) !== false ) {
 				return true;
 			}
 		}
@@ -4022,7 +4022,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		foreach( $this->list() as $entry )
 		{
-			if( $len === 0 || !substr_compare( $entry, $str, -$len ) ) {
+			if( $str === '' || !substr_compare( $entry, $str, -$len ) ) {
 				return true;
 			}
 		}
@@ -4094,7 +4094,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		foreach( $this->list() as $entry )
 		{
-			if( !strncmp( $entry, $str, $len ) ) {
+			if( $str === '' || !strncmp( $entry, $str, $len ) ) {
 				return true;
 			}
 		}
