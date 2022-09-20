@@ -234,6 +234,7 @@ will return:
 <a href="#sort">sort</a>
 <a href="#splice">splice</a>
 <a href="#split">split</a>
+<a href="#strcontains">strContains</a>
 <a href="#string">string</a>
 <a href="#suffix">suffix</a>
 <a href="#sum">sum</a>
@@ -395,6 +396,7 @@ will return:
 * [implements()](#implements) : Tests if all entries are objects implementing the interface
 * [none()](#none) : Tests if none of the elements are part of the map
 * [some()](#some) : Tests if at least one element is included
+* [strContains()](#strcontains) : Tests if the passed string is part of one of the entries
 
 ### Transform
 
@@ -4372,6 +4374,40 @@ Map::from( ['a', 'b', 'c'] )->splice( 1 );
 
 Map::from( ['a', 'b', 'c'] )->splice( 1, 1, ['x', 'y'] );
 // ['b'] and map contains ['a', 'x', 'y', 'c']
+```
+
+
+### strContains()
+
+Tests if the passed string is part of at least one of the entries.
+
+```php
+public function strContains( string $str ) : bool
+```
+
+* @param **string** `$str` The string to search for in each entry
+* @return **bool** TRUE if the string has been found, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( ['abc'] )->strContains( '' );
+// true
+
+Map::from( ['abc'] )->strContains( 'a' );
+// true
+
+Map::from( ['abc'] )->strContains( 'b' );
+// true
+
+Map::from( ['abc'] )->strContains( 'c' );
+// true
+
+Map::from( ['abc'] )->strContains( 'd' );
+// false
+
+Map::from( ['abc'] )->strContains( 'cb' );
+// false
 ```
 
 

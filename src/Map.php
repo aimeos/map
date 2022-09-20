@@ -3969,6 +3969,36 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Tests if the passed string is part of at least one of the entries.
+	 *
+	 * Examples:
+	 *  Map::from( ['abc'] )->strContains( '' );
+	 *  Map::from( ['abc'] )->strContains( 'a' );
+	 *  Map::from( ['abc'] )->strContains( 'b' );
+	 *  Map::from( ['abc'] )->strContains( 'c' );
+	 *  Map::from( ['abc'] )->strContains( 'd' );
+	 *  Map::from( ['abc'] )->strContains( 'cb' );
+	 *
+	 * Results:
+	 * The first four examples will return TRUE while the last two will return FALSE.
+	 *
+	 * @param string $str The string to search for in each entry
+	 * @return bool TRUE if the string has been found, FALSE if not
+	 */
+	public function strContains( string $str ) : bool
+	{
+		foreach( $this->list() as $entry )
+		{
+			if( strpos( $entry, $str ) !== false ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
+	/**
 	 * Returns an element by key and casts it to string if possible.
 	 *
 	 * Examples:

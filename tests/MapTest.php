@@ -2833,6 +2833,17 @@ Array
 	}
 
 
+	public function testStrContains()
+	{
+		$this->assertTrue( Map::from( ['abc'] )->strContains( '' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strContains( 'a' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strContains( 'b' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strContains( 'c' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strContains( 'd' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strContains( 'cb' ) );
+	}
+
+
 	public function testString()
 	{
 		$this->assertSame( '1', Map::from( ['a' => true] )->string( 'a' ) );
