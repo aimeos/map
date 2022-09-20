@@ -235,6 +235,7 @@ will return:
 <a href="#splice">splice</a>
 <a href="#split">split</a>
 <a href="#strcontains">strContains</a>
+<a href="#strends">strEnds</a>
 <a href="#string">string</a>
 <a href="#suffix">suffix</a>
 <a href="#sum">sum</a>
@@ -397,6 +398,7 @@ will return:
 * [none()](#none) : Tests if none of the elements are part of the map
 * [some()](#some) : Tests if at least one element is included
 * [strContains()](#strcontains) : Tests if the passed string is part of one of the entries
+* [strEnds()](#strends) : Tests if one of the entries ends with the passed string
 
 ### Transform
 
@@ -4407,6 +4409,43 @@ Map::from( ['abc'] )->strContains( 'd' );
 // false
 
 Map::from( ['abc'] )->strContains( 'cb' );
+// false
+```
+
+
+### strEnds()
+
+Tests if at least one of the entries ends with the passed string.
+
+```php
+public function strEnds( string $str ) : bool
+```
+
+* @param **string** `$str` The string to search for in each entry
+* @return **bool** TRUE if one of the entries ends with the string, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( ['abc'] )->strEnds( '' );
+// true
+
+Map::from( ['abc'] )->strEnds( 'c' );
+// true
+
+Map::from( ['abc'] )->strEnds( 'bc' );
+// true
+
+Map::from( ['abc'] )->strEnds( 'a' );
+// false
+
+Map::from( ['abc'] )->strEnds( 'b' );
+// false
+
+Map::from( ['abc'] )->strEnds( 'd' );
+// false
+
+Map::from( ['abc'] )->strEnds( 'cb' );
 // false
 ```
 

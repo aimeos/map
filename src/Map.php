@@ -3999,6 +3999,39 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Tests if at least one of the entries ends with the passed string.
+	 *
+	 * Examples:
+	 *  Map::from( ['abc'] )->strEnds( '' );
+	 *  Map::from( ['abc'] )->strEnds( 'c' );
+	 *  Map::from( ['abc'] )->strEnds( 'bc' );
+	 *  Map::from( ['abc'] )->strEnds( 'a' );
+	 *  Map::from( ['abc'] )->strEnds( 'b' );
+	 *  Map::from( ['abc'] )->strEnds( 'd' );
+	 *  Map::from( ['abc'] )->strEnds( 'cb' );
+	 *
+	 * Results:
+	 * The first three examples will return TRUE while the last four will return FALSE.
+	 *
+	 * @param string $str The string to search for in each entry
+	 * @return bool TRUE if one of the entries ends with the string, FALSE if not
+	 */
+	public function strEnds( string $str ) : bool
+	{
+		$len = strlen( $str );
+
+		foreach( $this->list() as $entry )
+		{
+			if( $len === 0 || !substr_compare( $entry, $str, -$len ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
+	/**
 	 * Returns an element by key and casts it to string if possible.
 	 *
 	 * Examples:

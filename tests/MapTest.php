@@ -2844,6 +2844,18 @@ Array
 	}
 
 
+	public function testStrEnds()
+	{
+		$this->assertTrue( Map::from( ['abc'] )->strEnds( '' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strEnds( 'c' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strEnds( 'bc' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'a' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'b' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'd' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'cb' ) );
+	}
+
+
 	public function testString()
 	{
 		$this->assertSame( '1', Map::from( ['a' => true] )->string( 'a' ) );
