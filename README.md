@@ -1185,7 +1185,7 @@ if the map contains at least one of the passed values or conditions.
 * @param **mixed** `$value` Value used for comparison
 * @return **bool** TRUE if at least one element is available in map, FALSE if the map contains none of them
 
-Check the `[where()](#where)]` method for available operators.
+Check the [`where()`](#where)] method for available operators.
 
 **Examples:**
 
