@@ -4134,6 +4134,36 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Converts all alphabetic characters in strings to upper case.
+	 *
+	 * Examples:
+	 *  Map::from( ['My String'] )->strUpper();
+	 *  Map::from( ['τάχιστη'] )->strUpper();
+	 *  Map::from( ['äpfel', 'birnen'] )->strUpper( 'ISO-8859-1' );
+	 *  Map::from( [123] )->strUpper();
+	 *  Map::from( [new stdClass] )->strUpper();
+	 *
+	 * Results:
+	 * The first example will return ["MY STRING"], the second one ["ΤΆΧΙΣΤΗ"] and
+	 * the third one ["ÄPFEL", "BIRNEN"]. The last two strings will be unchanged.
+	 *
+	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+	 * @return self<int|string,mixed> Updated map for fluid interface
+	 */
+	public function strUpper( string $encoding = 'UTF-8' ) :self
+	{
+		foreach( $this->list() as &$entry )
+		{
+			if( is_string( $entry ) ) {
+				$entry = mb_strtoupper( $entry, $encoding );
+			}
+		}
+
+		return $this;
+	}
+
+
+	/**
 	 * Adds a suffix at the end of each map entry.
 	 *
 	 * By defaul, nested arrays are walked recusively so all entries at all levels are suffixed.

@@ -239,6 +239,7 @@ will return:
 <a href="#string">string</a>
 <a href="#strlower">strLower</a>
 <a href="#strstarts">strStarts</a>
+<a href="#strupper">strUpper</a>
 <a href="#suffix">suffix</a>
 <a href="#sum">sum</a>
 <a href="#take">take</a>
@@ -423,6 +424,7 @@ will return:
 * [replace()](#replace) : Replaces elements recursively
 * [splice()](#splice) : Replaces a slice by new elements
 * [strLower()](#strlower) : Converts all alphabetic characters to lower case
+* [strUpper()](#strupper) : Converts all alphabetic characters to upper case
 * [suffix()](#suffix) : Adds a suffix to each map entry
 * [toJson()](#tojson) : Returns the elements in JSON format
 * [toUrl()](#tourl) : Creates a HTTP query string
@@ -4574,6 +4576,31 @@ Map::from( ['abc'] )->strStarts( 'd' );
 
 Map::from( ['abc'] )->strStarts( 'ba' );
 // false
+```
+
+
+### strUpper()
+
+Converts all alphabetic characters in strings to upper case.
+
+```php
+public function strUpper( string $encoding = 'UTF-8' ) :self
+```
+
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+* @return **self<int|string,mixed>** Updated map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( ['My String'] )->strUpper();
+// ["MY STRING"]
+
+Map::from( ['τάχιστη'] )->strUpper();
+// ["ΤΆΧΙΣΤΗ"]
+
+Map::from( ['äpfel', 'birnen'] )->strUpper( 'ISO-8859-1' );
+// ["ÄPFEL", "BIRNEN"]
 ```
 
 

@@ -2887,6 +2887,20 @@ Array
 	}
 
 
+	public function testStrUpper()
+	{
+		$this->assertEquals( ["MY STRING"], Map::from( ['My String'] )->strUpper()->all() );
+		$this->assertEquals( ["ΤΆΧΙΣΤΗ"], Map::from( ['τάχιστη'] )->strUpper()->all() );
+
+		$list = [mb_convert_encoding( 'äpfel', 'ISO-8859-1' ), 'birnen'];
+		$expected = [mb_convert_encoding( 'ÄPFEL', 'ISO-8859-1' ), "BIRNEN"];
+		$this->assertEquals( $expected, Map::from( $list )->strUpper( 'ISO-8859-1' )->all() );
+
+		$this->assertEquals( [123], Map::from( [123] )->strUpper()->all() );
+		$this->assertEquals( [new \stdClass], Map::from( [new \stdClass] )->strUpper()->all() );
+	}
+
+
 	public function testStringClosure()
 	{
 		$this->assertSame( 'no', Map::from( [] )->string( 'c', function() { return 'no'; } ) );
