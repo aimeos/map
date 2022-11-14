@@ -236,8 +236,9 @@ will return:
 <a href="#split">split</a>
 <a href="#strcontains">strContains</a>
 <a href="#strends">strEnds</a>
-<a href="#strstarts">strStarts</a>
 <a href="#string">string</a>
+<a href="#strlower">strLower</a>
+<a href="#strstarts">strStarts</a>
 <a href="#suffix">suffix</a>
 <a href="#sum">sum</a>
 <a href="#take">take</a>
@@ -421,6 +422,7 @@ will return:
 * [rekey()](#rekey) : Changes the keys according to the passed function
 * [replace()](#replace) : Replaces elements recursively
 * [splice()](#splice) : Replaces a slice by new elements
+* [strLower()](#strlower) : Converts all alphabetic characters to lower case
 * [suffix()](#suffix) : Adds a suffix to each map entry
 * [toJson()](#tojson) : Returns the elements in JSON format
 * [toUrl()](#tourl) : Creates a HTTP query string
@@ -4510,6 +4512,31 @@ Map::from( ['b' => new \stdClass] )->string( 'b' );
 
 Map::from( [] )->string( 'c', new \Exception( 'error' ) );
 // throws exception
+```
+
+
+### strLower()
+
+Converts all alphabetic characters in strings to lower case.
+
+```php
+public function strLower( string $encoding = 'UTF-8' ) :self
+```
+
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+* @return **self<int|string,mixed>** Updated map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( ['My String'] )->strLower();
+// ["my string"]
+
+Map::from( ['Τάχιστη'] )->strLower();
+// ["τάχιστη"]
+
+Map::from( ['Äpfel', 'Birnen'] )->strLower( 'ISO-8859-1' );
+// ["äpfel", "birnen"]
 ```
 
 

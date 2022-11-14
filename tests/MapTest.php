@@ -2856,6 +2856,20 @@ Array
 	}
 
 
+	public function testStrLower()
+	{
+		$this->assertEquals( ["my string"], Map::from( ['My String'] )->strLower()->all() );
+		$this->assertEquals( ["τάχιστη"], Map::from( ['Τάχιστη'] )->strLower()->all() );
+
+		$list = [mb_convert_encoding( 'ÄPFEL', 'ISO-8859-1' ), 'BIRNEN'];
+		$expected = [mb_convert_encoding( 'äpfel', 'ISO-8859-1' ), "birnen"];
+		$this->assertEquals( $expected, Map::from( $list )->strLower( 'ISO-8859-1' )->all() );
+
+		$this->assertEquals( [123], Map::from( [123] )->strLower()->all() );
+		$this->assertEquals( [new \stdClass], Map::from( [new \stdClass] )->strLower()->all() );
+	}
+
+
 	public function testString()
 	{
 		$this->assertSame( '1', Map::from( ['a' => true] )->string( 'a' ) );

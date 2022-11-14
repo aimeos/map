@@ -4071,6 +4071,36 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Converts all alphabetic characters in strings to lower case.
+	 *
+	 * Examples:
+	 *  Map::from( ['My String'] )->strLower();
+	 *  Map::from( ['Τάχιστη'] )->strLower();
+	 *  Map::from( ['Äpfel', 'Birnen'] )->strLower( 'ISO-8859-1' );
+	 *  Map::from( [123] )->strLower();
+	 *  Map::from( [new stdClass] )->strLower();
+	 *
+	 * Results:
+	 * The first example will return ["my string"], the second one ["τάχιστη"] and
+	 * the third one ["äpfel", "birnen"]. The last two strings will be unchanged.
+	 *
+	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+	 * @return self<int|string,mixed> Updated map for fluid interface
+	 */
+	public function strLower( string $encoding = 'UTF-8' ) :self
+	{
+		foreach( $this->list() as &$entry )
+		{
+			if( is_string( $entry ) ) {
+				$entry = mb_strtolower( $entry, $encoding );
+			}
+		}
+
+		return $this;
+	}
+
+
+	/**
 	 * Tests if at least one of the entries starts with the passed string.
 	 *
 	 * Examples:
