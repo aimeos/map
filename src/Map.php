@@ -3975,21 +3975,22 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['abc'] )->strContains( '' );
 	 *  Map::from( ['abc'] )->strContains( 'a' );
 	 *  Map::from( ['abc'] )->strContains( 'b' );
-	 *  Map::from( ['abc'] )->strContains( 'c' );
+	 *  Map::from( ['abc'] )->strContains( 'c', 'ASCII' );
 	 *  Map::from( ['abc'] )->strContains( 'd' );
-	 *  Map::from( ['abc'] )->strContains( 'cb' );
+	 *  Map::from( ['abc'] )->strContains( 'cb', 'ASCII' );
 	 *
 	 * Results:
 	 * The first four examples will return TRUE while the last two will return FALSE.
 	 *
 	 * @param string $str The string to search for in each entry
+	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if the string has been found, FALSE if not
 	 */
-	public function strContains( string $str ) : bool
+	public function strContains( string $str, string $encoding = 'UTF-8' ) : bool
 	{
 		foreach( $this->list() as $entry )
 		{
-			if( $str === '' || strpos( $entry, $str ) !== false ) {
+			if( $str === '' || mb_strpos( $entry, $str, 0, $encoding ) !== false ) {
 				return true;
 			}
 		}
@@ -4004,25 +4005,26 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Examples:
 	 *  Map::from( ['abc'] )->strEnds( '' );
 	 *  Map::from( ['abc'] )->strEnds( 'c' );
-	 *  Map::from( ['abc'] )->strEnds( 'bc' );
+	 *  Map::from( ['abc'] )->strEnds( 'bc', 'ASCII' );
 	 *  Map::from( ['abc'] )->strEnds( 'a' );
 	 *  Map::from( ['abc'] )->strEnds( 'b' );
 	 *  Map::from( ['abc'] )->strEnds( 'd' );
-	 *  Map::from( ['abc'] )->strEnds( 'cb' );
+	 *  Map::from( ['abc'] )->strEnds( 'cb', 'ASCII' );
 	 *
 	 * Results:
 	 * The first three examples will return TRUE while the last four will return FALSE.
 	 *
 	 * @param string $str The string to search for in each entry
+	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if one of the entries ends with the string, FALSE if not
 	 */
-	public function strEnds( string $str ) : bool
+	public function strEnds( string $str, string $encoding = 'UTF-8' ) : bool
 	{
 		$len = strlen( $str );
 
 		foreach( $this->list() as $entry )
 		{
-			if( $str === '' || !substr_compare( $entry, $str, -$len ) ) {
+			if( $str === '' || mb_strpos( $entry, $str, -$len, $encoding ) !== false ) {
 				return true;
 			}
 		}
@@ -4106,25 +4108,24 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Examples:
 	 *  Map::from( ['abc'] )->strStarts( '' );
 	 *  Map::from( ['abc'] )->strStarts( 'a' );
-	 *  Map::from( ['abc'] )->strStarts( 'ab' );
+	 *  Map::from( ['abc'] )->strStarts( 'ab', 'ASCII' );
 	 *  Map::from( ['abc'] )->strStarts( 'b' );
 	 *  Map::from( ['abc'] )->strStarts( 'c' );
 	 *  Map::from( ['abc'] )->strStarts( 'd' );
-	 *  Map::from( ['abc'] )->strStarts( 'ba' );
+	 *  Map::from( ['abc'] )->strStarts( 'ba', 'ASCII' );
 	 *
 	 * Results:
 	 * The first three examples will return TRUE while the last four will return FALSE.
 	 *
 	 * @param string $str The string to search for in each entry
+	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if one of the entries starts with the string, FALSE if not
 	 */
-	public function strStarts( string $str ) : bool
+	public function strStarts( string $str, string $encoding = 'UTF-8' ) : bool
 	{
-		$len = strlen( $str );
-
 		foreach( $this->list() as $entry )
 		{
-			if( $str === '' || !strncmp( $entry, $str, $len ) ) {
+			if( $str === '' || mb_strpos( $entry, $str, 0, $encoding ) === 0 ) {
 				return true;
 			}
 		}

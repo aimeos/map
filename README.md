@@ -4390,10 +4390,11 @@ Map::from( ['a', 'b', 'c'] )->splice( 1, 1, ['x', 'y'] );
 Tests if the passed string is part of at least one of the entries.
 
 ```php
-public function strContains( string $str ) : bool
+public function strContains( string $str, string $encoding = 'UTF-8' ) : bool
 ```
 
 * @param **string** `$str` The string to search for in each entry
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 * @return **bool** TRUE if the string has been found, FALSE if not
 
 **Examples:**
@@ -4408,13 +4409,13 @@ Map::from( ['abc'] )->strContains( 'a' );
 Map::from( ['abc'] )->strContains( 'b' );
 // true
 
-Map::from( ['abc'] )->strContains( 'c' );
+Map::from( ['abc'] )->strContains( 'c', 'ASCII' );
 // true
 
 Map::from( ['abc'] )->strContains( 'd' );
 // false
 
-Map::from( ['abc'] )->strContains( 'cb' );
+Map::from( ['abc'] )->strContains( 'cb', 'ASCII' );
 // false
 ```
 
@@ -4424,10 +4425,11 @@ Map::from( ['abc'] )->strContains( 'cb' );
 Tests if at least one of the entries ends with the passed string.
 
 ```php
-public function strEnds( string $str ) : bool
+public function strEnds( string $str, string $encoding = 'UTF-8' ) : bool
 ```
 
 * @param **string** `$str` The string to search for in each entry
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 * @return **bool** TRUE if one of the entries ends with the string, FALSE if not
 
 **Examples:**
@@ -4439,7 +4441,7 @@ Map::from( ['abc'] )->strEnds( '' );
 Map::from( ['abc'] )->strEnds( 'c' );
 // true
 
-Map::from( ['abc'] )->strEnds( 'bc' );
+Map::from( ['abc'] )->strEnds( 'bc', 'ASCII' );
 // true
 
 Map::from( ['abc'] )->strEnds( 'a' );
@@ -4451,7 +4453,7 @@ Map::from( ['abc'] )->strEnds( 'b' );
 Map::from( ['abc'] )->strEnds( 'd' );
 // false
 
-Map::from( ['abc'] )->strEnds( 'cb' );
+Map::from( ['abc'] )->strEnds( 'cb', 'ASCII' );
 // false
 ```
 
@@ -4547,10 +4549,11 @@ Map::from( ['Äpfel', 'Birnen'] )->strLower( 'ISO-8859-1' );
 Tests if at least one of the entries starts with the passed string.
 
 ```php
-public function strStarts( string $str ) : bool
+public function strStarts( string $str, string $encoding = 'UTF-8' ) : bool
 ```
 
 * @param **string** `$str` The string to search for in each entry
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 * @return **bool** TRUE if one of the entries starts with the string, FALSE if not
 
 **Examples:**
@@ -4562,7 +4565,7 @@ Map::from( ['abc'] )->strStarts( '' );
 Map::from( ['abc'] )->strStarts( 'a' );
 // true
 
-Map::from( ['abc'] )->strStarts( 'ab' );
+Map::from( ['abc'] )->strStarts( 'ab', 'ASCII' );
 // true
 
 Map::from( ['abc'] )->strStarts( 'b' );
@@ -4574,7 +4577,7 @@ Map::from( ['abc'] )->strStarts( 'c' );
 Map::from( ['abc'] )->strStarts( 'd' );
 // false
 
-Map::from( ['abc'] )->strStarts( 'ba' );
+Map::from( ['abc'] )->strStarts( 'ba', 'ASCII' );
 // false
 ```
 
