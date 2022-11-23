@@ -2833,6 +2833,43 @@ Array
 	}
 
 
+	public function testStrContains()
+	{
+		$this->assertTrue( Map::from( ['abc'] )->strContains( '' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strContains( 'a' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strContains( 'b' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strContains( 'c', 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strContains( 'd' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strContains( 'cb', 'ASCII' ) );
+	}
+
+
+	public function testStrEnds()
+	{
+		$this->assertTrue( Map::from( ['abc'] )->strEnds( '' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strEnds( 'c' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strEnds( 'bc', 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'a' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'b' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'd' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'cb', 'ASCII' ) );
+	}
+
+
+	public function testStrLower()
+	{
+		$this->assertEquals( ["my string"], Map::from( ['My String'] )->strLower()->all() );
+		$this->assertEquals( ["τάχιστη"], Map::from( ['Τάχιστη'] )->strLower()->all() );
+
+		$list = [mb_convert_encoding( 'ÄPFEL', 'ISO-8859-1' ), 'BIRNEN'];
+		$expected = [mb_convert_encoding( 'äpfel', 'ISO-8859-1' ), "birnen"];
+		$this->assertEquals( $expected, Map::from( $list )->strLower( 'ISO-8859-1' )->all() );
+
+		$this->assertEquals( [123], Map::from( [123] )->strLower()->all() );
+		$this->assertEquals( [new \stdClass], Map::from( [new \stdClass] )->strLower()->all() );
+	}
+
+
 	public function testString()
 	{
 		$this->assertSame( '1', Map::from( ['a' => true] )->string( 'a' ) );
@@ -2850,6 +2887,20 @@ Array
 	}
 
 
+	public function testStrUpper()
+	{
+		$this->assertEquals( ["MY STRING"], Map::from( ['My String'] )->strUpper()->all() );
+		$this->assertEquals( ["ΤΆΧΙΣΤΗ"], Map::from( ['τάχιστη'] )->strUpper()->all() );
+
+		$list = [mb_convert_encoding( 'äpfel', 'ISO-8859-1' ), 'birnen'];
+		$expected = [mb_convert_encoding( 'ÄPFEL', 'ISO-8859-1' ), "BIRNEN"];
+		$this->assertEquals( $expected, Map::from( $list )->strUpper( 'ISO-8859-1' )->all() );
+
+		$this->assertEquals( [123], Map::from( [123] )->strUpper()->all() );
+		$this->assertEquals( [new \stdClass], Map::from( [new \stdClass] )->strUpper()->all() );
+	}
+
+
 	public function testStringClosure()
 	{
 		$this->assertSame( 'no', Map::from( [] )->string( 'c', function() { return 'no'; } ) );
@@ -2860,6 +2911,18 @@ Array
 	{
 		$this->expectException( \RuntimeException::class );
 		Map::from( [] )->string( 'c', new \RuntimeException( 'error' ) );
+	}
+
+
+	public function testStrStarts()
+	{
+		$this->assertTrue( Map::from( ['abc'] )->strStarts( '' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strStarts( 'a' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strStarts( 'ab', 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'b' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'c' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'd' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'ba', 'ASCII' ) );
 	}
 
 

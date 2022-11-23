@@ -234,7 +234,12 @@ will return:
 <a href="#sort">sort</a>
 <a href="#splice">splice</a>
 <a href="#split">split</a>
+<a href="#strcontains">strContains</a>
+<a href="#strends">strEnds</a>
 <a href="#string">string</a>
+<a href="#strlower">strLower</a>
+<a href="#strstarts">strStarts</a>
+<a href="#strupper">strUpper</a>
 <a href="#suffix">suffix</a>
 <a href="#sum">sum</a>
 <a href="#take">take</a>
@@ -395,6 +400,9 @@ will return:
 * [implements()](#implements) : Tests if all entries are objects implementing the interface
 * [none()](#none) : Tests if none of the elements are part of the map
 * [some()](#some) : Tests if at least one element is included
+* [strContains()](#strcontains) : Tests if the passed string is part of one of the entries
+* [strEnds()](#strends) : Tests if one of the entries ends with the passed string
+* [strStarts()](#strstarts) : Tests if one of the entries starts with the passed string
 
 ### Transform
 
@@ -415,6 +423,8 @@ will return:
 * [rekey()](#rekey) : Changes the keys according to the passed function
 * [replace()](#replace) : Replaces elements recursively
 * [splice()](#splice) : Replaces a slice by new elements
+* [strLower()](#strlower) : Converts all alphabetic characters to lower case
+* [strUpper()](#strupper) : Converts all alphabetic characters to upper case
 * [suffix()](#suffix) : Adds a suffix to each map entry
 * [toJson()](#tojson) : Returns the elements in JSON format
 * [toUrl()](#tourl) : Creates a HTTP query string
@@ -4375,6 +4385,79 @@ Map::from( ['a', 'b', 'c'] )->splice( 1, 1, ['x', 'y'] );
 ```
 
 
+### strContains()
+
+Tests if the passed string is part of at least one of the entries.
+
+```php
+public function strContains( string $str, string $encoding = 'UTF-8' ) : bool
+```
+
+* @param **string** `$str` The string to search for in each entry
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+* @return **bool** TRUE if the string has been found, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( ['abc'] )->strContains( '' );
+// true
+
+Map::from( ['abc'] )->strContains( 'a' );
+// true
+
+Map::from( ['abc'] )->strContains( 'b' );
+// true
+
+Map::from( ['abc'] )->strContains( 'c', 'ASCII' );
+// true
+
+Map::from( ['abc'] )->strContains( 'd' );
+// false
+
+Map::from( ['abc'] )->strContains( 'cb', 'ASCII' );
+// false
+```
+
+
+### strEnds()
+
+Tests if at least one of the entries ends with the passed string.
+
+```php
+public function strEnds( string $str, string $encoding = 'UTF-8' ) : bool
+```
+
+* @param **string** `$str` The string to search for in each entry
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+* @return **bool** TRUE if one of the entries ends with the string, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( ['abc'] )->strEnds( '' );
+// true
+
+Map::from( ['abc'] )->strEnds( 'c' );
+// true
+
+Map::from( ['abc'] )->strEnds( 'bc', 'ASCII' );
+// true
+
+Map::from( ['abc'] )->strEnds( 'a' );
+// false
+
+Map::from( ['abc'] )->strEnds( 'b' );
+// false
+
+Map::from( ['abc'] )->strEnds( 'd' );
+// false
+
+Map::from( ['abc'] )->strEnds( 'cb', 'ASCII' );
+// false
+```
+
+
 ### string()
 
 Returns an element by key and casts it to string if possible.
@@ -4433,6 +4516,94 @@ Map::from( ['b' => new \stdClass] )->string( 'b' );
 
 Map::from( [] )->string( 'c', new \Exception( 'error' ) );
 // throws exception
+```
+
+
+### strLower()
+
+Converts all alphabetic characters in strings to lower case.
+
+```php
+public function strLower( string $encoding = 'UTF-8' ) :self
+```
+
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+* @return **self<int|string,mixed>** Updated map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( ['My String'] )->strLower();
+// ["my string"]
+
+Map::from( ['Τάχιστη'] )->strLower();
+// ["τάχιστη"]
+
+Map::from( ['Äpfel', 'Birnen'] )->strLower( 'ISO-8859-1' );
+// ["äpfel", "birnen"]
+```
+
+
+### strStarts()
+
+Tests if at least one of the entries starts with the passed string.
+
+```php
+public function strStarts( string $str, string $encoding = 'UTF-8' ) : bool
+```
+
+* @param **string** `$str` The string to search for in each entry
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+* @return **bool** TRUE if one of the entries starts with the string, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( ['abc'] )->strStarts( '' );
+// true
+
+Map::from( ['abc'] )->strStarts( 'a' );
+// true
+
+Map::from( ['abc'] )->strStarts( 'ab', 'ASCII' );
+// true
+
+Map::from( ['abc'] )->strStarts( 'b' );
+// false
+
+Map::from( ['abc'] )->strStarts( 'c' );
+// false
+
+Map::from( ['abc'] )->strStarts( 'd' );
+// false
+
+Map::from( ['abc'] )->strStarts( 'ba', 'ASCII' );
+// false
+```
+
+
+### strUpper()
+
+Converts all alphabetic characters in strings to upper case.
+
+```php
+public function strUpper( string $encoding = 'UTF-8' ) :self
+```
+
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+* @return **self<int|string,mixed>** Updated map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( ['My String'] )->strUpper();
+// ["MY STRING"]
+
+Map::from( ['τάχιστη'] )->strUpper();
+// ["ΤΆΧΙΣΤΗ"]
+
+Map::from( ['äpfel', 'birnen'] )->strUpper( 'ISO-8859-1' );
+// ["ÄPFEL", "BIRNEN"]
 ```
 
 
