@@ -3992,36 +3992,37 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Tests if at least one of the entries ends with the passed string.
+	 * Tests if at least one (or all) of the entries ends with the passed string.
 	 *
 	 * Examples:
 	 *  Map::from( ['abc'] )->strEnds( '' );
 	 *  Map::from( ['abc'] )->strEnds( 'c' );
 	 *  Map::from( ['abc'] )->strEnds( 'bc', 'ASCII' );
+	 *  Map::from( ['abc', 'bac'] )->strEnds( 'c', 'UTF-8', true );
 	 *  Map::from( ['abc'] )->strEnds( 'a' );
 	 *  Map::from( ['abc'] )->strEnds( 'b' );
 	 *  Map::from( ['abc'] )->strEnds( 'd' );
 	 *  Map::from( ['abc'] )->strEnds( 'cb', 'ASCII' );
+	 *  Map::from( ['abc', 'cab'] )->strEnds( 'c', 'UTF-8', true );
 	 *
 	 * Results:
-	 * The first three examples will return TRUE while the last four will return FALSE.
+	 * The first four examples will return TRUE while the last five will return FALSE.
 	 *
 	 * @param string $str The string to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
-	 * @return bool TRUE if one of the entries ends with the string, FALSE if not
+	 * @param bool $all TRUE if all strings must match, FALSE if only one
+	 * @return bool TRUE if one (or all) of the entries ends with the string, FALSE if not
 	 */
-	public function strEnds( string $str, string $encoding = 'UTF-8' ) : bool
+	public function strEnds( string $str, string $encoding = 'UTF-8', bool $all = false ) : bool
 	{
+		$list = [];
 		$len = strlen( $str );
 
-		foreach( $this->list() as $entry )
-		{
-			if( $str === '' || mb_strpos( $entry, $str, -$len, $encoding ) !== false ) {
-				return true;
-			}
+		foreach( $this->list() as $entry ) {
+			$list[] = (int) ( $str === '' || mb_strpos( $entry, $str, -$len, $encoding ) !== false );
 		}
 
-		return false;
+		return $all ? array_sum( $list ) === count( $list ) : array_sum( $list ) > 0;
 	}
 
 

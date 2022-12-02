@@ -4432,11 +4432,12 @@ Map::from( ['abc', 'cde'] )->strContains( 'a', 'UTF-8', true );
 Tests if at least one of the entries ends with the passed string.
 
 ```php
-public function strEnds( string $str, string $encoding = 'UTF-8' ) : bool
+public function strEnds( string $str, string $encoding = 'UTF-8', bool $all = false ) : bool
 ```
 
 * @param **string** `$str` The string to search for in each entry
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+* @param **bool** `$all` TRUE if all strings must match, FALSE if only one
 * @return **bool** TRUE if one of the entries ends with the string, FALSE if not
 
 **Examples:**
@@ -4451,6 +4452,9 @@ Map::from( ['abc'] )->strEnds( 'c' );
 Map::from( ['abc'] )->strEnds( 'bc', 'ASCII' );
 // true
 
+Map::from( ['abc', 'bac'] )->strEnds( 'c', 'UTF-8', true );
+// true
+
 Map::from( ['abc'] )->strEnds( 'a' );
 // false
 
@@ -4461,6 +4465,9 @@ Map::from( ['abc'] )->strEnds( 'd' );
 // false
 
 Map::from( ['abc'] )->strEnds( 'cb', 'ASCII' );
+// false
+
+Map::from( ['abc', 'cab'] )->strEnds( 'c', 'UTF-8', true );
 // false
 ```
 

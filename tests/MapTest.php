@@ -2851,10 +2851,12 @@ Array
 		$this->assertTrue( Map::from( ['abc'] )->strEnds( '' ) );
 		$this->assertTrue( Map::from( ['abc'] )->strEnds( 'c' ) );
 		$this->assertTrue( Map::from( ['abc'] )->strEnds( 'bc', 'ASCII' ) );
+		$this->assertTrue( Map::from( ['abc', 'bac'] )->strEnds( 'c', 'UTF-8', true ) );
 		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'a' ) );
 		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'b' ) );
 		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'd' ) );
 		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'cb', 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc', 'cab'] )->strEnds( 'c', 'UTF-8', true ) );
 	}
 
 
