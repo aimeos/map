@@ -3959,33 +3959,35 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Tests if the passed string is part of at least one of the entries.
+	 * Tests if the passed string is part of at least one (or all) entries.
 	 *
 	 * Examples:
 	 *  Map::from( ['abc'] )->strContains( '' );
 	 *  Map::from( ['abc'] )->strContains( 'a' );
 	 *  Map::from( ['abc'] )->strContains( 'b' );
 	 *  Map::from( ['abc'] )->strContains( 'c', 'ASCII' );
+	 *  Map::from( ['abc', 'cde'] )->strContains( 'c', 'UTF-8', true );
 	 *  Map::from( ['abc'] )->strContains( 'd' );
 	 *  Map::from( ['abc'] )->strContains( 'cb', 'ASCII' );
+	 *  Map::from( ['abc', 'cde'] )->strContains( 'a', 'UTF-8', true );
 	 *
 	 * Results:
-	 * The first four examples will return TRUE while the last two will return FALSE.
+	 * The first five examples will return TRUE while the last three will return FALSE.
 	 *
 	 * @param string $str The string to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
-	 * @return bool TRUE if the string has been found, FALSE if not
+	 * @param bool $all TRUE if all strings must match, FALSE if only one
+	 * @return bool TRUE if one (or all) of the entries contains the string, FALSE if not
 	 */
-	public function strContains( string $str, string $encoding = 'UTF-8' ) : bool
+	public function strContains( string $str, string $encoding = 'UTF-8', bool $all = false ) : bool
 	{
-		foreach( $this->list() as $entry )
-		{
-			if( $str === '' || mb_strpos( $entry, $str, 0, $encoding ) !== false ) {
-				return true;
-			}
+		$list = [];
+
+		foreach( $this->list() as $entry ) {
+			$list[] = (int) ( $str === '' || mb_strpos( $entry, $str, 0, $encoding ) !== false );
 		}
 
-		return false;
+		return $all ? array_sum( $list ) === count( $list ) : array_sum( $list ) > 0;
 	}
 
 

@@ -4390,11 +4390,12 @@ Map::from( ['a', 'b', 'c'] )->splice( 1, 1, ['x', 'y'] );
 Tests if the passed string is part of at least one of the entries.
 
 ```php
-public function strContains( string $str, string $encoding = 'UTF-8' ) : bool
+public function strContains( string $str, string $encoding = 'UTF-8', bool $all = false ) : bool
 ```
 
 * @param **string** `$str` The string to search for in each entry
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+* @param **bool** `$all` TRUE if all strings must match, FALSE if only one
 * @return **bool** TRUE if the string has been found, FALSE if not
 
 **Examples:**
@@ -4412,10 +4413,16 @@ Map::from( ['abc'] )->strContains( 'b' );
 Map::from( ['abc'] )->strContains( 'c', 'ASCII' );
 // true
 
+Map::from( ['abc', 'cde'] )->strContains( 'c', 'UTF-8', true );
+// true
+
 Map::from( ['abc'] )->strContains( 'd' );
 // false
 
 Map::from( ['abc'] )->strContains( 'cb', 'ASCII' );
+// false
+
+Map::from( ['abc', 'cde'] )->strContains( 'a', 'UTF-8', true );
 // false
 ```
 

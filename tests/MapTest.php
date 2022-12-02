@@ -2839,8 +2839,10 @@ Array
 		$this->assertTrue( Map::from( ['abc'] )->strContains( 'a' ) );
 		$this->assertTrue( Map::from( ['abc'] )->strContains( 'b' ) );
 		$this->assertTrue( Map::from( ['abc'] )->strContains( 'c', 'ASCII' ) );
+		$this->assertTrue( Map::from( ['abc', 'cde'] )->strContains( 'c', 'UTF-8', true ) );
 		$this->assertFalse( Map::from( ['abc'] )->strContains( 'd' ) );
 		$this->assertFalse( Map::from( ['abc'] )->strContains( 'cb', 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc', 'cde'] )->strContains( 'a', 'UTF-8', true ) );
 	}
 
 
