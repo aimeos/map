@@ -2778,13 +2778,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function max( string $key = null )
 	{
-		$list = $this->list();
-
-		if( empty( $list ) ) {
-			return null;
-		}
-
-		return max( $key !== null ? $this->col( $key )->toArray() : $list );
+		$vals = $key !== null ? $this->col( $key )->toArray() : $this->list();
+		return !empty( $vals ) ? max( $vals ) : null;
 	}
 
 
@@ -2853,13 +2848,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function min( string $key = null )
 	{
-		$list = $this->list();
-
-		if( empty( $list ) ) {
-			return null;
-		}
-
-		return min( $key !== null ? $this->col( $key )->toArray() : $list );
+		$vals = $key !== null ? $this->col( $key )->toArray() : $this->list();
+		return !empty( $vals ) ? min( $vals ) : null;
 	}
 
 
@@ -4233,7 +4223,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function sum( string $key = null ) : float
 	{
-		return array_sum( $key !== null ? $this->col( $key )->toArray() : $this->list() );
+		$vals = $key !== null ? $this->col( $key )->toArray() : $this->list();
+		return !empty( $vals ) ? array_sum( $vals ) : 0;
 	}
 
 
