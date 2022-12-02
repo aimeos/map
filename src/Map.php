@@ -4096,34 +4096,36 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Tests if at least one of the entries starts with the passed string.
+	 * Tests if at least one (or all) of the entries starts with the passed string.
 	 *
 	 * Examples:
 	 *  Map::from( ['abc'] )->strStarts( '' );
 	 *  Map::from( ['abc'] )->strStarts( 'a' );
 	 *  Map::from( ['abc'] )->strStarts( 'ab', 'ASCII' );
+	 *  Map::from( ['abc', 'ace'] )->strStarts( 'a', 'UTF-8', true );
 	 *  Map::from( ['abc'] )->strStarts( 'b' );
 	 *  Map::from( ['abc'] )->strStarts( 'c' );
 	 *  Map::from( ['abc'] )->strStarts( 'd' );
 	 *  Map::from( ['abc'] )->strStarts( 'ba', 'ASCII' );
+	 *  Map::from( ['abc', 'cde'] )->strStarts( 'a', 'ASCII', true );
 	 *
 	 * Results:
-	 * The first three examples will return TRUE while the last four will return FALSE.
+	 * The first four examples will return TRUE while the last five will return FALSE.
 	 *
 	 * @param string $str The string to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
-	 * @return bool TRUE if one of the entries starts with the string, FALSE if not
+	 * @param bool $all TRUE if all strings must match, FALSE if only one
+	 * @return bool TRUE if one (or all) of the entries starts with the string, FALSE if not
 	 */
-	public function strStarts( string $str, string $encoding = 'UTF-8' ) : bool
+	public function strStarts( string $str, string $encoding = 'UTF-8', bool $all = false ) : bool
 	{
-		foreach( $this->list() as $entry )
-		{
-			if( $str === '' || mb_strpos( $entry, $str, 0, $encoding ) === 0 ) {
-				return true;
-			}
+		$list = [];
+
+		foreach( $this->list() as $entry ) {
+			$list[] = (int) ( $str === '' || mb_strpos( $entry, $str, 0, $encoding ) === 0 );
 		}
 
-		return false;
+		return $all ? array_sum( $list ) === count( $list ) : array_sum( $list ) > 0;
 	}
 
 

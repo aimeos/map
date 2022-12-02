@@ -2923,10 +2923,12 @@ Array
 		$this->assertTrue( Map::from( ['abc'] )->strStarts( '' ) );
 		$this->assertTrue( Map::from( ['abc'] )->strStarts( 'a' ) );
 		$this->assertTrue( Map::from( ['abc'] )->strStarts( 'ab', 'ASCII' ) );
+		$this->assertTrue( Map::from( ['abc', 'ace'] )->strStarts( 'a', 'UTF-8', true ) );
 		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'b' ) );
 		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'c' ) );
 		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'd' ) );
 		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'ba', 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc', 'cde'] )->strStarts( 'a', 'ASCII', true ) );
 	}
 
 

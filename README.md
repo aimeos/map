@@ -4563,11 +4563,12 @@ Map::from( ['Äpfel', 'Birnen'] )->strLower( 'ISO-8859-1' );
 Tests if at least one of the entries starts with the passed string.
 
 ```php
-public function strStarts( string $str, string $encoding = 'UTF-8' ) : bool
+public function strStarts( string $str, string $encoding = 'UTF-8', bool $all = false ) : bool
 ```
 
 * @param **string** `$str` The string to search for in each entry
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+* @param **bool** `$all` TRUE if all strings must match, FALSE if only one
 * @return **bool** TRUE if one of the entries starts with the string, FALSE if not
 
 **Examples:**
@@ -4582,6 +4583,9 @@ Map::from( ['abc'] )->strStarts( 'a' );
 Map::from( ['abc'] )->strStarts( 'ab', 'ASCII' );
 // true
 
+Map::from( ['abc', 'ace'] )->strStarts( 'a', 'UTF-8', true );
+// true
+
 Map::from( ['abc'] )->strStarts( 'b' );
 // false
 
@@ -4592,6 +4596,9 @@ Map::from( ['abc'] )->strStarts( 'd' );
 // false
 
 Map::from( ['abc'] )->strStarts( 'ba', 'ASCII' );
+// false
+
+Map::from( ['abc', 'cde'] )->strStarts( 'a', 'ASCII', true );
 // false
 ```
 
