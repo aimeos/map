@@ -1863,10 +1863,10 @@ Array
 
 	public function testKrsortStrings()
 	{
-		$m = ( new Map( [1 => 'bar-1', 'a' => 'foo', 'c' => 'bar-10'] ) )->krsort();
+		$m = ( new Map( ['b' => 'bar-1', 'a' => 'foo', 'c' => 'bar-10'] ) )->krsort();
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertSame( [1 => 'bar-1', 'c' => 'bar-10', 'a' => 'foo'], $m->toArray() );
+		$this->assertSame( ['c' => 'bar-10', 'b' => 'bar-1', 'a' => 'foo'], $m->toArray() );
 	}
 
 
@@ -1881,10 +1881,10 @@ Array
 
 	public function testKsortStrings()
 	{
-		$m = ( new Map( ['a' => 'foo', 'c' => 'bar-10', 1 => 'bar-1'] ) )->ksort();
+		$m = ( new Map( ['a' => 'foo', 'c' => 'bar-10', 'b' => 'bar-1'] ) )->ksort();
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertSame( ['a' => 'foo', 'c' => 'bar-10', 1 => 'bar-1'], $m->toArray() );
+		$this->assertSame( ['a' => 'foo', 'b' => 'bar-1', 'c' => 'bar-10'], $m->toArray() );
 	}
 
 
