@@ -3029,6 +3029,44 @@ Array
 	}
 
 
+	public function testTranspose()
+	{
+		$m = Map::from( [
+			['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
+			['name' => 'B', 2020 => 300, 2021 => 200, 2022 => 100],
+			['name' => 'C', 2020 => 400, 2021 => 300, 2022 => 200],
+		] );
+
+		$expected = [
+			'name' => ['A', 'B', 'C'],
+			2020 => [200, 300, 400],
+			2021 => [100, 200, 300],
+			2022 => [50, 100, 200]
+		];
+
+		$this->assertSame( $expected, $m->transpose()->toArray() );
+	}
+
+
+	public function testTransposeLength()
+	{
+		$m = Map::from( [
+			['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
+			['name' => 'B', 2020 => 300, 2021 => 200],
+			['name' => 'C', 2020 => 400]
+		] );
+
+		$expected = [
+			'name' => ['A', 'B', 'C'],
+			2020 => [200, 300, 400],
+			2021 => [100, 200],
+			2022 => [50]
+		];
+
+		$this->assertSame( $expected, $m->transpose()->toArray() );
+	}
+
+
 	public function testTraverse()
 	{
 		$expected = [
@@ -3132,6 +3170,13 @@ Array
 	}
 
 
+	public function testTrim()
+	{
+		$this->assertEquals( ["abc", "cde"], Map::from( [" abc\n", "\tcde\r\n"] )->trim()->toArray() );
+		$this->assertEquals( [" b ", "x"], Map::from( ["a b c", "cbax"] )->trim( 'abc' )->toArray() );
+	}
+
+
 	public function testToArray()
 	{
 		$m = new Map( ['name' => 'Hello'] );
@@ -3163,44 +3208,6 @@ Array
 	{
 		$url = Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
 		$this->assertSame( 'a%5Bb%5D=abc&a%5Bc%5D=def&d=123', $url );
-	}
-
-
-	public function testTranspose()
-	{
-		$m = Map::from( [
-			['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
-			['name' => 'B', 2020 => 300, 2021 => 200, 2022 => 100],
-			['name' => 'C', 2020 => 400, 2021 => 300, 2022 => 200],
-		] );
-
-		$expected = [
-			'name' => ['A', 'B', 'C'],
-			2020 => [200, 300, 400],
-			2021 => [100, 200, 300],
-			2022 => [50, 100, 200]
-		];
-
-		$this->assertSame( $expected, $m->transpose()->toArray() );
-	}
-
-
-	public function testTransposeLength()
-	{
-		$m = Map::from( [
-			['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
-			['name' => 'B', 2020 => 300, 2021 => 200],
-			['name' => 'C', 2020 => 400]
-		] );
-
-		$expected = [
-			'name' => ['A', 'B', 'C'],
-			2020 => [200, 300, 400],
-			2021 => [100, 200],
-			2022 => [50]
-		];
-
-		$this->assertSame( $expected, $m->transpose()->toArray() );
 	}
 
 

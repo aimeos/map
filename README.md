@@ -251,6 +251,7 @@ will return:
 <a href="#transpose">transpose</a>
 <a href="#traverse">traverse</a>
 <a href="#tree">tree</a>
+<a href="#trim">trim</a>
 <a href="#uasort">uasort</a>
 <a href="#uksort">uksort</a>
 <a href="#union">union</a>
@@ -430,6 +431,7 @@ will return:
 * [toUrl()](#tourl) : Creates a HTTP query string
 * [transpose()](#transpose) : Exchanges rows and columns for a two dimensional map
 * [traverse()](#traverse) : Traverses trees of nested items passing each item to the callback
+* [trim()](#trim) : Removes the passed characters from the left/right of all strings
 * [walk()](#walk) : Applies the given callback to all elements
 * [zip()](#zip) : Merges the values of all arrays at the corresponding index
 
@@ -5031,6 +5033,28 @@ If your items are unordered, apply [usort()](#usort) first to the map entries, e
 Map::from( [['id' => 3, 'lvl' => 2], ...] )->usort( function( $item1, $item2 ) {
   return $item1['lvl'] <=> $item2['lvl'];
 } );
+```
+
+
+### trim()
+
+Removes the passed characters from the left/right of all strings.
+
+```php
+public function trim( string $chars = " \n\r\t\v\x00" ) : self
+```
+
+* @param **string** `$chars` List of characters to trim
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( [" abc\n", "\tcde\r\n"] )->trim();
+// ["abc", "cde"]
+
+Map::from( ["a b c", "cbax"] )->trim( 'abc' );
+// [" b ", "x"]
 ```
 
 
