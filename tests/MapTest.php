@@ -2951,13 +2951,27 @@ Array
 	{
 		$this->assertTrue( Map::from( ['abc'] )->strStarts( '' ) );
 		$this->assertTrue( Map::from( ['abc'] )->strStarts( 'a' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strStarts( 'ab' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strStarts( ['a', 'b'] ) );
 		$this->assertTrue( Map::from( ['abc'] )->strStarts( 'ab', 'ASCII' ) );
-		$this->assertTrue( Map::from( ['abc', 'ace'] )->strStarts( 'a', 'UTF-8', true ) );
 		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'b' ) );
-		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'c' ) );
-		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'd' ) );
-		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'ba', 'ASCII' ) );
-		$this->assertFalse( Map::from( ['abc', 'cde'] )->strStarts( 'a', 'ASCII', true ) );
+		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'bc' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strStarts( ['b', 'c'] ) );
+		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'bc', 'ASCII' ) );
+	}
+
+
+	public function testStrStartsAll()
+	{
+		$this->assertTrue( Map::from( ['abc', 'def'] )->strStartsAll( '' ) );
+		$this->assertTrue( Map::from( ['abc', 'acb'] )->strStartsAll( 'a' ) );
+		$this->assertTrue( Map::from( ['abc', 'aba'] )->strStartsAll( 'ab' ) );
+		$this->assertTrue( Map::from( ['abc', 'def'] )->strStartsAll( ['a', 'd'] ) );
+		$this->assertTrue( Map::from( ['abc', 'acf'] )->strStartsAll( 'a', 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc', 'def'] )->strStartsAll( 'd' ) );
+		$this->assertFalse( Map::from( ['abc', 'bca'] )->strStartsAll( 'ab' ) );
+		$this->assertFalse( Map::from( ['abc', 'bac'] )->strStartsAll( ['a', 'c'] ) );
+		$this->assertFalse( Map::from( ['abc', 'cab'] )->strStartsAll( 'ab', 'ASCII' ) );
 	}
 
 

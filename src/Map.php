@@ -4198,36 +4198,89 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Tests if at least one (or all) of the entries starts with the passed string.
+	 * Tests if at least one of the entries starts with at least one of the passed strings.
 	 *
 	 * Examples:
 	 *  Map::from( ['abc'] )->strStarts( '' );
 	 *  Map::from( ['abc'] )->strStarts( 'a' );
+	 *  Map::from( ['abc'] )->strStarts( 'ab' );
+	 *  Map::from( ['abc'] )->strStarts( ['a', 'b'] );
 	 *  Map::from( ['abc'] )->strStarts( 'ab', 'ASCII' );
-	 *  Map::from( ['abc', 'ace'] )->strStarts( 'a', 'UTF-8', true );
 	 *  Map::from( ['abc'] )->strStarts( 'b' );
-	 *  Map::from( ['abc'] )->strStarts( 'c' );
-	 *  Map::from( ['abc'] )->strStarts( 'd' );
-	 *  Map::from( ['abc'] )->strStarts( 'ba', 'ASCII' );
-	 *  Map::from( ['abc', 'cde'] )->strStarts( 'a', 'ASCII', true );
+	 *  Map::from( ['abc'] )->strStarts( 'bc' );
+	 *  Map::from( ['abc'] )->strStarts( ['b', 'c'] );
+	 *  Map::from( ['abc'] )->strStarts( 'bc', 'ASCII' );
 	 *
 	 * Results:
-	 * The first four examples will return TRUE while the last five will return FALSE.
+	 * The first five examples will return TRUE while the last four will return FALSE.
 	 *
-	 * @param string $str The string to search for in each entry
+	 * @param array|string $value The string or strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
-	 * @param bool $all TRUE if all strings must match, FALSE if only one
-	 * @return bool TRUE if one (or all) of the entries starts with the string, FALSE if not
+	 * @return bool TRUE if all of the entries ends with at least one of the strings, FALSE if not
 	 */
-	public function strStarts( string $str, string $encoding = 'UTF-8', bool $all = false ) : bool
+	public function strStarts( $value, string $encoding = 'UTF-8' ) : bool
 	{
 		$list = [];
 
-		foreach( $this->list() as $entry ) {
-			$list[] = (int) ( $str === '' || mb_strpos( $entry, $str, 0, $encoding ) === 0 );
+		foreach( $this->list() as $entry )
+		{
+			$entry = (string) $entry;
+
+			foreach( (array) $value as $str )
+			{
+				$len = strlen( (string) $str );
+
+				if( ( $str === '' || mb_strpos( $entry, (string) $str, 0, $encoding ) === 0 ) ) {
+					return true;
+				}
+			}
 		}
 
-		return $all ? array_sum( $list ) === count( $list ) : array_sum( $list ) > 0;
+		return false;
+	}
+
+
+	/**
+	 * Tests if all of the entries starts with one of the passed strings.
+	 *
+	 * Examples:
+	 *  Map::from( ['abc', 'def'] )->strStartsAll( '' );
+	 *  Map::from( ['abc', 'acb'] )->strStartsAll( 'a' );
+	 *  Map::from( ['abc', 'aba'] )->strStartsAll( 'ab' );
+	 *  Map::from( ['abc', 'def'] )->strStartsAll( ['a', 'd'] );
+	 *  Map::from( ['abc', 'acf'] )->strStartsAll( 'a', 'ASCII' );
+	 *  Map::from( ['abc', 'def'] )->strStartsAll( 'd' );
+	 *  Map::from( ['abc', 'bca'] )->strStartsAll( 'ab' );
+	 *  Map::from( ['abc', 'bac'] )->strStartsAll( ['a', 'c'] );
+	 *  Map::from( ['abc', 'cab'] )->strStartsAll( 'ab', 'ASCII' );
+	 *
+	 * Results:
+	 * The first five examples will return TRUE while the last four will return FALSE.
+	 *
+	 * @param array|string $value The string or strings to search for in each entry
+	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+	 * @return bool TRUE if one of the entries starts with one of the strings, FALSE if not
+	 */
+	public function strStartsAll( $value, string $encoding = 'UTF-8' ) : bool
+	{
+		$list = [];
+
+		foreach( $this->list() as $entry )
+		{
+			$entry = (string) $entry;
+			$list[$entry] = 0;
+
+			foreach( (array) $value as $str )
+			{
+				$len = strlen( (string) $str );
+
+				if( (int) ( $str === '' || mb_strpos( $entry, (string) $str, 0, $encoding ) === 0 ) ) {
+					$list[$entry] = 1; break;
+				}
+			}
+		}
+
+		return array_sum( $list ) === count( $list );
 	}
 
 

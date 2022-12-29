@@ -241,6 +241,7 @@ will return:
 <a href="#string">string</a>
 <a href="#strlower">strLower</a>
 <a href="#strstarts">strStarts</a>
+<a href="#strstartsall">strStartsAll</a>
 <a href="#strupper">strUpper</a>
 <a href="#suffix">suffix</a>
 <a href="#sum">sum</a>
@@ -407,7 +408,8 @@ will return:
 * [strContainsAll()](#strcontainsall) : Tests if all of the entries contains one of the passed strings
 * [strEnds()](#strends) : Tests if at least one of the entries ends with one of the passed strings
 * [strEndsAll()](#strendsall) : Tests if all of the entries ends with at least one of the passed strings
-* [strStarts()](#strstarts) : Tests if one of the entries starts with the passed string
+* [strStarts()](#strstarts) : Tests if at least one of the entries starts with at least one of the passed strings
+* [strStartsAll()](#strstartsall) : Tests if all of the entries starts with one of the passed strings
 
 ### Transform
 
@@ -4655,16 +4657,15 @@ Map::from( ['Äpfel', 'Birnen'] )->strLower( 'ISO-8859-1' );
 
 ### strStarts()
 
-Tests if at least one of the entries starts with the passed string.
+Tests if at least one of the entries starts with at least one of the passed strings.
 
 ```php
-public function strStarts( string $str, string $encoding = 'UTF-8', bool $all = false ) : bool
+public function strStarts( $value, string $encoding = 'UTF-8' ) : bool
 ```
 
-* @param **string** `$str` The string to search for in each entry
+* @param **array&#124;string** `$value` The string or list of strings to search for in each entry
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
-* @param **bool** `$all` TRUE if all strings must match, FALSE if only one
-* @return **bool** TRUE if one of the entries starts with the string, FALSE if not
+* @return **bool** TRUE if one of the entries starts with one of the strings, FALSE if not
 
 **Examples:**
 
@@ -4675,25 +4676,69 @@ Map::from( ['abc'] )->strStarts( '' );
 Map::from( ['abc'] )->strStarts( 'a' );
 // true
 
-Map::from( ['abc'] )->strStarts( 'ab', 'ASCII' );
+Map::from( ['abc'] )->strStarts( 'ab' );
 // true
 
-Map::from( ['abc', 'ace'] )->strStarts( 'a', 'UTF-8', true );
+Map::from( ['abc'] )->strStarts( ['a', 'b'] );
+// true
+
+Map::from( ['abc'] )->strStarts( 'ab', 'ASCII' );
 // true
 
 Map::from( ['abc'] )->strStarts( 'b' );
 // false
 
-Map::from( ['abc'] )->strStarts( 'c' );
+Map::from( ['abc'] )->strStarts( 'bc' );
 // false
 
-Map::from( ['abc'] )->strStarts( 'd' );
+Map::from( ['abc'] )->strStarts( ['b', 'c'] );
 // false
 
-Map::from( ['abc'] )->strStarts( 'ba', 'ASCII' );
+Map::from( ['abc'] )->strStarts( 'bc', 'ASCII' );
+// false
+```
+
+
+### strStartsAll()
+
+Tests if all of the entries starts with one of the passed strings.
+
+```php
+public function strStartsAll( $value, string $encoding = 'UTF-8' ) : bool
+```
+
+* @param **array&#124;string** `$value` The string or list of strings to search for in each entry
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+* @return **bool** TRUE if one of the entries starts with one of the strings, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( ['abc', 'def'] )->strStartsAll( '' );
+// true
+
+Map::from( ['abc', 'acb'] )->strStartsAll( 'a' );
+// true
+
+Map::from( ['abc', 'aba'] )->strStartsAll( 'ab' );
+// true
+
+Map::from( ['abc', 'def'] )->strStartsAll( ['a', 'd'] );
+// true
+
+Map::from( ['abc', 'acf'] )->strStartsAll( 'a', 'ASCII' );
+// true
+
+Map::from( ['abc', 'def'] )->strStartsAll( 'd' );
 // false
 
-Map::from( ['abc', 'cde'] )->strStarts( 'a', 'ASCII', true );
+Map::from( ['abc', 'bca'] )->strStartsAll( 'ab' );
+// false
+
+Map::from( ['abc', 'bac'] )->strStartsAll( ['a', 'c'] );
+// false
+
+Map::from( ['abc', 'cab'] )->strStartsAll( 'ab', 'ASCII' );
 // false
 ```
 
