@@ -401,7 +401,8 @@ will return:
 * [implements()](#implements) : Tests if all entries are objects implementing the interface
 * [none()](#none) : Tests if none of the elements are part of the map
 * [some()](#some) : Tests if at least one element is included
-* [strContains()](#strcontains) : Tests if the passed string is part of one of the entries
+* [strContains()](#strcontains) : Tests if at least one of the passed strings is part of at least one entry
+* [strContainsAll()](#strcontainsall) : Tests if all of the entries contains one of the passed strings
 * [strEnds()](#strends) : Tests if one of the entries ends with the passed string
 * [strStarts()](#strstarts) : Tests if one of the entries starts with the passed string
 
@@ -4389,16 +4390,15 @@ Map::from( ['a', 'b', 'c'] )->splice( 1, 1, ['x', 'y'] );
 
 ### strContains()
 
-Tests if the passed string is part of at least one of the entries.
+Tests if at least one of the passed strings is part of at least one entry.
 
 ```php
-public function strContains( string $str, string $encoding = 'UTF-8', bool $all = false ) : bool
+public function strContains( $value, string $encoding = 'UTF-8' ) : bool
 ```
 
-* @param **string** `$str` The string to search for in each entry
+* @param **array&#124;string** `$value` The string or list of strings to search for in each entry
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
-* @param **bool** `$all` TRUE if all strings must match, FALSE if only one
-* @return **bool** TRUE if the string has been found, FALSE if not
+* @return **bool** TRUE if one of the entries contains one of the strings, FALSE if not
 
 **Examples:**
 
@@ -4409,22 +4409,69 @@ Map::from( ['abc'] )->strContains( '' );
 Map::from( ['abc'] )->strContains( 'a' );
 // true
 
-Map::from( ['abc'] )->strContains( 'b' );
+Map::from( ['abc'] )->strContains( 'bc' );
+// true
+
+Map::from( ['abc'] )->strContains( ['b', 'd'] );
 // true
 
 Map::from( ['abc'] )->strContains( 'c', 'ASCII' );
 // true
 
-Map::from( ['abc', 'cde'] )->strContains( 'c', 'UTF-8', true );
-// true
-
 Map::from( ['abc'] )->strContains( 'd' );
+// false
+
+Map::from( ['abc'] )->strContains( 'cb' );
+// false
+
+Map::from( ['abc'] )->strContains( ['d', 'e'] );
 // false
 
 Map::from( ['abc'] )->strContains( 'cb', 'ASCII' );
 // false
+```
 
-Map::from( ['abc', 'cde'] )->strContains( 'a', 'UTF-8', true );
+
+### strContainsAll()
+
+Tests if all of the entries contains one of the passed strings.
+
+```php
+public function strContainsAll( $value, string $encoding = 'UTF-8' ) : bool
+```
+
+* @param **array&#124;string** `$value` The string or list of strings to search for in each entry
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+* @return **bool** TRUE if all of the entries contains at least one of the strings, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( ['abc', 'def'] )->strContainsAll( '' );
+// true
+
+Map::from( ['abc', 'cba'] )->strContainsAll( 'a' );
+// true
+
+Map::from( ['abc', 'bca'] )->strContainsAll( 'bc' );
+// true
+
+Map::from( ['abc', 'def'] )->strContainsAll( ['b', 'd'] );
+// true
+
+Map::from( ['abc', 'ecf'] )->strContainsAll( 'c', 'ASCII' );
+// true
+
+Map::from( ['abc', 'def'] )->strContainsAll( 'd' );
+// false
+
+Map::from( ['abc', 'cab'] )->strContainsAll( 'cb' );
+// false
+
+Map::from( ['abc', 'acf'] )->strContainsAll( ['d', 'e'] );
+// false
+
+Map::from( ['abc', 'bca'] )->strContainsAll( 'cb', 'ASCII' );
 // false
 ```
 

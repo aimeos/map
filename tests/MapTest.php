@@ -2838,11 +2838,26 @@ Array
 		$this->assertTrue( Map::from( ['abc'] )->strContains( '' ) );
 		$this->assertTrue( Map::from( ['abc'] )->strContains( 'a' ) );
 		$this->assertTrue( Map::from( ['abc'] )->strContains( 'b' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strContains( ['b', 'd'] ) );
 		$this->assertTrue( Map::from( ['abc'] )->strContains( 'c', 'ASCII' ) );
-		$this->assertTrue( Map::from( ['abc', 'cde'] )->strContains( 'c', 'UTF-8', true ) );
 		$this->assertFalse( Map::from( ['abc'] )->strContains( 'd' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strContains( 'cb' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strContains( ['d', 'e'] ) );
 		$this->assertFalse( Map::from( ['abc'] )->strContains( 'cb', 'ASCII' ) );
-		$this->assertFalse( Map::from( ['abc', 'cde'] )->strContains( 'a', 'UTF-8', true ) );
+	}
+
+
+	public function testStrContainsAll()
+	{
+		$this->assertTrue( Map::from( ['abc', 'def'] )->strContainsAll( '' ) );
+		$this->assertTrue( Map::from( ['abc', 'cba'] )->strContainsAll( 'a' ) );
+		$this->assertTrue( Map::from( ['abc', 'bca'] )->strContainsAll( 'bc' ) );
+		$this->assertTrue( Map::from( ['abc', 'def'] )->strContainsAll( ['b', 'd'] ) );
+		$this->assertTrue( Map::from( ['abc', 'ecf'] )->strContainsAll( 'c', 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc', 'def'] )->strContainsAll( 'd' ) );
+		$this->assertFalse( Map::from( ['abc', 'cab'] )->strContainsAll( 'cb' ) );
+		$this->assertFalse( Map::from( ['abc', 'acf'] )->strContainsAll( ['d', 'e'] ) );
+		$this->assertFalse( Map::from( ['abc', 'bca'] )->strContainsAll( 'cb', 'ASCII' ) );
 	}
 
 

@@ -3959,35 +3959,83 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Tests if the passed string is part of at least one (or all) entries.
+	 * Tests if at least one of the passed strings is part of at least one entry.
 	 *
 	 * Examples:
 	 *  Map::from( ['abc'] )->strContains( '' );
 	 *  Map::from( ['abc'] )->strContains( 'a' );
-	 *  Map::from( ['abc'] )->strContains( 'b' );
+	 *  Map::from( ['abc'] )->strContains( 'bc' );
+	 *  Map::from( ['abc'] )->strContains( ['b', 'd'] );
 	 *  Map::from( ['abc'] )->strContains( 'c', 'ASCII' );
-	 *  Map::from( ['abc', 'cde'] )->strContains( 'c', 'UTF-8', true );
 	 *  Map::from( ['abc'] )->strContains( 'd' );
+	 *  Map::from( ['abc'] )->strContains( 'cb' );
+	 *  Map::from( ['abc'] )->strContains( ['d', 'e'] );
 	 *  Map::from( ['abc'] )->strContains( 'cb', 'ASCII' );
-	 *  Map::from( ['abc', 'cde'] )->strContains( 'a', 'UTF-8', true );
 	 *
 	 * Results:
-	 * The first five examples will return TRUE while the last three will return FALSE.
+	 * The first five examples will return TRUE while the last four will return FALSE.
 	 *
-	 * @param string $str The string to search for in each entry
+	 * @param array|string $value The string or list of strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
-	 * @param bool $all TRUE if all strings must match, FALSE if only one
-	 * @return bool TRUE if one (or all) of the entries contains the string, FALSE if not
+	 * @return bool TRUE if one of the entries contains one of the strings, FALSE if not
 	 */
-	public function strContains( string $str, string $encoding = 'UTF-8', bool $all = false ) : bool
+	public function strContains( $value, string $encoding = 'UTF-8' ) : bool
 	{
 		$list = [];
 
-		foreach( $this->list() as $entry ) {
-			$list[] = (int) ( $str === '' || mb_strpos( $entry, $str, 0, $encoding ) !== false );
+		foreach( $this->list() as $entry )
+		{
+			foreach( (array) $value as $str )
+			{
+				if( ( $str === '' || mb_strpos( $entry, $str, 0, $encoding ) !== false ) ) {
+					return true;
+				}
+			}
 		}
 
-		return $all ? array_sum( $list ) === count( $list ) : array_sum( $list ) > 0;
+		return false;
+	}
+
+
+	/**
+	 * Tests if one or more of the passed strings is part of all entries.
+	 *
+	 * Examples:
+	 *  Map::from( ['abc', 'def'] )->strContainsAll( '' );
+	 *  Map::from( ['abc', 'cba'] )->strContainsAll( 'a' );
+	 *  Map::from( ['abc', 'bca'] )->strContainsAll( 'bc' );
+	 *  Map::from( ['abc', 'def'] )->strContainsAll( ['b', 'd'] );
+	 *  Map::from( ['abc', 'ecf'] )->strContainsAll( 'c', 'ASCII' );
+	 *  Map::from( ['abc', 'def'] )->strContainsAll( 'd' );
+	 *  Map::from( ['abc', 'cab'] )->strContainsAll( 'cb' );
+	 *  Map::from( ['abc', 'acf'] )->strContainsAll( ['d', 'e'] );
+	 *  Map::from( ['abc', 'bca'] )->strContainsAll( 'cb', 'ASCII' );
+	 *
+	 * Results:
+	 * The first five examples will return TRUE while the last four will return FALSE.
+	 *
+	 * @param array|string $value The string or list of strings to search for in each entry
+	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+	 * @return bool TRUE if all of the entries contains at least one of the strings, FALSE if not
+	 */
+	public function strContainsAll( $value, string $encoding = 'UTF-8' ) : bool
+	{
+		$list = [];
+
+		foreach( $this->list() as $entry )
+		{
+			$entry = (string) $entry;
+			$list[$entry] = 0;
+
+			foreach( (array) $value as $str )
+			{
+				if( (int) ( $str === '' || mb_strpos( $entry, (string) $str, 0, $encoding ) !== false ) ) {
+					$list[$entry] = 1; break;
+				}
+			}
+		}
+
+		return array_sum( $list ) === count( $list );
 	}
 
 
