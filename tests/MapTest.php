@@ -2865,13 +2865,27 @@ Array
 	{
 		$this->assertTrue( Map::from( ['abc'] )->strEnds( '' ) );
 		$this->assertTrue( Map::from( ['abc'] )->strEnds( 'c' ) );
-		$this->assertTrue( Map::from( ['abc'] )->strEnds( 'bc', 'ASCII' ) );
-		$this->assertTrue( Map::from( ['abc', 'bac'] )->strEnds( 'c', 'UTF-8', true ) );
+		$this->assertTrue( Map::from( ['abc'] )->strEnds( 'bc' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strEnds( ['b', 'c'] ) );
+		$this->assertTrue( Map::from( ['abc'] )->strEnds( 'c', 'ASCII' ) );
 		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'a' ) );
-		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'b' ) );
-		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'd' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'cb' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strEnds( ['d', 'b'] ) );
 		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'cb', 'ASCII' ) );
-		$this->assertFalse( Map::from( ['abc', 'cab'] )->strEnds( 'c', 'UTF-8', true ) );
+	}
+
+
+	public function testStrEndsAll()
+	{
+		$this->assertTrue( Map::from( ['abc', 'def'] )->strEndsAll( '' ) );
+		$this->assertTrue( Map::from( ['abc', 'bac'] )->strEndsAll( 'c' ) );
+		$this->assertTrue( Map::from( ['abc', 'cbc'] )->strEndsAll( 'bc' ) );
+		$this->assertTrue( Map::from( ['abc', 'def'] )->strEndsAll( ['c', 'f'] ) );
+		$this->assertTrue( Map::from( ['abc', 'efc'] )->strEndsAll( 'c', 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc', 'fed'] )->strEndsAll( 'd' ) );
+		$this->assertFalse( Map::from( ['abc', 'bca'] )->strEndsAll( 'ca' ) );
+		$this->assertFalse( Map::from( ['abc', 'acf'] )->strEndsAll( ['a', 'c'] ) );
+		$this->assertFalse( Map::from( ['abc', 'bca'] )->strEndsAll( 'ca', 'ASCII' ) );
 	}
 
 

@@ -235,7 +235,9 @@ will return:
 <a href="#splice">splice</a>
 <a href="#split">split</a>
 <a href="#strcontains">strContains</a>
+<a href="#strcontainsall">strContainsAll</a>
 <a href="#strends">strEnds</a>
+<a href="#strendsall">strEndsAll</a>
 <a href="#string">string</a>
 <a href="#strlower">strLower</a>
 <a href="#strstarts">strStarts</a>
@@ -403,7 +405,8 @@ will return:
 * [some()](#some) : Tests if at least one element is included
 * [strContains()](#strcontains) : Tests if at least one of the passed strings is part of at least one entry
 * [strContainsAll()](#strcontainsall) : Tests if all of the entries contains one of the passed strings
-* [strEnds()](#strends) : Tests if one of the entries ends with the passed string
+* [strEnds()](#strends) : Tests if at least one of the entries ends with one of the passed strings
+* [strEndsAll()](#strendsall) : Tests if all of the entries ends with at least one of the passed strings
 * [strStarts()](#strstarts) : Tests if one of the entries starts with the passed string
 
 ### Transform
@@ -4478,15 +4481,14 @@ Map::from( ['abc', 'bca'] )->strContainsAll( 'cb', 'ASCII' );
 
 ### strEnds()
 
-Tests if at least one of the entries ends with the passed string.
+Tests if at least one of the entries ends with one of the passed strings.
 
 ```php
-public function strEnds( string $str, string $encoding = 'UTF-8', bool $all = false ) : bool
+public function strEnds( $value, string $encoding = 'UTF-8' ) : bool
 ```
 
-* @param **string** `$str` The string to search for in each entry
+* @param **array&#124;string** `$value` The string or list of strings to search for in each entry
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
-* @param **bool** `$all` TRUE if all strings must match, FALSE if only one
 * @return **bool** TRUE if one of the entries ends with the string, FALSE if not
 
 **Examples:**
@@ -4498,25 +4500,69 @@ Map::from( ['abc'] )->strEnds( '' );
 Map::from( ['abc'] )->strEnds( 'c' );
 // true
 
-Map::from( ['abc'] )->strEnds( 'bc', 'ASCII' );
+Map::from( ['abc'] )->strEnds( 'bc' );
 // true
 
-Map::from( ['abc', 'bac'] )->strEnds( 'c', 'UTF-8', true );
+Map::from( ['abc'] )->strEnds( ['b', 'c'] );
+// true
+
+Map::from( ['abc'] )->strEnds( 'c', 'ASCII' );
 // true
 
 Map::from( ['abc'] )->strEnds( 'a' );
 // false
 
-Map::from( ['abc'] )->strEnds( 'b' );
+Map::from( ['abc'] )->strEnds( 'cb' );
 // false
 
-Map::from( ['abc'] )->strEnds( 'd' );
+Map::from( ['abc'] )->strEnds( ['d', 'b'] );
 // false
 
 Map::from( ['abc'] )->strEnds( 'cb', 'ASCII' );
 // false
+```
 
-Map::from( ['abc', 'cab'] )->strEnds( 'c', 'UTF-8', true );
+
+### strEndsAll()
+
+Tests if all of the entries ends with at least one of the passed strings.
+
+```php
+public function strEndsAll( $value, string $encoding = 'UTF-8' ) : bool
+```
+
+* @param **array&#124;string** `$value` The string or list of strings to search for in each entry
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+* @return **bool** TRUE if all of the entries ends with at least one of the strings, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( ['abc', 'def'] )->strEndsAll( '' );
+// true
+
+Map::from( ['abc', 'bac'] )->strEndsAll( 'c' );
+// true
+
+Map::from( ['abc', 'cbc'] )->strEndsAll( 'bc' );
+// true
+
+Map::from( ['abc', 'def'] )->strEndsAll( ['c', 'f'] );
+// true
+
+Map::from( ['abc', 'efc'] )->strEndsAll( 'c', 'ASCII' );
+// true
+
+Map::from( ['abc', 'fed'] )->strEndsAll( 'd' );
+// false
+
+Map::from( ['abc', 'bca'] )->strEndsAll( 'ca' );
+// false
+
+Map::from( ['abc', 'acf'] )->strEndsAll( ['a', 'c'] );
+// false
+
+Map::from( ['abc', 'bca'] )->strEndsAll( 'ca', 'ASCII' );
 // false
 ```
 

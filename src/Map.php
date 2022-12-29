@@ -3985,9 +3985,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		foreach( $this->list() as $entry )
 		{
+			$entry = (string) $entry;
+
 			foreach( (array) $value as $str )
 			{
-				if( ( $str === '' || mb_strpos( $entry, $str, 0, $encoding ) !== false ) ) {
+				if( ( $str === '' || mb_strpos( $entry, (string) $str, 0, $encoding ) !== false ) ) {
 					return true;
 				}
 			}
@@ -4040,37 +4042,89 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Tests if at least one (or all) of the entries ends with the passed string.
+	 * Tests if at least one of the entries ends with one of the passed strings.
 	 *
 	 * Examples:
 	 *  Map::from( ['abc'] )->strEnds( '' );
 	 *  Map::from( ['abc'] )->strEnds( 'c' );
-	 *  Map::from( ['abc'] )->strEnds( 'bc', 'ASCII' );
-	 *  Map::from( ['abc', 'bac'] )->strEnds( 'c', 'UTF-8', true );
+	 *  Map::from( ['abc'] )->strEnds( 'bc' );
+	 *  Map::from( ['abc'] )->strEnds( ['b', 'c'] );
+	 *  Map::from( ['abc'] )->strEnds( 'c', 'ASCII' );
 	 *  Map::from( ['abc'] )->strEnds( 'a' );
-	 *  Map::from( ['abc'] )->strEnds( 'b' );
-	 *  Map::from( ['abc'] )->strEnds( 'd' );
+	 *  Map::from( ['abc'] )->strEnds( 'cb' );
+	 *  Map::from( ['abc'] )->strEnds( ['d', 'b'] );
 	 *  Map::from( ['abc'] )->strEnds( 'cb', 'ASCII' );
-	 *  Map::from( ['abc', 'cab'] )->strEnds( 'c', 'UTF-8', true );
 	 *
 	 * Results:
-	 * The first four examples will return TRUE while the last five will return FALSE.
+	 * The first five examples will return TRUE while the last four will return FALSE.
 	 *
-	 * @param string $str The string to search for in each entry
+	 * @param array|string $value The string or strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
-	 * @param bool $all TRUE if all strings must match, FALSE if only one
-	 * @return bool TRUE if one (or all) of the entries ends with the string, FALSE if not
+	 * @return bool TRUE if one of the entries ends with one of the strings, FALSE if not
 	 */
-	public function strEnds( string $str, string $encoding = 'UTF-8', bool $all = false ) : bool
+	public function strEnds( $value, string $encoding = 'UTF-8' ) : bool
 	{
 		$list = [];
-		$len = strlen( $str );
 
-		foreach( $this->list() as $entry ) {
-			$list[] = (int) ( $str === '' || mb_strpos( $entry, $str, -$len, $encoding ) !== false );
+		foreach( $this->list() as $entry )
+		{
+			$entry = (string) $entry;
+
+			foreach( (array) $value as $str )
+			{
+				$len = strlen( (string) $str );
+
+				if( ( $str === '' || mb_strpos( $entry, (string) $str, -$len, $encoding ) !== false ) ) {
+					return true;
+				}
+			}
 		}
 
-		return $all ? array_sum( $list ) === count( $list ) : array_sum( $list ) > 0;
+		return false;
+	}
+
+
+	/**
+	 * Tests if all of the entries ends with at least one of the passed strings.
+	 *
+	 * Examples:
+	 *  Map::from( ['abc', 'def'] )->strEndsAll( '' );
+	 *  Map::from( ['abc', 'bac'] )->strEndsAll( 'c' );
+	 *  Map::from( ['abc', 'cbc'] )->strEndsAll( 'bc' );
+	 *  Map::from( ['abc', 'def'] )->strEndsAll( ['c', 'f'] );
+	 *  Map::from( ['abc', 'efc'] )->strEndsAll( 'c', 'ASCII' );
+	 *  Map::from( ['abc', 'fed'] )->strEndsAll( 'd' );
+	 *  Map::from( ['abc', 'bca'] )->strEndsAll( 'ca' );
+	 *  Map::from( ['abc', 'acf'] )->strEndsAll( ['a', 'c'] );
+	 *  Map::from( ['abc', 'bca'] )->strEndsAll( 'ca', 'ASCII' );
+	 *
+	 * Results:
+	 * The first five examples will return TRUE while the last four will return FALSE.
+	 *
+	 * @param array|string $value The string or strings to search for in each entry
+	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+	 * @return bool TRUE if all of the entries ends with at least one of the strings, FALSE if not
+	 */
+	public function strEndsAll( $value, string $encoding = 'UTF-8' ) : bool
+	{
+		$list = [];
+
+		foreach( $this->list() as $entry )
+		{
+			$entry = (string) $entry;
+			$list[$entry] = 0;
+
+			foreach( (array) $value as $str )
+			{
+				$len = strlen( (string) $str );
+
+				if( (int) ( $str === '' || mb_strpos( $entry, (string) $str, -$len, $encoding ) !== false ) ) {
+					$list[$entry] = 1; break;
+				}
+			}
+		}
+
+		return array_sum( $list ) === count( $list );
 	}
 
 
