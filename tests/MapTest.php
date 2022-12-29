@@ -218,6 +218,17 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testCast()
+	{
+		$this->assertEquals( ['1', '1', '1', 'yes'], Map::from( [true, 1, 1.0, 'yes'] )->cast()->all() );
+		$this->assertEquals( [true, true, true, true], Map::from( [true, 1, 1.0, 'yes'] )->cast( 'bool' )->all() );
+		$this->assertEquals( [1, 1, 1, 0], Map::from( [true, 1, 1.0, 'yes'] )->cast( 'int' )->all() );
+		$this->assertEquals( [1.0, 1.0, 1.0, 0.0], Map::from( [true, 1, 1.0, 'yes'] )->cast( 'float' )->all() );
+		$this->assertEquals( [[], []], Map::from( [new \stdClass, new \stdClass] )->cast( 'array' )->all() );
+		$this->assertEquals( [new \stdClass, new \stdClass], Map::from( [[], []] )->cast( 'object' )->all() );
+	}
+
+
 	public function testChunk()
 	{
 		$m = new Map( [0, 1, 2, 3, 4] );

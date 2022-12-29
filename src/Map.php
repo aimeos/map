@@ -647,6 +647,50 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Casts all entries to the passed type.
+	 *
+	 * Examples:
+	 *  Map::from( [true, 1, 1.0, 'yes'] )->cast();
+	 *  Map::from( [true, 1, 1.0, 'yes'] )->cast( 'bool' );
+	 *  Map::from( [true, 1, 1.0, 'yes'] )->cast( 'int' );
+	 *  Map::from( [true, 1, 1.0, 'yes'] )->cast( 'float' );
+	 *  Map::from( [new stdClass, new stdClass] )->cast( 'array' );
+	 *  Map::from( [[], []] )->cast( 'object' );
+	 *
+	 * Results:
+	 * The examples will return (in this order):
+	 * ['1', '1', '1.0', 'yes']
+	 * [true, true, true, true]
+	 * [1, 1, 1, 0]
+	 * [1.0, 1.0, 1.0, 0.0]
+	 * [[], []]
+	 * [new stdClass, new stdClass]
+	 *
+	 * Casting arrays and objects to scalar values won't return anything useful!
+	 *
+	 * @param string $type Type to cast the values to ("string", "bool", "int", "float", "array", "object")
+	 * @return self<int|string,mixed> Updated map with casted elements
+	 */
+	public function cast( string $type = 'string' ) : self
+	{
+		foreach( $this->list() as &$item )
+		{
+			switch( $type )
+			{
+				case 'bool': $item = (bool) $item; break;
+				case 'int': $item = (int) $item; break;
+				case 'float': $item = (float) $item; break;
+				case 'string': $item = (string) $item; break;
+				case 'array': $item = (array) $item; break;
+				case 'object': $item = (object) $item; break;
+			}
+		}
+
+		return $this;
+	}
+
+
+	/**
 	 * Chunks the map into arrays with the given number of elements.
 	 *
 	 * Examples:

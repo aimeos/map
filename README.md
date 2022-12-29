@@ -125,6 +125,7 @@ will return:
 <a href="#before">before</a>
 <a href="#bool">bool</a>
 <a href="#call">call</a>
+<a href="#cast">cast</a>
 <a href="#chunk">chunk</a>
 <a href="#clear">clear</a>
 <a href="#clone">clone</a>
@@ -413,6 +414,7 @@ will return:
 
 ### Transform
 
+* [cast()](#cast) : Casts all entries to the passed type
 * [chunk()](#chunk) : Splits the map into chunks
 * [col()](#col) : Creates a key/value mapping
 * [collapse()](#collapse) : Collapses multi-dimensional elements overwriting elements
@@ -944,6 +946,42 @@ Map::from( [$item, $item] )->call( 'get', ['myprop'] );
 
 Map::from( [$item, $item] )->call( 'toArray' );
 // [['myprop' => 'val'], ['myprop' => 'val']]
+```
+
+
+### cast()
+
+Casts all entries to the passed type.
+
+```php
+public function cast( string $type = 'string' ) : self
+```
+
+* @param **string** `$type` Type to cast the values to ("string", "bool", "int", "float", "array", "object")
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map with casted elements
+
+Casting arrays and objects to scalar values won't return anything useful!
+
+**Examples:**
+
+```php
+Map::from( [true, 1, 1.0, 'yes'] )->cast();
+// ['1', '1', '1.0', 'yes']
+
+Map::from( [true, 1, 1.0, 'yes'] )->cast( 'bool' );
+// [true, true, true, true]
+
+Map::from( [true, 1, 1.0, 'yes'] )->cast( 'int' );
+// [1, 1, 1, 0]
+
+Map::from( [true, 1, 1.0, 'yes'] )->cast( 'float' );
+// [1.0, 1.0, 1.0, 0.0]
+
+Map::from( [new stdClass, new stdClass] )->cast( 'array' );
+// [[], []]
+
+Map::from( [[], []] )->cast( 'object' );
+// [new stdClass, new stdClass]
 ```
 
 
