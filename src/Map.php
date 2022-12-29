@@ -2162,7 +2162,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Tests if the passed value or value are part of the strings in the map.
+	 * Tests if the passed value or values are part of the strings in the map.
 	 *
 	 * Examples:
 	 *  Map::from( ['abc'] )->inString( 'c' );
@@ -2190,6 +2190,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param array|string $value Value or values to compare the map elements, will be casted to string type
 	 * @param bool $case TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
 	 * @return bool TRUE If at least one element matches, FALSE if value is not in any string of the map
+	 * @deprecated Use multi-byte aware strContains() instead
 	 */
 	public function inString( $value, bool $case = true ) : bool
 	{
@@ -3965,15 +3966,24 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['abc'] )->strContains( '' );
 	 *  Map::from( ['abc'] )->strContains( 'a' );
 	 *  Map::from( ['abc'] )->strContains( 'bc' );
+	 *  Map::from( [12345] )->strContains( '23' );
+	 *  Map::from( [123.4] )->strContains( 23.4 );
+	 *  Map::from( [12345] )->strContains( false );
+	 *  Map::from( [12345] )->strContains( true );
+	 *  Map::from( [false] )->strContains( false );
+	 *  Map::from( [''] )->strContains( false );
 	 *  Map::from( ['abc'] )->strContains( ['b', 'd'] );
 	 *  Map::from( ['abc'] )->strContains( 'c', 'ASCII' );
+	 *
 	 *  Map::from( ['abc'] )->strContains( 'd' );
 	 *  Map::from( ['abc'] )->strContains( 'cb' );
+	 *  Map::from( [23456] )->strContains( true );
+	 *  Map::from( [false] )->strContains( 0 );
 	 *  Map::from( ['abc'] )->strContains( ['d', 'e'] );
 	 *  Map::from( ['abc'] )->strContains( 'cb', 'ASCII' );
 	 *
 	 * Results:
-	 * The first five examples will return TRUE while the last four will return FALSE.
+	 * The first eleven examples will return TRUE while the last six will return FALSE.
 	 *
 	 * @param array|string $value The string or list of strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
@@ -4000,21 +4010,28 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Tests if one or more of the passed strings is part of all entries.
+	 * Tests if all of the entries contains one of the passed strings.
 	 *
 	 * Examples:
 	 *  Map::from( ['abc', 'def'] )->strContainsAll( '' );
 	 *  Map::from( ['abc', 'cba'] )->strContainsAll( 'a' );
 	 *  Map::from( ['abc', 'bca'] )->strContainsAll( 'bc' );
+	 *  Map::from( [12345, '230'] )->strContainsAll( '23' );
+	 *  Map::from( [123.4, 23.42] )->strContainsAll( 23.4 );
+	 *  Map::from( [12345, '234'] )->strContainsAll( [true, false] );
+	 *  Map::from( ['', false] )->strContainsAll( false );
 	 *  Map::from( ['abc', 'def'] )->strContainsAll( ['b', 'd'] );
 	 *  Map::from( ['abc', 'ecf'] )->strContainsAll( 'c', 'ASCII' );
+	 *
 	 *  Map::from( ['abc', 'def'] )->strContainsAll( 'd' );
 	 *  Map::from( ['abc', 'cab'] )->strContainsAll( 'cb' );
+	 *  Map::from( [23456, '123'] )->strContainsAll( true );
+	 *  Map::from( [false, '000'] )->strContainsAll( 0 );
 	 *  Map::from( ['abc', 'acf'] )->strContainsAll( ['d', 'e'] );
 	 *  Map::from( ['abc', 'bca'] )->strContainsAll( 'cb', 'ASCII' );
 	 *
 	 * Results:
-	 * The first five examples will return TRUE while the last four will return FALSE.
+	 * The first nine examples will return TRUE while the last six will return FALSE.
 	 *
 	 * @param array|string $value The string or list of strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.

@@ -2611,6 +2611,8 @@ Map::from( ['foo', 'bar'] )->insertBefore( null, 'baz' );
 
 Tests if the passed value or value are part of the strings in the map.
 
+This method is deprecated in favor of the multi-byte aware [strContains()](#strcontains) method.
+
 ```php
 public function inString( $value, bool $case = true ) : bool
 ```
@@ -4417,6 +4419,24 @@ Map::from( ['abc'] )->strContains( 'a' );
 Map::from( ['abc'] )->strContains( 'bc' );
 // true
 
+Map::from( [12345] )->strContains( '23' );
+// true
+
+Map::from( [123.4] )->strContains( 23.4 );
+// true
+
+Map::from( [12345] )->strContains( false );
+// true ('12345' contains '')
+
+Map::from( [12345] )->strContains( true );
+// true ('12345' contains '1')
+
+Map::from( [false] )->strContains( false );
+// true  ('' contains '')
+
+Map::from( [''] )->strContains( false );
+// true ('' contains '')
+
 Map::from( ['abc'] )->strContains( ['b', 'd'] );
 // true
 
@@ -4428,6 +4448,12 @@ Map::from( ['abc'] )->strContains( 'd' );
 
 Map::from( ['abc'] )->strContains( 'cb' );
 // false
+
+Map::from( [23456] )->strContains( true );
+// false ('23456' doesn't contain '1')
+
+Map::from( [false] )->strContains( 0 );
+// false ('' doesn't contain '0')
 
 Map::from( ['abc'] )->strContains( ['d', 'e'] );
 // false
@@ -4461,6 +4487,18 @@ Map::from( ['abc', 'cba'] )->strContainsAll( 'a' );
 Map::from( ['abc', 'bca'] )->strContainsAll( 'bc' );
 // true
 
+Map::from( [12345, '230'] )->strContainsAll( '23' );
+// true
+
+Map::from( [123.4, 23.42] )->strContainsAll( 23.4 );
+// true
+
+Map::from( [12345, '234'] )->strContainsAll( [true, false] );
+// true ('12345' contains '1' and '234' contains '')
+
+Map::from( ['', false] )->strContainsAll( false );
+// true ('' contains '')
+
 Map::from( ['abc', 'def'] )->strContainsAll( ['b', 'd'] );
 // true
 
@@ -4472,6 +4510,12 @@ Map::from( ['abc', 'def'] )->strContainsAll( 'd' );
 
 Map::from( ['abc', 'cab'] )->strContainsAll( 'cb' );
 // false
+
+Map::from( [23456, '123'] )->strContains( true );
+// false ('23456' doesn't contain '1')
+
+Map::from( [false, '000'] )->strContains( 0 );
+// false ('' doesn't contain '0')
 
 Map::from( ['abc', 'acf'] )->strContainsAll( ['d', 'e'] );
 // false
