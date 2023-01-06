@@ -210,7 +210,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			}
 
 			$limit = $limit ?: 1;
-			$parts = str_split( $string );
+			$parts = mb_str_split( $string );
 
 			if( $limit < 1 ) {
 				return array_slice( $parts, 0, $limit );
@@ -4133,7 +4133,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 			foreach( (array) $value as $str )
 			{
-				$len = strlen( (string) $str );
+				$len = mb_strlen( (string) $str );
 
 				if( ( $str === '' || mb_strpos( $entry, (string) $str, -$len, $encoding ) !== false ) ) {
 					return true;
@@ -4177,7 +4177,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 			foreach( (array) $value as $str )
 			{
-				$len = strlen( (string) $str );
+				$len = mb_strlen( (string) $str );
 
 				if( (int) ( $str === '' || mb_strpos( $entry, (string) $str, -$len, $encoding ) !== false ) ) {
 					$list[$entry] = 1; break;
