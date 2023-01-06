@@ -4035,6 +4035,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function strContains( $value, string $encoding = 'UTF-8' ) : bool
 	{
+		if( array_search( '', (array) $value, true ) !== false ) {
+			return true;
+		}
+
 		$list = [];
 
 		foreach( $this->list() as $entry )
@@ -4083,6 +4087,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function strContainsAll( $value, string $encoding = 'UTF-8' ) : bool
 	{
+		if( array_search( '', (array) $value, true ) !== false ) {
+			return true;
+		}
+
 		$list = [];
 
 		foreach( $this->list() as $entry )
