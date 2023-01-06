@@ -2974,6 +2974,18 @@ Array
 	}
 
 
+	public function testStringReplace()
+	{
+		$this->assertEquals( ['google.de', 'aimeos.de'], Map::from( ['google.com', 'aimeos.com'] )->strReplace( '.com', '.de' )->all() );
+		$this->assertEquals( ['google.de', 'aimeos.de'], Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], '.de' )->all() );
+		$this->assertEquals( ['google.de', 'aimeos'], Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.de'] )->all() );
+		$this->assertEquals( ['google.fr', 'aimeos.de'], Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.fr', '.de'] )->all() );
+		$this->assertEquals( ['google.de', 'aimeos.de'], Map::from( ['google.com', 'aimeos.com'] )->strReplace( ['.com', '.co'], ['.co', '.de', '.fr'] )->all() );
+		$this->assertEquals( ['google.de', 'aimeos.de', 123], Map::from( ['google.com', 'aimeos.com', 123] )->strReplace( '.com', '.de' )->all() );
+		$this->assertEquals( ['GOOGLE.de', 'AIMEOS.de'], Map::from( ['GOOGLE.COM', 'AIMEOS.COM'] )->strReplace( '.com', '.de', true )->all() );
+   }
+
+
 	public function testStrStarts()
 	{
 		$this->assertTrue( Map::from( ['abc'] )->strStarts( '' ) );

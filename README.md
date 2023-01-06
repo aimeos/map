@@ -241,6 +241,7 @@ will return:
 <a href="#strendsall">strEndsAll</a>
 <a href="#string">string</a>
 <a href="#strlower">strLower</a>
+<a href="#strreplace">strReplace</a>
 <a href="#strstarts">strStarts</a>
 <a href="#strstartsall">strStartsAll</a>
 <a href="#strupper">strUpper</a>
@@ -433,6 +434,7 @@ will return:
 * [replace()](#replace) : Replaces elements recursively
 * [splice()](#splice) : Replaces a slice by new elements
 * [strLower()](#strlower) : Converts all alphabetic characters to lower case
+* [strReplace()](#strreplace) : Replaces all occurrences of the search string with the replacement string
 * [strUpper()](#strupper) : Converts all alphabetic characters to upper case
 * [suffix()](#suffix) : Adds a suffix to each map entry
 * [toJson()](#tojson) : Returns the elements in JSON format
@@ -4717,7 +4719,7 @@ Map::from( [] )->string( 'c', new \Exception( 'error' ) );
 Converts all alphabetic characters in strings to lower case.
 
 ```php
-public function strLower( string $encoding = 'UTF-8' ) :self
+public function strLower( string $encoding = 'UTF-8' ) : self
 ```
 
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
@@ -4734,6 +4736,61 @@ Map::from( ['Τάχιστη'] )->strLower();
 
 Map::from( ['Äpfel', 'Birnen'] )->strLower( 'ISO-8859-1' );
 // ["äpfel", "birnen"]
+```
+
+
+### strReplace()
+
+Replaces all occurrences of the search string with the replacement string.
+
+```php
+public function strReplace( $search, $replace, bool $case = false ) : self
+```
+
+* @param **array&#124;string** `$search` String or list of strings to search for
+* @param **array&#124;string** `$replace` String or list of strings of replacement strings
+* @param **bool** `$case` TRUE if replacements should be case insensitive, FALSE if case-sensitive
+* @return **self<int|string,mixed>** Updated map for fluid interface
+
+If you use an array of strings for search or search/replacement, the order of
+the strings matters! Each search string found is replaced by the corresponding
+replacement string at the same position.
+
+In case of array parameters and if the number of replacement strings is less
+than the number of search strings, the search strings with no corresponding
+replacement string are replaced with empty strings. Replacement strings with
+no corresponding search string are ignored.
+
+An array parameter for the replacements is only allowed if the search parameter
+is an array of strings too!
+
+Because the method replaces from left to right, it might replace a previously
+inserted value when doing multiple replacements. Entries which are non-string
+values are left untouched.
+
+**Examples:**
+
+```php
+Map::from( ['google.com', 'aimeos.com'] )->strReplace( '.com', '.de' );
+// ['google.de', 'aimeos.de']
+
+Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], '.de' );
+// ['google.de', 'aimeos.de']
+
+Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.de'] );
+// ['google.de', 'aimeos']
+
+Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.fr', '.de'] );
+// ['google.fr', 'aimeos.de']
+
+Map::from( ['google.com', 'aimeos.com'] )->strReplace( ['.com', '.co'], ['.co', '.de', '.fr'] );
+// ['google.de', 'aimeos.de']
+
+Map::from( ['google.com', 'aimeos.com', 123] )->strReplace( '.com', '.de' );
+// ['google.de', 'aimeos.de', 123]
+
+Map::from( ['GOOGLE.COM', 'AIMEOS.COM'] )->strReplace( '.com', '.de', true );
+// ['GOOGLE.de', 'AIMEOS.de']
 ```
 
 

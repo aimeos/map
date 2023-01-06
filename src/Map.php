@@ -4245,12 +4245,69 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
-	public function strLower( string $encoding = 'UTF-8' ) :self
+	public function strLower( string $encoding = 'UTF-8' ) : self
 	{
 		foreach( $this->list() as &$entry )
 		{
 			if( is_string( $entry ) ) {
 				$entry = mb_strtolower( $entry, $encoding );
+			}
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Replaces all occurrences of the search string with the replacement string.
+	 *
+	 * Examples:
+	 * Map::from( ['google.com', 'aimeos.com'] )->strReplace( '.com', '.de' );
+	 * Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], '.de' );
+	 * Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.de'] );
+	 * Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.fr', '.de'] );
+	 * Map::from( ['google.com', 'aimeos.com'] )->strReplace( ['.com', '.co'], ['.co', '.de', '.fr'] );
+	 * Map::from( ['google.com', 'aimeos.com', 123] )->strReplace( '.com', '.de' );
+	 * Map::from( ['GOOGLE.COM', 'AIMEOS.COM'] )->strReplace( '.com', '.de', true );
+	 *
+	 * Restults:
+	 * ['google.de', 'aimeos.de']
+	 * ['google.de', 'aimeos.de']
+	 * ['google.de', 'aimeos']
+	 * ['google.fr', 'aimeos.de']
+	 * ['google.de', 'aimeos.de']
+	 * ['google.de', 'aimeos.de', 123]
+	 * ['GOOGLE.de', 'AIMEOS.de']
+	 *
+	 * If you use an array of strings for search or search/replacement, the order of
+	 * the strings matters! Each search string found is replaced by the corresponding
+	 * replacement string at the same position.
+	 *
+	 * In case of array parameters and if the number of replacement strings is less
+	 * than the number of search strings, the search strings with no corresponding
+	 * replacement string are replaced with empty strings. Replacement strings with
+	 * no corresponding search string are ignored.
+	 *
+	 * An array parameter for the replacements is only allowed if the search parameter
+	 * is an array of strings too!
+	 *
+	 * Because the method replaces from left to right, it might replace a previously
+	 * inserted value when doing multiple replacements. Entries which are non-string
+	 * values are left untouched.
+	 *
+	 * @param array|string $search String or list of strings to search for
+	 * @param array|string $replace String or list of strings of replacement strings
+	 * @param bool $case TRUE if replacements should be case insensitive, FALSE if case-sensitive
+	 * @return self<int|string,mixed> Updated map for fluid interface
+	 */
+	public function strReplace( $search, $replace, bool $case = false ) : self
+	{
+		$fcn = $case ? 'str_ireplace' : 'str_replace';
+
+		foreach( $this->list() as &$entry )
+		{
+			if( is_string( $entry ) ) {
+				$entry = $fcn( $search, $replace, $entry );
 			}
 		}
 
