@@ -4035,8 +4035,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function strContains( $value, string $encoding = 'UTF-8' ) : bool
 	{
-		$list = [];
-
 		foreach( $this->list() as $entry )
 		{
 			$entry = (string) $entry;
@@ -4129,8 +4127,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function strEnds( $value, string $encoding = 'UTF-8' ) : bool
 	{
-		$list = [];
-
 		foreach( $this->list() as $entry )
 		{
 			$entry = (string) $entry;
@@ -4285,16 +4281,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function strStarts( $value, string $encoding = 'UTF-8' ) : bool
 	{
-		$list = [];
-
 		foreach( $this->list() as $entry )
 		{
 			$entry = (string) $entry;
 
 			foreach( (array) $value as $str )
 			{
-				$len = strlen( (string) $str );
-
 				if( ( $str === '' || mb_strpos( $entry, (string) $str, 0, $encoding ) === 0 ) ) {
 					return true;
 				}
@@ -4337,8 +4329,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 			foreach( (array) $value as $str )
 			{
-				$len = strlen( (string) $str );
-
 				if( (int) ( $str === '' || mb_strpos( $entry, (string) $str, 0, $encoding ) === 0 ) ) {
 					$list[$entry] = 1; break;
 				}
