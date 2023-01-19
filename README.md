@@ -125,6 +125,7 @@ will return:
 <a href="#before">before</a>
 <a href="#bool">bool</a>
 <a href="#call">call</a>
+<a href="#cast">cast</a>
 <a href="#chunk">chunk</a>
 <a href="#clear">clear</a>
 <a href="#clone">clone</a>
@@ -235,10 +236,14 @@ will return:
 <a href="#splice">splice</a>
 <a href="#split">split</a>
 <a href="#strcontains">strContains</a>
+<a href="#strcontainsall">strContainsAll</a>
 <a href="#strends">strEnds</a>
+<a href="#strendsall">strEndsAll</a>
 <a href="#string">string</a>
 <a href="#strlower">strLower</a>
+<a href="#strreplace">strReplace</a>
 <a href="#strstarts">strStarts</a>
+<a href="#strstartsall">strStartsAll</a>
 <a href="#strupper">strUpper</a>
 <a href="#suffix">suffix</a>
 <a href="#sum">sum</a>
@@ -251,6 +256,7 @@ will return:
 <a href="#transpose">transpose</a>
 <a href="#traverse">traverse</a>
 <a href="#tree">tree</a>
+<a href="#trim">trim</a>
 <a href="#uasort">uasort</a>
 <a href="#uksort">uksort</a>
 <a href="#union">union</a>
@@ -400,12 +406,16 @@ will return:
 * [implements()](#implements) : Tests if all entries are objects implementing the interface
 * [none()](#none) : Tests if none of the elements are part of the map
 * [some()](#some) : Tests if at least one element is included
-* [strContains()](#strcontains) : Tests if the passed string is part of one of the entries
-* [strEnds()](#strends) : Tests if one of the entries ends with the passed string
-* [strStarts()](#strstarts) : Tests if one of the entries starts with the passed string
+* [strContains()](#strcontains) : Tests if at least one of the passed strings is part of at least one entry
+* [strContainsAll()](#strcontainsall) : Tests if all of the entries contains one of the passed strings
+* [strEnds()](#strends) : Tests if at least one of the entries ends with one of the passed strings
+* [strEndsAll()](#strendsall) : Tests if all of the entries ends with at least one of the passed strings
+* [strStarts()](#strstarts) : Tests if at least one of the entries starts with at least one of the passed strings
+* [strStartsAll()](#strstartsall) : Tests if all of the entries starts with one of the passed strings
 
 ### Transform
 
+* [cast()](#cast) : Casts all entries to the passed type
 * [chunk()](#chunk) : Splits the map into chunks
 * [col()](#col) : Creates a key/value mapping
 * [collapse()](#collapse) : Collapses multi-dimensional elements overwriting elements
@@ -424,12 +434,14 @@ will return:
 * [replace()](#replace) : Replaces elements recursively
 * [splice()](#splice) : Replaces a slice by new elements
 * [strLower()](#strlower) : Converts all alphabetic characters to lower case
+* [strReplace()](#strreplace) : Replaces all occurrences of the search string with the replacement string
 * [strUpper()](#strupper) : Converts all alphabetic characters to upper case
 * [suffix()](#suffix) : Adds a suffix to each map entry
 * [toJson()](#tojson) : Returns the elements in JSON format
 * [toUrl()](#tourl) : Creates a HTTP query string
 * [transpose()](#transpose) : Exchanges rows and columns for a two dimensional map
 * [traverse()](#traverse) : Traverses trees of nested items passing each item to the callback
+* [trim()](#trim) : Removes the passed characters from the left/right of all strings
 * [walk()](#walk) : Applies the given callback to all elements
 * [zip()](#zip) : Merges the values of all arrays at the corresponding index
 
@@ -936,6 +948,42 @@ Map::from( [$item, $item] )->call( 'get', ['myprop'] );
 
 Map::from( [$item, $item] )->call( 'toArray' );
 // [['myprop' => 'val'], ['myprop' => 'val']]
+```
+
+
+### cast()
+
+Casts all entries to the passed type.
+
+```php
+public function cast( string $type = 'string' ) : self
+```
+
+* @param **string** `$type` Type to cast the values to ("string", "bool", "int", "float", "array", "object")
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map with casted elements
+
+Casting arrays and objects to scalar values won't return anything useful!
+
+**Examples:**
+
+```php
+Map::from( [true, 1, 1.0, 'yes'] )->cast();
+// ['1', '1', '1.0', 'yes']
+
+Map::from( [true, 1, 1.0, 'yes'] )->cast( 'bool' );
+// [true, true, true, true]
+
+Map::from( [true, 1, 1.0, 'yes'] )->cast( 'int' );
+// [1, 1, 1, 0]
+
+Map::from( [true, 1, 1.0, 'yes'] )->cast( 'float' );
+// [1.0, 1.0, 1.0, 0.0]
+
+Map::from( [new stdClass, new stdClass] )->cast( 'array' );
+// [[], []]
+
+Map::from( [[], []] )->cast( 'object' );
+// [new stdClass, new stdClass]
 ```
 
 
@@ -2602,6 +2650,8 @@ Map::from( ['foo', 'bar'] )->insertBefore( null, 'baz' );
 ### inString()
 
 Tests if the passed value or value are part of the strings in the map.
+
+This method is deprecated in favor of the multi-byte aware [strContains()](#strcontains) method.
 
 ```php
 public function inString( $value, bool $case = true ) : bool
@@ -4387,15 +4437,15 @@ Map::from( ['a', 'b', 'c'] )->splice( 1, 1, ['x', 'y'] );
 
 ### strContains()
 
-Tests if the passed string is part of at least one of the entries.
+Tests if at least one of the passed strings is part of at least one entry.
 
 ```php
-public function strContains( string $str, string $encoding = 'UTF-8' ) : bool
+public function strContains( $value, string $encoding = 'UTF-8' ) : bool
 ```
 
-* @param **string** `$str` The string to search for in each entry
+* @param **array&#124;string** `$value` The string or list of strings to search for in each entry
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
-* @return **bool** TRUE if the string has been found, FALSE if not
+* @return **bool** TRUE if one of the entries contains one of the strings, FALSE if not
 
 **Examples:**
 
@@ -4406,7 +4456,28 @@ Map::from( ['abc'] )->strContains( '' );
 Map::from( ['abc'] )->strContains( 'a' );
 // true
 
-Map::from( ['abc'] )->strContains( 'b' );
+Map::from( ['abc'] )->strContains( 'bc' );
+// true
+
+Map::from( [12345] )->strContains( '23' );
+// true
+
+Map::from( [123.4] )->strContains( 23.4 );
+// true
+
+Map::from( [12345] )->strContains( false );
+// true ('12345' contains '')
+
+Map::from( [12345] )->strContains( true );
+// true ('12345' contains '1')
+
+Map::from( [false] )->strContains( false );
+// true  ('' contains '')
+
+Map::from( [''] )->strContains( false );
+// true ('' contains '')
+
+Map::from( ['abc'] )->strContains( ['b', 'd'] );
 // true
 
 Map::from( ['abc'] )->strContains( 'c', 'ASCII' );
@@ -4415,20 +4486,94 @@ Map::from( ['abc'] )->strContains( 'c', 'ASCII' );
 Map::from( ['abc'] )->strContains( 'd' );
 // false
 
+Map::from( ['abc'] )->strContains( 'cb' );
+// false
+
+Map::from( [23456] )->strContains( true );
+// false ('23456' doesn't contain '1')
+
+Map::from( [false] )->strContains( 0 );
+// false ('' doesn't contain '0')
+
+Map::from( ['abc'] )->strContains( ['d', 'e'] );
+// false
+
 Map::from( ['abc'] )->strContains( 'cb', 'ASCII' );
+// false
+```
+
+
+### strContainsAll()
+
+Tests if all of the entries contains one of the passed strings.
+
+```php
+public function strContainsAll( $value, string $encoding = 'UTF-8' ) : bool
+```
+
+* @param **array&#124;string** `$value` The string or list of strings to search for in each entry
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+* @return **bool** TRUE if all of the entries contains at least one of the strings, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( ['abc', 'def'] )->strContainsAll( '' );
+// true
+
+Map::from( ['abc', 'cba'] )->strContainsAll( 'a' );
+// true
+
+Map::from( ['abc', 'bca'] )->strContainsAll( 'bc' );
+// true
+
+Map::from( [12345, '230'] )->strContainsAll( '23' );
+// true
+
+Map::from( [123.4, 23.42] )->strContainsAll( 23.4 );
+// true
+
+Map::from( [12345, '234'] )->strContainsAll( [true, false] );
+// true ('12345' contains '1' and '234' contains '')
+
+Map::from( ['', false] )->strContainsAll( false );
+// true ('' contains '')
+
+Map::from( ['abc', 'def'] )->strContainsAll( ['b', 'd'] );
+// true
+
+Map::from( ['abc', 'ecf'] )->strContainsAll( 'c', 'ASCII' );
+// true
+
+Map::from( ['abc', 'def'] )->strContainsAll( 'd' );
+// false
+
+Map::from( ['abc', 'cab'] )->strContainsAll( 'cb' );
+// false
+
+Map::from( [23456, '123'] )->strContains( true );
+// false ('23456' doesn't contain '1')
+
+Map::from( [false, '000'] )->strContains( 0 );
+// false ('' doesn't contain '0')
+
+Map::from( ['abc', 'acf'] )->strContainsAll( ['d', 'e'] );
+// false
+
+Map::from( ['abc', 'bca'] )->strContainsAll( 'cb', 'ASCII' );
 // false
 ```
 
 
 ### strEnds()
 
-Tests if at least one of the entries ends with the passed string.
+Tests if at least one of the entries ends with one of the passed strings.
 
 ```php
-public function strEnds( string $str, string $encoding = 'UTF-8' ) : bool
+public function strEnds( $value, string $encoding = 'UTF-8' ) : bool
 ```
 
-* @param **string** `$str` The string to search for in each entry
+* @param **array&#124;string** `$value` The string or list of strings to search for in each entry
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 * @return **bool** TRUE if one of the entries ends with the string, FALSE if not
 
@@ -4441,19 +4586,69 @@ Map::from( ['abc'] )->strEnds( '' );
 Map::from( ['abc'] )->strEnds( 'c' );
 // true
 
-Map::from( ['abc'] )->strEnds( 'bc', 'ASCII' );
+Map::from( ['abc'] )->strEnds( 'bc' );
+// true
+
+Map::from( ['abc'] )->strEnds( ['b', 'c'] );
+// true
+
+Map::from( ['abc'] )->strEnds( 'c', 'ASCII' );
 // true
 
 Map::from( ['abc'] )->strEnds( 'a' );
 // false
 
-Map::from( ['abc'] )->strEnds( 'b' );
+Map::from( ['abc'] )->strEnds( 'cb' );
 // false
 
-Map::from( ['abc'] )->strEnds( 'd' );
+Map::from( ['abc'] )->strEnds( ['d', 'b'] );
 // false
 
 Map::from( ['abc'] )->strEnds( 'cb', 'ASCII' );
+// false
+```
+
+
+### strEndsAll()
+
+Tests if all of the entries ends with at least one of the passed strings.
+
+```php
+public function strEndsAll( $value, string $encoding = 'UTF-8' ) : bool
+```
+
+* @param **array&#124;string** `$value` The string or list of strings to search for in each entry
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+* @return **bool** TRUE if all of the entries ends with at least one of the strings, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( ['abc', 'def'] )->strEndsAll( '' );
+// true
+
+Map::from( ['abc', 'bac'] )->strEndsAll( 'c' );
+// true
+
+Map::from( ['abc', 'cbc'] )->strEndsAll( 'bc' );
+// true
+
+Map::from( ['abc', 'def'] )->strEndsAll( ['c', 'f'] );
+// true
+
+Map::from( ['abc', 'efc'] )->strEndsAll( 'c', 'ASCII' );
+// true
+
+Map::from( ['abc', 'fed'] )->strEndsAll( 'd' );
+// false
+
+Map::from( ['abc', 'bca'] )->strEndsAll( 'ca' );
+// false
+
+Map::from( ['abc', 'acf'] )->strEndsAll( ['a', 'c'] );
+// false
+
+Map::from( ['abc', 'bca'] )->strEndsAll( 'ca', 'ASCII' );
 // false
 ```
 
@@ -4524,7 +4719,7 @@ Map::from( [] )->string( 'c', new \Exception( 'error' ) );
 Converts all alphabetic characters in strings to lower case.
 
 ```php
-public function strLower( string $encoding = 'UTF-8' ) :self
+public function strLower( string $encoding = 'UTF-8' ) : self
 ```
 
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
@@ -4544,17 +4739,72 @@ Map::from( ['Äpfel', 'Birnen'] )->strLower( 'ISO-8859-1' );
 ```
 
 
-### strStarts()
+### strReplace()
 
-Tests if at least one of the entries starts with the passed string.
+Replaces all occurrences of the search string with the replacement string.
 
 ```php
-public function strStarts( string $str, string $encoding = 'UTF-8' ) : bool
+public function strReplace( $search, $replace, bool $case = false ) : self
 ```
 
-* @param **string** `$str` The string to search for in each entry
+* @param **array&#124;string** `$search` String or list of strings to search for
+* @param **array&#124;string** `$replace` String or list of strings of replacement strings
+* @param **bool** `$case` TRUE if replacements should be case insensitive, FALSE if case-sensitive
+* @return **self<int|string,mixed>** Updated map for fluid interface
+
+If you use an array of strings for search or search/replacement, the order of
+the strings matters! Each search string found is replaced by the corresponding
+replacement string at the same position.
+
+In case of array parameters and if the number of replacement strings is less
+than the number of search strings, the search strings with no corresponding
+replacement string are replaced with empty strings. Replacement strings with
+no corresponding search string are ignored.
+
+An array parameter for the replacements is only allowed if the search parameter
+is an array of strings too!
+
+Because the method replaces from left to right, it might replace a previously
+inserted value when doing multiple replacements. Entries which are non-string
+values are left untouched.
+
+**Examples:**
+
+```php
+Map::from( ['google.com', 'aimeos.com'] )->strReplace( '.com', '.de' );
+// ['google.de', 'aimeos.de']
+
+Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], '.de' );
+// ['google.de', 'aimeos.de']
+
+Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.de'] );
+// ['google.de', 'aimeos']
+
+Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.fr', '.de'] );
+// ['google.fr', 'aimeos.de']
+
+Map::from( ['google.com', 'aimeos.com'] )->strReplace( ['.com', '.co'], ['.co', '.de', '.fr'] );
+// ['google.de', 'aimeos.de']
+
+Map::from( ['google.com', 'aimeos.com', 123] )->strReplace( '.com', '.de' );
+// ['google.de', 'aimeos.de', 123]
+
+Map::from( ['GOOGLE.COM', 'AIMEOS.COM'] )->strReplace( '.com', '.de', true );
+// ['GOOGLE.de', 'AIMEOS.de']
+```
+
+
+### strStarts()
+
+Tests if at least one of the entries starts with at least one of the passed strings.
+
+```php
+public function strStarts( $value, string $encoding = 'UTF-8' ) : bool
+```
+
+* @param **array&#124;string** `$value` The string or list of strings to search for in each entry
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
-* @return **bool** TRUE if one of the entries starts with the string, FALSE if not
+* @return **bool** TRUE if one of the entries starts with one of the strings, FALSE if not
 
 **Examples:**
 
@@ -4565,19 +4815,69 @@ Map::from( ['abc'] )->strStarts( '' );
 Map::from( ['abc'] )->strStarts( 'a' );
 // true
 
+Map::from( ['abc'] )->strStarts( 'ab' );
+// true
+
+Map::from( ['abc'] )->strStarts( ['a', 'b'] );
+// true
+
 Map::from( ['abc'] )->strStarts( 'ab', 'ASCII' );
 // true
 
 Map::from( ['abc'] )->strStarts( 'b' );
 // false
 
-Map::from( ['abc'] )->strStarts( 'c' );
+Map::from( ['abc'] )->strStarts( 'bc' );
 // false
 
-Map::from( ['abc'] )->strStarts( 'd' );
+Map::from( ['abc'] )->strStarts( ['b', 'c'] );
 // false
 
-Map::from( ['abc'] )->strStarts( 'ba', 'ASCII' );
+Map::from( ['abc'] )->strStarts( 'bc', 'ASCII' );
+// false
+```
+
+
+### strStartsAll()
+
+Tests if all of the entries starts with one of the passed strings.
+
+```php
+public function strStartsAll( $value, string $encoding = 'UTF-8' ) : bool
+```
+
+* @param **array&#124;string** `$value` The string or list of strings to search for in each entry
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+* @return **bool** TRUE if one of the entries starts with one of the strings, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( ['abc', 'def'] )->strStartsAll( '' );
+// true
+
+Map::from( ['abc', 'acb'] )->strStartsAll( 'a' );
+// true
+
+Map::from( ['abc', 'aba'] )->strStartsAll( 'ab' );
+// true
+
+Map::from( ['abc', 'def'] )->strStartsAll( ['a', 'd'] );
+// true
+
+Map::from( ['abc', 'acf'] )->strStartsAll( 'a', 'ASCII' );
+// true
+
+Map::from( ['abc', 'def'] )->strStartsAll( 'd' );
+// false
+
+Map::from( ['abc', 'bca'] )->strStartsAll( 'ab' );
+// false
+
+Map::from( ['abc', 'bac'] )->strStartsAll( ['a', 'c'] );
+// false
+
+Map::from( ['abc', 'cab'] )->strStartsAll( 'ab', 'ASCII' );
 // false
 ```
 
@@ -5010,6 +5310,28 @@ If your items are unordered, apply [usort()](#usort) first to the map entries, e
 Map::from( [['id' => 3, 'lvl' => 2], ...] )->usort( function( $item1, $item2 ) {
   return $item1['lvl'] <=> $item2['lvl'];
 } );
+```
+
+
+### trim()
+
+Removes the passed characters from the left/right of all strings.
+
+```php
+public function trim( string $chars = " \n\r\t\v\x00" ) : self
+```
+
+* @param **string** `$chars` List of characters to trim
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( [" abc\n", "\tcde\r\n"] )->trim();
+// ["abc", "cde"]
+
+Map::from( ["a b c", "cbax"] )->trim( 'abc' );
+// [" b ", "x"]
 ```
 
 

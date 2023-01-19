@@ -210,7 +210,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			}
 
 			$limit = $limit ?: 1;
-			$parts = str_split( $string );
+			$parts = mb_str_split( $string );
 
 			if( $limit < 1 ) {
 				return array_slice( $parts, 0, $limit );
@@ -643,6 +643,50 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		}
 
 		return new static( $result );
+	}
+
+
+	/**
+	 * Casts all entries to the passed type.
+	 *
+	 * Examples:
+	 *  Map::from( [true, 1, 1.0, 'yes'] )->cast();
+	 *  Map::from( [true, 1, 1.0, 'yes'] )->cast( 'bool' );
+	 *  Map::from( [true, 1, 1.0, 'yes'] )->cast( 'int' );
+	 *  Map::from( [true, 1, 1.0, 'yes'] )->cast( 'float' );
+	 *  Map::from( [new stdClass, new stdClass] )->cast( 'array' );
+	 *  Map::from( [[], []] )->cast( 'object' );
+	 *
+	 * Results:
+	 * The examples will return (in this order):
+	 * ['1', '1', '1.0', 'yes']
+	 * [true, true, true, true]
+	 * [1, 1, 1, 0]
+	 * [1.0, 1.0, 1.0, 0.0]
+	 * [[], []]
+	 * [new stdClass, new stdClass]
+	 *
+	 * Casting arrays and objects to scalar values won't return anything useful!
+	 *
+	 * @param string $type Type to cast the values to ("string", "bool", "int", "float", "array", "object")
+	 * @return self<int|string,mixed> Updated map with casted elements
+	 */
+	public function cast( string $type = 'string' ) : self
+	{
+		foreach( $this->list() as &$item )
+		{
+			switch( $type )
+			{
+				case 'bool': $item = (bool) $item; break;
+				case 'int': $item = (int) $item; break;
+				case 'float': $item = (float) $item; break;
+				case 'string': $item = (string) $item; break;
+				case 'array': $item = (array) $item; break;
+				case 'object': $item = (object) $item; break;
+			}
+		}
+
+		return $this;
 	}
 
 
@@ -2162,7 +2206,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Tests if the passed value or value are part of the strings in the map.
+	 * Tests if the passed value or values are part of the strings in the map.
 	 *
 	 * Examples:
 	 *  Map::from( ['abc'] )->inString( 'c' );
@@ -2190,6 +2234,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param array|string $value Value or values to compare the map elements, will be casted to string type
 	 * @param bool $case TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
 	 * @return bool TRUE If at least one element matches, FALSE if value is not in any string of the map
+	 * @deprecated Use multi-byte aware strContains() instead
 	 */
 	public function inString( $value, bool $case = true ) : bool
 	{
@@ -3959,29 +4004,48 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Tests if the passed string is part of at least one of the entries.
+	 * Tests if at least one of the passed strings is part of at least one entry.
 	 *
 	 * Examples:
 	 *  Map::from( ['abc'] )->strContains( '' );
 	 *  Map::from( ['abc'] )->strContains( 'a' );
-	 *  Map::from( ['abc'] )->strContains( 'b' );
+	 *  Map::from( ['abc'] )->strContains( 'bc' );
+	 *  Map::from( [12345] )->strContains( '23' );
+	 *  Map::from( [123.4] )->strContains( 23.4 );
+	 *  Map::from( [12345] )->strContains( false );
+	 *  Map::from( [12345] )->strContains( true );
+	 *  Map::from( [false] )->strContains( false );
+	 *  Map::from( [''] )->strContains( false );
+	 *  Map::from( ['abc'] )->strContains( ['b', 'd'] );
 	 *  Map::from( ['abc'] )->strContains( 'c', 'ASCII' );
+	 *
 	 *  Map::from( ['abc'] )->strContains( 'd' );
+	 *  Map::from( ['abc'] )->strContains( 'cb' );
+	 *  Map::from( [23456] )->strContains( true );
+	 *  Map::from( [false] )->strContains( 0 );
+	 *  Map::from( ['abc'] )->strContains( ['d', 'e'] );
 	 *  Map::from( ['abc'] )->strContains( 'cb', 'ASCII' );
 	 *
 	 * Results:
-	 * The first four examples will return TRUE while the last two will return FALSE.
+	 * The first eleven examples will return TRUE while the last six will return FALSE.
 	 *
-	 * @param string $str The string to search for in each entry
+	 * @param array|string $value The string or list of strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
-	 * @return bool TRUE if the string has been found, FALSE if not
+	 * @return bool TRUE if one of the entries contains one of the strings, FALSE if not
 	 */
-	public function strContains( string $str, string $encoding = 'UTF-8' ) : bool
+	public function strContains( $value, string $encoding = 'UTF-8' ) : bool
 	{
 		foreach( $this->list() as $entry )
 		{
-			if( $str === '' || mb_strpos( $entry, $str, 0, $encoding ) !== false ) {
-				return true;
+			$entry = (string) $entry;
+
+			foreach( (array) $value as $str )
+			{
+				$str = (string) $str;
+
+				if( ( $str === '' || mb_strpos( $entry, (string) $str, 0, $encoding ) !== false ) ) {
+					return true;
+				}
 			}
 		}
 
@@ -3990,36 +4054,138 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Tests if at least one of the entries ends with the passed string.
+	 * Tests if all of the entries contains one of the passed strings.
+	 *
+	 * Examples:
+	 *  Map::from( ['abc', 'def'] )->strContainsAll( '' );
+	 *  Map::from( ['abc', 'cba'] )->strContainsAll( 'a' );
+	 *  Map::from( ['abc', 'bca'] )->strContainsAll( 'bc' );
+	 *  Map::from( [12345, '230'] )->strContainsAll( '23' );
+	 *  Map::from( [123.4, 23.42] )->strContainsAll( 23.4 );
+	 *  Map::from( [12345, '234'] )->strContainsAll( [true, false] );
+	 *  Map::from( ['', false] )->strContainsAll( false );
+	 *  Map::from( ['abc', 'def'] )->strContainsAll( ['b', 'd'] );
+	 *  Map::from( ['abc', 'ecf'] )->strContainsAll( 'c', 'ASCII' );
+	 *
+	 *  Map::from( ['abc', 'def'] )->strContainsAll( 'd' );
+	 *  Map::from( ['abc', 'cab'] )->strContainsAll( 'cb' );
+	 *  Map::from( [23456, '123'] )->strContainsAll( true );
+	 *  Map::from( [false, '000'] )->strContainsAll( 0 );
+	 *  Map::from( ['abc', 'acf'] )->strContainsAll( ['d', 'e'] );
+	 *  Map::from( ['abc', 'bca'] )->strContainsAll( 'cb', 'ASCII' );
+	 *
+	 * Results:
+	 * The first nine examples will return TRUE while the last six will return FALSE.
+	 *
+	 * @param array|string $value The string or list of strings to search for in each entry
+	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+	 * @return bool TRUE if all of the entries contains at least one of the strings, FALSE if not
+	 */
+	public function strContainsAll( $value, string $encoding = 'UTF-8' ) : bool
+	{
+		$list = [];
+
+		foreach( $this->list() as $entry )
+		{
+			$entry = (string) $entry;
+			$list[$entry] = 0;
+
+			foreach( (array) $value as $str )
+			{
+				$str = (string) $str;
+
+				if( (int) ( $str === '' || mb_strpos( $entry, (string) $str, 0, $encoding ) !== false ) ) {
+					$list[$entry] = 1; break;
+				}
+			}
+		}
+
+		return array_sum( $list ) === count( $list );
+	}
+
+
+	/**
+	 * Tests if at least one of the entries ends with one of the passed strings.
 	 *
 	 * Examples:
 	 *  Map::from( ['abc'] )->strEnds( '' );
 	 *  Map::from( ['abc'] )->strEnds( 'c' );
-	 *  Map::from( ['abc'] )->strEnds( 'bc', 'ASCII' );
+	 *  Map::from( ['abc'] )->strEnds( 'bc' );
+	 *  Map::from( ['abc'] )->strEnds( ['b', 'c'] );
+	 *  Map::from( ['abc'] )->strEnds( 'c', 'ASCII' );
 	 *  Map::from( ['abc'] )->strEnds( 'a' );
-	 *  Map::from( ['abc'] )->strEnds( 'b' );
-	 *  Map::from( ['abc'] )->strEnds( 'd' );
+	 *  Map::from( ['abc'] )->strEnds( 'cb' );
+	 *  Map::from( ['abc'] )->strEnds( ['d', 'b'] );
 	 *  Map::from( ['abc'] )->strEnds( 'cb', 'ASCII' );
 	 *
 	 * Results:
-	 * The first three examples will return TRUE while the last four will return FALSE.
+	 * The first five examples will return TRUE while the last four will return FALSE.
 	 *
-	 * @param string $str The string to search for in each entry
+	 * @param array|string $value The string or strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
-	 * @return bool TRUE if one of the entries ends with the string, FALSE if not
+	 * @return bool TRUE if one of the entries ends with one of the strings, FALSE if not
 	 */
-	public function strEnds( string $str, string $encoding = 'UTF-8' ) : bool
+	public function strEnds( $value, string $encoding = 'UTF-8' ) : bool
 	{
-		$len = strlen( $str );
-
 		foreach( $this->list() as $entry )
 		{
-			if( $str === '' || mb_strpos( $entry, $str, -$len, $encoding ) !== false ) {
-				return true;
+			$entry = (string) $entry;
+
+			foreach( (array) $value as $str )
+			{
+				$len = mb_strlen( (string) $str );
+
+				if( ( $str === '' || mb_strpos( $entry, (string) $str, -$len, $encoding ) !== false ) ) {
+					return true;
+				}
 			}
 		}
 
 		return false;
+	}
+
+
+	/**
+	 * Tests if all of the entries ends with at least one of the passed strings.
+	 *
+	 * Examples:
+	 *  Map::from( ['abc', 'def'] )->strEndsAll( '' );
+	 *  Map::from( ['abc', 'bac'] )->strEndsAll( 'c' );
+	 *  Map::from( ['abc', 'cbc'] )->strEndsAll( 'bc' );
+	 *  Map::from( ['abc', 'def'] )->strEndsAll( ['c', 'f'] );
+	 *  Map::from( ['abc', 'efc'] )->strEndsAll( 'c', 'ASCII' );
+	 *  Map::from( ['abc', 'fed'] )->strEndsAll( 'd' );
+	 *  Map::from( ['abc', 'bca'] )->strEndsAll( 'ca' );
+	 *  Map::from( ['abc', 'acf'] )->strEndsAll( ['a', 'c'] );
+	 *  Map::from( ['abc', 'bca'] )->strEndsAll( 'ca', 'ASCII' );
+	 *
+	 * Results:
+	 * The first five examples will return TRUE while the last four will return FALSE.
+	 *
+	 * @param array|string $value The string or strings to search for in each entry
+	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+	 * @return bool TRUE if all of the entries ends with at least one of the strings, FALSE if not
+	 */
+	public function strEndsAll( $value, string $encoding = 'UTF-8' ) : bool
+	{
+		$list = [];
+
+		foreach( $this->list() as $entry )
+		{
+			$entry = (string) $entry;
+			$list[$entry] = 0;
+
+			foreach( (array) $value as $str )
+			{
+				$len = mb_strlen( (string) $str );
+
+				if( (int) ( $str === '' || mb_strpos( $entry, (string) $str, -$len, $encoding ) !== false ) ) {
+					$list[$entry] = 1; break;
+				}
+			}
+		}
+
+		return array_sum( $list ) === count( $list );
 	}
 
 
@@ -4079,7 +4245,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
-	public function strLower( string $encoding = 'UTF-8' ) :self
+	public function strLower( string $encoding = 'UTF-8' ) : self
 	{
 		foreach( $this->list() as &$entry )
 		{
@@ -4093,34 +4259,140 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Tests if at least one of the entries starts with the passed string.
+	 * Replaces all occurrences of the search string with the replacement string.
+	 *
+	 * Examples:
+	 * Map::from( ['google.com', 'aimeos.com'] )->strReplace( '.com', '.de' );
+	 * Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], '.de' );
+	 * Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.de'] );
+	 * Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.fr', '.de'] );
+	 * Map::from( ['google.com', 'aimeos.com'] )->strReplace( ['.com', '.co'], ['.co', '.de', '.fr'] );
+	 * Map::from( ['google.com', 'aimeos.com', 123] )->strReplace( '.com', '.de' );
+	 * Map::from( ['GOOGLE.COM', 'AIMEOS.COM'] )->strReplace( '.com', '.de', true );
+	 *
+	 * Restults:
+	 * ['google.de', 'aimeos.de']
+	 * ['google.de', 'aimeos.de']
+	 * ['google.de', 'aimeos']
+	 * ['google.fr', 'aimeos.de']
+	 * ['google.de', 'aimeos.de']
+	 * ['google.de', 'aimeos.de', 123]
+	 * ['GOOGLE.de', 'AIMEOS.de']
+	 *
+	 * If you use an array of strings for search or search/replacement, the order of
+	 * the strings matters! Each search string found is replaced by the corresponding
+	 * replacement string at the same position.
+	 *
+	 * In case of array parameters and if the number of replacement strings is less
+	 * than the number of search strings, the search strings with no corresponding
+	 * replacement string are replaced with empty strings. Replacement strings with
+	 * no corresponding search string are ignored.
+	 *
+	 * An array parameter for the replacements is only allowed if the search parameter
+	 * is an array of strings too!
+	 *
+	 * Because the method replaces from left to right, it might replace a previously
+	 * inserted value when doing multiple replacements. Entries which are non-string
+	 * values are left untouched.
+	 *
+	 * @param array|string $search String or list of strings to search for
+	 * @param array|string $replace String or list of strings of replacement strings
+	 * @param bool $case TRUE if replacements should be case insensitive, FALSE if case-sensitive
+	 * @return self<int|string,mixed> Updated map for fluid interface
+	 */
+	public function strReplace( $search, $replace, bool $case = false ) : self
+	{
+		$fcn = $case ? 'str_ireplace' : 'str_replace';
+
+		foreach( $this->list() as &$entry )
+		{
+			if( is_string( $entry ) ) {
+				$entry = $fcn( $search, $replace, $entry );
+			}
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Tests if at least one of the entries starts with at least one of the passed strings.
 	 *
 	 * Examples:
 	 *  Map::from( ['abc'] )->strStarts( '' );
 	 *  Map::from( ['abc'] )->strStarts( 'a' );
+	 *  Map::from( ['abc'] )->strStarts( 'ab' );
+	 *  Map::from( ['abc'] )->strStarts( ['a', 'b'] );
 	 *  Map::from( ['abc'] )->strStarts( 'ab', 'ASCII' );
 	 *  Map::from( ['abc'] )->strStarts( 'b' );
-	 *  Map::from( ['abc'] )->strStarts( 'c' );
-	 *  Map::from( ['abc'] )->strStarts( 'd' );
-	 *  Map::from( ['abc'] )->strStarts( 'ba', 'ASCII' );
+	 *  Map::from( ['abc'] )->strStarts( 'bc' );
+	 *  Map::from( ['abc'] )->strStarts( ['b', 'c'] );
+	 *  Map::from( ['abc'] )->strStarts( 'bc', 'ASCII' );
 	 *
 	 * Results:
-	 * The first three examples will return TRUE while the last four will return FALSE.
+	 * The first five examples will return TRUE while the last four will return FALSE.
 	 *
-	 * @param string $str The string to search for in each entry
+	 * @param array|string $value The string or strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
-	 * @return bool TRUE if one of the entries starts with the string, FALSE if not
+	 * @return bool TRUE if all of the entries ends with at least one of the strings, FALSE if not
 	 */
-	public function strStarts( string $str, string $encoding = 'UTF-8' ) : bool
+	public function strStarts( $value, string $encoding = 'UTF-8' ) : bool
 	{
 		foreach( $this->list() as $entry )
 		{
-			if( $str === '' || mb_strpos( $entry, $str, 0, $encoding ) === 0 ) {
-				return true;
+			$entry = (string) $entry;
+
+			foreach( (array) $value as $str )
+			{
+				if( ( $str === '' || mb_strpos( $entry, (string) $str, 0, $encoding ) === 0 ) ) {
+					return true;
+				}
 			}
 		}
 
 		return false;
+	}
+
+
+	/**
+	 * Tests if all of the entries starts with one of the passed strings.
+	 *
+	 * Examples:
+	 *  Map::from( ['abc', 'def'] )->strStartsAll( '' );
+	 *  Map::from( ['abc', 'acb'] )->strStartsAll( 'a' );
+	 *  Map::from( ['abc', 'aba'] )->strStartsAll( 'ab' );
+	 *  Map::from( ['abc', 'def'] )->strStartsAll( ['a', 'd'] );
+	 *  Map::from( ['abc', 'acf'] )->strStartsAll( 'a', 'ASCII' );
+	 *  Map::from( ['abc', 'def'] )->strStartsAll( 'd' );
+	 *  Map::from( ['abc', 'bca'] )->strStartsAll( 'ab' );
+	 *  Map::from( ['abc', 'bac'] )->strStartsAll( ['a', 'c'] );
+	 *  Map::from( ['abc', 'cab'] )->strStartsAll( 'ab', 'ASCII' );
+	 *
+	 * Results:
+	 * The first five examples will return TRUE while the last four will return FALSE.
+	 *
+	 * @param array|string $value The string or strings to search for in each entry
+	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+	 * @return bool TRUE if one of the entries starts with one of the strings, FALSE if not
+	 */
+	public function strStartsAll( $value, string $encoding = 'UTF-8' ) : bool
+	{
+		$list = [];
+
+		foreach( $this->list() as $entry )
+		{
+			$entry = (string) $entry;
+			$list[$entry] = 0;
+
+			foreach( (array) $value as $str )
+			{
+				if( (int) ( $str === '' || mb_strpos( $entry, (string) $str, 0, $encoding ) === 0 ) ) {
+					$list[$entry] = 1; break;
+				}
+			}
+		}
+
+		return array_sum( $list ) === count( $list );
 	}
 
 
@@ -4544,6 +4816,32 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		}
 
 		return map( $trees );
+	}
+
+
+	/**
+	 * Removes the passed characters from the left/right of all strings.
+	 *
+	 * Examples:
+	 *  Map::from( [" abc\n", "\tcde\r\n"] )->trim();
+	 *  Map::from( ["a b c", "cbax"] )->trim( 'abc' );
+	 *
+	 * Results:
+	 * The first example will return ["abc", "cde"] while the second one will return [" b ", "x"].
+	 *
+	 * @param string $chars List of characters to trim
+	 * @return self<int|string,mixed> Updated map for fluid interface
+	 */
+	public function trim( string $chars = " \n\r\t\v\x00" ) : self
+	{
+		foreach( $this->list() as &$entry )
+		{
+			if( is_string( $entry ) ) {
+				$entry = trim( $entry, $chars );
+			}
+		}
+
+		return $this;
 	}
 
 

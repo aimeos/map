@@ -218,6 +218,17 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testCast()
+	{
+		$this->assertEquals( ['1', '1', '1', 'yes'], Map::from( [true, 1, 1.0, 'yes'] )->cast()->all() );
+		$this->assertEquals( [true, true, true, true], Map::from( [true, 1, 1.0, 'yes'] )->cast( 'bool' )->all() );
+		$this->assertEquals( [1, 1, 1, 0], Map::from( [true, 1, 1.0, 'yes'] )->cast( 'int' )->all() );
+		$this->assertEquals( [1.0, 1.0, 1.0, 0.0], Map::from( [true, 1, 1.0, 'yes'] )->cast( 'float' )->all() );
+		$this->assertEquals( [[], []], Map::from( [new \stdClass, new \stdClass] )->cast( 'array' )->all() );
+		$this->assertEquals( [new \stdClass, new \stdClass], Map::from( [[], []] )->cast( 'object' )->all() );
+	}
+
+
 	public function testChunk()
 	{
 		$m = new Map( [0, 1, 2, 3, 4] );
@@ -1863,10 +1874,10 @@ Array
 
 	public function testKrsortStrings()
 	{
-		$m = ( new Map( [1 => 'bar-1', 'a' => 'foo', 'c' => 'bar-10'] ) )->krsort();
+		$m = ( new Map( ['b' => 'bar-1', 'a' => 'foo', 'c' => 'bar-10'] ) )->krsort();
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertSame( [1 => 'bar-1', 'c' => 'bar-10', 'a' => 'foo'], $m->toArray() );
+		$this->assertSame( ['c' => 'bar-10', 'b' => 'bar-1', 'a' => 'foo'], $m->toArray() );
 	}
 
 
@@ -1881,10 +1892,10 @@ Array
 
 	public function testKsortStrings()
 	{
-		$m = ( new Map( ['a' => 'foo', 'c' => 'bar-10', 1 => 'bar-1'] ) )->ksort();
+		$m = ( new Map( ['a' => 'foo', 'c' => 'bar-10', 'b' => 'bar-1'] ) )->ksort();
 
 		$this->assertInstanceOf( Map::class, $m );
-		$this->assertSame( ['a' => 'foo', 'c' => 'bar-10', 1 => 'bar-1'], $m->toArray() );
+		$this->assertSame( ['a' => 'foo', 'b' => 'bar-1', 'c' => 'bar-10'], $m->toArray() );
 	}
 
 
@@ -2838,9 +2849,42 @@ Array
 		$this->assertTrue( Map::from( ['abc'] )->strContains( '' ) );
 		$this->assertTrue( Map::from( ['abc'] )->strContains( 'a' ) );
 		$this->assertTrue( Map::from( ['abc'] )->strContains( 'b' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strContains( ['b', 'd'] ) );
+		$this->assertTrue( Map::from( [12345] )->strContains( '23' ) );
+		$this->assertTrue( Map::from( [123.4] )->strContains( 23.4 ) );
+		$this->assertTrue( Map::from( [12345] )->strContains( false ) );
+		$this->assertTrue( Map::from( [12345] )->strContains( true ) );
+		$this->assertTrue( Map::from( [false] )->strContains( false ) );
+		$this->assertTrue( Map::from( [''] )->strContains( false ) );
 		$this->assertTrue( Map::from( ['abc'] )->strContains( 'c', 'ASCII' ) );
+
 		$this->assertFalse( Map::from( ['abc'] )->strContains( 'd' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strContains( 'cb' ) );
+		$this->assertFalse( Map::from( [23456] )->strContains( true ) );
+		$this->assertFalse( Map::from( [false] )->strContains( 0 ) );
+		$this->assertFalse( Map::from( ['abc'] )->strContains( ['d', 'e'] ) );
 		$this->assertFalse( Map::from( ['abc'] )->strContains( 'cb', 'ASCII' ) );
+	}
+
+
+	public function testStrContainsAll()
+	{
+		$this->assertTrue( Map::from( ['abc', 'def'] )->strContainsAll( '' ) );
+		$this->assertTrue( Map::from( ['abc', 'cba'] )->strContainsAll( 'a' ) );
+		$this->assertTrue( Map::from( ['abc', 'bca'] )->strContainsAll( 'bc' ) );
+		$this->assertTrue( Map::from( [12345, '230'] )->strContainsAll( '23' ) );
+		$this->assertTrue( Map::from( [123.4, 23.42] )->strContainsAll( 23.4 ) );
+		$this->assertTrue( Map::from( [12345, '234'] )->strContainsAll( [true, false] ) );
+		$this->assertTrue( Map::from( ['', false] )->strContainsAll( false ) );
+		$this->assertTrue( Map::from( ['abc', 'def'] )->strContainsAll( ['b', 'd'] ) );
+		$this->assertTrue( Map::from( ['abc', 'ecf'] )->strContainsAll( 'c', 'ASCII' ) );
+
+		$this->assertFalse( Map::from( ['abc', 'def'] )->strContainsAll( 'd' ) );
+		$this->assertFalse( Map::from( ['abc', 'cab'] )->strContainsAll( 'cb' ) );
+		$this->assertFalse( Map::from( [23456, '123'] )->strContainsAll( true ) );
+		$this->assertFalse( Map::from( [false, '000'] )->strContainsAll( 0 ) );
+		$this->assertFalse( Map::from( ['abc', 'acf'] )->strContainsAll( ['d', 'e'] ) );
+		$this->assertFalse( Map::from( ['abc', 'bca'] )->strContainsAll( 'cb', 'ASCII' ) );
 	}
 
 
@@ -2848,11 +2892,27 @@ Array
 	{
 		$this->assertTrue( Map::from( ['abc'] )->strEnds( '' ) );
 		$this->assertTrue( Map::from( ['abc'] )->strEnds( 'c' ) );
-		$this->assertTrue( Map::from( ['abc'] )->strEnds( 'bc', 'ASCII' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strEnds( 'bc' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strEnds( ['b', 'c'] ) );
+		$this->assertTrue( Map::from( ['abc'] )->strEnds( 'c', 'ASCII' ) );
 		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'a' ) );
-		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'b' ) );
-		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'd' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'cb' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strEnds( ['d', 'b'] ) );
 		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'cb', 'ASCII' ) );
+	}
+
+
+	public function testStrEndsAll()
+	{
+		$this->assertTrue( Map::from( ['abc', 'def'] )->strEndsAll( '' ) );
+		$this->assertTrue( Map::from( ['abc', 'bac'] )->strEndsAll( 'c' ) );
+		$this->assertTrue( Map::from( ['abc', 'cbc'] )->strEndsAll( 'bc' ) );
+		$this->assertTrue( Map::from( ['abc', 'def'] )->strEndsAll( ['c', 'f'] ) );
+		$this->assertTrue( Map::from( ['abc', 'efc'] )->strEndsAll( 'c', 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc', 'fed'] )->strEndsAll( 'd' ) );
+		$this->assertFalse( Map::from( ['abc', 'bca'] )->strEndsAll( 'ca' ) );
+		$this->assertFalse( Map::from( ['abc', 'acf'] )->strEndsAll( ['a', 'c'] ) );
+		$this->assertFalse( Map::from( ['abc', 'bca'] )->strEndsAll( 'ca', 'ASCII' ) );
 	}
 
 
@@ -2914,15 +2974,43 @@ Array
 	}
 
 
+	public function testStringReplace()
+	{
+		$this->assertEquals( ['google.de', 'aimeos.de'], Map::from( ['google.com', 'aimeos.com'] )->strReplace( '.com', '.de' )->all() );
+		$this->assertEquals( ['google.de', 'aimeos.de'], Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], '.de' )->all() );
+		$this->assertEquals( ['google.de', 'aimeos'], Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.de'] )->all() );
+		$this->assertEquals( ['google.fr', 'aimeos.de'], Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.fr', '.de'] )->all() );
+		$this->assertEquals( ['google.de', 'aimeos.de'], Map::from( ['google.com', 'aimeos.com'] )->strReplace( ['.com', '.co'], ['.co', '.de', '.fr'] )->all() );
+		$this->assertEquals( ['google.de', 'aimeos.de', 123], Map::from( ['google.com', 'aimeos.com', 123] )->strReplace( '.com', '.de' )->all() );
+		$this->assertEquals( ['GOOGLE.de', 'AIMEOS.de'], Map::from( ['GOOGLE.COM', 'AIMEOS.COM'] )->strReplace( '.com', '.de', true )->all() );
+   }
+
+
 	public function testStrStarts()
 	{
 		$this->assertTrue( Map::from( ['abc'] )->strStarts( '' ) );
 		$this->assertTrue( Map::from( ['abc'] )->strStarts( 'a' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strStarts( 'ab' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strStarts( ['a', 'b'] ) );
 		$this->assertTrue( Map::from( ['abc'] )->strStarts( 'ab', 'ASCII' ) );
 		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'b' ) );
-		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'c' ) );
-		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'd' ) );
-		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'ba', 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'bc' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strStarts( ['b', 'c'] ) );
+		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'bc', 'ASCII' ) );
+	}
+
+
+	public function testStrStartsAll()
+	{
+		$this->assertTrue( Map::from( ['abc', 'def'] )->strStartsAll( '' ) );
+		$this->assertTrue( Map::from( ['abc', 'acb'] )->strStartsAll( 'a' ) );
+		$this->assertTrue( Map::from( ['abc', 'aba'] )->strStartsAll( 'ab' ) );
+		$this->assertTrue( Map::from( ['abc', 'def'] )->strStartsAll( ['a', 'd'] ) );
+		$this->assertTrue( Map::from( ['abc', 'acf'] )->strStartsAll( 'a', 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc', 'def'] )->strStartsAll( 'd' ) );
+		$this->assertFalse( Map::from( ['abc', 'bca'] )->strStartsAll( 'ab' ) );
+		$this->assertFalse( Map::from( ['abc', 'bac'] )->strStartsAll( ['a', 'c'] ) );
+		$this->assertFalse( Map::from( ['abc', 'cab'] )->strStartsAll( 'ab', 'ASCII' ) );
 	}
 
 
@@ -3020,6 +3108,44 @@ Array
 		$this->assertEquals( [0 => new \stdClass(), 1 => new \stdClass()], Map::times( 2, function( $num ) {
 			return new \stdClass();
 		} )->toArray() );
+	}
+
+
+	public function testTranspose()
+	{
+		$m = Map::from( [
+			['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
+			['name' => 'B', 2020 => 300, 2021 => 200, 2022 => 100],
+			['name' => 'C', 2020 => 400, 2021 => 300, 2022 => 200],
+		] );
+
+		$expected = [
+			'name' => ['A', 'B', 'C'],
+			2020 => [200, 300, 400],
+			2021 => [100, 200, 300],
+			2022 => [50, 100, 200]
+		];
+
+		$this->assertSame( $expected, $m->transpose()->toArray() );
+	}
+
+
+	public function testTransposeLength()
+	{
+		$m = Map::from( [
+			['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
+			['name' => 'B', 2020 => 300, 2021 => 200],
+			['name' => 'C', 2020 => 400]
+		] );
+
+		$expected = [
+			'name' => ['A', 'B', 'C'],
+			2020 => [200, 300, 400],
+			2021 => [100, 200],
+			2022 => [50]
+		];
+
+		$this->assertSame( $expected, $m->transpose()->toArray() );
 	}
 
 
@@ -3126,6 +3252,13 @@ Array
 	}
 
 
+	public function testTrim()
+	{
+		$this->assertEquals( ["abc", "cde"], Map::from( [" abc\n", "\tcde\r\n"] )->trim()->toArray() );
+		$this->assertEquals( [" b ", "x"], Map::from( ["a b c", "cbax"] )->trim( 'abc' )->toArray() );
+	}
+
+
 	public function testToArray()
 	{
 		$m = new Map( ['name' => 'Hello'] );
@@ -3157,44 +3290,6 @@ Array
 	{
 		$url = Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
 		$this->assertSame( 'a%5Bb%5D=abc&a%5Bc%5D=def&d=123', $url );
-	}
-
-
-	public function testTranspose()
-	{
-		$m = Map::from( [
-			['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
-			['name' => 'B', 2020 => 300, 2021 => 200, 2022 => 100],
-			['name' => 'C', 2020 => 400, 2021 => 300, 2022 => 200],
-		] );
-
-		$expected = [
-			'name' => ['A', 'B', 'C'],
-			2020 => [200, 300, 400],
-			2021 => [100, 200, 300],
-			2022 => [50, 100, 200]
-		];
-
-		$this->assertSame( $expected, $m->transpose()->toArray() );
-	}
-
-
-	public function testTransposeLength()
-	{
-		$m = Map::from( [
-			['name' => 'A', 2020 => 200, 2021 => 100, 2022 => 50],
-			['name' => 'B', 2020 => 300, 2021 => 200],
-			['name' => 'C', 2020 => 400]
-		] );
-
-		$expected = [
-			'name' => ['A', 'B', 'C'],
-			2020 => [200, 300, 400],
-			2021 => [100, 200],
-			2022 => [50]
-		];
-
-		$this->assertSame( $expected, $m->transpose()->toArray() );
 	}
 
 
