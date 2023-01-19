@@ -4723,7 +4723,7 @@ public function strLower( string $encoding = 'UTF-8' ) : self
 ```
 
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
-* @return **self<int|string,mixed>** Updated map for fluid interface
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 **Examples:**
 
@@ -4750,7 +4750,7 @@ public function strReplace( $search, $replace, bool $case = false ) : self
 * @param **array&#124;string** `$search` String or list of strings to search for
 * @param **array&#124;string** `$replace` String or list of strings of replacement strings
 * @param **bool** `$case` TRUE if replacements should be case insensitive, FALSE if case-sensitive
-* @return **self<int|string,mixed>** Updated map for fluid interface
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 If you use an array of strings for search or search/replacement, the order of
 the strings matters! Each search string found is replaced by the corresponding
@@ -4891,7 +4891,7 @@ public function strUpper( string $encoding = 'UTF-8' ) :self
 ```
 
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
-* @return **self<int|string,mixed>** Updated map for fluid interface
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 **Examples:**
 
