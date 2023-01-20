@@ -1944,6 +1944,13 @@ Array
 	}
 
 
+	public function testLtrim()
+	{
+		$this->assertEquals( ["abc\n", "cde\r\n"], Map::from( [" abc\n", "\tcde\r\n"] )->ltrim()->toArray() );
+		$this->assertEquals( [" b c", "xa"], Map::from( ["a b c", "cbxa"] )->ltrim( 'abc' )->toArray() );
+	}
+
+
 	public function testMap()
 	{
 		$m = new Map( ['first' => 'test', 'last' => 'user'] );

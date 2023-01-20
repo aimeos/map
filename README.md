@@ -192,6 +192,7 @@ will return:
 <a href="#ksort">ksort</a>
 <a href="#last">last</a>
 <a href="#lastkey">lastKey</a>
+<a href="#ltrim">ltrim</a>
 <a href="#map">map</a>
 <a href="#max">max</a>
 <a href="#merge">merge</a>
@@ -424,6 +425,7 @@ will return:
 * [flip()](#flip) : Exchanges keys with their values
 * [groupBy()](#groupby) : Groups associative array elements or objects
 * [join()](#join) : Returns concatenated elements as string with separator
+* [ltrim()](#ltrim) : Removes the passed characters from the left of all strings
 * [map()](#map) : Applies a callback to each element and returns the results
 * [partition()](#partition) : Breaks the list into the given number of groups
 * [pipe()](#pipe) : Applies a callback to the whole map
@@ -3263,6 +3265,28 @@ Map::from( ['a' => 1, 'b' => 2] )->lastKey();
 
 Map::from( [] )->lastKey();
 // null
+```
+
+
+### ltrim()
+
+Removes the passed characters from the left of all strings.
+
+```php
+public function ltrim( string $chars = " \n\r\t\v\x00" ) : self
+```
+
+* @param **string** `$chars` List of characters to trim
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( [" abc\n", "\tcde\r\n"] )->ltrim();
+// ["abc\n", "cde\r\n"]
+
+Map::from( ["a b c", "cbxa"] )->ltrim( 'abc' );
+// [" b c", "xa"]
 ```
 
 

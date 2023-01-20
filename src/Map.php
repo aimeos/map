@@ -2771,6 +2771,32 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Removes the passed characters from the left of all strings.
+	 *
+	 * Examples:
+	 *  Map::from( [" abc\n", "\tcde\r\n"] )->ltrim();
+	 *  Map::from( ["a b c", "cbxa"] )->ltrim( 'abc' );
+	 *
+	 * Results:
+	 * The first example will return ["abc\n", "cde\r\n"] while the second one will return [" b c", "xa"].
+	 *
+	 * @param string $chars List of characters to trim
+	 * @return self<int|string,mixed> Updated map for fluid interface
+	 */
+	public function ltrim( string $chars = " \n\r\t\v\x00" ) : self
+	{
+		foreach( $this->list() as &$entry )
+		{
+			if( is_string( $entry ) ) {
+				$entry = ltrim( $entry, $chars );
+			}
+		}
+
+		return $this;
+	}
+
+
+	/**
 	 * Calls the passed function once for each element and returns a new map for the result.
 	 *
 	 * Examples:
