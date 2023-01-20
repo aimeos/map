@@ -225,6 +225,7 @@ will return:
 <a href="#replace">replace</a>
 <a href="#reverse">reverse</a>
 <a href="#rsort">rsort</a>
+<a href="#rtrim">rtrim</a>
 <a href="#search">search</a>
 <a href="#sep">sep</a>
 <a href="#set">set</a>
@@ -434,6 +435,7 @@ will return:
 * [reduce()](#reduce) : Computes a single value from the map content
 * [rekey()](#rekey) : Changes the keys according to the passed function
 * [replace()](#replace) : Replaces elements recursively
+* [rtrim()](#rtrim) : Removes the passed characters from the right of all strings
 * [splice()](#splice) : Replaces a slice by new elements
 * [strLower()](#strlower) : Converts all alphabetic characters to lower case
 * [strReplace()](#strreplace) : Replaces all occurrences of the search string with the replacement string
@@ -4161,6 +4163,28 @@ Map::from( [0 => 'C', 1 => 'b'] )->rsort();
 
 Map::from( [0 => 'C', 1 => 'b'] )->rsort( SORT_STRING|SORT_FLAG_CASE );
 // [0 => 'C', 1 => 'b'] because 'C' -> 'c' and 'c' > 'b'
+```
+
+
+### rtrim()
+
+Removes the passed characters from the right of all strings.
+
+```php
+public function rtrim( string $chars = " \n\r\t\v\x00" ) : self
+```
+
+* @param **string** `$chars` List of characters to trim
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( [" abc\n", "\tcde\r\n"] )->rtrim();
+// [" abc", "\tcde"]
+
+Map::from( ["a b c", "cbxa"] )->rtrim( 'abc' );
+// ["a b ", "cbx"]
 ```
 
 

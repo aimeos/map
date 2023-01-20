@@ -3688,6 +3688,32 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Removes the passed characters from the right of all strings.
+	 *
+	 * Examples:
+	 *  Map::from( [" abc\n", "\tcde\r\n"] )->rtrim();
+	 *  Map::from( ["a b c", "cbxa"] )->rtrim( 'abc' );
+	 *
+	 * Results:
+	 * The first example will return [" abc", "\tcde"] while the second one will return ["a b ", "cbx"].
+	 *
+	 * @param string $chars List of characters to trim
+	 * @return self<int|string,mixed> Updated map for fluid interface
+	 */
+	public function rtrim( string $chars = " \n\r\t\v\x00" ) : self
+	{
+		foreach( $this->list() as &$entry )
+		{
+			if( is_string( $entry ) ) {
+				$entry = rtrim( $entry, $chars );
+			}
+		}
+
+		return $this;
+	}
+
+
+	/**
 	 * Searches the map for a given value and return the corresponding key if successful.
 	 *
 	 * Examples:

@@ -2578,6 +2578,13 @@ Array
 	}
 
 
+	public function testRtrim()
+	{
+		$this->assertEquals( [" abc", "\tcde"], Map::from( [" abc\n", "\tcde\r\n"] )->rtrim()->toArray() );
+		$this->assertEquals( ["a b ", "cbx"], Map::from( ["a b c", "cbxa"] )->rtrim( 'abc' )->toArray() );
+	}
+
+
 	public function testSearch()
 	{
 		$m = new Map( [false, 0, 1, [], ''] );
