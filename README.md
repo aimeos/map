@@ -4518,6 +4518,39 @@ Map::from( [''] )->strAfter( '' );
 ```
 
 
+### strBefore()
+
+Returns the strings before the passed value.
+
+```php
+public function strBefore( string $value, bool $case = false, string $encoding = 'UTF-8' ) : self
+```
+
+* @param **string** `$value` Character or string to search for
+* @param **bool** `$case` TRUE if search should be case insensitive, FALSE if case-sensitive
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+* @return **self&#60;int&#124;string,mixed&#62;** New map
+
+**Examples:**
+
+```php
+Map::from( ['äöüß'] )->strBefore( 'ü' );
+// ['äö']
+
+Map::from( ['abc'] )->strBefore( '' );
+// ['abc']
+
+Map::from( ['abc'] )->strBefore( 'b' );
+// ['a']
+
+Map::from( ['abc'] )->strBefore( 'a' );
+// ['']
+
+Map::from( [''] )->strBefore( '' );
+// []
+```
+
+
 ### strContains()
 
 Tests if at least one of the passed strings is part of at least one entry.

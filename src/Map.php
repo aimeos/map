@@ -4095,6 +4095,44 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Returns the strings before the passed value.
+	 *
+	 * Examples:
+	 *  Map::from( ['äöüß'] )->strBefore( 'ü' );
+	 *  Map::from( ['abc'] )->strBefore( '' );
+	 *  Map::from( ['abc'] )->strBefore( 'b' );
+	 *  Map::from( ['abc'] )->strBefore( 'a' );
+	 *  Map::from( [''] )->strBefore( '' );
+	 *
+	 * Results:
+	 *  ['äö']
+	 *  ['abc']
+	 *  ['a']
+	 *  ['']
+	 *  []
+	 *
+	 * @param string $value Character or string to search for
+	 * @param bool $case TRUE if search should be case insensitive, FALSE if case-sensitive
+	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+	 * @return self<int|string,mixed> New map
+	 */
+	public function strBefore( string $value, bool $case = false, string $encoding = 'UTF-8' ) : self
+	{
+		$list = [];
+		$fcn = $case ? 'mb_strripos' : 'mb_strrpos';
+
+		foreach( $this->list() as $key => $entry )
+		{
+			if( is_string( $entry ) && $entry !== '' && ( $pos = $fcn( $entry, $value, 0, $encoding ) ) !== false ) {
+				$list[$key] = mb_substr( $entry, 0, $pos, $encoding );
+			}
+		}
+
+		return new static( $list );
+	}
+
+
+	/**
 	 * Tests if at least one of the passed strings is part of at least one entry.
 	 *
 	 * Examples:
