@@ -4094,8 +4094,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		foreach( $this->list() as $key => $entry )
 		{
-			if( is_scalar( $entry ) && $entry != '' && ( $pos = $fcn( (string) $entry, $value, 0, $encoding ) ) !== false ) {
-				$list[$key] = mb_substr( $entry, $pos + $len, null, $encoding );
+			if( is_scalar( $entry ) && $entry != '' )
+			{
+				$str = (string) $entry;
+
+				if( $value && ( $pos = $fcn( $str, $value, 0, $encoding ) ) !== false ) {
+					$list[$key] = mb_substr( $str, $pos + $len, null, $encoding );
+				} elseif( empty( $value ) ) {
+					$list[$key] = $str;
+				}
 			}
 		}
 
@@ -4141,8 +4148,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		foreach( $this->list() as $key => $entry )
 		{
-			if( is_scalar( $entry ) && $entry != '' && ( $pos = $fcn( (string) $entry, $value, 0, $encoding ) ) !== false ) {
-				$list[$key] = mb_substr( $entry, 0, $pos, $encoding );
+			if( is_scalar( $entry ) && $entry != '' )
+			{
+				$str = (string) $entry;
+
+				if( $value && ( $pos = $fcn( $str, $value, 0, $encoding ) ) !== false ) {
+					$list[$key] = mb_substr( $str, 0, $pos, $encoding );
+				} elseif( empty( $value ) ) {
+					$list[$key] = $str;
+				}
 			}
 		}
 
