@@ -4063,7 +4063,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['abc'] )->strAfter( '' );
 	 *  Map::from( ['abc'] )->strAfter( 'b' );
 	 *  Map::from( ['abc'] )->strAfter( 'c' );
+	 *  Map::from( ['abc'] )->strAfter( 'x' );
 	 *  Map::from( [''] )->strAfter( '' );
+	 *  Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strAfter( '' );
+	 *  Map::from( [0, 0.0, false, []] )->strAfter( '' );
 	 *
 	 * Results:
 	 *  ['üß']
@@ -4071,6 +4074,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  ['c']
 	 *  ['']
 	 *  []
+	 *  []
+	 *  ['1', '1', '1']
+	 *  ['0', '0']
+	 *
+	 * All scalar values (bool, int, float, string) will be converted to strings.
+	 * Non-scalar values as well as empty strings will be skipped and are not part of the result.
 	 *
 	 * @param string $value Character or string to search for
 	 * @param bool $case TRUE if search should be case insensitive, FALSE if case-sensitive
@@ -4085,7 +4094,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		foreach( $this->list() as $key => $entry )
 		{
-			if( is_string( $entry ) && $entry !== '' && ( $pos = $fcn( $entry, $value, 0, $encoding ) ) !== false ) {
+			if( is_scalar( $entry ) && $entry != '' && ( $pos = $fcn( (string) $entry, $value, 0, $encoding ) ) !== false ) {
 				$list[$key] = mb_substr( $entry, $pos + $len, null, $encoding );
 			}
 		}
@@ -4102,7 +4111,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['abc'] )->strBefore( '' );
 	 *  Map::from( ['abc'] )->strBefore( 'b' );
 	 *  Map::from( ['abc'] )->strBefore( 'a' );
+	 *  Map::from( ['abc'] )->strBefore( 'x' );
 	 *  Map::from( [''] )->strBefore( '' );
+	 *  Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strAfter( '' );
+	 *  Map::from( [0, 0.0, false, []] )->strAfter( '' );
 	 *
 	 * Results:
 	 *  ['äö']
@@ -4110,6 +4122,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  ['a']
 	 *  ['']
 	 *  []
+	 *  []
+	 *  ['1', '1', '1']
+	 *  ['0', '0']
+	 *
+	 * All scalar values (bool, int, float, string) will be converted to strings.
+	 * Non-scalar values as well as empty strings will be skipped and are not part of the result.
 	 *
 	 * @param string $value Character or string to search for
 	 * @param bool $case TRUE if search should be case insensitive, FALSE if case-sensitive
@@ -4123,7 +4141,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		foreach( $this->list() as $key => $entry )
 		{
-			if( is_string( $entry ) && $entry !== '' && ( $pos = $fcn( $entry, $value, 0, $encoding ) ) !== false ) {
+			if( is_scalar( $entry ) && $entry != '' && ( $pos = $fcn( (string) $entry, $value, 0, $encoding ) ) !== false ) {
 				$list[$key] = mb_substr( $entry, 0, $pos, $encoding );
 			}
 		}

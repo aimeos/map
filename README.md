@@ -4498,6 +4498,9 @@ public function strAfter( string $value, bool $case = false, string $encoding = 
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 * @return **self&#60;int&#124;string,mixed&#62;** New map
 
+All scalar values (bool, int, float, string) will be converted to strings.
+Non-scalar values as well as empty strings will be skipped and are not part of the result.
+
 **Examples:**
 
 ```php
@@ -4513,8 +4516,17 @@ Map::from( ['abc'] )->strAfter( 'b' );
 Map::from( ['abc'] )->strAfter( 'c' );
 // ['']
 
+Map::from( ['abc'] )->strAfter( 'x' )
+// []
+
 Map::from( [''] )->strAfter( '' );
 // []
+
+Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strAfter( '' );
+// ['1', '1', '1']
+
+Map::from( [0, 0.0, false, []] )->strAfter( '' );
+// ['0', '0']
 ```
 
 
@@ -4531,6 +4543,9 @@ public function strBefore( string $value, bool $case = false, string $encoding =
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 * @return **self&#60;int&#124;string,mixed&#62;** New map
 
+All scalar values (bool, int, float, string) will be converted to strings.
+Non-scalar values as well as empty strings will be skipped and are not part of the result.
+
 **Examples:**
 
 ```php
@@ -4546,8 +4561,17 @@ Map::from( ['abc'] )->strBefore( 'b' );
 Map::from( ['abc'] )->strBefore( 'a' );
 // ['']
 
+Map::from( ['abc'] )->strBefore( 'x' )
+// []
+
 Map::from( [''] )->strBefore( '' );
 // []
+
+Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strBefore( '' );
+// ['1', '1', '1']
+
+Map::from( [0, 0.0, false, []] )->strBefore( '' );
+// ['0', '0']
 ```
 
 

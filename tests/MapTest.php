@@ -2860,20 +2860,26 @@ Array
 
 	public function testStrAfter()
 	{
+		$this->assertEquals( ['1', '1', '1'], Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strAfter( '' )->all() );
+		$this->assertEquals( ['0', '0'], Map::from( [0, 0.0, false, []] )->strAfter( '' )->all() );
 		$this->assertEquals( ['üß'], Map::from( ['äöüß'] )->strAfter( 'ö' )->all() );
 		$this->assertEquals( ['abc'], Map::from( ['abc'] )->strAfter( '' )->all() );
 		$this->assertEquals( ['c'], Map::from( ['abc'] )->strAfter( 'b' )->all() );
 		$this->assertEquals( [''], Map::from( ['abc'] )->strAfter( 'c' )->all() );
+		$this->assertEquals( [], Map::from( ['abc'] )->strAfter( 'x' )->all() );
 		$this->assertEquals( [], Map::from( [''] )->strAfter( '' )->all() );
 	}
 
 
 	public function testStrBefore()
 	{
+		$this->assertEquals( ['1', '1', '1'], Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strBefore( '' )->all() );
+		$this->assertEquals( ['0', '0'], Map::from( [0, 0.0, false, []] )->strBefore( '' )->all() );
 		$this->assertEquals( ['äö'], Map::from( ['äöüß'] )->strBefore( 'ü' )->all() );
 		$this->assertEquals( ['abc'], Map::from( ['abc'] )->strBefore( '' )->all() );
 		$this->assertEquals( ['a'], Map::from( ['abc'] )->strBefore( 'b' )->all() );
 		$this->assertEquals( [''], Map::from( ['abc'] )->strBefore( 'a' )->all() );
+		$this->assertEquals( [], Map::from( ['abc'] )->strBefore( 'x' )->all() );
 		$this->assertEquals( [], Map::from( [''] )->strBefore( '' )->all() );
 	}
 
