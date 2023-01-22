@@ -237,6 +237,7 @@ will return:
 <a href="#sort">sort</a>
 <a href="#splice">splice</a>
 <a href="#split">split</a>
+<a href="#strafter">strAfter</a>
 <a href="#strcontains">strContains</a>
 <a href="#strcontainsall">strContainsAll</a>
 <a href="#strends">strEnds</a>
@@ -437,6 +438,7 @@ will return:
 * [replace()](#replace) : Replaces elements recursively
 * [rtrim()](#rtrim) : Removes the passed characters from the right of all strings
 * [splice()](#splice) : Replaces a slice by new elements
+* [strAfter()](#strafter) : Returns the strings after the passed value
 * [strLower()](#strlower) : Converts all alphabetic characters to lower case
 * [strReplace()](#strreplace) : Replaces all occurrences of the search string with the replacement string
 * [strUpper()](#strupper) : Converts all alphabetic characters to upper case
@@ -4480,6 +4482,39 @@ Map::from( ['a', 'b', 'c'] )->splice( 1 );
 
 Map::from( ['a', 'b', 'c'] )->splice( 1, 1, ['x', 'y'] );
 // ['b'] and map contains ['a', 'x', 'y', 'c']
+```
+
+
+### strAfter()
+
+Returns the strings after the passed value.
+
+```php
+public function strAfter( string $value, bool $case = false, string $encoding = 'UTF-8' ) : self
+```
+
+* @param **string** `$value` Character or string to search for
+* @param **bool** `$case` TRUE if search should be case insensitive, FALSE if case-sensitive
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+* @return **self&#60;int&#124;string,mixed&#62;** New map
+
+**Examples:**
+
+```php
+Map::from( ['äöüß'] )->strAfter( 'ö' );
+// ['üß']
+
+Map::from( ['abc'] )->strAfter( '' );
+// ['abc']
+
+Map::from( ['abc'] )->strAfter( 'b' );
+// ['c']
+
+Map::from( ['abc'] )->strAfter( 'c' );
+// ['']
+
+Map::from( [''] )->strAfter( '' );
+// []
 ```
 
 

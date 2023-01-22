@@ -2858,6 +2858,16 @@ Array
 	}
 
 
+	public function testStrAfter()
+	{
+		$this->assertEquals( ['üß'], Map::from( ['äöüß'] )->strAfter( 'ö' )->all() );
+		$this->assertEquals( ['abc'], Map::from( ['abc'] )->strAfter( '' )->all() );
+		$this->assertEquals( ['c'], Map::from( ['abc'] )->strAfter( 'b' )->all() );
+		$this->assertEquals( [''], Map::from( ['abc'] )->strAfter( 'c' )->all() );
+		$this->assertEquals( [], Map::from( [''] )->strAfter( '' )->all() );
+	}
+
+
 	public function testStrContains()
 	{
 		$this->assertTrue( Map::from( ['abc'] )->strContains( '' ) );
