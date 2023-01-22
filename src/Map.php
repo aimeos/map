@@ -1706,8 +1706,20 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function grep( string $pattern, int $flags = 0 ) : self
 	{
-		if( ( $result = preg_grep( $pattern, $this->list(), $flags ) ) === false ) {
-			throw new \RuntimeException( 'Regular expression error: ' . preg_last_error_msg() );
+		if( ( $result = preg_grep( $pattern, $this->list(), $flags ) ) === false )
+		{
+			switch( preg_last_error() )
+			{
+				case PREG_INTERNAL_ERROR: $msg = 'Internal error'; break;
+				case PREG_BACKTRACK_LIMIT_ERROR: $msg = 'Backtrack limit error'; break;
+				case PREG_RECURSION_LIMIT_ERROR: $msg = 'Recursion limit error'; break;
+				case PREG_BAD_UTF8_ERROR: $msg = 'Bad UTF8 error'; break;
+				case PREG_BAD_UTF8_OFFSET_ERROR: $msg = 'Bad UTF8 offset error'; break;
+				case PREG_JIT_STACKLIMIT_ERROR: $msg = 'JIT stack limit error'; break;
+				default: $msg = 'Unknown error';
+			}
+
+			throw new \RuntimeException( 'Regular expression error: ' . $msg );
 		}
 
 		return new static( $result );
@@ -4094,13 +4106,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		foreach( $this->list() as $key => $entry )
 		{
-			if( is_scalar( $entry ) && $entry != '' )
+			if( is_scalar( $entry ) )
 			{
+				$pos = null;
 				$str = (string) $entry;
 
-				if( $value && ( $pos = $fcn( $str, $value, 0, $encoding ) ) !== false ) {
+				if( $str !== '' && $value !== '' && ( $pos = $fcn( $str, $value, 0, $encoding ) ) !== false ) {
 					$list[$key] = mb_substr( $str, $pos + $len, null, $encoding );
-				} elseif( empty( $value ) ) {
+				} elseif( $str !== '' && $pos !== false ) {
 					$list[$key] = $str;
 				}
 			}
@@ -4148,14 +4161,16 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		foreach( $this->list() as $key => $entry )
 		{
-			if( is_scalar( $entry ) && $entry != '' )
+			if( is_scalar( $entry ) )
 			{
+				$pos = null;
 				$str = (string) $entry;
 
-				if( $value && ( $pos = $fcn( $str, $value, 0, $encoding ) ) !== false ) {
+				if( $str !== '' && $value !== '' && ( $pos = $fcn( $str, $value, 0, $encoding ) ) !== false ) {
 					$list[$key] = mb_substr( $str, 0, $pos, $encoding );
-				} elseif( empty( $value ) ) {
+				} elseif( $str !== '' && $pos !== false ) {
 					$list[$key] = $str;
+				} else {
 				}
 			}
 		}
