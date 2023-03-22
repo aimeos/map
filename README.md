@@ -192,6 +192,7 @@ will return:
 <a href="#ksort">ksort</a>
 <a href="#last">last</a>
 <a href="#lastkey">lastKey</a>
+<a href="#ltrim">ltrim</a>
 <a href="#map">map</a>
 <a href="#max">max</a>
 <a href="#merge">merge</a>
@@ -224,6 +225,7 @@ will return:
 <a href="#replace">replace</a>
 <a href="#reverse">reverse</a>
 <a href="#rsort">rsort</a>
+<a href="#rtrim">rtrim</a>
 <a href="#search">search</a>
 <a href="#sep">sep</a>
 <a href="#set">set</a>
@@ -235,6 +237,7 @@ will return:
 <a href="#sort">sort</a>
 <a href="#splice">splice</a>
 <a href="#split">split</a>
+<a href="#strafter">strAfter</a>
 <a href="#strcontains">strContains</a>
 <a href="#strcontainsall">strContainsAll</a>
 <a href="#strends">strEnds</a>
@@ -424,6 +427,7 @@ will return:
 * [flip()](#flip) : Exchanges keys with their values
 * [groupBy()](#groupby) : Groups associative array elements or objects
 * [join()](#join) : Returns concatenated elements as string with separator
+* [ltrim()](#ltrim) : Removes the passed characters from the left of all strings
 * [map()](#map) : Applies a callback to each element and returns the results
 * [partition()](#partition) : Breaks the list into the given number of groups
 * [pipe()](#pipe) : Applies a callback to the whole map
@@ -432,7 +436,9 @@ will return:
 * [reduce()](#reduce) : Computes a single value from the map content
 * [rekey()](#rekey) : Changes the keys according to the passed function
 * [replace()](#replace) : Replaces elements recursively
+* [rtrim()](#rtrim) : Removes the passed characters from the right of all strings
 * [splice()](#splice) : Replaces a slice by new elements
+* [strAfter()](#strafter) : Returns the strings after the passed value
 * [strLower()](#strlower) : Converts all alphabetic characters to lower case
 * [strReplace()](#strreplace) : Replaces all occurrences of the search string with the replacement string
 * [strUpper()](#strupper) : Converts all alphabetic characters to upper case
@@ -3266,6 +3272,28 @@ Map::from( [] )->lastKey();
 ```
 
 
+### ltrim()
+
+Removes the passed characters from the left of all strings.
+
+```php
+public function ltrim( string $chars = " \n\r\t\v\x00" ) : self
+```
+
+* @param **string** `$chars` List of characters to trim
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( [" abc\n", "\tcde\r\n"] )->ltrim();
+// ["abc\n", "cde\r\n"]
+
+Map::from( ["a b c", "cbxa"] )->ltrim( 'abc' );
+// [" b c", "xa"]
+```
+
+
 ### map()
 
 Calls the passed function once for each element and returns a new map for the result.
@@ -4140,6 +4168,28 @@ Map::from( [0 => 'C', 1 => 'b'] )->rsort( SORT_STRING|SORT_FLAG_CASE );
 ```
 
 
+### rtrim()
+
+Removes the passed characters from the right of all strings.
+
+```php
+public function rtrim( string $chars = " \n\r\t\v\x00" ) : self
+```
+
+* @param **string** `$chars` List of characters to trim
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
+
+**Examples:**
+
+```php
+Map::from( [" abc\n", "\tcde\r\n"] )->rtrim();
+// [" abc", "\tcde"]
+
+Map::from( ["a b c", "cbxa"] )->rtrim( 'abc' );
+// ["a b ", "cbx"]
+```
+
+
 ### search()
 
 Searches the map for a given value and return the corresponding key if successful.
@@ -4432,6 +4482,96 @@ Map::from( ['a', 'b', 'c'] )->splice( 1 );
 
 Map::from( ['a', 'b', 'c'] )->splice( 1, 1, ['x', 'y'] );
 // ['b'] and map contains ['a', 'x', 'y', 'c']
+```
+
+
+### strAfter()
+
+Returns the strings after the passed value.
+
+```php
+public function strAfter( string $value, bool $case = false, string $encoding = 'UTF-8' ) : self
+```
+
+* @param **string** `$value` Character or string to search for
+* @param **bool** `$case` TRUE if search should be case insensitive, FALSE if case-sensitive
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+* @return **self&#60;int&#124;string,mixed&#62;** New map
+
+All scalar values (bool, int, float, string) will be converted to strings.
+Non-scalar values as well as empty strings will be skipped and are not part of the result.
+
+**Examples:**
+
+```php
+Map::from( ['äöüß'] )->strAfter( 'ö' );
+// ['üß']
+
+Map::from( ['abc'] )->strAfter( '' );
+// ['abc']
+
+Map::from( ['abc'] )->strAfter( 'b' );
+// ['c']
+
+Map::from( ['abc'] )->strAfter( 'c' );
+// ['']
+
+Map::from( ['abc'] )->strAfter( 'x' )
+// []
+
+Map::from( [''] )->strAfter( '' );
+// []
+
+Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strAfter( '' );
+// ['1', '1', '1']
+
+Map::from( [0, 0.0, false, []] )->strAfter( '' );
+// ['0', '0']
+```
+
+
+### strBefore()
+
+Returns the strings before the passed value.
+
+```php
+public function strBefore( string $value, bool $case = false, string $encoding = 'UTF-8' ) : self
+```
+
+* @param **string** `$value` Character or string to search for
+* @param **bool** `$case` TRUE if search should be case insensitive, FALSE if case-sensitive
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+* @return **self&#60;int&#124;string,mixed&#62;** New map
+
+All scalar values (bool, int, float, string) will be converted to strings.
+Non-scalar values as well as empty strings will be skipped and are not part of the result.
+
+**Examples:**
+
+```php
+Map::from( ['äöüß'] )->strBefore( 'ü' );
+// ['äö']
+
+Map::from( ['abc'] )->strBefore( '' );
+// ['abc']
+
+Map::from( ['abc'] )->strBefore( 'b' );
+// ['a']
+
+Map::from( ['abc'] )->strBefore( 'a' );
+// ['']
+
+Map::from( ['abc'] )->strBefore( 'x' )
+// []
+
+Map::from( [''] )->strBefore( '' );
+// []
+
+Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strBefore( '' );
+// ['1', '1', '1']
+
+Map::from( [0, 0.0, false, []] )->strBefore( '' );
+// ['0', '0']
 ```
 
 

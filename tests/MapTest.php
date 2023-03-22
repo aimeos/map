@@ -1944,6 +1944,13 @@ Array
 	}
 
 
+	public function testLtrim()
+	{
+		$this->assertEquals( ["abc\n", "cde\r\n"], Map::from( [" abc\n", "\tcde\r\n"] )->ltrim()->toArray() );
+		$this->assertEquals( [" b c", "xa"], Map::from( ["a b c", "cbxa"] )->ltrim( 'abc' )->toArray() );
+	}
+
+
 	public function testMap()
 	{
 		$m = new Map( ['first' => 'test', 'last' => 'user'] );
@@ -2571,6 +2578,13 @@ Array
 	}
 
 
+	public function testRtrim()
+	{
+		$this->assertEquals( [" abc", "\tcde"], Map::from( [" abc\n", "\tcde\r\n"] )->rtrim()->toArray() );
+		$this->assertEquals( ["a b ", "cbx"], Map::from( ["a b c", "cbxa"] )->rtrim( 'abc' )->toArray() );
+	}
+
+
 	public function testSearch()
 	{
 		$m = new Map( [false, 0, 1, [], ''] );
@@ -2841,6 +2855,32 @@ Array
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( ['foo', 'bar'], $m->toArray() );
+	}
+
+
+	public function testStrAfter()
+	{
+		$this->assertEquals( ['1', '1', '1'], Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strAfter( '' )->all() );
+		$this->assertEquals( ['0', '0'], Map::from( [0, 0.0, false, []] )->strAfter( '' )->all() );
+		$this->assertEquals( ['üß'], Map::from( ['äöüß'] )->strAfter( 'ö' )->all() );
+		$this->assertEquals( ['abc'], Map::from( ['abc'] )->strAfter( '' )->all() );
+		$this->assertEquals( ['c'], Map::from( ['abc'] )->strAfter( 'b' )->all() );
+		$this->assertEquals( [''], Map::from( ['abc'] )->strAfter( 'c' )->all() );
+		$this->assertEquals( [], Map::from( ['abc'] )->strAfter( 'x' )->all() );
+		$this->assertEquals( [], Map::from( [''] )->strAfter( '' )->all() );
+	}
+
+
+	public function testStrBefore()
+	{
+		$this->assertEquals( ['1', '1', '1'], Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strBefore( '' )->all() );
+		$this->assertEquals( ['0', '0'], Map::from( [0, 0.0, false, []] )->strBefore( '' )->all() );
+		$this->assertEquals( ['äö'], Map::from( ['äöüß'] )->strBefore( 'ü' )->all() );
+		$this->assertEquals( ['abc'], Map::from( ['abc'] )->strBefore( '' )->all() );
+		$this->assertEquals( ['a'], Map::from( ['abc'] )->strBefore( 'b' )->all() );
+		$this->assertEquals( [''], Map::from( ['abc'] )->strBefore( 'a' )->all() );
+		$this->assertEquals( [], Map::from( ['abc'] )->strBefore( 'x' )->all() );
+		$this->assertEquals( [], Map::from( [''] )->strBefore( '' )->all() );
 	}
 
 

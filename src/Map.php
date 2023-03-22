@@ -1706,8 +1706,20 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function grep( string $pattern, int $flags = 0 ) : self
 	{
-		if( ( $result = preg_grep( $pattern, $this->list(), $flags ) ) === false ) {
-			throw new \RuntimeException( 'Regular expression error: ' . preg_last_error_msg() );
+		if( ( $result = preg_grep( $pattern, $this->list(), $flags ) ) === false )
+		{
+			switch( preg_last_error() )
+			{
+				case PREG_INTERNAL_ERROR: $msg = 'Internal error'; break;
+				case PREG_BACKTRACK_LIMIT_ERROR: $msg = 'Backtrack limit error'; break;
+				case PREG_RECURSION_LIMIT_ERROR: $msg = 'Recursion limit error'; break;
+				case PREG_BAD_UTF8_ERROR: $msg = 'Bad UTF8 error'; break;
+				case PREG_BAD_UTF8_OFFSET_ERROR: $msg = 'Bad UTF8 offset error'; break;
+				case PREG_JIT_STACKLIMIT_ERROR: $msg = 'JIT stack limit error'; break;
+				default: $msg = 'Unknown error';
+			}
+
+			throw new \RuntimeException( 'Regular expression error: ' . $msg );
 		}
 
 		return new static( $result );
@@ -2771,6 +2783,32 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Removes the passed characters from the left of all strings.
+	 *
+	 * Examples:
+	 *  Map::from( [" abc\n", "\tcde\r\n"] )->ltrim();
+	 *  Map::from( ["a b c", "cbxa"] )->ltrim( 'abc' );
+	 *
+	 * Results:
+	 * The first example will return ["abc\n", "cde\r\n"] while the second one will return [" b c", "xa"].
+	 *
+	 * @param string $chars List of characters to trim
+	 * @return self<int|string,mixed> Updated map for fluid interface
+	 */
+	public function ltrim( string $chars = " \n\r\t\v\x00" ) : self
+	{
+		foreach( $this->list() as &$entry )
+		{
+			if( is_string( $entry ) ) {
+				$entry = ltrim( $entry, $chars );
+			}
+		}
+
+		return $this;
+	}
+
+
+	/**
 	 * Calls the passed function once for each element and returns a new map for the result.
 	 *
 	 * Examples:
@@ -3662,6 +3700,32 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Removes the passed characters from the right of all strings.
+	 *
+	 * Examples:
+	 *  Map::from( [" abc\n", "\tcde\r\n"] )->rtrim();
+	 *  Map::from( ["a b c", "cbxa"] )->rtrim( 'abc' );
+	 *
+	 * Results:
+	 * The first example will return [" abc", "\tcde"] while the second one will return ["a b ", "cbx"].
+	 *
+	 * @param string $chars List of characters to trim
+	 * @return self<int|string,mixed> Updated map for fluid interface
+	 */
+	public function rtrim( string $chars = " \n\r\t\v\x00" ) : self
+	{
+		foreach( $this->list() as &$entry )
+		{
+			if( is_string( $entry ) ) {
+				$entry = rtrim( $entry, $chars );
+			}
+		}
+
+		return $this;
+	}
+
+
+	/**
 	 * Searches the map for a given value and return the corresponding key if successful.
 	 *
 	 * Examples:
@@ -4000,6 +4064,118 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		}
 
 		return new static( array_splice( $this->list(), $offset, $length, (array) $replacement ) );
+	}
+
+
+	/**
+	 * Returns the strings after the passed value.
+	 *
+	 * Examples:
+	 *  Map::from( ['äöüß'] )->strAfter( 'ö' );
+	 *  Map::from( ['abc'] )->strAfter( '' );
+	 *  Map::from( ['abc'] )->strAfter( 'b' );
+	 *  Map::from( ['abc'] )->strAfter( 'c' );
+	 *  Map::from( ['abc'] )->strAfter( 'x' );
+	 *  Map::from( [''] )->strAfter( '' );
+	 *  Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strAfter( '' );
+	 *  Map::from( [0, 0.0, false, []] )->strAfter( '' );
+	 *
+	 * Results:
+	 *  ['üß']
+	 *  ['abc']
+	 *  ['c']
+	 *  ['']
+	 *  []
+	 *  []
+	 *  ['1', '1', '1']
+	 *  ['0', '0']
+	 *
+	 * All scalar values (bool, int, float, string) will be converted to strings.
+	 * Non-scalar values as well as empty strings will be skipped and are not part of the result.
+	 *
+	 * @param string $value Character or string to search for
+	 * @param bool $case TRUE if search should be case insensitive, FALSE if case-sensitive
+	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+	 * @return self<int|string,mixed> New map
+	 */
+	public function strAfter( string $value, bool $case = false, string $encoding = 'UTF-8' ) : self
+	{
+		$list = [];
+		$len = mb_strlen( $value );
+		$fcn = $case ? 'mb_stripos' : 'mb_strpos';
+
+		foreach( $this->list() as $key => $entry )
+		{
+			if( is_scalar( $entry ) )
+			{
+				$pos = null;
+				$str = (string) $entry;
+
+				if( $str !== '' && $value !== '' && ( $pos = $fcn( $str, $value, 0, $encoding ) ) !== false ) {
+					$list[$key] = mb_substr( $str, $pos + $len, null, $encoding );
+				} elseif( $str !== '' && $pos !== false ) {
+					$list[$key] = $str;
+				}
+			}
+		}
+
+		return new static( $list );
+	}
+
+
+	/**
+	 * Returns the strings before the passed value.
+	 *
+	 * Examples:
+	 *  Map::from( ['äöüß'] )->strBefore( 'ü' );
+	 *  Map::from( ['abc'] )->strBefore( '' );
+	 *  Map::from( ['abc'] )->strBefore( 'b' );
+	 *  Map::from( ['abc'] )->strBefore( 'a' );
+	 *  Map::from( ['abc'] )->strBefore( 'x' );
+	 *  Map::from( [''] )->strBefore( '' );
+	 *  Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strAfter( '' );
+	 *  Map::from( [0, 0.0, false, []] )->strAfter( '' );
+	 *
+	 * Results:
+	 *  ['äö']
+	 *  ['abc']
+	 *  ['a']
+	 *  ['']
+	 *  []
+	 *  []
+	 *  ['1', '1', '1']
+	 *  ['0', '0']
+	 *
+	 * All scalar values (bool, int, float, string) will be converted to strings.
+	 * Non-scalar values as well as empty strings will be skipped and are not part of the result.
+	 *
+	 * @param string $value Character or string to search for
+	 * @param bool $case TRUE if search should be case insensitive, FALSE if case-sensitive
+	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
+	 * @return self<int|string,mixed> New map
+	 */
+	public function strBefore( string $value, bool $case = false, string $encoding = 'UTF-8' ) : self
+	{
+		$list = [];
+		$fcn = $case ? 'mb_strripos' : 'mb_strrpos';
+
+		foreach( $this->list() as $key => $entry )
+		{
+			if( is_scalar( $entry ) )
+			{
+				$pos = null;
+				$str = (string) $entry;
+
+				if( $str !== '' && $value !== '' && ( $pos = $fcn( $str, $value, 0, $encoding ) ) !== false ) {
+					$list[$key] = mb_substr( $str, 0, $pos, $encoding );
+				} elseif( $str !== '' && $pos !== false ) {
+					$list[$key] = $str;
+				} else {
+				}
+			}
+		}
+
+		return new static( $list );
 	}
 
 
