@@ -3527,6 +3527,17 @@ Array
 	}
 
 
+	public function testWith()
+	{
+		$m = Map::from( ['a' => 1] );
+
+		$this->assertEquals( ['a' => 1, 2 => 'b'], $m->with( 2, 'b' )->toArray() );
+		$this->assertEquals( ['a' => 1], $m->toArray() );
+		$this->assertEquals( ['a' => 2], $m->with( 'a', 2 )->toArray() );
+		$this->assertEquals( ['a' => 1], $m->toArray() );
+	}
+
+
 	public function testZip()
 	{
 		$m = new Map( [1, 2, 3] );
