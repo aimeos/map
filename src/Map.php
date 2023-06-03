@@ -5360,12 +5360,37 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Returns a copy of the map with the element at the given index replaced with the given value.
+	 *
+	 * Examples:
+	 *  $m = Map::from( ['a' => 1] );
+	 *  $m->with( 2, 'b' );
+	 *  $m->with( 'a', 2 );
+	 *
+	 * Results:
+	 *  ['a' => 1, 2 => 'b']
+	 *  ['a' => 2]
+	 *
+	 * The original map ($m) stays untouched!
+	 * This method is a shortcut for calling the copy() and set() methods.
+	 *
+	 * @param int|string $key Array key to set or replace
+	 * @param mixed $value New value for the given key
+	 * @return self<int|string,mixed> New map
+	 */
+	public function with( $key, $value ) : self
+	{
+		return $this->copy()->set( $key, $value );
+	}
+
+
+	/**
 	 * Merges the values of all arrays at the corresponding index.
 	 *
 	 * Examples:
 	 *  $en = ['one', 'two', 'three'];
 	 *  $es = ['uno', 'dos', 'tres'];
-	 *  $m = new Map( [1, 2, 3] )->zip( $en, $es );
+	 *  $m = Map::from( [1, 2, 3] )->zip( $en, $es );
 	 *
 	 * Results:
 	 *  [

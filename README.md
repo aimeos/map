@@ -269,6 +269,7 @@ will return:
 <a href="#values">values</a>
 <a href="#walk">walk</a>
 <a href="#where">where</a>
+<a href="#with">with</a>
 <a href="#zip">zip</a>
 
 </nav>
@@ -328,6 +329,7 @@ will return:
 * [set()](#set) : Overwrites or adds an element
 * [union()](#union) : Adds the elements without overwriting existing ones
 * [unshift()](#unshift) : Adds an element at the beginning
+* [with()](#with) : Returns a copy and sets an element
 
 ### Aggregate
 
@@ -5811,6 +5813,37 @@ Map::from( [
     ['id' => 4, 'price' => 50]
 ]
 */
+```
+
+
+### with()
+
+Returns a copy of the map with the element at the given index replaced with the given value.
+
+```php
+public function with( $key, $value ) : self
+```
+
+* @param **int|string** `$key` Array key to set or replace
+* @param **mixed** `$value` New value for the given key
+* @return **self&#60;int&#124;string,mixed&#62;** New map of the values
+
+The original map stays untouched! This method is a shortcut for calling the
+[copy()](#copy) and [set()](#set) methods.
+
+**Examples:**
+
+```php
+$m = Map::from( ['a' => 1] );
+
+$m->with( 2, 'b' );
+// ['a' => 1, 2 => 'b']
+
+$m->with( 'a', 2 );
+// ['a' => 2]
+
+$m->all();
+// ['a' => 1]
 ```
 
 
