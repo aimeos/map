@@ -19,6 +19,10 @@ header.page-header {
 	background-image: linear-gradient(120deg, #16629c, #2091c5);
 }
 
+header h1 {
+	overflow: hidden;
+}
+
 header h1>a {
 	color: #fff;
 }
