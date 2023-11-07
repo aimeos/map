@@ -14,6 +14,11 @@ as offered by jQuery and Laravel Collections.
 composer req aimeos/map
 ```
 
+Supported PHP versions:
+
+* PHP 7.1+
+* PHP 8+
+
 **Table of contents**
 
 * [Why PHP Map](#why-php-map)
