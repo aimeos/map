@@ -3738,7 +3738,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param mixed $value Item to search for
 	 * @param bool $strict TRUE if type of the element should be checked too
-	 * @return mixed|null Key associated to the value or null if not found
+	 * @return int|string|null Key associated to the value or null if not found
 	 */
 	public function search( $value, $strict = true )
 	{
