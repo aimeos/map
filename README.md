@@ -4207,7 +4207,7 @@ public function search( $value, $strict = true )
 
 * @param **mixed** `$value` Item to search for
 * @param **bool** `$strict` TRUE if type of the element should be checked too
-* @return **mixed&#124;null** Value from map or null if not found
+* @return **int&#124;string&#124;null** Key associated to the value or null if not found
 
 **Examples:**
 
