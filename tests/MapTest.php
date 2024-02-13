@@ -3241,6 +3241,31 @@ Array
 	}
 
 
+	public function testTraverseCallbackParent()
+	{
+		$expected = [
+			['id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+				['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+				['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+			], 'path' => 'n1'],
+			['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => [], 'path' => 'n1/n2'],
+			['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => [], 'path' => 'n1/n3'],
+		];
+
+		$r = Map::from( [[
+			'id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+				['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+				['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+			]
+		]] )->traverse( function( &$entry, $key, $level, $parent ) {
+			$entry['path'] = isset( $parent['path'] ) ? $parent['path'] . '/' . $entry['name'] : $entry['name'];
+			return $entry;
+		} );
+
+		$this->assertSame( $expected, $r->toArray() );
+	}
+
+
 	public function testTraverseNestkey()
 	{
 		$expected = [

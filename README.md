@@ -5344,7 +5344,7 @@ Traverses trees of nested items passing each item to the callback.
 public function traverse( \Closure $callback = null, string $nestKey = 'children' ) : self
 ```
 
-* @param **\Closure&#124;null** `$callback` Callback with (entry, key, level) arguments, returns the entry added to result
+* @param **\Closure&#124;null** `$callback` Callback with (entry, key, level, $parent) arguments, returns the entry added to result
 * @param **string** `$nestKey` Key to the children of each item
 * @return **self&#60;int&#124;string,mixed&#62;** New map with all items as flat list
 
@@ -5378,6 +5378,23 @@ Map::from( [[
   return str_repeat( '-', $level ) . '- ' . $entry['name'];
 } );
 // ['- n1', '-- n2', '-- n3']
+
+Map::from( [[
+  'id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [
+    ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
+    ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
+  ]
+]] )->traverse( function( &$entry, $key, $level, $parent ) {
+  $entry['path'] = isset( $parent['path'] ) ? $parent['path'] . '/' . $entry['name'] : $entry['name'];
+  return $entry;
+} );
+/*
+[
+  ['id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [...], 'path' => 'n1'],
+  ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => [], 'path' => 'n1/n2'],
+  ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => [], 'path' => 'n1/n3'],
+]
+*/
 
 Map::from( [[
   'id' => 1, 'pid' => null, 'name' => 'n1', 'nodes' => [

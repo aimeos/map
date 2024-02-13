@@ -4871,7 +4871,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *       ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
 	 *       ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
 	 *     ]
-	 *   ]] )->traverse( function( $entry, $key, $level ) {
+	 *   ]] )->traverse( function( $entry, $key, $level, $parent ) {
 	 *     return str_repeat( '-', $level ) . '- ' . $entry['name'];
 	 *   } );
 	 *
@@ -4880,9 +4880,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *       ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
 	 *       ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []]
 	 *     ]
-	 *   ]] )->traverse( function( $entry, $key, $level ) {
-	 *     return !isset( $entry['children'] ) ? $entry : null;
-	 *   } )->filter();
+	 *   ]] )->traverse( function( &$entry, $key, $level, $parent ) {
+	 *     $entry['path'] = isset( $parent['path'] ) ? $parent['path'] . '/' . $entry['name'] : $entry['name'];
+	 *     return $entry;
+	 *   } );
 	 *
 	 *   Map::from( [[
 	 *     'id' => 1, 'pid' => null, 'name' => 'n1', 'nodes' => [
@@ -4900,8 +4901,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *   ['- n1', '-- n2', '-- n3']
 	 *
 	 *   [
-	 *     ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => []],
-	 *     ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => []],
+	 *     ['id' => 1, 'pid' => null, 'name' => 'n1', 'children' => [...], 'path' => 'n1'],
+	 *     ['id' => 2, 'pid' => 1, 'name' => 'n2', 'children' => [], 'path' => 'n1/n2'],
+	 *     ['id' => 3, 'pid' => 1, 'name' => 'n3', 'children' => [], 'path' => 'n1/n3'],
 	 *   ]
 	 *
 	 *   [
@@ -4909,7 +4911,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *     ['id' => 2, 'pid' => 1, 'name' => 'n2', 'nodes' => []],
 	 *   ]
 	 *
-	 * @param \Closure|null $callback Callback with (entry, key, level) arguments, returns the entry added to result
+	 * @param \Closure|null $callback Callback with (entry, key, level, $parent) arguments, returns the entry added to result
 	 * @param string $nestKey Key to the children of each item
 	 * @return self<int|string,mixed> New map with all items as flat list
 	 */
@@ -5527,17 +5529,18 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param int $level Current depth of the nodes in the tree
 	 * @param \Closure|null $callback Callback with ($entry, $key, $level) arguments, returns the entry added to result
 	 * @param string $nestKey Key to the children of each entry
+	 * @param array<mixed>|object|null $parent Parent entry
 	 */
-	protected function visit( iterable $entries, array &$result, int $level, ?\Closure $callback, string $nestKey ) : void
+	protected function visit( iterable $entries, array &$result, int $level, ?\Closure $callback, string $nestKey, $parent = null ) : void
 	{
 		foreach( $entries as $key => $entry )
 		{
-			$result[] = $callback ? $callback( $entry, $key, $level ) : $entry;
+			$result[] = $callback ? $callback( $entry, $key, $level, $parent ) : $entry;
 
 			if( ( is_array( $entry ) || $entry instanceof \ArrayAccess ) && isset( $entry[$nestKey] ) ) {
-				$this->visit( $entry[$nestKey], $result, $level + 1, $callback, $nestKey );
+				$this->visit( $entry[$nestKey], $result, $level + 1, $callback, $nestKey, $entry );
 			} elseif( is_object( $entry ) && isset( $entry->{$nestKey} ) ) {
-				$this->visit( $entry->{$nestKey}, $result, $level + 1, $callback, $nestKey );
+				$this->visit( $entry->{$nestKey}, $result, $level + 1, $callback, $nestKey, $entry );
 			}
 		}
 	}
