@@ -525,6 +525,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The first line will return "3", the second and third one "2", the forth
 	 * one "30" and the last one "40".
 	 *
+	 * NULL values are treated as 0, non-numeric values will generate an error.
+	 *
 	 * This does also work for multi-dimensional arrays by passing the keys
 	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
 	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
@@ -4660,6 +4662,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 * The first line will return "9", the second one "6", the third one "90"
 	 * and the last one "80".
+	 *
+	 * NULL values are treated as 0, non-numeric values will generate an error.
 	 *
 	 * This does also work for multi-dimensional arrays by passing the keys
 	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
