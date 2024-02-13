@@ -142,7 +142,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	{
 		$this->assertSame( 3.0, Map::from( [1, 3, 5] )->avg() );
 		$this->assertSame( 2.0, Map::from( [1, null, 5] )->avg() );
-		$this->assertSame( 2.0, Map::from( [1, 'sum', 5] )->avg() );
+		$this->assertSame( 2.0, Map::from( [1, 0.0, 5] )->avg() );
 	}
 
 
@@ -3070,7 +3070,7 @@ Array
 	public function testSum()
 	{
 		$this->assertSame( 9.0, Map::from( [1, 3, 5] )->sum() );
-		$this->assertSame( 6.0, Map::from( [1, 'sum', 5] )->sum() );
+		$this->assertSame( 6.0, Map::from( [1, 0.0, 5] )->sum() );
 	}
 
 
