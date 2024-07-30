@@ -342,7 +342,7 @@ will return:
 * [count()](#count) : Returns the total number of elements
 * [countBy()](#countby) : Counts how often the same values are in the map
 * [max()](#max) : Returns the maximum value of all elements
-* [min()](#max) : Returns the minium value of all elements
+* [min()](#min) : Returns the minium value of all elements
 * [sum()](#sum) : Returns the sum of all values in the map
 
 ### Debug
@@ -803,7 +803,7 @@ Map::from( [1, 3, 5] )->at( 3 );
 Returns the average of all integer and float values in the map.
 
 ```php
-public function avg( string $col = null ) : float
+public function avg( $col = null ) : float
 ```
 
 * @param **Closure&#124;string&#124;null** `$col` Closure, key or path to the values in the nested array or object to compute the average for
