@@ -4676,15 +4676,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function sum( $col = null ) : float
 	{
-		if( $col instanceof \Closure )
-		{
-			$vals = [];
-			foreach( $this->list() as $key => $val ) {
-				$vals[] = $col( $val, $key );
-			}
-		}
-		else
-		{
+		if( $col instanceof \Closure ) {
+			$vals = array_map( $col, array_values( $this->list() ), array_keys( $this->list() ) );
+		} else {
 			$vals = $col !== null ? $this->col( $col )->toArray() : $this->list();
 		}
 
