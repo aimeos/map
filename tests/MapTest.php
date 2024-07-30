@@ -141,8 +141,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testAvg()
 	{
 		$this->assertSame( 3.0, Map::from( [1, 3, 5] )->avg() );
-		$this->assertSame( 2.0, Map::from( [1, null, 5] )->avg() );
+		$this->assertSame( 3.0, Map::from( [1, null, 5] )->avg() );
 		$this->assertSame( 2.0, Map::from( [1, 0.0, 5] )->avg() );
+	}
+
+
+	public function testAvgClosure()
+	{
+		$this->assertSame( 20.0, Map::from( [30, 50, 10] )->avg( fn( $val ) => $val < 50 ? $val : null ) );
+		$this->assertSame( 30.0, Map::from( [30, 50, 10] )->avg( fn( $val, $key ) => $key < 1 ? $val : null ) );
 	}
 
 

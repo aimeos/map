@@ -803,10 +803,10 @@ Map::from( [1, 3, 5] )->at( 3 );
 Returns the average of all integer and float values in the map.
 
 ```php
-public function avg( string $key = null ) : float
+public function avg( string $col = null ) : float
 ```
 
-* @param **string&#124;null** `$key` Key or path to the values in the nested array or object to compute the average for
+* @param **Closure&#124;string&#124;null** `$col` Closure, key or path to the values in the nested array or object to compute the average for
 * @return **float** Average of all elements or 0 if there are no elements in the map
 
 This does also work for multi-dimensional arrays by passing the keys
@@ -821,7 +821,7 @@ Map::from( [1, 3, 5] )->avg();
 // 3
 
 Map::from( [1, null, 5] )->avg();
-// 2
+// 3
 
 Map::from( [1, 'sum', 5] )->avg();
 // 2
@@ -831,6 +831,9 @@ Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( 'p' );
 
 Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( 'i/p' );
 // 40
+
+Map::from( [30, 50, 10] )->avg( fn( $val, $key ) => $val < 50 ? $val : null );
+// 20
 ```
 
 

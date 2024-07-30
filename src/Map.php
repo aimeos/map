@@ -520,25 +520,34 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( [1, 'sum', 5] )->avg();
 	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( 'p' );
 	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( 'i/p' );
+	 *  Map::from( [30, 50, 10] )->avg( fn( $val, $key ) => $val < 50 ? $val : null );
 	 *
 	 * Results:
-	 * The first line will return "3", the second and third one "2", the forth
-	 * one "30" and the last one "40".
+	 * The first and second line will return "3", the third one "2", the forth
+	 * one "30", the fifth one "40" and the last one "20".
 	 *
-	 * NULL values are treated as 0, non-numeric values will generate an error.
+	 * NULL values are ignored, non-numeric values will generate an error.
 	 *
 	 * This does also work for multi-dimensional arrays by passing the keys
 	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
 	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
 	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
-	 * @param string|null $key Key or path to the values in the nested array or object to compute the average for
+	 * @param Closure|string|null $col Closure, key or path to the values in the nested array or object to compute the average for
 	 * @return float Average of all elements or 0 if there are no elements in the map
 	 */
-	public function avg( string $key = null ) : float
+	public function avg( $col = null ) : float
 	{
-		$cnt = count( $this->list() );
-		return $cnt > 0 ? $this->sum( $key ) / $cnt : 0;
+		if( $col instanceof \Closure ) {
+			$vals = array_map( $col, array_values( $this->list() ), array_keys( $this->list() ) );
+		} else {
+			$vals = $col !== null ? $this->col( $col )->toArray() : $this->list();
+		}
+
+		$vals = array_filter( $vals, fn( $val ) => $val !== null );
+		$cnt = count( $vals );
+
+		return $cnt > 0 ? array_sum( $vals ) / $cnt : 0;
 	}
 
 
@@ -4682,7 +4691,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			$vals = $col !== null ? $this->col( $col )->toArray() : $this->list();
 		}
 
-		return !empty( $vals ) ? array_sum( $vals ) : 0;
+		return array_sum( $vals );
 	}
 
 
