@@ -4658,10 +4658,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( [1, 'sum', 5] )->sum();
 	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' );
 	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( 'i/p' );
+	 *  Map::from( [30, 50, 10] )->sum( fn( $val, $key ) => $val < 50 ? $val : 0 );
 	 *
 	 * Results:
 	 * The first line will return "9", the second one "6", the third one "90"
-	 * and the last one "80".
+	 * the forth on "80" and the last one "40".
 	 *
 	 * NULL values are treated as 0, non-numeric values will generate an error.
 	 *
@@ -4670,12 +4671,23 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
 	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
-	 * @param string|null $key Key or path to the values in the nested array or object to sum up
+	 * @param Closure|string|null $col Closure, key or path to the values in the nested array or object to sum up
 	 * @return float Sum of all elements or 0 if there are no elements in the map
 	 */
-	public function sum( string $key = null ) : float
+	public function sum( $col = null ) : float
 	{
-		$vals = $key !== null ? $this->col( $key )->toArray() : $this->list();
+		if( $col instanceof \Closure )
+		{
+			$vals = [];
+			foreach( $this->list() as $key => $val ) {
+				$vals[] = $col( $val, $key );
+			}
+		}
+		else
+		{
+			$vals = $col !== null ? $this->col( $col )->toArray() : $this->list();
+		}
+
 		return !empty( $vals ) ? array_sum( $vals ) : 0;
 	}
 

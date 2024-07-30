@@ -5093,10 +5093,10 @@ Map::from( ['a', 'b'] )->suffix( function( $item, $key ) {
 Returns the sum of all integer and float values in the map.
 
 ```php
-public function sum( string $col = null ) : float
+public function sum( $col = null ) : float
 ```
 
-* @param **string&#124;null** `$col` Key in the nested array or object to sum up
+* @param **Closure&#124;string&#124;null** `$col` Closure, key in the nested array or object to sum up
 * @return **float** Sum of all elements or 0 if there are no elements in the map
 
 This does also work to map values from multi-dimensional arrays by passing the keys
@@ -5118,6 +5118,9 @@ Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' );
 
 Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( 'i/p' );
 // 80
+
+Map::from( [30, 50, 10] )->sum( fn( $val, $key ) => $val < 50 ? $val : 0 );
+// 40
 ```
 
 

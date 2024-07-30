@@ -3074,6 +3074,13 @@ Array
 	}
 
 
+	public function testSumClosure()
+	{
+		$this->assertSame( 40.0, Map::from( [30, 50, 10] )->sum( fn( $val ) => $val < 50 ? $val : 0 ) );
+		$this->assertSame( 60.0, Map::from( [30, 50, 10] )->sum( fn( $val, $key ) => $key > 0 ? $val : 0 ) );
+	}
+
+
 	public function testSumPath()
 	{
 		$this->assertSame( 90.0, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' ) );
