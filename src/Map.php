@@ -544,7 +544,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			$vals = $col !== null ? $this->col( $col )->toArray() : $this->list();
 		}
 
-		$vals = array_filter( $vals, fn( $val ) => $val !== null );
+		$vals = array_filter( $vals, function( $val ) {
+			return $val !== null;
+		} );
 		$cnt = count( $vals );
 
 		return $cnt > 0 ? array_sum( $vals ) / $cnt : 0;
