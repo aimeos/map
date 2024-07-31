@@ -214,6 +214,7 @@ will return:
 <a href="#order">order</a>
 <a href="#pad">pad</a>
 <a href="#partition">partition</a>
+<a href="#percentage">percentage</a>
 <a href="#pipe">pipe</a>
 <a href="#pluck">pluck</a>
 <a href="#pop">pop</a>
@@ -344,6 +345,7 @@ will return:
 * [countBy()](#countby) : Counts how often the same values are in the map
 * [max()](#max) : Returns the maximum value of all elements
 * [min()](#min) : Returns the minium value of all elements
+* [percentage()](#percentage) : Returns the percentage of all elements passing the test
 * [sum()](#sum) : Returns the sum of all values in the map
 
 ### Debug
@@ -3798,6 +3800,41 @@ Map::from( [1, 2, 3, 4, 5] )->partition( function( $val, $idx ) {
 	return $idx % 3;
 } );
 // [0 => [0 => 1, 3 => 4], 1 => [1 => 2, 4 => 5], 2 => [2 => 3]]
+```
+
+
+### percentage()
+
+Returns the percentage of all elements passing the test in the map.
+
+```php
+public function percentage( \Closure $fcn, int $precision = 2 ) : float
+```
+
+* @param **\Closure** `$fcn` Closure to filter the values in the nested array or object to compute the percentage
+* @param **int** `$precision` Number of decimal digits use by the result value
+* @return **float** Percentage of all elements passing the test in the map
+
+**Examples:**
+
+```php
+Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val < 50 );
+// 66.67
+
+Map::from( [] )->percentage( fn( $val, $key ) => true );
+// 0.0
+
+Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val > 100 );
+// 0.0
+
+Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val > 30, 3 );
+// 33.333
+
+Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val > 30, 0 );
+// 33.0
+
+Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val < 50, -1 );
+// 70.0
 ```
 
 

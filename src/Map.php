@@ -3296,6 +3296,34 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Returns the percentage of all elements passing the test in the map.
+	 *
+	 * Examples:
+	 *  Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val < 50 );
+	 *  Map::from( [] )->percentage( fn( $val, $key ) => true );
+	 *  Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val > 100 );
+	 *  Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val > 30, 3 );
+	 *  Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val > 30, 0 );
+	 *  Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val < 50, -1 );
+	 *
+	 * Results:
+	 * The first line will return "66.67", the second and third one "0.0", the forth
+	 * one "33.333", the fifth one "33.0" and the last one "70.0" (66 rounded up).
+	 *
+	 * @param Closure $fcn Closure to filter the values in the nested array or object to compute the percentage
+	 * @param int $precision Number of decimal digits use by the result value
+	 * @return float Percentage of all elements passing the test in the map
+	 */
+	public function percentage( \Closure $fcn, int $precision = 2 ) : float
+	{
+		$vals = array_filter( $this->list(), $fcn, ARRAY_FILTER_USE_BOTH );
+
+		$cnt = count( $this->list() );
+		return $cnt > 0 ? round( count( $vals ) * 100 / $cnt, $precision ) : 0;
+	}
+
+
+	/**
 	 * Passes the map to the given callback and return the result.
 	 *
 	 * Examples:
