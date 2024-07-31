@@ -3332,10 +3332,10 @@ Map::from( ['a' => 2, 'b' => 4] )->map( function( $value, $key ) {
 Returns the maximum value of all elements.
 
 ```php
-public function max( string $col = null )
+public function max( $col = null )
 ```
 
-* @param **string&#124;null** `$col` Key in the nested array or object to check for
+* @param **Closure&#124;string&#124;null** `$col` Closure, key in the nested array or object to check for
 * @return **mixed** Maximum value or NULL if there are no elements in the map
 
 This does also work to map values from multi-dimensional arrays by passing the keys
@@ -3360,6 +3360,9 @@ Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' );
 
 Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( 'i/p' );
 // 50
+
+Map::from( [50, 10, 30] )->max( fn( $val, $key ) => $key > 0 ? $val : null );
+// 30
 ```
 
 

@@ -1977,6 +1977,13 @@ Array
 	}
 
 
+	public function testMaxClosure()
+	{
+		$this->assertSame( 30, Map::from( [50, 10, 30] )->max( function( $val ) { return $val < 50 ? $val : null; } ) );
+		$this->assertSame( 30, Map::from( [50, 10, 30] )->max( function( $val, $key ) { return $key > 0 ? $val : null; } ) );
+	}
+
+
 	public function testMaxEmpty()
 	{
 		$this->assertNull( Map::from( [] )->max() );
