@@ -2267,12 +2267,12 @@ Array
 
 	public function testPercentage()
 	{
-		$this->assertSame( 66.67, Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val < 50 ) );
-		$this->assertSame( 0.0, Map::from( [] )->percentage( fn( $val, $key ) => true ) );
-		$this->assertSame( 0.0, Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val > 100 ) );
-		$this->assertSame( 33.333, Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val > 30, 3 ) );
-		$this->assertSame( 33.0, Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val > 30, 0 ) );
-		$this->assertSame( 70.0, Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val < 50, -1 ) );
+		$this->assertSame( 66.67, Map::from( [30, 50, 10] )->percentage( function( $val, $key ) { return $val < 50; } ) );
+		$this->assertSame( 0.0, Map::from( [] )->percentage( function( $val, $key ) { return true; } ) );
+		$this->assertSame( 0.0, Map::from( [30, 50, 10] )->percentage( function( $val, $key ) { return $val > 100; } ) );
+		$this->assertSame( 33.333, Map::from( [30, 50, 10] )->percentage( function( $val, $key ) { return $val > 30; }, 3 ) );
+		$this->assertSame( 33.0, Map::from( [30, 50, 10] )->percentage( function( $val, $key ) { return $val > 30; }, 0 ) );
+		$this->assertSame( 70.0, Map::from( [30, 50, 10] )->percentage( function( $val, $key ) { return $val < 50; }, -1 ) );
 	}
 
 
