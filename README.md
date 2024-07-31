@@ -190,6 +190,7 @@ will return:
 <a href="#isnumeric">isNumeric</a>
 <a href="#isobject">isObject</a>
 <a href="#isscalar">isScalar</a>
+<a href="#isstring">isString</a>
 <a href="#join">join</a>
 <a href="#jsonserialize">jsonSerialize</a>
 <a href="#keys">keys</a>
@@ -413,6 +414,7 @@ will return:
 * [isNumeric()](#isnumeric) : Tests if all entries are numeric values
 * [isObject()](#isobject) : Tests if all entries are objects
 * [isScalar()](#isscalar) : Tests if all entries are scalar values.
+* [isString()](#isstring) : Tests if all entries are string values.
 * [implements()](#implements) : Tests if all entries are objects implementing the interface
 * [none()](#none) : Tests if none of the elements are part of the map
 * [some()](#some) : Tests if at least one element is included
@@ -3099,6 +3101,48 @@ Map::from( [null] )->isScalar();
 // false
 
 Map::from( [[1]] )->isScalar();
+// false
+```
+
+
+### isString()
+
+Determines if all entries are string values.
+
+```php
+public function isString() : bool
+```
+
+* @return **bool** TRUE if all map entries are string values, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( ['abc'] )->isString();
+// true
+
+Map::from( [] )->isString();
+// true
+
+Map::from( [1] )->isString();
+// false
+
+Map::from( [1.1] )->isString();
+// false
+
+Map::from( [true, false] )->isString();
+// false
+
+Map::from( [new stdClass] )->isString();
+// false
+
+Map::from( [resource] )->isString();
+// false
+
+Map::from( [null] )->isString();
+// false
+
+Map::from( [[1]] )->isString();
 // false
 ```
 

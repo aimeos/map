@@ -1846,6 +1846,20 @@ Array
 	}
 
 
+	public function testIsString()
+	{
+		$this->assertTrue( Map::from( [] )->isString() );
+		$this->assertTrue( Map::from( ['abc'] )->isString() );
+
+		$this->assertFalse( Map::from( [1] )->isString() );
+		$this->assertFalse( Map::from( [1.1] )->isString() );
+		$this->assertFalse( Map::from( [true, false] )->isString() );
+		$this->assertFalse( Map::from( [new \stdClass] )->isString() );
+		$this->assertFalse( Map::from( [null] )->isString() );
+		$this->assertFalse( Map::from( [[1]] )->isString() );
+	}
+
+
 	public function testJoin()
 	{
 		$m = new Map( ['a', 'b', null, false] );

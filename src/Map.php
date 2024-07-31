@@ -2535,16 +2535,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function isNumeric() : bool
 	{
-		$result = true;
-
 		foreach( $this->list() as $val )
 		{
 			if( !is_numeric( $val ) ) {
-				$result = false;
+				return false;
 			}
 		}
 
-		return $result;
+		return true;
 	}
 
 
@@ -2563,16 +2561,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function isObject() : bool
 	{
-		$result = true;
-
 		foreach( $this->list() as $val )
 		{
 			if( !is_object( $val ) ) {
-				$result = false;
+				return false;
 			}
 		}
 
-		return $result;
+		return true;
 	}
 
 
@@ -2597,16 +2593,46 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function isScalar() : bool
 	{
-		$result = true;
-
 		foreach( $this->list() as $val )
 		{
 			if( !is_scalar( $val ) ) {
-				$result = false;
+				return false;
 			}
 		}
 
-		return $result;
+		return true;
+	}
+
+
+	/**
+	 * Determines if all entries are string values.
+	 *
+	 * Examples:
+	 *  Map::from( ['abc'] )->isString();
+	 *  Map::from( [] )->isString();
+	 *  Map::from( [1] )->isString();
+	 *  Map::from( [1.1] )->isString();
+	 *  Map::from( [true, false] )->isString();
+	 *  Map::from( [new stdClass] )->isString();
+	 *  Map::from( [#resource] )->isString();
+	 *  Map::from( [null] )->isString();
+	 *  Map::from( [[1]] )->isString();
+	 *
+	 * Results:
+	 *  The first two examples return TRUE while the others return FALSE
+	 *
+	 * @return bool TRUE if all map entries are string values, FALSE if not
+	 */
+	public function isString() : bool
+	{
+		foreach( $this->list() as $val )
+		{
+			if( !is_string( $val ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 
