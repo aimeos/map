@@ -148,8 +148,8 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testAvgClosure()
 	{
-		$this->assertSame( 20.0, Map::from( [30, 50, 10] )->avg( fn( $val ) => $val < 50 ? $val : null ) );
-		$this->assertSame( 30.0, Map::from( [30, 50, 10] )->avg( fn( $val, $key ) => $key < 1 ? $val : null ) );
+		$this->assertSame( 20.0, Map::from( [30, 50, 10] )->avg( function( $val ) { return $val < 50 ? $val : null; } ) );
+		$this->assertSame( 30.0, Map::from( [30, 50, 10] )->avg( function( $val, $key ) { return $key < 1 ? $val : null; } ) );
 	}
 
 
@@ -3083,8 +3083,8 @@ Array
 
 	public function testSumClosure()
 	{
-		$this->assertSame( 40.0, Map::from( [30, 50, 10] )->sum( fn( $val ) => $val < 50 ? $val : 0 ) );
-		$this->assertSame( 60.0, Map::from( [30, 50, 10] )->sum( fn( $val, $key ) => $key > 0 ? $val : 0 ) );
+		$this->assertSame( 40.0, Map::from( [30, 50, 10] )->sum( function( $val ) { return $val < 50 ? $val : 0; } ) );
+		$this->assertSame( 60.0, Map::from( [30, 50, 10] )->sum( function( $val, $key ) { return $key > 0 ? $val : 0; } ) );
 	}
 
 
