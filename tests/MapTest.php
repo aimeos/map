@@ -141,15 +141,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testAvg()
 	{
 		$this->assertSame( 3.0, Map::from( [1, 3, 5] )->avg() );
-		$this->assertSame( 3.0, Map::from( [1, null, 5] )->avg() );
+		$this->assertSame( 2.0, Map::from( [1, null, 5] )->avg() );
 		$this->assertSame( 2.0, Map::from( [1, 0.0, 5] )->avg() );
 	}
 
 
 	public function testAvgClosure()
 	{
-		$this->assertSame( 20.0, Map::from( [30, 50, 10] )->avg( function( $val ) { return $val < 50 ? $val : null; } ) );
-		$this->assertSame( 30.0, Map::from( [30, 50, 10] )->avg( function( $val, $key ) { return $key < 1 ? $val : null; } ) );
+		$this->assertSame( 20.0, Map::from( [30, 50, 10] )->avg( function( $val ) { return $val < 50; } ) );
+		$this->assertSame( 30.0, Map::from( [30, 50, 10] )->avg( function( $val, $key ) { return $key < 1; } ) );
 	}
 
 
@@ -1979,8 +1979,8 @@ Array
 
 	public function testMaxClosure()
 	{
-		$this->assertSame( 30, Map::from( [50, 10, 30] )->max( function( $val ) { return $val < 50 ? $val : null; } ) );
-		$this->assertSame( 30, Map::from( [50, 10, 30] )->max( function( $val, $key ) { return $key > 0 ? $val : null; } ) );
+		$this->assertSame( 30, Map::from( [50, 10, 30] )->max( function( $val ) { return $val < 50; } ) );
+		$this->assertSame( 30, Map::from( [50, 10, 30] )->max( function( $val, $key ) { return $key > 0; } ) );
 	}
 
 
@@ -2088,8 +2088,8 @@ Array
 
 	public function testMinClosure()
 	{
-		$this->assertSame( 30, Map::from( [10, 50, 30] )->min( function( $val ) { return $val > 10 ? $val : null; } ) );
-		$this->assertSame( 30, Map::from( [10, 50, 30] )->min( function( $val, $key ) { return $key > 0 ? $val : null; } ) );
+		$this->assertSame( 30, Map::from( [10, 50, 30] )->min( function( $val ) { return $val > 10; } ) );
+		$this->assertSame( 30, Map::from( [10, 50, 30] )->min( function( $val, $key ) { return $key > 0; } ) );
 	}
 
 

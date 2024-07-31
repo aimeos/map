@@ -520,13 +520,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( [1, 'sum', 5] )->avg();
 	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( 'p' );
 	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( 'i/p' );
-	 *  Map::from( [30, 50, 10] )->avg( fn( $val, $key ) => $val < 50 ? $val : null );
+	 *  Map::from( [30, 50, 10] )->avg( fn( $val, $key ) => $val < 50 );
 	 *
 	 * Results:
 	 * The first and second line will return "3", the third one "2", the forth
 	 * one "30", the fifth one "40" and the last one "20".
 	 *
-	 * NULL values are ignored, non-numeric values will generate an error.
+	 * NULL values are treated as 0, non-numeric values will generate an error.
 	 *
 	 * This does also work for multi-dimensional arrays by passing the keys
 	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
@@ -539,16 +539,16 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function avg( $col = null ) : float
 	{
 		if( $col instanceof \Closure ) {
-			$vals = array_map( $col, array_values( $this->list() ), array_keys( $this->list() ) );
+			$vals = array_filter( $this->list(), $col, ARRAY_FILTER_USE_BOTH );
+		} elseif( is_string( $col ) ) {
+			$vals = $this->col( $col )->toArray();
+		} elseif( is_null( $col ) ) {
+			$vals = $this->list();
 		} else {
-			$vals = $col !== null ? $this->col( $col )->toArray() : $this->list();
+			throw new \InvalidArgumentException( 'Parameter is no closure or string' );
 		}
 
-		$vals = array_filter( $vals, function( $val ) {
-			return $val !== null;
-		} );
 		$cnt = count( $vals );
-
 		return $cnt > 0 ? array_sum( $vals ) / $cnt : 0;
 	}
 
@@ -2855,7 +2855,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['bar', 'foo', 'baz'] )->max()
 	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' )
 	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( 'i/p' )
-	 *  Map::from( [50, 10, 30] )->max( fn( $val, $key ) => $key > 0 ? $val : null )
+	 *  Map::from( [50, 10, 30] )->max( fn( $val, $key ) => $key > 0 )
 	 *
 	 * Results:
 	 * The first line will return "5", the second one "foo" and the third/fourth
@@ -2935,7 +2935,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['baz', 'foo', 'bar'] )->min()
 	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' )
 	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( 'i/p' )
-	 *  Map::from( [10, 50, 30] )->min( fn( $val, $key ) => $key > 0 ? $val : null )
+	 *  Map::from( [10, 50, 30] )->min( fn( $val, $key ) => $key > 0 )
 	 *
 	 * Results:
 	 * The first line will return "1", the second one "bar", the third one
@@ -4689,7 +4689,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( [1, 'sum', 5] )->sum();
 	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' );
 	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( 'i/p' );
-	 *  Map::from( [30, 50, 10] )->sum( fn( $val, $key ) => $val < 50 ? $val : 0 );
+	 *  Map::from( [30, 50, 10] )->sum( fn( $val, $key ) => $val < 50 );
 	 *
 	 * Results:
 	 * The first line will return "9", the second one "6", the third one "90"
@@ -4708,9 +4708,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function sum( $col = null ) : float
 	{
 		if( $col instanceof \Closure ) {
-			$vals = array_map( $col, array_values( $this->list() ), array_keys( $this->list() ) );
+			$vals = array_filter( $this->list(), $col, ARRAY_FILTER_USE_BOTH );
+		} elseif( is_string( $col ) ) {
+			$vals = $this->col( $col )->toArray();
+		} elseif( is_null( $col ) ) {
+			$vals = $this->list();
 		} else {
-			$vals = $col !== null ? $this->col( $col )->toArray() : $this->list();
+			throw new \InvalidArgumentException( 'Parameter is no closure or string' );
 		}
 
 		return array_sum( $vals );

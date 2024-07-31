@@ -809,6 +809,8 @@ public function avg( $col = null ) : float
 * @param **Closure&#124;string&#124;null** `$col` Closure, key or path to the values in the nested array or object to compute the average for
 * @return **float** Average of all elements or 0 if there are no elements in the map
 
+NULL values are treated as 0, non-numeric values will generate an error.
+
 This does also work for multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
 to get "val" from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
@@ -832,7 +834,7 @@ Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( 'p' );
 Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( 'i/p' );
 // 40
 
-Map::from( [30, 50, 10] )->avg( fn( $val, $key ) => $val < 50 ? $val : null );
+Map::from( [30, 50, 10] )->avg( fn( $val, $key ) => $val < 50 );
 // 20
 ```
 
@@ -3361,7 +3363,7 @@ Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' );
 Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( 'i/p' );
 // 50
 
-Map::from( [50, 10, 30] )->max( fn( $val, $key ) => $key > 0 ? $val : null );
+Map::from( [50, 10, 30] )->max( fn( $val, $key ) => $key > 0 );
 // 30
 ```
 
@@ -3483,7 +3485,7 @@ Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' );
 Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( 'i/p' );
 // 30
 
-Map::from( [10, 50, 30] )->min( fn( $val, $key ) => $key > 0 ? $val : null );
+Map::from( [10, 50, 30] )->min( fn( $val, $key ) => $key > 0 );
 // 30
 ```
 
