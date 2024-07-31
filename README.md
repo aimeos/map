@@ -3451,10 +3451,10 @@ Map::foo( 'foo', 'baz' );
 Returns the minimum value of all elements.
 
 ```php
-public function min( string $col = null )
+public function min( $col = null )
 ```
 
-* @param **string&#124;null** `$col` Key in the nested array or object to check for
+* @param **Closure&#124;string&#124;null** `$col` Closure, key in the nested array or object to check for
 * @return **mixed** Minimum value or NULL if there are no elements in the map
 
 This does also work to map values from multi-dimensional arrays by passing the keys
@@ -3478,6 +3478,9 @@ Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' );
 // 10
 
 Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( 'i/p' );
+// 30
+
+Map::from( [10, 50, 30] )->min( fn( $val, $key ) => $key > 0 ? $val : null );
 // 30
 ```
 

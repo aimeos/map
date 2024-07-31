@@ -2925,10 +2925,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['baz', 'foo', 'bar'] )->min()
 	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' )
 	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( 'i/p' )
+	 *  Map::from( [10, 50, 30] )->min( fn( $val, $key ) => $key > 0 ? $val : null )
 	 *
 	 * Results:
 	 * The first line will return "1", the second one "bar", the third one
-	 * returns 10 while the last one returns 30.
+	 * 10, the forth and last one 30.
 	 *
 	 * This does also work for multi-dimensional arrays by passing the keys
 	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
@@ -2939,12 +2940,21 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * unpredictable results due to the PHP comparison rules:
 	 * {@link https://www.php.net/manual/en/language.operators.comparison.php}
 	 *
-	 * @param string|null $key Key or path to the value of the nested array or object
+	 * @param Closure|string|null $key Closure, key or path to the value of the nested array or object
 	 * @return mixed Minimum value or NULL if there are no elements in the map
 	 */
-	public function min( string $key = null )
+	public function min( $col = null )
 	{
-		$vals = $key !== null ? $this->col( $key )->toArray() : $this->list();
+		if( $col instanceof \Closure ) {
+			$vals = array_filter( $this->list(), $col, ARRAY_FILTER_USE_BOTH );
+		} elseif( is_string( $col ) ) {
+			$vals = $this->col( $col )->toArray();
+		} elseif( is_null( $col ) ) {
+			$vals = $this->list();
+		} else {
+			throw new \InvalidArgumentException( 'Parameter is no closure or string' );
+		}
+
 		return !empty( $vals ) ? min( $vals ) : null;
 	}
 
