@@ -3122,8 +3122,8 @@ Array
 
 	public function testSumClosure()
 	{
-		$this->assertSame( 40.0, Map::from( [30, 50, 10] )->sum( function( $val ) { return $val < 50 ? $val : 0; } ) );
-		$this->assertSame( 60.0, Map::from( [30, 50, 10] )->sum( function( $val, $key ) { return $key > 0 ? $val : 0; } ) );
+		$this->assertSame( 40.0, Map::from( [30, 50, 10] )->sum( function( $val ) { return $val < 50; } ) );
+		$this->assertSame( 60.0, Map::from( [30, 50, 10] )->sum( function( $val, $key ) { return $key > 0; } ) );
 	}
 
 
