@@ -2456,7 +2456,7 @@ a void return type and must/will always return something. Details about
 [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
 
 
-# implements()
+### implements()
 
 Tests if all entries in the map are objects implementing the given interface.
 
@@ -2521,7 +2521,7 @@ Map::from( ['1', '2'] )->in( 2, true );
 ```
 
 
-## includes()
+### includes()
 
 Tests if the passed element or elements are part of the map.
 
@@ -5625,7 +5625,7 @@ Map::from( ['a' => 'B', 'b' => 'a'] )->uasort( function( $itemA, $itemB ) {
 ```
 
 
-## uksort()
+### uksort()
 
 Sorts the map elements by their keys using a callback.
 
