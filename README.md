@@ -190,6 +190,7 @@ will return:
 <a href="#isnumeric">isNumeric</a>
 <a href="#isobject">isObject</a>
 <a href="#isscalar">isScalar</a>
+<a href="#isstring">isString</a>
 <a href="#join">join</a>
 <a href="#jsonserialize">jsonSerialize</a>
 <a href="#keys">keys</a>
@@ -213,6 +214,7 @@ will return:
 <a href="#order">order</a>
 <a href="#pad">pad</a>
 <a href="#partition">partition</a>
+<a href="#percentage">percentage</a>
 <a href="#pipe">pipe</a>
 <a href="#pluck">pluck</a>
 <a href="#pop">pop</a>
@@ -342,7 +344,8 @@ will return:
 * [count()](#count) : Returns the total number of elements
 * [countBy()](#countby) : Counts how often the same values are in the map
 * [max()](#max) : Returns the maximum value of all elements
-* [min()](#max) : Returns the minium value of all elements
+* [min()](#min) : Returns the minium value of all elements
+* [percentage()](#percentage) : Returns the percentage of all elements passing the test
 * [sum()](#sum) : Returns the sum of all values in the map
 
 ### Debug
@@ -413,6 +416,7 @@ will return:
 * [isNumeric()](#isnumeric) : Tests if all entries are numeric values
 * [isObject()](#isobject) : Tests if all entries are objects
 * [isScalar()](#isscalar) : Tests if all entries are scalar values.
+* [isString()](#isstring) : Tests if all entries are string values.
 * [implements()](#implements) : Tests if all entries are objects implementing the interface
 * [none()](#none) : Tests if none of the elements are part of the map
 * [some()](#some) : Tests if at least one element is included
@@ -803,11 +807,13 @@ Map::from( [1, 3, 5] )->at( 3 );
 Returns the average of all integer and float values in the map.
 
 ```php
-public function avg( string $key = null ) : float
+public function avg( $col = null ) : float
 ```
 
-* @param **string&#124;null** `$key` Key or path to the values in the nested array or object to compute the average for
+* @param **Closure&#124;string&#124;null** `$col` Closure, key or path to the values in the nested array or object to compute the average for
 * @return **float** Average of all elements or 0 if there are no elements in the map
+
+NULL values are treated as 0, non-numeric values will generate an error.
 
 This does also work for multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
@@ -821,7 +827,7 @@ Map::from( [1, 3, 5] )->avg();
 // 3
 
 Map::from( [1, null, 5] )->avg();
-// 2
+// 3
 
 Map::from( [1, 'sum', 5] )->avg();
 // 2
@@ -831,6 +837,9 @@ Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( 'p' );
 
 Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( 'i/p' );
 // 40
+
+Map::from( [30, 50, 10] )->avg( fn( $val, $key ) => $val < 50 );
+// 20
 ```
 
 
@@ -3098,6 +3107,48 @@ Map::from( [[1]] )->isScalar();
 ```
 
 
+### isString()
+
+Determines if all entries are string values.
+
+```php
+public function isString() : bool
+```
+
+* @return **bool** TRUE if all map entries are string values, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( ['abc'] )->isString();
+// true
+
+Map::from( [] )->isString();
+// true
+
+Map::from( [1] )->isString();
+// false
+
+Map::from( [1.1] )->isString();
+// false
+
+Map::from( [true, false] )->isString();
+// false
+
+Map::from( [new stdClass] )->isString();
+// false
+
+Map::from( [resource] )->isString();
+// false
+
+Map::from( [null] )->isString();
+// false
+
+Map::from( [[1]] )->isString();
+// false
+```
+
+
 ### join()
 
 Concatenates the string representation of all elements.
@@ -3329,10 +3380,10 @@ Map::from( ['a' => 2, 'b' => 4] )->map( function( $value, $key ) {
 Returns the maximum value of all elements.
 
 ```php
-public function max( string $col = null )
+public function max( $col = null )
 ```
 
-* @param **string&#124;null** `$col` Key in the nested array or object to check for
+* @param **Closure&#124;string&#124;null** `$col` Closure, key in the nested array or object to check for
 * @return **mixed** Maximum value or NULL if there are no elements in the map
 
 This does also work to map values from multi-dimensional arrays by passing the keys
@@ -3357,6 +3408,9 @@ Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' );
 
 Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( 'i/p' );
 // 50
+
+Map::from( [50, 10, 30] )->max( fn( $val, $key ) => $key > 0 );
+// 30
 ```
 
 
@@ -3448,10 +3502,10 @@ Map::foo( 'foo', 'baz' );
 Returns the minimum value of all elements.
 
 ```php
-public function min( string $col = null )
+public function min( $col = null )
 ```
 
-* @param **string&#124;null** `$col` Key in the nested array or object to check for
+* @param **Closure&#124;string&#124;null** `$col` Closure, key in the nested array or object to check for
 * @return **mixed** Minimum value or NULL if there are no elements in the map
 
 This does also work to map values from multi-dimensional arrays by passing the keys
@@ -3475,6 +3529,9 @@ Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' );
 // 10
 
 Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( 'i/p' );
+// 30
+
+Map::from( [10, 50, 30] )->min( fn( $val, $key ) => $key > 0 );
 // 30
 ```
 
@@ -3743,6 +3800,41 @@ Map::from( [1, 2, 3, 4, 5] )->partition( function( $val, $idx ) {
 	return $idx % 3;
 } );
 // [0 => [0 => 1, 3 => 4], 1 => [1 => 2, 4 => 5], 2 => [2 => 3]]
+```
+
+
+### percentage()
+
+Returns the percentage of all elements passing the test in the map.
+
+```php
+public function percentage( \Closure $fcn, int $precision = 2 ) : float
+```
+
+* @param **\Closure** `$fcn` Closure to filter the values in the nested array or object to compute the percentage
+* @param **int** `$precision` Number of decimal digits use by the result value
+* @return **float** Percentage of all elements passing the test in the map
+
+**Examples:**
+
+```php
+Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val < 50 );
+// 66.67
+
+Map::from( [] )->percentage( fn( $val, $key ) => true );
+// 0.0
+
+Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val > 100 );
+// 0.0
+
+Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val > 30, 3 );
+// 33.333
+
+Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val > 30, 0 );
+// 33.0
+
+Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val < 50, -1 );
+// 70.0
 ```
 
 
@@ -5093,10 +5185,10 @@ Map::from( ['a', 'b'] )->suffix( function( $item, $key ) {
 Returns the sum of all integer and float values in the map.
 
 ```php
-public function sum( string $col = null ) : float
+public function sum( $col = null ) : float
 ```
 
-* @param **string&#124;null** `$col` Key in the nested array or object to sum up
+* @param **Closure&#124;string&#124;null** `$col` Closure, key in the nested array or object to sum up
 * @return **float** Sum of all elements or 0 if there are no elements in the map
 
 This does also work to map values from multi-dimensional arrays by passing the keys
@@ -5118,6 +5210,9 @@ Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' );
 
 Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( 'i/p' );
 // 80
+
+Map::from( [30, 50, 10] )->sum( fn( $val, $key ) => $val < 50 ? $val : 0 );
+// 40
 ```
 
 

@@ -146,6 +146,13 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testAvgClosure()
+	{
+		$this->assertSame( 20.0, Map::from( [30, 50, 10] )->avg( function( $val ) { return $val < 50; } ) );
+		$this->assertSame( 30.0, Map::from( [30, 50, 10] )->avg( function( $val, $key ) { return $key < 1; } ) );
+	}
+
+
 	public function testAvgPath()
 	{
 		$this->assertSame( 30.0, Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( 'p' ) );
@@ -1839,6 +1846,20 @@ Array
 	}
 
 
+	public function testIsString()
+	{
+		$this->assertTrue( Map::from( [] )->isString() );
+		$this->assertTrue( Map::from( ['abc'] )->isString() );
+
+		$this->assertFalse( Map::from( [1] )->isString() );
+		$this->assertFalse( Map::from( [1.1] )->isString() );
+		$this->assertFalse( Map::from( [true, false] )->isString() );
+		$this->assertFalse( Map::from( [new \stdClass] )->isString() );
+		$this->assertFalse( Map::from( [null] )->isString() );
+		$this->assertFalse( Map::from( [[1]] )->isString() );
+	}
+
+
 	public function testJoin()
 	{
 		$m = new Map( ['a', 'b', null, false] );
@@ -1970,6 +1991,13 @@ Array
 	}
 
 
+	public function testMaxClosure()
+	{
+		$this->assertSame( 30, Map::from( [50, 10, 30] )->max( function( $val ) { return $val < 50; } ) );
+		$this->assertSame( 30, Map::from( [50, 10, 30] )->max( function( $val, $key ) { return $key > 0; } ) );
+	}
+
+
 	public function testMaxEmpty()
 	{
 		$this->assertNull( Map::from( [] )->max() );
@@ -2069,6 +2097,13 @@ Array
 	{
 		$this->assertSame( 1, Map::from( [2, 3, 1, 5, 4] )->min() );
 		$this->assertSame( 'bar', Map::from( ['baz', 'foo', 'bar'] )->min() );
+	}
+
+
+	public function testMinClosure()
+	{
+		$this->assertSame( 30, Map::from( [10, 50, 30] )->min( function( $val ) { return $val > 10; } ) );
+		$this->assertSame( 30, Map::from( [10, 50, 30] )->min( function( $val, $key ) { return $key > 0; } ) );
 	}
 
 
@@ -2227,6 +2262,17 @@ Array
 	{
 		$this->expectException( \InvalidArgumentException::class );
 		Map::from( [1] )->partition( [] );
+	}
+
+
+	public function testPercentage()
+	{
+		$this->assertSame( 66.67, Map::from( [30, 50, 10] )->percentage( function( $val, $key ) { return $val < 50; } ) );
+		$this->assertSame( 0.0, Map::from( [] )->percentage( function( $val, $key ) { return true; } ) );
+		$this->assertSame( 0.0, Map::from( [30, 50, 10] )->percentage( function( $val, $key ) { return $val > 100; } ) );
+		$this->assertSame( 33.333, Map::from( [30, 50, 10] )->percentage( function( $val, $key ) { return $val > 30; }, 3 ) );
+		$this->assertSame( 33.0, Map::from( [30, 50, 10] )->percentage( function( $val, $key ) { return $val > 30; }, 0 ) );
+		$this->assertSame( 70.0, Map::from( [30, 50, 10] )->percentage( function( $val, $key ) { return $val < 50; }, -1 ) );
 	}
 
 
@@ -3071,6 +3117,13 @@ Array
 	{
 		$this->assertSame( 9.0, Map::from( [1, 3, 5] )->sum() );
 		$this->assertSame( 6.0, Map::from( [1, 0.0, 5] )->sum() );
+	}
+
+
+	public function testSumClosure()
+	{
+		$this->assertSame( 40.0, Map::from( [30, 50, 10] )->sum( function( $val ) { return $val < 50 ? $val : 0; } ) );
+		$this->assertSame( 60.0, Map::from( [30, 50, 10] )->sum( function( $val, $key ) { return $key > 0 ? $val : 0; } ) );
 	}
 
 
