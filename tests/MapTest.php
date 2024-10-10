@@ -1984,6 +1984,18 @@ Array
 	}
 
 
+	public function testMapKeys()
+	{
+		$m = new Map( ['first' => 'test', 'last' => 'user', 'lost' => 'value'] );
+		$m = $m->mapKeys( function( $value, $key ) {
+			return [$key[0] . '-2' => strrev( $value )];
+		} );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertSame( ['f-2' => 'tset', 'l-2' => 'resu'], $m->toArray() );
+	}
+
+
 	public function testMax()
 	{
 		$this->assertSame( 5, Map::from( [1, 3, 2, 5, 4] )->max() );

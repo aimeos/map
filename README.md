@@ -200,6 +200,7 @@ will return:
 <a href="#lastkey">lastKey</a>
 <a href="#ltrim">ltrim</a>
 <a href="#map">map</a>
+<a href="#mapKeys">mapKeys</a>
 <a href="#max">max</a>
 <a href="#merge">merge</a>
 <a href="#method">method</a>
@@ -440,6 +441,7 @@ will return:
 * [join()](#join) : Returns concatenated elements as string with separator
 * [ltrim()](#ltrim) : Removes the passed characters from the left of all strings
 * [map()](#map) : Applies a callback to each element and returns the results
+* [mapKeys()](#mapKeys) : Applies a callback to each element which creates new key/value pairs
 * [partition()](#partition) : Breaks the list into the given number of groups
 * [pipe()](#pipe) : Applies a callback to the whole map
 * [pluck()](#pluck) : Creates a key/value mapping
@@ -3354,7 +3356,7 @@ Map::from( ["a b c", "cbxa"] )->ltrim( 'abc' );
 
 ### map()
 
-Calls the passed function once for each element and returns a new map for the result.
+Maps new values to the existing keys using the passed function and returns a new map for the result.
 
 ```php
 public function map( callable $callback ) : self
@@ -3372,6 +3374,34 @@ Map::from( ['a' => 2, 'b' => 4] )->map( function( $value, $key ) {
     return $value * 2;
 } );
 // ['a' => 4, 'b' => 8]
+```
+
+
+### mapKeys()
+
+Creates new key/value pairs using the passed function and returns a new map for the result.
+
+```php
+public function map( callable $mapKeys ) : self
+```
+
+* @param **callable** `$callback` Function with (value, key) parameters and returns computed result
+* @return **self&#60;int&#124;string,mixed&#62;** New map with the new key/value pairs
+
+If a key is returned twice, the first value will be used and the second one will be ignored.
+
+**Examples:**
+
+```php
+Map::from( ['a' => 2, 'b' => 4] )->mapKeys( function( $value, $key ) {
+    return [$key . '-2' => $value * 2];
+} );
+// ['a-2' => 4, 'b-2' => 8]
+
+Map::from( ['la' => 2, 'le' => 4, 'li' => 6] )->mapKeys( function( $value, $key ) {
+    return [$key[0] => $value * 2];
+} );
+// ['l' => 4]
 ```
 
 

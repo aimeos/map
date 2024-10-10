@@ -2848,7 +2848,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Calls the passed function once for each element and returns a new map for the result.
+	 * Maps new values to the existing keys using the passed function and returns a new map for the result.
 	 *
 	 * Examples:
 	 *  Map::from( ['a' => 2, 'b' => 4] )->map( function( $value, $key ) {
@@ -2870,6 +2870,38 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		$elements = array_map( $callback, $list, $keys );
 
 		return new static( array_combine( $keys, $elements ) ?: [] );
+	}
+
+
+	/**
+	 * Creates new key/value pairs using the passed function and returns a new map for the result.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 2, 'b' => 4] )->mapKeys( function( $value, $key ) {
+	 *      return [$key . '-2' => $value * 2];
+	 *  } );
+	 *  Map::from( ['la' => 2, 'le' => 4, 'li' => 6] )->mapKeys( function( $value, $key ) {
+	 *      return [$key[0] => $value * 2];
+	 *  } );
+	 *
+	 * Results:
+	 *  ['a-2' => 4, 'b-2' => 8]
+	 * 	['l' => 4]
+	 *
+	 * If a key is returned twice, the first value will be used and the second one will be ignored.
+	 *
+	 * @param callable $callback Function with (value, key) parameters and returns new key/value pair
+	 * @return self<int|string,mixed> New map with the new key/value pairs
+	 */
+	public function mapKeys( callable $callback ) : self
+	{
+		$result = [];
+
+		foreach( $this->list() as $key => $value ) {
+			$result += (array) $callback( $value, $key );
+		}
+
+		return new static( $result );
 	}
 
 
