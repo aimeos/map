@@ -2874,38 +2874,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Creates new key/value pairs using the passed function and returns a new map for the result.
-	 *
-	 * Examples:
-	 *  Map::from( ['a' => 2, 'b' => 4] )->mapKeys( function( $value, $key ) {
-	 *      return [$key . '-2' => $value * 2];
-	 *  } );
-	 *  Map::from( ['la' => 2, 'le' => 4, 'li' => 6] )->mapKeys( function( $value, $key ) {
-	 *      return [$key[0] => $value * 2];
-	 *  } );
-	 *
-	 * Results:
-	 *  ['a-2' => 4, 'b-2' => 8]
-	 * 	['l' => 4]
-	 *
-	 * If a key is returned twice, the first value will be used and the second one will be ignored.
-	 *
-	 * @param callable $callback Function with (value, key) parameters and returns new key/value pair
-	 * @return self<int|string,mixed> New map with the new key/value pairs
-	 */
-	public function mapKeys( callable $callback ) : self
-	{
-		$result = [];
-
-		foreach( $this->list() as $key => $value ) {
-			$result += (array) $callback( $value, $key );
-		}
-
-		return new static( $result );
-	}
-
-
-	/**
 	 * Returns the maximum value of all elements.
 	 *
 	 * Examples:
@@ -4934,6 +4902,49 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function toUrl() : string
 	{
 		return http_build_query( $this->list(), '', '&', PHP_QUERY_RFC3986 );
+	}
+
+
+	/**
+	 * Creates new key/value pairs using the passed function and returns a new map for the result.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 2, 'b' => 4] )->transform( function( $value, $key ) {
+	 *      return [$key . '-2' => $value * 2];
+	 *  } );
+	 *  Map::from( ['a' => 2, 'b' => 4] )->transform( function( $value, $key ) {
+	 *      return [$key => $value * 2, $key . $key => $value * 4];
+	 *  } );
+	 *  Map::from( ['a' => 2, 'b' => 4] )->transform( function( $value, $key ) {
+	 *      return $key < 'b' ? [$key => $value * 2] : null;
+	 *  } );
+	 *  Map::from( ['la' => 2, 'le' => 4, 'li' => 6] )->transform( function( $value, $key ) {
+	 *      return [$key[0] => $value * 2];
+	 *  } );
+	 *
+	 * Results:
+	 *  ['a-2' => 4, 'b-2' => 8]
+	 *  ['a' => 4, 'aa' => 8, 'b' => 8, 'bb' => 16]
+	 *  ['a' => 4]
+	 *  ['l' => 12]
+	 *
+	 * If a key is returned twice, the last value will overwrite previous values.
+	 *
+	 * @param \Closure $callback Function with (value, key) parameters and returns an array of new key/value pair(s)
+	 * @return self<int|string,mixed> New map with the new key/value pairs
+	 */
+	public function transform( \Closure $callback ) : self
+	{
+		$result = [];
+
+		foreach( $this->list() as $key => $value )
+		{
+			foreach( (array) $callback( $value, $key ) as $newkey => $newval ) {
+				$result[$newkey] = $newval;
+			}
+		}
+
+		return new static( $result );
 	}
 
 

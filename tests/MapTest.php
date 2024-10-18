@@ -1984,18 +1984,6 @@ Array
 	}
 
 
-	public function testMapKeys()
-	{
-		$m = new Map( ['first' => 'test', 'last' => 'user', 'lost' => 'value'] );
-		$m = $m->mapKeys( function( $value, $key ) {
-			return [$key[0] . '-2' => strrev( $value )];
-		} );
-
-		$this->assertInstanceOf( Map::class, $m );
-		$this->assertSame( ['f-2' => 'tset', 'l-2' => 'resu'], $m->toArray() );
-	}
-
-
 	public function testMax()
 	{
 		$this->assertSame( 5, Map::from( [1, 3, 2, 5, 4] )->max() );
@@ -3213,6 +3201,50 @@ Array
 		$this->assertEquals( [0 => new \stdClass(), 1 => new \stdClass()], Map::times( 2, function( $num ) {
 			return new \stdClass();
 		} )->toArray() );
+	}
+
+
+	public function testTransform()
+	{
+		$m = Map::from( ['a' => 2, 'b' => 4] )->transform( function( $value, $key ) {
+			return [$key . '-2' => $value * 2];
+		} );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertSame( ['a-2' => 4, 'b-2' => 8], $m->toArray() );
+	}
+
+
+	public function testTransformExtend()
+	{
+		$m = Map::from( ['a' => 2, 'b' => 4] )->transform( function( $value, $key ) {
+			return [$key => $value * 2, $key . $key => $value * 4];
+		} );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertSame( ['a' => 4, 'aa' => 8, 'b' => 8, 'bb' => 16], $m->toArray() );
+	}
+
+
+	public function testTransformShorten()
+	{
+		$m = Map::from( ['a' => 2, 'b' => 4] )->transform( function( $value, $key ) {
+			return $key < 'b' ? [$key => $value * 2] : null;
+		} );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertSame( ['a' => 4], $m->toArray() );
+	}
+
+
+	public function testTransformOverwrite()
+	{
+		$m = Map::from( ['la' => 2, 'le' => 4, 'li' => 6] )->transform( function( $value, $key ) {
+			return [$key[0] => $value * 2];
+		} );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertSame( ['l' => 12], $m->toArray() );
 	}
 
 

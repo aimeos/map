@@ -200,7 +200,6 @@ will return:
 <a href="#lastkey">lastKey</a>
 <a href="#ltrim">ltrim</a>
 <a href="#map">map</a>
-<a href="#mapKeys">mapKeys</a>
 <a href="#max">max</a>
 <a href="#merge">merge</a>
 <a href="#method">method</a>
@@ -264,6 +263,7 @@ will return:
 <a href="#toarray">toArray</a>
 <a href="#tojson">toJson</a>
 <a href="#tourl">toUrl</a>
+<a href="#transform">transform</a>
 <a href="#transpose">transpose</a>
 <a href="#traverse">traverse</a>
 <a href="#tree">tree</a>
@@ -441,7 +441,6 @@ will return:
 * [join()](#join) : Returns concatenated elements as string with separator
 * [ltrim()](#ltrim) : Removes the passed characters from the left of all strings
 * [map()](#map) : Applies a callback to each element and returns the results
-* [mapKeys()](#mapKeys) : Applies a callback to each element which creates new key/value pairs
 * [partition()](#partition) : Breaks the list into the given number of groups
 * [pipe()](#pipe) : Applies a callback to the whole map
 * [pluck()](#pluck) : Creates a key/value mapping
@@ -458,6 +457,7 @@ will return:
 * [suffix()](#suffix) : Adds a suffix to each map entry
 * [toJson()](#tojson) : Returns the elements in JSON format
 * [toUrl()](#tourl) : Creates a HTTP query string
+* [transfrom()](#transfrom) : Applies a callback to each element which creates new key/value pairs
 * [transpose()](#transpose) : Exchanges rows and columns for a two dimensional map
 * [traverse()](#traverse) : Traverses trees of nested items passing each item to the callback
 * [trim()](#trim) : Removes the passed characters from the left/right of all strings
@@ -3377,34 +3377,6 @@ Map::from( ['a' => 2, 'b' => 4] )->map( function( $value, $key ) {
 ```
 
 
-### mapKeys()
-
-Creates new key/value pairs using the passed function and returns a new map for the result.
-
-```php
-public function map( callable $mapKeys ) : self
-```
-
-* @param **callable** `$callback` Function with (value, key) parameters and returns computed result
-* @return **self&#60;int&#124;string,mixed&#62;** New map with the new key/value pairs
-
-If a key is returned twice, the first value will be used and the second one will be ignored.
-
-**Examples:**
-
-```php
-Map::from( ['a' => 2, 'b' => 4] )->mapKeys( function( $value, $key ) {
-    return [$key . '-2' => $value * 2];
-} );
-// ['a-2' => 4, 'b-2' => 8]
-
-Map::from( ['la' => 2, 'le' => 4, 'li' => 6] )->mapKeys( function( $value, $key ) {
-    return [$key[0] => $value * 2];
-} );
-// ['l' => 4]
-```
-
-
 ### max()
 
 Returns the maximum value of all elements.
@@ -5415,6 +5387,44 @@ Map::from( ['a' => 1, 'b' => 2] )->toUrl();
 
 Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
 // a%5Bb%5D=abc&a%5Bc%5D=def&d=123
+```
+
+
+### transform()
+
+Creates new key/value pairs using the passed function and returns a new map for the result.
+
+```php
+public function transform( \Closure $callback ) : self
+```
+
+* @param **\Closure** `$callback` Function with (value, key) parameters and returns an array of new key/value pair(s)
+* @return **self&#60;int&#124;string,mixed&#62;** New map with the new key/value pairs
+
+If a key is returned twice, the last value will overwrite previous values.
+
+**Examples:**
+
+```php
+Map::from( ['a' => 2, 'b' => 4] )->transform( function( $value, $key ) {
+    return [$key . '-2' => $value * 2];
+} );
+// ['a-2' => 4, 'b-2' => 8]
+
+Map::from( ['a' => 2, 'b' => 4] )->transform( function( $value, $key ) {
+    return [$key => $value * 2, $key . $key => $value * 4];
+} );
+// ['a' => 4, 'aa' => 8, 'b' => 8, 'bb' => 16]
+
+Map::from( ['a' => 2, 'b' => 4] )->transform( function( $value, $key ) {
+    return $key < 'b' ? [$key => $value * 2] : null;
+} );
+// ['a' => 4]
+
+Map::from( ['la' => 2, 'le' => 4, 'li' => 6] )->transform( function( $value, $key ) {
+    return [$key[0] => $value * 2];
+} );
+// ['l' => 12]
 ```
 
 
