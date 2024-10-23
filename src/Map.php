@@ -2071,22 +2071,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	/**
 	 * Tests if the passed element or elements are part of the map.
 	 *
-	 * Examples:
-	 *  Map::from( ['a', 'b'] )->includes( 'a' );
-	 *  Map::from( ['a', 'b'] )->includes( ['a', 'b'] );
-	 *  Map::from( ['a', 'b'] )->includes( 'x' );
-	 *  Map::from( ['a', 'b'] )->includes( ['a', 'x'] );
-	 *  Map::from( ['1', '2'] )->includes( 2, true );
-	 *
-	 * Results:
-	 * The first and second example will return TRUE while the other ones will return FALSE
-	 *
 	 * This method is an alias for in(). For performance reasons, in() should be
 	 * preferred because it uses one method call less than includes().
 	 *
 	 * @param mixed|array $element Element or elements to search for in the map
 	 * @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
 	 * @return bool TRUE if all elements are available in map, FALSE if not
+	 * @see in() - Underlying method with same parameters and return value but better performance
 	 */
 	public function includes( $element, bool $strict = false ) : bool
 	{
@@ -3352,6 +3343,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param string|null $valuecol Name or path of the value property
 	 * @param string|null $indexcol Name or path of the index property
 	 * @return self<int|string,mixed> New map with mapped entries
+	 * @see col() - Underlying method with same parameters and return value but better performance
 	 */
 	public function pluck( string $valuecol = null, string $indexcol = null ) : self
 	{
@@ -3476,6 +3468,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $value Item to add at the beginning
 	 * @param int|string|null $key Key for the item or NULL to reindex all numerical keys
 	 * @return self<int|string,mixed> Updated map for fluid interface
+	 * @see unshift() - Underlying method with same parameters and return value but better performance
 	 */
 	public function prepend( $value, $key = null ) : self
 	{
@@ -3534,19 +3527,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	/**
 	 * Sets the given key and value in the map without returning a new map.
 	 *
-	 * Examples:
-	 *  Map::from( ['a'] )->put( 1, 'b' );
-	 *  Map::from( ['a'] )->put( 0, 'b' );
-	 *
-	 * Results:
-	 * The first example results in ['a', 'b'] while the second one produces ['b']
-	 *
 	 * This method is an alias for set(). For performance reasons, set() should be
 	 * preferred because it uses one method call less than put().
 	 *
 	 * @param int|string $key Key to set the new value for
 	 * @param mixed $value New element that should be set
 	 * @return self<int|string,mixed> Updated map for fluid interface
+	 * @see set() - Underlying method with same parameters and return value but better performance
 	 */
 	public function put( $key, $value ) : self
 	{

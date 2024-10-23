@@ -331,9 +331,9 @@ will return:
 * [insertBefore()](#insertbefore) : Inserts the value before the given element
 * [merge()](#merge) : Combines elements overwriting existing ones
 * [pad()](#pad) : Fill up to the specified length with the given value
-* [prepend()](#prepend) : Adds an element at the beginning
+* [prepend()](#prepend) : Adds an element at the beginning (alias)
 * [push()](#push) : Adds an element to the end
-* [put()](#put) : Sets the given key and value in the map
+* [put()](#put) : Sets the given key and value in the map (alias)
 * [set()](#set) : Overwrites or adds an element
 * [union()](#union) : Adds the elements without overwriting existing ones
 * [unshift()](#unshift) : Adds an element at the beginning
@@ -367,6 +367,7 @@ will return:
 * [shuffle()](#shuffle) : Randomizes the element order
 * [sort()](#sort) : Sorts the elements in-place assigning new keys
 * [sorted()](#sorted) : Sorts the elements in a copy of the map using new keys
+* [toSorted()](#toSorted) : Sorts the elements in a copy of the map using new keys (alias)
 * [uasort()](#uasort) : Sorts elements preserving keys using callback
 * [uksort()](#uksort) : Sorts elements by keys using callback
 * [usort()](#usort) : Sorts elements using callback assigning new keys
@@ -444,7 +445,7 @@ will return:
 * [map()](#map) : Applies a callback to each element and returns the results
 * [partition()](#partition) : Breaks the list into the given number of groups
 * [pipe()](#pipe) : Applies a callback to the whole map
-* [pluck()](#pluck) : Creates a key/value mapping
+* [pluck()](#pluck) : Creates a key/value mapping (alias)
 * [prefix()](#prefix) : Adds a prefix to each map entry
 * [reduce()](#reduce) : Computes a single value from the map content
 * [rekey()](#rekey) : Changes the keys according to the passed function
@@ -2526,7 +2527,7 @@ Map::from( ['1', '2'] )->in( 2, true );
 
 ### includes()
 
-Tests if the passed element or elements are part of the map.
+Tests if the passed element or elements are part of the map (alias).
 
 ```php
 public function includes( $element, bool $strict = false ) : bool
@@ -2539,24 +2540,9 @@ public function includes( $element, bool $strict = false ) : bool
 This method is an alias for [in()](#in). For performance reasons, `in()` should be preferred
 because it uses one method call less than `includes()`.
 
-**Examples:**
+**See also:**
 
-```php
-Map::from( ['a', 'b'] )->includes( 'a' );
-// true
-
-Map::from( ['a', 'b'] )->includes( ['a', 'b'] );
-// true
-
-Map::from( ['a', 'b'] )->includes( 'x' );
-// false
-
-Map::from( ['a', 'b'] )->includes( ['a', 'x'] );
-// false
-
-Map::from( ['1', '2'] )->includes( 2, true );
-// false
-```
+* [in()](#in) - Underlying method with same parameters and return value but better performance
 
 
 ### index()
@@ -3864,7 +3850,7 @@ Map::from( ['a', 'b'] )->pipe( function( $map ) {
 
 ### pluck()
 
-Returns the values of a single column/property from an array of arrays or list of elements in a new map.
+Returns the values of a single column/property from an array of arrays or list of elements in a new map (alias).
 
 ```php
 public function pluck( string $valuecol = null, string $indexcol = null ) : self
@@ -3877,6 +3863,9 @@ public function pluck( string $valuecol = null, string $indexcol = null ) : self
 This method is an alias for [col()](#col). For performance reasons, `col()` should
 be preferred because it uses one method call less than `pluck()`.
 
+**See also:**
+
+* [col()](#col) - Underlying method with same parameters and return value but better performance
 
 ### pop()
 
@@ -3959,7 +3948,7 @@ Map::from( ['a', 'b'] )->prefix( function( $item, $key ) {
 
 ### prepend()
 
-Pushes an element onto the beginning of the map without returning a new map.
+Pushes an element onto the beginning of the map without returning a new map (alias).
 
 ```php
 public function prepend( $value, $key = null ) : self
@@ -3969,17 +3958,12 @@ public function prepend( $value, $key = null ) : self
 * @param **int&#124;string&#124;null** `$key` Key for the item or NULL to reindex all numerical keys
 * @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
-This method is an alias for the [unshift()](#unshift) method.
+This method is an alias for the [unshift()](#unshift) method. For performance reasons, `unshift()` should
+be preferred because it uses one method call less than `prepend()`.
 
-**Examples:**
+**See also:**
 
-```php
-Map::from( ['a', 'b'] )->prepend( 'd' );
-// ['d', 'a', 'b']
-
-Map::from( ['a', 'b'] )->prepend( 'd', 'first' );
-// ['first' => 'd', 0 => 'a', 1 => 'b']
-```
+* [unshift()](#unshift) - Underlying method with same parameters and return value but better performance
 
 
 ### pull()
@@ -4026,28 +4010,22 @@ Map::from( ['a', 'b'] )->push( 'aa' );
 
 ### put()
 
-Sets the given key and value in the map without returning a new map.
+Sets the given key and value in the map without returning a new map (alias).
 
 ```php
 public function put( $key, $value ) : self
 ```
 
-This method is an alias for `set()`. For performance reasons, `set()` should be
-preferred because it uses one method call less than `put()`.
-
 * @param **int&#124;string** `$key` Key to set the new value for
 * @param **mixed** `$value` New element that should be set
 * @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
-**Examples:**
+This method is an alias for [set()](#set). For performance reasons, `set()` should be
+preferred because it uses one method call less than `put()`.
 
-```php
-Map::from( ['a'] )->put( 1, 'b' );
-// [0 => 'a', 1 => 'b']
+**See also:**
 
-Map::from( ['a'] )->put( 0, 'b' );
-// [0 => 'b']
-```
+* [set()](#set) - Underlying method with same parameters and return value but better performance
 
 
 ### random()
