@@ -242,6 +242,7 @@ will return:
 <a href="#slice">slice</a>
 <a href="#some">some</a>
 <a href="#sort">sort</a>
+<a href="#sorted">sorted</a>
 <a href="#splice">splice</a>
 <a href="#split">split</a>
 <a href="#strafter">strAfter</a>
@@ -262,6 +263,7 @@ will return:
 <a href="#times">times</a>
 <a href="#toarray">toArray</a>
 <a href="#tojson">toJson</a>
+<a href="#tosorted">toSorted</a>
 <a href="#tourl">toUrl</a>
 <a href="#transform">transform</a>
 <a href="#transpose">transpose</a>
@@ -5383,6 +5385,25 @@ Map::from( ['a' => 'b'] )->toJson();
 Map::from( ['a', 'b'] )->toJson( JSON_FORCE_OBJECT );
 // '{"0":"a", "1":"b"}'
 ```
+
+
+### toSorted()
+
+Sorts the elements in a copy of the map using new keys (alias).
+
+```php
+public function toSorted( int $options = SORT_REGULAR ) : self
+```
+
+* @param **int** `$options` Sort options for PHP `sort()`
+* @return **self&#60;int&#124;string,mixed&#62;** New map with a sorted copy of the elements
+
+This method is an alias for [sorted()](#sorted). For performance reasons, sorted() should be
+preferred because it uses one method call less than toSorted().
+
+**See also:**
+
+* [sorted()](#sorted) - Underlying method with same parameters and return value but better performance
 
 
 ### toUrl()

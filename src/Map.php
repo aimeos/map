@@ -4907,6 +4907,22 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Sorts the elements in a copy of the map using new keys.
+	 *
+	 * This method is an alias for sorted(). For performance reasons, sorted() should be
+	 * preferred because it uses one method call less than toSorted().
+	 *
+	 * @param int $options Sort options for PHP sort()
+	 * @return self<int|string,mixed> New map with a sorted copy of the elements
+	 * @see sorted() - Underlying method with same parameters and return value but better performance
+	 */
+	public function toSorted( int $options = SORT_REGULAR ) : self
+	{
+		return $this->sorted( $options );
+	}
+
+
+	/**
 	 * Creates a HTTP query string from the map elements.
 	 *
 	 * Examples:
