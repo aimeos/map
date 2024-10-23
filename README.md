@@ -365,7 +365,8 @@ will return:
 * [reverse()](#reverse) : Reverses the array order preserving keys
 * [rsort()](#rsort) : Reverse sort elements using new keys
 * [shuffle()](#shuffle) : Randomizes the element order
-* [sort()](#sort) : Sorts the elements assigning new keys
+* [sort()](#sort) : Sorts the elements in-place assigning new keys
+* [sorted()](#sorted) : Sorts the elements in a copy of the map using new keys
 * [uasort()](#uasort) : Sorts elements preserving keys using callback
 * [uksort()](#uksort) : Sorts elements by keys using callback
 * [usort()](#usort) : Sorts elements using callback assigning new keys
@@ -4526,7 +4527,7 @@ Sorts all elements without maintaining the key association.
 public function sort( int $options = SORT_REGULAR ) : self
 ```
 
-* @param **int** `$options` Sort options for `sort()`
+* @param **int** `$options` Sort options for PHP `sort()`
 * @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 The parameter modifies how the values are compared. Possible parameter values are:
@@ -4548,6 +4549,43 @@ Map::from( ['a' => 1, 'b' => 0] )->sort();
 Map::from( [0 => 'b', 1 => 'a'] )->sort();
 // [0 => 'a', 1 => 'b']
 ```
+
+
+### sorted()
+
+Sorts the elements in a copy of the map using new keys.
+
+```php
+public function sorted( int $options = SORT_REGULAR ) : self
+```
+
+* @param **int** `$options` Sort options for PHP `sort()`
+* @return **self&#60;int&#124;string,mixed&#62;** New map with a sorted copy of the elements
+
+The parameter modifies how the values are compared. Possible parameter values are:
+- SORT_REGULAR : compare elements normally (don't change types)
+- SORT_NUMERIC : compare elements numerically
+- SORT_STRING : compare elements as strings
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by `setlocale()`
+- SORT_NATURAL : compare elements as strings using "natural ordering" like `natsort()`
+- SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
+
+The keys aren't preserved and elements get a new index and a new map is created before sorting the elements.
+Thus, [sort()](#sort) should be preferred for performance reasons if possible.
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 'b' => 0] )->sorted();
+// [0 => 0, 1 => 1]
+
+Map::from( [0 => 'b', 1 => 'a'] )->sorted();
+// [0 => 'a', 1 => 'b']
+```
+
+**See also:**
+
+* [sort()](#sort) - Sorts elements in-place in the original map
 
 
 ### splice()

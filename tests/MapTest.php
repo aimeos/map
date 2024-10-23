@@ -2835,6 +2835,17 @@ Array
 	}
 
 
+	public function testSorted()
+	{
+		$m = new Map( [-1, -3, -2, -4, -5, 0, 5, 3, 1, 2, 4] );
+		$n = $m->sorted();
+
+		$this->assertNotSame( $n, $m );
+		$this->assertInstanceOf( Map::class, $n );
+		$this->assertSame( [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5], $n->toArray() );
+	}
+
+
 	public function testSortNummeric()
 	{
 		$m = ( new Map( [-1, -3, -2, -4, -5, 0, 5, 3, 1, 2, 4] ) )->sort();
