@@ -1396,7 +1396,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function except( $keys ) : self
 	{
-		return $this->copy()->remove( $keys );
+		return ( clone $this )->remove( $keys );
 	}
 
 
@@ -5485,7 +5485,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function with( $key, $value ) : self
 	{
-		return $this->copy()->set( $key, $value );
+		return ( clone $this )->set( $key, $value );
 	}
 
 
