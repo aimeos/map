@@ -231,6 +231,7 @@ will return:
 <a href="#remove">remove</a>
 <a href="#replace">replace</a>
 <a href="#reverse">reverse</a>
+<a href="#reversed">reversed</a>
 <a href="#rsort">rsort</a>
 <a href="#rtrim">rtrim</a>
 <a href="#search">search</a>
@@ -365,6 +366,7 @@ will return:
 * [ksort()](#ksort) : Sort elements by keys
 * [order()](#order) : Orders elements by the passed keys
 * [reverse()](#reverse) : Reverses the array order preserving keys
+* [reversed()](#reversed) : Reverses the element order in a copy of the map
 * [rsort()](#rsort) : Reverse sort elements using new keys
 * [shuffle()](#shuffle) : Randomizes the element order
 * [sort()](#sort) : Sorts the elements in-place assigning new keys
@@ -4210,6 +4212,38 @@ Map::from( ['a', 'b'] )->reverse();
 Map::from( ['name' => 'test', 'last' => 'user'] )->reverse();
 // ['last' => 'user', 'name' => 'test']
 ```
+
+**See also:**
+
+* [reversed()](#reversed) - Reverses the element order in a copy of the map
+
+
+### reversed()
+
+Reverses the element order in a copy of the map.
+
+```php
+public function reversed() : self
+```
+
+* @return **self&#60;int&#124;string,mixed&#62;** New map with a reversed copy of the elements
+
+The keys are preserved using this method and a new map is created before reversing the elements.
+Thus, [reverse()](#reverse) should be preferred for performance reasons if possible.
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b'] )->reversed();
+// ['b', 'a']
+
+Map::from( ['name' => 'test', 'last' => 'user'] )->reversed();
+// ['last' => 'user', 'name' => 'test']
+```
+
+**See also:**
+
+* [reverse()](#reverse) - Reverses the element order without returning a new map
 
 
 ### rsort()

@@ -3734,11 +3734,35 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The keys are preserved using this method.
 	 *
 	 * @return self<int|string,mixed> Updated map for fluid interface
+	 * @see reversed() - Reverses the element order in a copy of the map
 	 */
 	public function reverse() : self
 	{
 		$this->list = array_reverse( $this->list(), true );
 		return $this;
+	}
+
+
+	/**
+	 * Reverses the element order in a copy of the map.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'b'] )->reversed();
+	 *  Map::from( ['name' => 'test', 'last' => 'user'] )->reversed();
+	 *
+	 * Results:
+	 *  ['b', 'a']
+	 *  ['last' => 'user', 'name' => 'test']
+	 *
+	 * The keys are preserved using this method and a new map is created before reversing the elements.
+	 * Thus, reverse() should be preferred for performance reasons if possible.
+	 *
+	 * @return self<int|string,mixed> New map with a reversed copy of the elements
+	 * @see reverse() - Reverses the element order with keys without returning a new map
+	 */
+	public function reversed() : self
+	{
+		return ( clone $this )->reverse();
 	}
 
 
