@@ -239,6 +239,7 @@ will return:
 <a href="#set">set</a>
 <a href="#shift">shift</a>
 <a href="#shuffle">shuffle</a>
+<a href="#shuffled">shuffled</a>
 <a href="#skip">skip</a>
 <a href="#slice">slice</a>
 <a href="#some">some</a>
@@ -371,6 +372,7 @@ will return:
 * [toReversed()](#toreversed) : Reverses the element order in a copy of the map (alias)
 * [rsort()](#rsort) : Reverse sort elements using new keys
 * [shuffle()](#shuffle) : Randomizes the element order
+* [shuffled()](#shuffled) : Randomizes the element order in a copy of the map
 * [sort()](#sort) : Sorts the elements in-place assigning new keys
 * [sorted()](#sorted) : Sorts the elements in a copy of the map using new keys
 * [toSorted()](#tosorted) : Sorts the elements in a copy of the map using new keys (alias)
@@ -4435,6 +4437,36 @@ Map::from( [2 => 'a', 4 => 'b'] )->shuffle();
 Map::from( [2 => 'a', 4 => 'b'] )->shuffle( true );
 // [2 => 'a', 4 => 'b'] in random order with keys preserved
 ```
+
+**See also:**
+
+* [shuffled()](#shuffled) - Shuffles the elements in a copy of the map.
+
+
+### shuffled()
+
+Shuffles the elements in a copy of the map.
+
+```php
+public function shuffled( bool $assoc = false ) : self
+```
+
+* @param **bool** `$assoc` True to preserve keys, false to assign new keys
+* @return **self&#60;int&#124;string,mixed&#62;** New map with a shuffled copy of the elements
+
+**Examples:**
+
+```php
+Map::from( [2 => 'a', 4 => 'b'] )->shuffled();
+// ['a', 'b'] in random order with new keys
+
+Map::from( [2 => 'a', 4 => 'b'] )->shuffled( true );
+// [2 => 'a', 4 => 'b'] in random order with keys preserved
+```
+
+**See also:**
+
+* [shuffle()](#shuffle) - Shuffles the elements in the map without returning a new map
 
 
 ### skip()

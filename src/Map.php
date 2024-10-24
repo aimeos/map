@@ -3936,6 +3936,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param bool $assoc True to preserve keys, false to assign new keys
 	 * @return self<int|string,mixed> Updated map for fluid interface
+	 * @see shuffled() - Shuffles the elements in a copy of the map
 	 */
 	public function shuffle( bool $assoc = false ) : self
 	{
@@ -3957,8 +3958,29 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			shuffle( $this->list() );
 		}
 
-
 		return $this;
+	}
+
+
+	/**
+	 * Shuffles the elements in a copy of the map.
+	 *
+	 * Examples:
+	 *  Map::from( [2 => 'a', 4 => 'b'] )->shuffled();
+	 *  Map::from( [2 => 'a', 4 => 'b'] )->shuffled( true );
+	 *
+	 * Results:
+	 * The map in the first example will contain "a" and "b" in random order and
+	 * with new keys assigned. The second call will also return all values in
+	 * random order but preserves the keys of the original list.
+	 *
+	 * @param bool $assoc True to preserve keys, false to assign new keys
+	 * @return self<int|string,mixed> New map with a shuffled copy of the elements
+	 * @see shuffle() - Shuffles the elements in the map without returning a new map
+	 */
+	public function shuffled( bool $assoc = false ) : self
+	{
+		return ( clone $this )->shuffle( $assoc );
 	}
 
 

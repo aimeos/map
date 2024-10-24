@@ -2730,6 +2730,17 @@ Array
 	}
 
 
+	public function testShuffled()
+	{
+		$m = new Map( range( 0, 100, 10 ) );
+		$r = $m->shuffled();
+
+		$this->assertNotSame( $r, $m );
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertNotEquals( $r->toArray(), $m->toArray() );
+	}
+
+
 	public function testSkip()
 	{
 		$this->assertSame( [2 => 3, 3 => 4], Map::from( [1, 2, 3, 4] )->skip( 2 )->toArray() );
