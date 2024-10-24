@@ -549,6 +549,11 @@ map( function() {
 } );
 ```
 
+**See also:**
+
+* [rekey()](#rekey) - Changes the keys according to the passed function
+* [transform()](#transform) - Creates new key/value pairs using the passed function and returns a new map for the result
+
 
 ### __construct()
 
@@ -4144,6 +4149,11 @@ Map::from( ['a' => 2, 'b' => 4] )->rekey( function( $value, $key ) {
 // ['key-a' => 2, 'key-b' => 4]
 ```
 
+**See also:**
+
+* [map()](#map) - Maps new values to the existing keys using the passed function and returns a new map for the result
+* [transform()](#transform) - Creates new key/value pairs using the passed function and returns a new map for the result
+
 
 ### remove()
 
@@ -5549,6 +5559,11 @@ Map::from( ['la' => 2, 'le' => 4, 'li' => 6] )->transform( function( $value, $ke
 } );
 // ['l' => 12]
 ```
+
+**See also:**
+
+* [map()](#map) - Maps new values to the existing keys using the passed function and returns a new map for the result
+* [rekey()](#rekey) - Changes the keys according to the passed function
 
 
 ### transpose()

@@ -2853,6 +2853,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param callable $callback Function with (value, key) parameters and returns computed result
 	 * @return self<int|string,mixed> New map with the original keys and the computed values
+	 * @see rekey() - Changes the keys according to the passed function
+	 * @see transform() - Creates new key/value pairs using the passed function and returns a new map for the result
 	 */
 	public function map( callable $callback ) : self
 	{
@@ -3653,6 +3655,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param callable $callback Function with (value, key) parameters and returns new key
 	 * @return self<int|string,mixed> New map with new keys and original values
+	 * @see map() - Maps new values to the existing keys using the passed function and returns a new map for the result
+	 * @see transform() - Creates new key/value pairs using the passed function and returns a new map for the result
 	 */
 	public function rekey( callable $callback ) : self
 	{
@@ -5029,6 +5033,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param \Closure $callback Function with (value, key) parameters and returns an array of new key/value pair(s)
 	 * @return self<int|string,mixed> New map with the new key/value pairs
+	 * @see map() - Maps new values to the existing keys using the passed function and returns a new map for the result
+	 * @see rekey() - Changes the keys according to the passed function
 	 */
 	public function transform( \Closure $callback ) : self
 	{
