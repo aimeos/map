@@ -4931,7 +4931,22 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Sorts the elements in a copy of the map using new keys.
+	 * Reverses the element order in a copy of the map (alias).
+	 *
+	 * This method is an alias for reversed(). For performance reasons, reversed() should be
+	 * preferred because it uses one method call less than toReversed().
+	 *
+	 * @return self<int|string,mixed> New map with a reversed copy of the elements
+	 * @see reversed() - Underlying method with same parameters and return value but better performance
+	 */
+	public function toReversed() : self
+	{
+		return $this->reversed();
+	}
+
+
+	/**
+	 * Sorts the elements in a copy of the map using new keys (alias).
 	 *
 	 * This method is an alias for sorted(). For performance reasons, sorted() should be
 	 * preferred because it uses one method call less than toSorted().

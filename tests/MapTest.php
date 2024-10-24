@@ -3226,6 +3226,17 @@ Array
 	}
 
 
+	public function testToReversed()
+	{
+		$m = new Map( ['hello', 'world'] );
+		$r = $m->toReversed();
+
+		$this->assertNotSame( $r, $m );
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [1 => 'world', 0 => 'hello'], $r->toArray() );
+	}
+
+
 	public function testToSorted()
 	{
 		$m = new Map( [-1, -3, -2, -4, -5, 0, 5, 3, 1, 2, 4] );

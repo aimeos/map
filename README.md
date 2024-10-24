@@ -264,6 +264,7 @@ will return:
 <a href="#times">times</a>
 <a href="#toarray">toArray</a>
 <a href="#tojson">toJson</a>
+<a href="#toreversed">toReversed</a>
 <a href="#tosorted">toSorted</a>
 <a href="#tourl">toUrl</a>
 <a href="#transform">transform</a>
@@ -367,11 +368,12 @@ will return:
 * [order()](#order) : Orders elements by the passed keys
 * [reverse()](#reverse) : Reverses the array order preserving keys
 * [reversed()](#reversed) : Reverses the element order in a copy of the map
+* [toReversed()](#toreversed) : Reverses the element order in a copy of the map (alias)
 * [rsort()](#rsort) : Reverse sort elements using new keys
 * [shuffle()](#shuffle) : Randomizes the element order
 * [sort()](#sort) : Sorts the elements in-place assigning new keys
 * [sorted()](#sorted) : Sorts the elements in a copy of the map using new keys
-* [toSorted()](#toSorted) : Sorts the elements in a copy of the map using new keys (alias)
+* [toSorted()](#tosorted) : Sorts the elements in a copy of the map using new keys (alias)
 * [uasort()](#uasort) : Sorts elements preserving keys using callback
 * [uksort()](#uksort) : Sorts elements by keys using callback
 * [usort()](#usort) : Sorts elements using callback assigning new keys
@@ -5419,6 +5421,24 @@ Map::from( ['a' => 'b'] )->toJson();
 Map::from( ['a', 'b'] )->toJson( JSON_FORCE_OBJECT );
 // '{"0":"a", "1":"b"}'
 ```
+
+
+### toReversed()
+
+Reverses the element order in a copy of the map (alias).
+
+```php
+public function toReversed() : self
+```
+
+* @return **self&#60;int&#124;string,mixed&#62;** New map with a reversed copy of the elements
+
+This method is an alias for [reversed()](#reversed). For performance reasons, reversed() should be
+preferred because it uses one method call less than toReversed().
+
+**See also:**
+
+* [reversed()](#reversed) - Underlying method with same parameters and return value but better performance
 
 
 ### toSorted()
