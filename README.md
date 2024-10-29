@@ -28,7 +28,7 @@ Supported PHP versions:
     * [Add](#add)
     * [Aggregate](#aggregate)
     * [Debug](#debug)
-    * [Order](#orderby)
+    * [Order](#order-by)
     * [Shorten](#shorten)
     * [Test](#test)
     * [Transform](#transform)
@@ -360,7 +360,7 @@ will return:
 * [dump()](#dump) : Prints the map content
 * [tap()](#tap) : Passes a clone of the map to the given callback
 
-### OrderBy
+### Order By
 
 * [arsort()](#arsort) : Reverse sort elements preserving keys
 * [asort()](#asort) : Sort elements preserving keys
