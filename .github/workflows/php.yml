@@ -51,7 +51,7 @@ jobs:
       run: composer update --prefer-dist --no-progress
 
     - name: Run test suite
-      run: ./vendor/bin/phpunit --coverage-clover=coverage.xml
+      run: ./vendor/bin/phpunit --coverage-clover=coverage.xml --coverage-filter src tests
 
     - name: Run coding style check
       run: ./vendor/bin/phpcs --standard=PSR1 src/
