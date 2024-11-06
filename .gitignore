@@ -1,5 +1,4 @@
 .idea
-.phpunit.cache
 .phpunit.result.cache
 coveralls.json
 composer.lock
