@@ -317,7 +317,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|null $fcn Anonymous function or NULL to return the closure if available
 	 * @return \Closure|null Registered anonymous function or NULL if none has been registered
 	 */
-	public static function method( string $method, \Closure $fcn = null ) : ?\Closure
+	public static function method( string $method, ?\Closure $fcn = null ) : ?\Closure
 	{
 		if( $fcn ) {
 			self::$methods[$method] = $fcn;
@@ -808,7 +808,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param string|null $indexcol Name or path of the index property
 	 * @return self<int|string,mixed> New map with mapped entries
 	 */
-	public function col( string $valuecol = null, string $indexcol = null ) : self
+	public function col( ?string $valuecol = null, ?string $indexcol = null ) : self
 	{
 		$vparts = explode( $this->sep, (string) $valuecol );
 		$iparts = explode( $this->sep, (string) $indexcol );
@@ -862,7 +862,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @return self<int|string,mixed> New map with all sub-array elements added into it recursively, up to the specified depth
 	 * @throws \InvalidArgumentException If depth must be greater or equal than 0 or NULL
 	 */
-	public function collapse( int $depth = null ) : self
+	public function collapse( ?int $depth = null ) : self
 	{
 		if( $depth < 0 ) {
 			throw new \InvalidArgumentException( 'Depth must be greater or equal than 0 or NULL' );
@@ -982,7 +982,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $value Value used for comparison
 	 * @return bool TRUE if at least one element is available in map, FALSE if the map contains none of them
 	 */
-	public function contains( $key, string $operator = null, $value = null ) : bool
+	public function contains( $key, ?string $operator = null, $value = null ) : bool
 	{
 		if( $operator === null ) {
 			return $this->some( $key );
@@ -1044,7 +1044,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param  callable|null $callback Function with (value, key) parameters which returns the value to use for counting
 	 * @return self<int|string,mixed> New map with values as keys and their count as value
 	 */
-	public function countBy( callable $callback = null ) : self
+	public function countBy( ?callable $callback = null ) : self
 	{
 		$callback = $callback ?: function( $value ) {
 			return (string) $value;
@@ -1073,7 +1073,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param callable|null $callback Function receiving the map elements as parameter (optional)
 	 */
-	public function dd( callable $callback = null ) : void
+	public function dd( ?callable $callback = null ) : void
 	{
 		$this->dump( $callback );
 		exit( 1 );
@@ -1109,7 +1109,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function diff( iterable $elements, callable $callback = null ) : self
+	public function diff( iterable $elements, ?callable $callback = null ) : self
 	{
 		if( $callback ) {
 			return new static( array_udiff( $this->list(), $this->array( $elements ), $callback ) );
@@ -1150,7 +1150,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function diffAssoc( iterable $elements, callable $callback = null ) : self
+	public function diffAssoc( iterable $elements, ?callable $callback = null ) : self
 	{
 		if( $callback ) {
 			return new static( array_diff_uassoc( $this->list(), $this->array( $elements ), $callback ) );
@@ -1190,7 +1190,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param  callable|null $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function diffKeys( iterable $elements, callable $callback = null ) : self
+	public function diffKeys( iterable $elements, ?callable $callback = null ) : self
 	{
 		if( $callback ) {
 			return new static( array_diff_ukey( $this->list(), $this->array( $elements ), $callback ) );
@@ -1225,7 +1225,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param callable|null $callback Function receiving the map elements as parameter (optional)
 	 * @return self<int|string,mixed> Same map for fluid interface
 	 */
-	public function dump( callable $callback = null ) : self
+	public function dump( ?callable $callback = null ) : self
 	{
 		$callback ? $callback( $this->list() ) : print_r( $this->list() );
 		return $this;
@@ -1258,7 +1258,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param string|null $key Key or path of the nested array or object to check for
 	 * @return self<int|string,mixed> New map
 	 */
-	public function duplicates( string $key = null ) : self
+	public function duplicates( ?string $key = null ) : self
 	{
 		$list = $this->list();
 		$items = ( $key !== null ? $this->col( $key )->toArray() : $list );
@@ -1420,7 +1420,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param  callable|null $callback Function with (item, key) parameters and returns TRUE/FALSE
 	 * @return self<int|string,mixed> New map
 	 */
-	public function filter( callable $callback = null ) : self
+	public function filter( ?callable $callback = null ) : self
 	{
 		if( $callback ) {
 			return new static( array_filter( $this->list(), $callback, ARRAY_FILTER_USE_BOTH ) );
@@ -1561,7 +1561,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @return self<int|string,mixed> New map with all sub-array elements added into it recursively, up to the specified depth
 	 * @throws \InvalidArgumentException If depth must be greater or equal than 0 or NULL
 	 */
-	public function flat( int $depth = null ) : self
+	public function flat( ?int $depth = null ) : self
 	{
 		if( $depth < 0 ) {
 			throw new \InvalidArgumentException( 'Depth must be greater or equal than 0 or NULL' );
@@ -1897,7 +1897,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|null $else Function with (map, condition) parameter (optional)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function if( $condition, \Closure $then = null, \Closure $else = null ) : self
+	public function if( $condition, ?\Closure $then = null, ?\Closure $else = null ) : self
 	{
 		if( $condition instanceof \Closure ) {
 			$condition = $condition( $this );
@@ -1950,7 +1950,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|null $else Function with (map, condition) parameter (optional)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function ifAny( \Closure $then = null, \Closure $else = null ) : self
+	public function ifAny( ?\Closure $then = null, ?\Closure $else = null ) : self
 	{
 		return $this->if( !empty( $this->list() ), $then, $else );
 	}
@@ -1988,7 +1988,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|null $else Function with (map, condition) parameter (optional)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function ifEmpty( \Closure $then = null, \Closure $else = null ) : self
+	public function ifEmpty( ?\Closure $then = null, ?\Closure $else = null ) : self
 	{
 		return $this->if( empty( $this->list() ), $then, $else );
 	}
@@ -2344,7 +2344,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function intersect( iterable $elements, callable $callback = null ) : self
+	public function intersect( iterable $elements, ?callable $callback = null ) : self
 	{
 		$list = $this->list();
 		$elements = $this->array( $elements );
@@ -2390,7 +2390,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function intersectAssoc( iterable $elements, callable $callback = null ) : self
+	public function intersectAssoc( iterable $elements, ?callable $callback = null ) : self
 	{
 		$elements = $this->array( $elements );
 
@@ -2433,7 +2433,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param  callable|null $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function intersectKeys( iterable $elements, callable $callback = null ) : self
+	public function intersectKeys( iterable $elements, ?callable $callback = null ) : self
 	{
 		$list = $this->list();
 		$elements = $this->array( $elements );
@@ -3347,7 +3347,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @return self<int|string,mixed> New map with mapped entries
 	 * @see col() - Underlying method with same parameters and return value but better performance
 	 */
-	public function pluck( string $valuecol = null, string $indexcol = null ) : self
+	public function pluck( ?string $valuecol = null, ?string $indexcol = null ) : self
 	{
 		return $this->col( $valuecol, $indexcol );
 	}
@@ -3441,7 +3441,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param int|null $depth Maximum depth to dive into multi-dimensional arrays starting from "1"
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
-	public function prefix( $prefix, int $depth = null ) : self
+	public function prefix( $prefix, ?int $depth = null ) : self
 	{
 		$fcn = function( array $list, $prefix, int $depth ) use ( &$fcn ) {
 
@@ -4062,7 +4062,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param int|null $length Number of elements to return or NULL for no limit
 	 * @return self<int|string,mixed> New map
 	 */
-	public function slice( int $offset, int $length = null ) : self
+	public function slice( int $offset, ?int $length = null ) : self
 	{
 		return new static( array_slice( $this->list(), $offset, $length, true ) );
 	}
@@ -4214,7 +4214,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $replacement List of elements to insert
 	 * @return self<int|string,mixed> New map
 	 */
-	public function splice( int $offset, int $length = null, $replacement = [] ) : self
+	public function splice( int $offset, ?int $length = null, $replacement = [] ) : self
 	{
 		if( $length === null ) {
 			$length = count( $this->list() );
@@ -4784,7 +4784,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param int|null $depth Maximum depth to dive into multi-dimensional arrays starting from "1"
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
-	public function suffix( $suffix, int $depth = null ) : self
+	public function suffix( $suffix, ?int $depth = null ) : self
 	{
 		$fcn = function( $list, $suffix, $depth ) use ( &$fcn ) {
 
@@ -5160,7 +5160,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param string $nestKey Key to the children of each item
 	 * @return self<int|string,mixed> New map with all items as flat list
 	 */
-	public function traverse( \Closure $callback = null, string $nestKey = 'children' ) : self
+	public function traverse( ?\Closure $callback = null, string $nestKey = 'children' ) : self
 	{
 		$result = [];
 		$this->visit( $this->list(), $result, 0, $callback, $nestKey );
@@ -5375,7 +5375,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param string|null $key Key or path of the nested array or object to check for
 	 * @return self<int|string,mixed> New map
 	 */
-	public function unique( string $key = null ) : self
+	public function unique( ?string $key = null ) : self
 	{
 		if( $key !== null ) {
 			return $this->col( null, $key )->values();
