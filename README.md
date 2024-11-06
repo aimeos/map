@@ -28,7 +28,7 @@ Supported PHP versions:
     * [Add](#add)
     * [Aggregate](#aggregate)
     * [Debug](#debug)
-    * [Order](#orderby)
+    * [Order](#order-by)
     * [Shorten](#shorten)
     * [Test](#test)
     * [Transform](#transform)
@@ -231,6 +231,7 @@ will return:
 <a href="#remove">remove</a>
 <a href="#replace">replace</a>
 <a href="#reverse">reverse</a>
+<a href="#reversed">reversed</a>
 <a href="#rsort">rsort</a>
 <a href="#rtrim">rtrim</a>
 <a href="#search">search</a>
@@ -238,10 +239,12 @@ will return:
 <a href="#set">set</a>
 <a href="#shift">shift</a>
 <a href="#shuffle">shuffle</a>
+<a href="#shuffled">shuffled</a>
 <a href="#skip">skip</a>
 <a href="#slice">slice</a>
 <a href="#some">some</a>
 <a href="#sort">sort</a>
+<a href="#sorted">sorted</a>
 <a href="#splice">splice</a>
 <a href="#split">split</a>
 <a href="#strafter">strAfter</a>
@@ -262,7 +265,10 @@ will return:
 <a href="#times">times</a>
 <a href="#toarray">toArray</a>
 <a href="#tojson">toJson</a>
+<a href="#toreversed">toReversed</a>
+<a href="#tosorted">toSorted</a>
 <a href="#tourl">toUrl</a>
+<a href="#transform">transform</a>
 <a href="#transpose">transpose</a>
 <a href="#traverse">traverse</a>
 <a href="#tree">tree</a>
@@ -330,9 +336,9 @@ will return:
 * [insertBefore()](#insertbefore) : Inserts the value before the given element
 * [merge()](#merge) : Combines elements overwriting existing ones
 * [pad()](#pad) : Fill up to the specified length with the given value
-* [prepend()](#prepend) : Adds an element at the beginning
+* [prepend()](#prepend) : Adds an element at the beginning (alias)
 * [push()](#push) : Adds an element to the end
-* [put()](#put) : Sets the given key and value in the map
+* [put()](#put) : Sets the given key and value in the map (alias)
 * [set()](#set) : Overwrites or adds an element
 * [union()](#union) : Adds the elements without overwriting existing ones
 * [unshift()](#unshift) : Adds an element at the beginning
@@ -354,7 +360,7 @@ will return:
 * [dump()](#dump) : Prints the map content
 * [tap()](#tap) : Passes a clone of the map to the given callback
 
-### OrderBy
+### Order By
 
 * [arsort()](#arsort) : Reverse sort elements preserving keys
 * [asort()](#asort) : Sort elements preserving keys
@@ -362,9 +368,14 @@ will return:
 * [ksort()](#ksort) : Sort elements by keys
 * [order()](#order) : Orders elements by the passed keys
 * [reverse()](#reverse) : Reverses the array order preserving keys
+* [reversed()](#reversed) : Reverses the element order in a copy of the map
+* [toReversed()](#toreversed) : Reverses the element order in a copy of the map (alias)
 * [rsort()](#rsort) : Reverse sort elements using new keys
 * [shuffle()](#shuffle) : Randomizes the element order
-* [sort()](#sort) : Sorts the elements assigning new keys
+* [shuffled()](#shuffled) : Randomizes the element order in a copy of the map
+* [sort()](#sort) : Sorts the elements in-place assigning new keys
+* [sorted()](#sorted) : Sorts the elements in a copy of the map using new keys
+* [toSorted()](#tosorted) : Sorts the elements in a copy of the map using new keys (alias)
 * [uasort()](#uasort) : Sorts elements preserving keys using callback
 * [uksort()](#uksort) : Sorts elements by keys using callback
 * [usort()](#usort) : Sorts elements using callback assigning new keys
@@ -442,7 +453,7 @@ will return:
 * [map()](#map) : Applies a callback to each element and returns the results
 * [partition()](#partition) : Breaks the list into the given number of groups
 * [pipe()](#pipe) : Applies a callback to the whole map
-* [pluck()](#pluck) : Creates a key/value mapping
+* [pluck()](#pluck) : Creates a key/value mapping (alias)
 * [prefix()](#prefix) : Adds a prefix to each map entry
 * [reduce()](#reduce) : Computes a single value from the map content
 * [rekey()](#rekey) : Changes the keys according to the passed function
@@ -456,6 +467,7 @@ will return:
 * [suffix()](#suffix) : Adds a suffix to each map entry
 * [toJson()](#tojson) : Returns the elements in JSON format
 * [toUrl()](#tourl) : Creates a HTTP query string
+* [transfrom()](#transfrom) : Applies a callback to each element which creates new key/value pairs
 * [transpose()](#transpose) : Exchanges rows and columns for a two dimensional map
 * [traverse()](#traverse) : Traverses trees of nested items passing each item to the callback
 * [trim()](#trim) : Removes the passed characters from the left/right of all strings
@@ -536,6 +548,11 @@ map( function() {
     return [];
 } );
 ```
+
+**See also:**
+
+* [rekey()](#rekey) - Changes the keys according to the passed function
+* [transform()](#transform) - Creates new key/value pairs using the passed function and returns a new map for the result
 
 
 ### __construct()
@@ -2523,7 +2540,7 @@ Map::from( ['1', '2'] )->in( 2, true );
 
 ### includes()
 
-Tests if the passed element or elements are part of the map.
+Tests if the passed element or elements are part of the map (alias).
 
 ```php
 public function includes( $element, bool $strict = false ) : bool
@@ -2536,24 +2553,9 @@ public function includes( $element, bool $strict = false ) : bool
 This method is an alias for [in()](#in). For performance reasons, `in()` should be preferred
 because it uses one method call less than `includes()`.
 
-**Examples:**
+**See also:**
 
-```php
-Map::from( ['a', 'b'] )->includes( 'a' );
-// true
-
-Map::from( ['a', 'b'] )->includes( ['a', 'b'] );
-// true
-
-Map::from( ['a', 'b'] )->includes( 'x' );
-// false
-
-Map::from( ['a', 'b'] )->includes( ['a', 'x'] );
-// false
-
-Map::from( ['1', '2'] )->includes( 2, true );
-// false
-```
+* [in()](#in) - Underlying method with same parameters and return value but better performance
 
 
 ### index()
@@ -3354,7 +3356,7 @@ Map::from( ["a b c", "cbxa"] )->ltrim( 'abc' );
 
 ### map()
 
-Calls the passed function once for each element and returns a new map for the result.
+Maps new values to the existing keys using the passed function and returns a new map for the result.
 
 ```php
 public function map( callable $callback ) : self
@@ -3861,7 +3863,7 @@ Map::from( ['a', 'b'] )->pipe( function( $map ) {
 
 ### pluck()
 
-Returns the values of a single column/property from an array of arrays or list of elements in a new map.
+Returns the values of a single column/property from an array of arrays or list of elements in a new map (alias).
 
 ```php
 public function pluck( string $valuecol = null, string $indexcol = null ) : self
@@ -3874,6 +3876,9 @@ public function pluck( string $valuecol = null, string $indexcol = null ) : self
 This method is an alias for [col()](#col). For performance reasons, `col()` should
 be preferred because it uses one method call less than `pluck()`.
 
+**See also:**
+
+* [col()](#col) - Underlying method with same parameters and return value but better performance
 
 ### pop()
 
@@ -3956,7 +3961,7 @@ Map::from( ['a', 'b'] )->prefix( function( $item, $key ) {
 
 ### prepend()
 
-Pushes an element onto the beginning of the map without returning a new map.
+Pushes an element onto the beginning of the map without returning a new map (alias).
 
 ```php
 public function prepend( $value, $key = null ) : self
@@ -3966,17 +3971,12 @@ public function prepend( $value, $key = null ) : self
 * @param **int&#124;string&#124;null** `$key` Key for the item or NULL to reindex all numerical keys
 * @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
-This method is an alias for the [unshift()](#unshift) method.
+This method is an alias for the [unshift()](#unshift) method. For performance reasons, `unshift()` should
+be preferred because it uses one method call less than `prepend()`.
 
-**Examples:**
+**See also:**
 
-```php
-Map::from( ['a', 'b'] )->prepend( 'd' );
-// ['d', 'a', 'b']
-
-Map::from( ['a', 'b'] )->prepend( 'd', 'first' );
-// ['first' => 'd', 0 => 'a', 1 => 'b']
-```
+* [unshift()](#unshift) - Underlying method with same parameters and return value but better performance
 
 
 ### pull()
@@ -4023,28 +4023,22 @@ Map::from( ['a', 'b'] )->push( 'aa' );
 
 ### put()
 
-Sets the given key and value in the map without returning a new map.
+Sets the given key and value in the map without returning a new map (alias).
 
 ```php
 public function put( $key, $value ) : self
 ```
 
-This method is an alias for `set()`. For performance reasons, `set()` should be
-preferred because it uses one method call less than `put()`.
-
 * @param **int&#124;string** `$key` Key to set the new value for
 * @param **mixed** `$value` New element that should be set
 * @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
-**Examples:**
+This method is an alias for [set()](#set). For performance reasons, `set()` should be
+preferred because it uses one method call less than `put()`.
 
-```php
-Map::from( ['a'] )->put( 1, 'b' );
-// [0 => 'a', 1 => 'b']
+**See also:**
 
-Map::from( ['a'] )->put( 0, 'b' );
-// [0 => 'b']
-```
+* [set()](#set) - Underlying method with same parameters and return value but better performance
 
 
 ### random()
@@ -4155,6 +4149,11 @@ Map::from( ['a' => 2, 'b' => 4] )->rekey( function( $value, $key ) {
 // ['key-a' => 2, 'key-b' => 4]
 ```
 
+**See also:**
+
+* [map()](#map) - Maps new values to the existing keys using the passed function and returns a new map for the result
+* [transform()](#transform) - Creates new key/value pairs using the passed function and returns a new map for the result
+
 
 ### remove()
 
@@ -4227,6 +4226,38 @@ Map::from( ['a', 'b'] )->reverse();
 Map::from( ['name' => 'test', 'last' => 'user'] )->reverse();
 // ['last' => 'user', 'name' => 'test']
 ```
+
+**See also:**
+
+* [reversed()](#reversed) - Reverses the element order in a copy of the map
+
+
+### reversed()
+
+Reverses the element order in a copy of the map.
+
+```php
+public function reversed() : self
+```
+
+* @return **self&#60;int&#124;string,mixed&#62;** New map with a reversed copy of the elements
+
+The keys are preserved using this method and a new map is created before reversing the elements.
+Thus, [reverse()](#reverse) should be preferred for performance reasons if possible.
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b'] )->reversed();
+// ['b', 'a']
+
+Map::from( ['name' => 'test', 'last' => 'user'] )->reversed();
+// ['last' => 'user', 'name' => 'test']
+```
+
+**See also:**
+
+* [reverse()](#reverse) - Reverses the element order without returning a new map
 
 
 ### rsort()
@@ -4417,6 +4448,36 @@ Map::from( [2 => 'a', 4 => 'b'] )->shuffle( true );
 // [2 => 'a', 4 => 'b'] in random order with keys preserved
 ```
 
+**See also:**
+
+* [shuffled()](#shuffled) - Shuffles the elements in a copy of the map.
+
+
+### shuffled()
+
+Shuffles the elements in a copy of the map.
+
+```php
+public function shuffled( bool $assoc = false ) : self
+```
+
+* @param **bool** `$assoc` True to preserve keys, false to assign new keys
+* @return **self&#60;int&#124;string,mixed&#62;** New map with a shuffled copy of the elements
+
+**Examples:**
+
+```php
+Map::from( [2 => 'a', 4 => 'b'] )->shuffled();
+// ['a', 'b'] in random order with new keys
+
+Map::from( [2 => 'a', 4 => 'b'] )->shuffled( true );
+// [2 => 'a', 4 => 'b'] in random order with keys preserved
+```
+
+**See also:**
+
+* [shuffle()](#shuffle) - Shuffles the elements in the map without returning a new map
+
 
 ### skip()
 
@@ -4524,7 +4585,7 @@ Sorts all elements without maintaining the key association.
 public function sort( int $options = SORT_REGULAR ) : self
 ```
 
-* @param **int** `$options` Sort options for `sort()`
+* @param **int** `$options` Sort options for PHP `sort()`
 * @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 The parameter modifies how the values are compared. Possible parameter values are:
@@ -4546,6 +4607,43 @@ Map::from( ['a' => 1, 'b' => 0] )->sort();
 Map::from( [0 => 'b', 1 => 'a'] )->sort();
 // [0 => 'a', 1 => 'b']
 ```
+
+
+### sorted()
+
+Sorts the elements in a copy of the map using new keys.
+
+```php
+public function sorted( int $options = SORT_REGULAR ) : self
+```
+
+* @param **int** `$options` Sort options for PHP `sort()`
+* @return **self&#60;int&#124;string,mixed&#62;** New map with a sorted copy of the elements
+
+The parameter modifies how the values are compared. Possible parameter values are:
+- SORT_REGULAR : compare elements normally (don't change types)
+- SORT_NUMERIC : compare elements numerically
+- SORT_STRING : compare elements as strings
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by `setlocale()`
+- SORT_NATURAL : compare elements as strings using "natural ordering" like `natsort()`
+- SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
+
+The keys aren't preserved and elements get a new index and a new map is created before sorting the elements.
+Thus, [sort()](#sort) should be preferred for performance reasons if possible.
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 'b' => 0] )->sorted();
+// [0 => 0, 1 => 1]
+
+Map::from( [0 => 'b', 1 => 'a'] )->sorted();
+// [0 => 'a', 1 => 'b']
+```
+
+**See also:**
+
+* [sort()](#sort) - Sorts elements in-place in the original map
 
 
 ### splice()
@@ -5367,6 +5465,43 @@ Map::from( ['a', 'b'] )->toJson( JSON_FORCE_OBJECT );
 ```
 
 
+### toReversed()
+
+Reverses the element order in a copy of the map (alias).
+
+```php
+public function toReversed() : self
+```
+
+* @return **self&#60;int&#124;string,mixed&#62;** New map with a reversed copy of the elements
+
+This method is an alias for [reversed()](#reversed). For performance reasons, reversed() should be
+preferred because it uses one method call less than toReversed().
+
+**See also:**
+
+* [reversed()](#reversed) - Underlying method with same parameters and return value but better performance
+
+
+### toSorted()
+
+Sorts the elements in a copy of the map using new keys (alias).
+
+```php
+public function toSorted( int $options = SORT_REGULAR ) : self
+```
+
+* @param **int** `$options` Sort options for PHP `sort()`
+* @return **self&#60;int&#124;string,mixed&#62;** New map with a sorted copy of the elements
+
+This method is an alias for [sorted()](#sorted). For performance reasons, sorted() should be
+preferred because it uses one method call less than toSorted().
+
+**See also:**
+
+* [sorted()](#sorted) - Underlying method with same parameters and return value but better performance
+
+
 ### toUrl()
 
 Creates a HTTP query string from the map elements.
@@ -5386,6 +5521,49 @@ Map::from( ['a' => 1, 'b' => 2] )->toUrl();
 Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
 // a%5Bb%5D=abc&a%5Bc%5D=def&d=123
 ```
+
+
+### transform()
+
+Creates new key/value pairs using the passed function and returns a new map for the result.
+
+```php
+public function transform( \Closure $callback ) : self
+```
+
+* @param **\Closure** `$callback` Function with (value, key) parameters and returns an array of new key/value pair(s)
+* @return **self&#60;int&#124;string,mixed&#62;** New map with the new key/value pairs
+
+If a key is returned twice, the last value will overwrite previous values.
+
+**Examples:**
+
+```php
+Map::from( ['a' => 2, 'b' => 4] )->transform( function( $value, $key ) {
+    return [$key . '-2' => $value * 2];
+} );
+// ['a-2' => 4, 'b-2' => 8]
+
+Map::from( ['a' => 2, 'b' => 4] )->transform( function( $value, $key ) {
+    return [$key => $value * 2, $key . $key => $value * 4];
+} );
+// ['a' => 4, 'aa' => 8, 'b' => 8, 'bb' => 16]
+
+Map::from( ['a' => 2, 'b' => 4] )->transform( function( $value, $key ) {
+    return $key < 'b' ? [$key => $value * 2] : null;
+} );
+// ['a' => 4]
+
+Map::from( ['la' => 2, 'le' => 4, 'li' => 6] )->transform( function( $value, $key ) {
+    return [$key[0] => $value * 2];
+} );
+// ['l' => 12]
+```
+
+**See also:**
+
+* [map()](#map) - Maps new values to the existing keys using the passed function and returns a new map for the result
+* [rekey()](#rekey) - Changes the keys according to the passed function
 
 
 ### transpose()

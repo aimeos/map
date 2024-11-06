@@ -1247,20 +1247,14 @@ Array
 	{
 		set_error_handler( function( $errno, $str, $file, $line ) { return true; } );
 
-		$this->expectException( \RuntimeException::class );
-		Map::from( [] )->grep( 'b' );
-	}
-
-
-	public function testGrepWarning()
-	{
-		if( method_exists( $this, 'expectWarning' ) ) {
-			$this->expectWarning(); // PHPUnit 8+
-		} else {
-			$this->expectException( \PHPUnit\Framework\Error\Warning::class ); // PHP 7.1
+		try {
+			Map::from( [] )->grep( 'b' );
+			$this->fail( 'An expected RuntimeException has not been raised' );
+		} catch( \RuntimeException $e ) {
+			$this->assertStringContainsString( 'Regular expression error', $e->getMessage() );
+		} finally {
+			restore_error_handler();
 		}
-
-		Map::from( [] )->grep( 'b' );
 	}
 
 
@@ -2606,6 +2600,17 @@ Array
 	}
 
 
+	public function testReversed()
+	{
+		$m = new Map( ['hello', 'world'] );
+		$r = $m->reversed();
+
+		$this->assertNotSame( $r, $m );
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [1 => 'world', 0 => 'hello'], $r->toArray() );
+	}
+
+
 	public function testRsortNummeric()
 	{
 		$m = ( new Map( [-1, -3, -2, -4, -5, 0, 5, 3, 1, 2, 4] ) )->rsort();
@@ -2716,6 +2721,17 @@ Array
 		foreach( $map as $key => $value ) {
 			$this->assertSame( $value, $result[$key] );
 		}
+	}
+
+
+	public function testShuffled()
+	{
+		$m = new Map( range( 0, 100, 10 ) );
+		$r = $m->shuffled();
+
+		$this->assertNotSame( $r, $m );
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertNotEquals( $r->toArray(), $m->toArray() );
 	}
 
 
@@ -2832,6 +2848,17 @@ Array
 
 		$this->assertTrue( Map::from( ['a', 'b'] )->some( $fcn ) );
 		$this->assertFalse( Map::from( ['c', 'd'] )->some( $fcn ) );
+	}
+
+
+	public function testSorted()
+	{
+		$m = new Map( [-1, -3, -2, -4, -5, 0, 5, 3, 1, 2, 4] );
+		$n = $m->sorted();
+
+		$this->assertNotSame( $n, $m );
+		$this->assertInstanceOf( Map::class, $n );
+		$this->assertSame( [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5], $n->toArray() );
 	}
 
 
@@ -3201,6 +3228,72 @@ Array
 		$this->assertEquals( [0 => new \stdClass(), 1 => new \stdClass()], Map::times( 2, function( $num ) {
 			return new \stdClass();
 		} )->toArray() );
+	}
+
+
+	public function testToReversed()
+	{
+		$m = new Map( ['hello', 'world'] );
+		$r = $m->toReversed();
+
+		$this->assertNotSame( $r, $m );
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [1 => 'world', 0 => 'hello'], $r->toArray() );
+	}
+
+
+	public function testToSorted()
+	{
+		$m = new Map( [-1, -3, -2, -4, -5, 0, 5, 3, 1, 2, 4] );
+		$n = $m->toSorted();
+
+		$this->assertNotSame( $n, $m );
+		$this->assertInstanceOf( Map::class, $n );
+		$this->assertSame( [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5], $n->toArray() );
+	}
+
+
+	public function testTransform()
+	{
+		$m = Map::from( ['a' => 2, 'b' => 4] )->transform( function( $value, $key ) {
+			return [$key . '-2' => $value * 2];
+		} );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertSame( ['a-2' => 4, 'b-2' => 8], $m->toArray() );
+	}
+
+
+	public function testTransformExtend()
+	{
+		$m = Map::from( ['a' => 2, 'b' => 4] )->transform( function( $value, $key ) {
+			return [$key => $value * 2, $key . $key => $value * 4];
+		} );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertSame( ['a' => 4, 'aa' => 8, 'b' => 8, 'bb' => 16], $m->toArray() );
+	}
+
+
+	public function testTransformShorten()
+	{
+		$m = Map::from( ['a' => 2, 'b' => 4] )->transform( function( $value, $key ) {
+			return $key < 'b' ? [$key => $value * 2] : null;
+		} );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertSame( ['a' => 4], $m->toArray() );
+	}
+
+
+	public function testTransformOverwrite()
+	{
+		$m = Map::from( ['la' => 2, 'le' => 4, 'li' => 6] )->transform( function( $value, $key ) {
+			return [$key[0] => $value * 2];
+		} );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertSame( ['l' => 12], $m->toArray() );
 	}
 
 

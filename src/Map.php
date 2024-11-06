@@ -317,7 +317,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|null $fcn Anonymous function or NULL to return the closure if available
 	 * @return \Closure|null Registered anonymous function or NULL if none has been registered
 	 */
-	public static function method( string $method, \Closure $fcn = null ) : ?\Closure
+	public static function method( string $method, ?\Closure $fcn = null ) : ?\Closure
 	{
 		if( $fcn ) {
 			self::$methods[$method] = $fcn;
@@ -810,7 +810,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param string|null $indexcol Name or path of the index property
 	 * @return self<int|string,mixed> New map with mapped entries
 	 */
-	public function col( string $valuecol = null, string $indexcol = null ) : self
+	public function col( ?string $valuecol = null, ?string $indexcol = null ) : self
 	{
 		$vparts = explode( $this->sep, (string) $valuecol );
 		$iparts = explode( $this->sep, (string) $indexcol );
@@ -864,7 +864,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @return self<int|string,mixed> New map with all sub-array elements added into it recursively, up to the specified depth
 	 * @throws \InvalidArgumentException If depth must be greater or equal than 0 or NULL
 	 */
-	public function collapse( int $depth = null ) : self
+	public function collapse( ?int $depth = null ) : self
 	{
 		if( $depth < 0 ) {
 			throw new \InvalidArgumentException( 'Depth must be greater or equal than 0 or NULL' );
@@ -984,7 +984,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $value Value used for comparison
 	 * @return bool TRUE if at least one element is available in map, FALSE if the map contains none of them
 	 */
-	public function contains( $key, string $operator = null, $value = null ) : bool
+	public function contains( $key, ?string $operator = null, $value = null ) : bool
 	{
 		if( $operator === null ) {
 			return $this->some( $key );
@@ -1046,7 +1046,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param  callable|null $callback Function with (value, key) parameters which returns the value to use for counting
 	 * @return self<int|string,mixed> New map with values as keys and their count as value
 	 */
-	public function countBy( callable $callback = null ) : self
+	public function countBy( ?callable $callback = null ) : self
 	{
 		$callback = $callback ?: function( $value ) {
 			return (string) $value;
@@ -1075,7 +1075,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param callable|null $callback Function receiving the map elements as parameter (optional)
 	 */
-	public function dd( callable $callback = null ) : void
+	public function dd( ?callable $callback = null ) : void
 	{
 		$this->dump( $callback );
 		exit( 1 );
@@ -1111,7 +1111,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function diff( iterable $elements, callable $callback = null ) : self
+	public function diff( iterable $elements, ?callable $callback = null ) : self
 	{
 		if( $callback ) {
 			return new static( array_udiff( $this->list(), $this->array( $elements ), $callback ) );
@@ -1152,7 +1152,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function diffAssoc( iterable $elements, callable $callback = null ) : self
+	public function diffAssoc( iterable $elements, ?callable $callback = null ) : self
 	{
 		if( $callback ) {
 			return new static( array_diff_uassoc( $this->list(), $this->array( $elements ), $callback ) );
@@ -1192,7 +1192,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param  callable|null $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function diffKeys( iterable $elements, callable $callback = null ) : self
+	public function diffKeys( iterable $elements, ?callable $callback = null ) : self
 	{
 		if( $callback ) {
 			return new static( array_diff_ukey( $this->list(), $this->array( $elements ), $callback ) );
@@ -1227,7 +1227,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param callable|null $callback Function receiving the map elements as parameter (optional)
 	 * @return self<int|string,mixed> Same map for fluid interface
 	 */
-	public function dump( callable $callback = null ) : self
+	public function dump( ?callable $callback = null ) : self
 	{
 		$callback ? $callback( $this->list() ) : print_r( $this->list() );
 		return $this;
@@ -1260,7 +1260,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param string|null $key Key or path of the nested array or object to check for
 	 * @return self<int|string,mixed> New map
 	 */
-	public function duplicates( string $key = null ) : self
+	public function duplicates( ?string $key = null ) : self
 	{
 		$list = $this->list();
 		$items = ( $key !== null ? $this->col( $key )->toArray() : $list );
@@ -1422,7 +1422,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param  callable|null $callback Function with (item, key) parameters and returns TRUE/FALSE
 	 * @return self<int|string,mixed> New map
 	 */
-	public function filter( callable $callback = null ) : self
+	public function filter( ?callable $callback = null ) : self
 	{
 		if( $callback ) {
 			return new static( array_filter( $this->list(), $callback, ARRAY_FILTER_USE_BOTH ) );
@@ -1563,7 +1563,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @return self<int|string,mixed> New map with all sub-array elements added into it recursively, up to the specified depth
 	 * @throws \InvalidArgumentException If depth must be greater or equal than 0 or NULL
 	 */
-	public function flat( int $depth = null ) : self
+	public function flat( ?int $depth = null ) : self
 	{
 		if( $depth < 0 ) {
 			throw new \InvalidArgumentException( 'Depth must be greater or equal than 0 or NULL' );
@@ -1899,7 +1899,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|null $else Function with (map, condition) parameter (optional)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function if( $condition, \Closure $then = null, \Closure $else = null ) : self
+	public function if( $condition, ?\Closure $then = null, ?\Closure $else = null ) : self
 	{
 		if( $condition instanceof \Closure ) {
 			$condition = $condition( $this );
@@ -1952,7 +1952,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|null $else Function with (map, condition) parameter (optional)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function ifAny( \Closure $then = null, \Closure $else = null ) : self
+	public function ifAny( ?\Closure $then = null, ?\Closure $else = null ) : self
 	{
 		return $this->if( !empty( $this->list() ), $then, $else );
 	}
@@ -1990,7 +1990,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|null $else Function with (map, condition) parameter (optional)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function ifEmpty( \Closure $then = null, \Closure $else = null ) : self
+	public function ifEmpty( ?\Closure $then = null, ?\Closure $else = null ) : self
 	{
 		return $this->if( empty( $this->list() ), $then, $else );
 	}
@@ -2073,22 +2073,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	/**
 	 * Tests if the passed element or elements are part of the map.
 	 *
-	 * Examples:
-	 *  Map::from( ['a', 'b'] )->includes( 'a' );
-	 *  Map::from( ['a', 'b'] )->includes( ['a', 'b'] );
-	 *  Map::from( ['a', 'b'] )->includes( 'x' );
-	 *  Map::from( ['a', 'b'] )->includes( ['a', 'x'] );
-	 *  Map::from( ['1', '2'] )->includes( 2, true );
-	 *
-	 * Results:
-	 * The first and second example will return TRUE while the other ones will return FALSE
-	 *
 	 * This method is an alias for in(). For performance reasons, in() should be
 	 * preferred because it uses one method call less than includes().
 	 *
 	 * @param mixed|array $element Element or elements to search for in the map
 	 * @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
 	 * @return bool TRUE if all elements are available in map, FALSE if not
+	 * @see in() - Underlying method with same parameters and return value but better performance
 	 */
 	public function includes( $element, bool $strict = false ) : bool
 	{
@@ -2355,7 +2346,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function intersect( iterable $elements, callable $callback = null ) : self
+	public function intersect( iterable $elements, ?callable $callback = null ) : self
 	{
 		$list = $this->list();
 		$elements = $this->array( $elements );
@@ -2401,7 +2392,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param  callable|null $callback Function with (valueA, valueB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function intersectAssoc( iterable $elements, callable $callback = null ) : self
+	public function intersectAssoc( iterable $elements, ?callable $callback = null ) : self
 	{
 		$elements = $this->array( $elements );
 
@@ -2444,7 +2435,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param  callable|null $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function intersectKeys( iterable $elements, callable $callback = null ) : self
+	public function intersectKeys( iterable $elements, ?callable $callback = null ) : self
 	{
 		$list = $this->list();
 		$elements = $this->array( $elements );
@@ -2850,7 +2841,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Calls the passed function once for each element and returns a new map for the result.
+	 * Maps new values to the existing keys using the passed function and returns a new map for the result.
 	 *
 	 * Examples:
 	 *  Map::from( ['a' => 2, 'b' => 4] )->map( function( $value, $key ) {
@@ -2864,6 +2855,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param callable $callback Function with (value, key) parameters and returns computed result
 	 * @return self<int|string,mixed> New map with the original keys and the computed values
+	 * @see rekey() - Changes the keys according to the passed function
+	 * @see transform() - Creates new key/value pairs using the passed function and returns a new map for the result
 	 */
 	public function map( callable $callback ) : self
 	{
@@ -3354,8 +3347,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param string|null $valuecol Name or path of the value property
 	 * @param string|null $indexcol Name or path of the index property
 	 * @return self<int|string,mixed> New map with mapped entries
+	 * @see col() - Underlying method with same parameters and return value but better performance
 	 */
-	public function pluck( string $valuecol = null, string $indexcol = null ) : self
+	public function pluck( ?string $valuecol = null, ?string $indexcol = null ) : self
 	{
 		return $this->col( $valuecol, $indexcol );
 	}
@@ -3449,7 +3443,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param int|null $depth Maximum depth to dive into multi-dimensional arrays starting from "1"
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
-	public function prefix( $prefix, int $depth = null ) : self
+	public function prefix( $prefix, ?int $depth = null ) : self
 	{
 		$fcn = function( array $list, $prefix, int $depth ) use ( &$fcn ) {
 
@@ -3478,6 +3472,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $value Item to add at the beginning
 	 * @param int|string|null $key Key for the item or NULL to reindex all numerical keys
 	 * @return self<int|string,mixed> Updated map for fluid interface
+	 * @see unshift() - Underlying method with same parameters and return value but better performance
 	 */
 	public function prepend( $value, $key = null ) : self
 	{
@@ -3536,19 +3531,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	/**
 	 * Sets the given key and value in the map without returning a new map.
 	 *
-	 * Examples:
-	 *  Map::from( ['a'] )->put( 1, 'b' );
-	 *  Map::from( ['a'] )->put( 0, 'b' );
-	 *
-	 * Results:
-	 * The first example results in ['a', 'b'] while the second one produces ['b']
-	 *
 	 * This method is an alias for set(). For performance reasons, set() should be
 	 * preferred because it uses one method call less than put().
 	 *
 	 * @param int|string $key Key to set the new value for
 	 * @param mixed $value New element that should be set
 	 * @return self<int|string,mixed> Updated map for fluid interface
+	 * @see set() - Underlying method with same parameters and return value but better performance
 	 */
 	public function put( $key, $value ) : self
 	{
@@ -3668,6 +3657,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param callable $callback Function with (value, key) parameters and returns new key
 	 * @return self<int|string,mixed> New map with new keys and original values
+	 * @see map() - Maps new values to the existing keys using the passed function and returns a new map for the result
+	 * @see transform() - Creates new key/value pairs using the passed function and returns a new map for the result
 	 */
 	public function rekey( callable $callback ) : self
 	{
@@ -3749,11 +3740,35 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The keys are preserved using this method.
 	 *
 	 * @return self<int|string,mixed> Updated map for fluid interface
+	 * @see reversed() - Reverses the element order in a copy of the map
 	 */
 	public function reverse() : self
 	{
 		$this->list = array_reverse( $this->list(), true );
 		return $this;
+	}
+
+
+	/**
+	 * Reverses the element order in a copy of the map.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'b'] )->reversed();
+	 *  Map::from( ['name' => 'test', 'last' => 'user'] )->reversed();
+	 *
+	 * Results:
+	 *  ['b', 'a']
+	 *  ['last' => 'user', 'name' => 'test']
+	 *
+	 * The keys are preserved using this method and a new map is created before reversing the elements.
+	 * Thus, reverse() should be preferred for performance reasons if possible.
+	 *
+	 * @return self<int|string,mixed> New map with a reversed copy of the elements
+	 * @see reverse() - Reverses the element order with keys without returning a new map
+	 */
+	public function reversed() : self
+	{
+		return ( clone $this )->reverse();
 	}
 
 
@@ -3927,6 +3942,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param bool $assoc True to preserve keys, false to assign new keys
 	 * @return self<int|string,mixed> Updated map for fluid interface
+	 * @see shuffled() - Shuffles the elements in a copy of the map
 	 */
 	public function shuffle( bool $assoc = false ) : self
 	{
@@ -3948,8 +3964,29 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			shuffle( $this->list() );
 		}
 
-
 		return $this;
+	}
+
+
+	/**
+	 * Shuffles the elements in a copy of the map.
+	 *
+	 * Examples:
+	 *  Map::from( [2 => 'a', 4 => 'b'] )->shuffled();
+	 *  Map::from( [2 => 'a', 4 => 'b'] )->shuffled( true );
+	 *
+	 * Results:
+	 * The map in the first example will contain "a" and "b" in random order and
+	 * with new keys assigned. The second call will also return all values in
+	 * random order but preserves the keys of the original list.
+	 *
+	 * @param bool $assoc True to preserve keys, false to assign new keys
+	 * @return self<int|string,mixed> New map with a shuffled copy of the elements
+	 * @see shuffle() - Shuffles the elements in the map without returning a new map
+	 */
+	public function shuffled( bool $assoc = false ) : self
+	{
+		return ( clone $this )->shuffle( $assoc );
 	}
 
 
@@ -4027,7 +4064,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param int|null $length Number of elements to return or NULL for no limit
 	 * @return self<int|string,mixed> New map
 	 */
-	public function slice( int $offset, int $length = null ) : self
+	public function slice( int $offset, ?int $length = null ) : self
 	{
 		return new static( array_slice( $this->list(), $offset, $length, true ) );
 	}
@@ -4086,7 +4123,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Sorts all elements using new keys.
+	 * Sorts all elements in-place using new keys.
 	 *
 	 * Examples:
 	 *  Map::from( ['a' => 1, 'b' => 0] )->sort();
@@ -4106,13 +4143,46 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * The keys aren't preserved and elements get a new index. No new map is created.
 	 *
-	 * @param int $options Sort options for sort()
+	 * @param int $options Sort options for PHP sort()
 	 * @return self<int|string,mixed> Updated map for fluid interface
+	 * @see sorted() - Sorts elements in a copy of the map
 	 */
 	public function sort( int $options = SORT_REGULAR ) : self
 	{
 		sort( $this->list(), $options );
 		return $this;
+	}
+
+
+	/**
+	 * Sorts the elements in a copy of the map using new keys.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 1, 'b' => 0] )->sorted();
+	 *  Map::from( [0 => 'b', 1 => 'a'] )->sorted();
+	 *
+	 * Results:
+	 *  [0 => 0, 1 => 1]
+	 *  [0 => 'a', 1 => 'b']
+	 *
+	 * The parameter modifies how the values are compared. Possible parameter values are:
+	 * - SORT_REGULAR : compare elements normally (don't change types)
+	 * - SORT_NUMERIC : compare elements numerically
+	 * - SORT_STRING : compare elements as strings
+	 * - SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
+	 * - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
+	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+	 *
+	 * The keys aren't preserved and elements get a new index and a new map is created before sorting the elements.
+	 * Thus, sort() should be preferred for performance reasons if possible.
+	 *
+	 * @param int $options Sort options for PHP sort()
+	 * @return self<int|string,mixed> New map with a sorted copy of the elements
+	 * @see sort() - Sorts elements in-place in the original map
+	 */
+	public function sorted( int $options = SORT_REGULAR ) : self
+	{
+		return ( clone $this )->sort( $options );
 	}
 
 
@@ -4146,7 +4216,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $replacement List of elements to insert
 	 * @return self<int|string,mixed> New map
 	 */
-	public function splice( int $offset, int $length = null, $replacement = [] ) : self
+	public function splice( int $offset, ?int $length = null, $replacement = [] ) : self
 	{
 		if( $length === null ) {
 			$length = count( $this->list() );
@@ -4716,7 +4786,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param int|null $depth Maximum depth to dive into multi-dimensional arrays starting from "1"
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
-	public function suffix( $suffix, int $depth = null ) : self
+	public function suffix( $suffix, ?int $depth = null ) : self
 	{
 		$fcn = function( $list, $suffix, $depth ) use ( &$fcn ) {
 
@@ -4891,6 +4961,37 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Reverses the element order in a copy of the map (alias).
+	 *
+	 * This method is an alias for reversed(). For performance reasons, reversed() should be
+	 * preferred because it uses one method call less than toReversed().
+	 *
+	 * @return self<int|string,mixed> New map with a reversed copy of the elements
+	 * @see reversed() - Underlying method with same parameters and return value but better performance
+	 */
+	public function toReversed() : self
+	{
+		return $this->reversed();
+	}
+
+
+	/**
+	 * Sorts the elements in a copy of the map using new keys (alias).
+	 *
+	 * This method is an alias for sorted(). For performance reasons, sorted() should be
+	 * preferred because it uses one method call less than toSorted().
+	 *
+	 * @param int $options Sort options for PHP sort()
+	 * @return self<int|string,mixed> New map with a sorted copy of the elements
+	 * @see sorted() - Underlying method with same parameters and return value but better performance
+	 */
+	public function toSorted( int $options = SORT_REGULAR ) : self
+	{
+		return $this->sorted( $options );
+	}
+
+
+	/**
 	 * Creates a HTTP query string from the map elements.
 	 *
 	 * Examples:
@@ -4906,6 +5007,51 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function toUrl() : string
 	{
 		return http_build_query( $this->list(), '', '&', PHP_QUERY_RFC3986 );
+	}
+
+
+	/**
+	 * Creates new key/value pairs using the passed function and returns a new map for the result.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 2, 'b' => 4] )->transform( function( $value, $key ) {
+	 *      return [$key . '-2' => $value * 2];
+	 *  } );
+	 *  Map::from( ['a' => 2, 'b' => 4] )->transform( function( $value, $key ) {
+	 *      return [$key => $value * 2, $key . $key => $value * 4];
+	 *  } );
+	 *  Map::from( ['a' => 2, 'b' => 4] )->transform( function( $value, $key ) {
+	 *      return $key < 'b' ? [$key => $value * 2] : null;
+	 *  } );
+	 *  Map::from( ['la' => 2, 'le' => 4, 'li' => 6] )->transform( function( $value, $key ) {
+	 *      return [$key[0] => $value * 2];
+	 *  } );
+	 *
+	 * Results:
+	 *  ['a-2' => 4, 'b-2' => 8]
+	 *  ['a' => 4, 'aa' => 8, 'b' => 8, 'bb' => 16]
+	 *  ['a' => 4]
+	 *  ['l' => 12]
+	 *
+	 * If a key is returned twice, the last value will overwrite previous values.
+	 *
+	 * @param \Closure $callback Function with (value, key) parameters and returns an array of new key/value pair(s)
+	 * @return self<int|string,mixed> New map with the new key/value pairs
+	 * @see map() - Maps new values to the existing keys using the passed function and returns a new map for the result
+	 * @see rekey() - Changes the keys according to the passed function
+	 */
+	public function transform( \Closure $callback ) : self
+	{
+		$result = [];
+
+		foreach( $this->list() as $key => $value )
+		{
+			foreach( (array) $callback( $value, $key ) as $newkey => $newval ) {
+				$result[$newkey] = $newval;
+			}
+		}
+
+		return new static( $result );
 	}
 
 
@@ -5018,7 +5164,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param string $nestKey Key to the children of each item
 	 * @return self<int|string,mixed> New map with all items as flat list
 	 */
-	public function traverse( \Closure $callback = null, string $nestKey = 'children' ) : self
+	public function traverse( ?\Closure $callback = null, string $nestKey = 'children' ) : self
 	{
 		$result = [];
 		$this->visit( $this->list(), $result, 0, $callback, $nestKey );
@@ -5233,7 +5379,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param string|null $key Key or path of the nested array or object to check for
 	 * @return self<int|string,mixed> New map
 	 */
-	public function unique( string $key = null ) : self
+	public function unique( ?string $key = null ) : self
 	{
 		if( $key !== null ) {
 			return $this->col( null, $key )->values();
