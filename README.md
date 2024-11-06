@@ -31,7 +31,7 @@ Supported PHP versions:
     * [Order](#order-by)
     * [Shorten](#shorten)
     * [Test](#test)
-    * [Transform](#transform)
+    * [Mutate](#mutate)
     * [Misc](#misc)
 * [Documentation](#method-documentation)
 * [Custom methods](#custom-methods)
@@ -438,7 +438,7 @@ will return:
 * [strStarts()](#strstarts) : Tests if at least one of the entries starts with at least one of the passed strings
 * [strStartsAll()](#strstartsall) : Tests if all of the entries starts with one of the passed strings
 
-### Transform
+### Mutate
 
 * [cast()](#cast) : Casts all entries to the passed type
 * [chunk()](#chunk) : Splits the map into chunks
