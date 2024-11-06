@@ -1247,20 +1247,14 @@ Array
 	{
 		set_error_handler( function( $errno, $str, $file, $line ) { return true; } );
 
-		$this->expectException( \RuntimeException::class );
-		Map::from( [] )->grep( 'b' );
-	}
-
-
-	public function testGrepWarning()
-	{
-		if( method_exists( $this, 'expectWarning' ) ) {
-			$this->expectWarning(); // PHPUnit 8+
-		} else {
-			$this->expectException( \PHPUnit\Framework\Error\Warning::class ); // PHP 7.1
+		try {
+			Map::from( [] )->grep( 'b' );
+			$this->fail( 'An expected RuntimeException has not been raised' );
+		} catch( \RuntimeException $e ) {
+			$this->assertStringContainsString( 'Regular expression error', $e->getMessage() );
+		} finally {
+			restore_error_handler();
 		}
-
-		Map::from( [] )->grep( 'b' );
 	}
 
 
