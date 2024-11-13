@@ -102,6 +102,18 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testArsorted()
+	{
+		$l = [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2];
+		$m = new Map( $l );
+		$r = $m->arsorted();
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertNotSame( $r->toArray(), $m->toArray() );
+		$this->assertSame( [6 => 4, 7 => 3, 9 => 2, 8 => 1, 5 => 0, 4 => -1, 2 => -2, 1 => -3, 3 => -4], $r->toArray() );
+	}
+
+
 	public function testAsortNummeric()
 	{
 		$m = ( new Map( [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2] ) )->asort();
