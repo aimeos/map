@@ -519,6 +519,40 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Sorts a copy of all elements and maintains the key association.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 1, 'b' => 0] )->asorted();
+	 *  Map::from( [0 => 'b', 1 => 'a'] )->asorted();
+	 *  Map::from( [0 => 'C', 1 => 'b'] )->asorted();
+	 *  Map::from( [0 => 'C', 1 => 'b'] )->asorted( SORT_STRING|SORT_FLAG_CASE );
+	 *
+	 * Results:
+	 *  ['b' => 0, 'a' => 1]
+	 *  [1 => 'a', 0 => 'b']
+	 *  [0 => 'C', 1 => 'b'] // because 'C' < 'b'
+	 *  [1 => 'b', 0 => 'C'] // because 'C' -> 'c' and 'c' > 'b'
+	 *
+	 * The parameter modifies how the values are compared. Possible parameter values are:
+	 * - SORT_REGULAR : compare elements normally (don't change types)
+	 * - SORT_NUMERIC : compare elements numerically
+	 * - SORT_STRING : compare elements as strings
+	 * - SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
+	 * - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
+	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+	 *
+	 * The keys are preserved using this method and no new map is created.
+	 *
+	 * @param int $options Sort options for asort()
+	 * @return self<int|string,mixed> Updated map for fluid interface
+	 */
+	public function asorted( int $options = SORT_REGULAR ) : self
+	{
+		return ( clone $this )->asort( $options );
+	}
+
+
+	/**
 	 * Returns the value at the given position.
 	 *
 	 * Examples:

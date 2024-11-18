@@ -141,6 +141,18 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testAsorted()
+	{
+		$l = [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2];
+		$m = new Map( $l );
+		$r = $m->asorted();
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertNotSame( $r->toArray(), $m->toArray() );
+		$this->assertSame( [3 => -4, 1 => -3, 2 => -2, 4 => -1, 5 => 0, 8 => 1, 9 => 2, 7 => 3, 6 => 4], $r->toArray() );
+	}
+
+
 	public function testAt()
 	{
 		$this->assertSame( 1, Map::from( [1, 3, 5] )->at( 0 ) );
