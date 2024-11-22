@@ -3562,6 +3562,19 @@ Array
 	}
 
 
+	public function testUasorted()
+	{
+		$m = new Map( ['a' => 'foo', 'c' => 'bar-10', 1 => 'bar-1'] );
+		$r = $m->uasorted( function( $a, $b ) {
+			return strrev( $a ) <=> strrev( $b );
+		} );
+
+		$this->assertNotSame( $r, $m );
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['c' => 'bar-10', 1 => 'bar-1', 'a' => 'foo'], $r->toArray() );
+	}
+
+
 	public function testUksort()
 	{
 		$m = ( new Map( ['a' => 'foo', 'c' => 'bar-10', 1 => 'bar-1'] ) )->uksort( function( $a, $b ) {

@@ -278,6 +278,7 @@ will return:
 <a href="#tree">tree</a>
 <a href="#trim">trim</a>
 <a href="#uasort">uasort</a>
+<a href="#uasorted">uasorted</a>
 <a href="#uksort">uksort</a>
 <a href="#union">union</a>
 <a href="#unique">unique</a>
@@ -385,6 +386,7 @@ will return:
 * [sorted()](#sorted) : Sorts the elements in a copy of the map using new keys
 * [toSorted()](#tosorted) : Sorts the elements in a copy of the map using new keys (alias)
 * [uasort()](#uasort) : Sorts elements preserving keys using callback
+* [uasorted()](#uasorted) : Sorts elements preserving keys using callback in a copy of the map
 * [uksort()](#uksort) : Sorts elements by keys using callback
 * [usort()](#usort) : Sorts elements using callback assigning new keys
 
@@ -5951,6 +5953,37 @@ Map::from( ['a' => 'B', 'b' => 'a'] )->uasort( 'strcasecmp' );
 // ['b' => 'a', 'a' => 'B']
 
 Map::from( ['a' => 'B', 'b' => 'a'] )->uasort( function( $itemA, $itemB ) {
+    return strtolower( $itemA ) <=> strtolower( $itemB );
+} );
+// ['b' => 'a', 'a' => 'B']
+```
+
+
+### uasorted()
+
+Sorts a copy of all elements using a callback and maintains the key association.
+
+```php
+public function uasorted( callable $callback ) : self
+```
+
+* @param **callable** `$callback` Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
+
+The given callback will be used to compare the values. The callback must accept
+two parameters (item A and B) and must return -1 if item A is smaller than
+item B, 0 if both are equal and 1 if item A is greater than item B. Both, a
+method name and an anonymous function can be passed.
+
+The keys are preserved using this method and no new map is created.
+
+**Examples:**
+
+```php
+Map::from( ['a' => 'B', 'b' => 'a'] )->uasorted( 'strcasecmp' );
+// ['b' => 'a', 'a' => 'B']
+
+Map::from( ['a' => 'B', 'b' => 'a'] )->uasorted( function( $itemA, $itemB ) {
     return strtolower( $itemA ) <=> strtolower( $itemB );
 } );
 // ['b' => 'a', 'a' => 'B']
