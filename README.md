@@ -236,6 +236,7 @@ will return:
 <a href="#reverse">reverse</a>
 <a href="#reversed">reversed</a>
 <a href="#rsort">rsort</a>
+<a href="#rsorted">rsorted</a>
 <a href="#rtrim">rtrim</a>
 <a href="#search">search</a>
 <a href="#sep">sep</a>
@@ -377,6 +378,7 @@ will return:
 * [reversed()](#reversed) : Reverses the element order in a copy of the map
 * [toReversed()](#toreversed) : Reverses the element order in a copy of the map (alias)
 * [rsort()](#rsort) : Reverse sort elements using new keys
+* [rsorted()](#rsorted) : Reverse sort elements using new keys in a copy of the map
 * [shuffle()](#shuffle) : Randomizes the element order
 * [shuffled()](#shuffled) : Randomizes the element order in a copy of the map
 * [sort()](#sort) : Sorts the elements in-place assigning new keys
@@ -4408,6 +4410,44 @@ Map::from( [0 => 'C', 1 => 'b'] )->rsort();
 // [0 => 'b', 1 => 'C']
 
 Map::from( [0 => 'C', 1 => 'b'] )->rsort( SORT_STRING|SORT_FLAG_CASE );
+// [0 => 'C', 1 => 'b'] because 'C' -> 'c' and 'c' > 'b'
+```
+
+
+### rsorted()
+
+Sorts a copy of all elements in reverse order without maintaining the key association.
+
+```php
+public function rsorted( int $options = SORT_REGULAR ) : self
+```
+
+* @param **int** `$options` Sort options for `rsort()`
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
+
+The parameter modifies how the values are compared. Possible parameter values are:
+- SORT_REGULAR : compare elements normally (don't change types)
+- SORT_NUMERIC : compare elements numerically
+- SORT_STRING : compare elements as strings
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by `setlocale()`
+- SORT_NATURAL : compare elements as strings using "natural ordering" like `natsort()`
+- SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
+
+The keys are NOT preserved and elements get a new index. No new map is created.
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 'b' => 0] )->rsorted();
+// [0 => 1, 1 => 0]
+
+Map::from( [0 => 'b', 1 => 'a'] )->rsorted();
+// [0 => 'b', 1 => 'a']
+
+Map::from( [0 => 'C', 1 => 'b'] )->rsorted();
+// [0 => 'b', 1 => 'C']
+
+Map::from( [0 => 'C', 1 => 'b'] )->rsorted( SORT_STRING|SORT_FLAG_CASE );
 // [0 => 'C', 1 => 'b'] because 'C' -> 'c' and 'c' > 'b'
 ```
 

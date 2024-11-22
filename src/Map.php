@@ -3902,6 +3902,36 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Sorts a copy of all elements in reverse order using new keys.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 1, 'b' => 0] )->rsorted();
+	 *  Map::from( [0 => 'b', 1 => 'a'] )->rsorted();
+	 *
+	 * Results:
+	 *  [0 => 1, 1 => 0]
+	 *  [0 => 'b', 1 => 'a']
+	 *
+	 * The parameter modifies how the values are compared. Possible parameter values are:
+	 * - SORT_REGULAR : compare elements normally (don't change types)
+	 * - SORT_NUMERIC : compare elements numerically
+	 * - SORT_STRING : compare elements as strings
+	 * - SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
+	 * - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
+	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+	 *
+	 * The keys aren't preserved and elements get a new index. No new map is created
+	 *
+	 * @param int $options Sort options for rsort()
+	 * @return self<int|string,mixed> Updated map for fluid interface
+	 */
+	public function rsorted( int $options = SORT_REGULAR ) : self
+	{
+		return ( clone $this )->rsort( $options );
+	}
+
+
+	/**
 	 * Removes the passed characters from the right of all strings.
 	 *
 	 * Examples:
