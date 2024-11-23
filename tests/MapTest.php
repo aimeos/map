@@ -3610,6 +3610,19 @@ Array
 	}
 
 
+	public function testUsorted()
+	{
+		$m = new Map( ['foo', 'bar-10', 'bar-1'] );
+		$r = $m->usorted( function( $a, $b ) {
+			return strrev( $a ) <=> strrev( $b );
+		} );
+
+		$this->assertNotSame( $r, $m );
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['bar-10', 'bar-1', 'foo'], $r->toArray() );
+	}
+
+
 	public function testUnionArray()
 	{
 		$m = new Map( ['name' => 'Hello'] );
