@@ -765,7 +765,7 @@ Map::from( [0 => 'C', 1 => 'b'] )->arsort( SORT_STRING|SORT_FLAG_CASE );
 
 ### arsorted()
 
-Sorts all elements in reverse order and maintains the key association in a copy of the map.
+Sorts a copy of all elements in reverse order and maintains the key association.
 
 ```php
 public function arsorted( int $options = SORT_REGULAR ) : self
@@ -774,7 +774,7 @@ public function arsorted( int $options = SORT_REGULAR ) : self
 * @param **int** `$options` Sort options for `arsort()`
 * @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
-The keys are preserved using this method and no new map is created.
+The keys are preserved using this method and a new map is created.
 
 The `$options` parameter modifies how the values are compared. Possible parameter values are:
 - SORT_REGULAR : compare elements normally (don't change types)
@@ -841,7 +841,7 @@ Map::from( [0 => 'C', 1 => 'b'] )->arsort( SORT_STRING|SORT_FLAG_CASE );
 
 ### asorted()
 
-Sorts all elements and maintains the key association in a copy of the map.
+Sorts a copy of all elements and maintains the key association.
 
 ```php
 public function asorted( int $options = SORT_REGULAR ) : self
@@ -850,7 +850,7 @@ public function asorted( int $options = SORT_REGULAR ) : self
 * @param **int** `$options` Sort options for `asort()`
 * @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
-The keys are preserved using this method and no new map is created.
+The keys are preserved using this method and a new map is created.
 
 The parameter modifies how the values are compared. Possible parameter values are:
 - SORT_REGULAR : compare elements normally (don't change types)
@@ -3360,7 +3360,7 @@ The parameter modifies how the keys are compared. Possible values are:
 - SORT_NATURAL : compare elements as strings using "natural ordering" like `natsort()`
 - SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
-The keys are preserved using this method and no new map is created.
+The keys are preserved using this method and a new map is created.
 
 **Examples:**
 
@@ -4439,7 +4439,7 @@ The parameter modifies how the values are compared. Possible parameter values ar
 - SORT_NATURAL : compare elements as strings using "natural ordering" like `natsort()`
 - SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
-The keys are NOT preserved and elements get a new index. No new map is created.
+The keys are NOT preserved, elements get a new index and a new map is created.
 
 **Examples:**
 
@@ -4771,7 +4771,7 @@ Map::from( [0 => 'b', 1 => 'a'] )->sort();
 
 ### sorted()
 
-Sorts the elements in a copy of the map using new keys.
+Sorts a copy of the elements using new keys.
 
 ```php
 public function sorted( int $options = SORT_REGULAR ) : self
@@ -4788,8 +4788,9 @@ The parameter modifies how the values are compared. Possible parameter values ar
 - SORT_NATURAL : compare elements as strings using "natural ordering" like `natsort()`
 - SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
 
-The keys aren't preserved and elements get a new index and a new map is created before sorting the elements.
-Thus, [sort()](#sort) should be preferred for performance reasons if possible.
+The keys aren't preserved and elements get a new index and a new map is created
+before sorting the elements. Thus, [sort()](#sort) should be preferred for
+performance reasons if possible. A new map is created by calling this method.
 
 **Examples:**
 
@@ -5654,8 +5655,9 @@ public function toSorted( int $options = SORT_REGULAR ) : self
 * @param **int** `$options` Sort options for PHP `sort()`
 * @return **self&#60;int&#124;string,mixed&#62;** New map with a sorted copy of the elements
 
-This method is an alias for [sorted()](#sorted). For performance reasons, sorted() should be
-preferred because it uses one method call less than toSorted().
+This method is an alias for [sorted()](#sorted). For performance reasons, sorted()
+should be preferred because it uses one method call less than toSorted(). A new map
+is created by calling this method.
 
 **See also:**
 
@@ -5979,7 +5981,7 @@ two parameters (item A and B) and must return -1 if item A is smaller than
 item B, 0 if both are equal and 1 if item A is greater than item B. Both, a
 method name and an anonymous function can be passed.
 
-The keys are preserved using this method and no new map is created.
+The keys are preserved using this method and a new map is created.
 
 **Examples:**
 
@@ -6041,7 +6043,7 @@ two parameters (key A and B) and must return -1 if key A is smaller than
 key B, 0 if both are equal and 1 if key A is greater than key B. Both, a
 method name and an anonymous function can be passed.
 
-The keys are preserved using this method and no new map is created.
+The keys are preserved using this method and a new map is created.
 
 **Examples:**
 
@@ -6204,7 +6206,7 @@ two parameters (item A and B) and must return -1 if item A is smaller than
 item B, 0 if both are equal and 1 if item A is greater than item B. Both, a
 method name and an anonymous function can be passed.
 
-The keys are NOT preserved and elements get a new index.
+The keys are NOT preserved and elements get a new index and a new map is created.
 
 **Examples:**
 

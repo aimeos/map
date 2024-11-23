@@ -472,7 +472,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 	 *
-	 * The keys are preserved using this method and no new map is created.
+	 * The keys are preserved using this method and a new map is created.
 	 *
 	 * @param int $options Sort options for arsort()
 	 * @return self<int|string,mixed> Updated map for fluid interface
@@ -541,7 +541,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 	 *
-	 * The keys are preserved using this method and no new map is created.
+	 * The keys are preserved using this method and a new map is created.
 	 *
 	 * @param int $options Sort options for asort()
 	 * @return self<int|string,mixed> Updated map for fluid interface
@@ -2807,7 +2807,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 	 *
-	 * The keys are preserved using this method and no new map is created.
+	 * The keys are preserved using this method and a new map is created.
 	 *
 	 * @param int $options Sort options for krsort()
 	 * @return self<int|string,mixed> Updated map for fluid interface
@@ -3918,7 +3918,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 	 *
-	 * The keys aren't preserved and elements get a new index. No new map is created
+	 * The keys aren't preserved, elements get a new index and a new map is created.
 	 *
 	 * @param int $options Sort options for rsort()
 	 * @return self<int|string,mixed> Updated map for fluid interface
@@ -4300,7 +4300,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 	 *
 	 * The keys aren't preserved and elements get a new index and a new map is created before sorting the elements.
-	 * Thus, sort() should be preferred for performance reasons if possible.
+	 * Thus, sort() should be preferred for performance reasons if possible. A new map is created by calling this method.
 	 *
 	 * @param int $options Sort options for PHP sort()
 	 * @return self<int|string,mixed> New map with a sorted copy of the elements
@@ -5444,7 +5444,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  ['b' => 'a', 'a' => 'B']
 	 *  ['b' => 'a', 'a' => 'B']
 	 *
-	 * The keys are preserved using this method and no new map is created.
+	 * The keys are preserved using this method and a new map is created.
 	 *
 	 * @param callable $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self<int|string,mixed> Updated map for fluid interface
@@ -5503,7 +5503,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  ['a' => 'b', 'B' => 'a']
 	 *  ['a' => 'b', 'B' => 'a']
 	 *
-	 * The keys are preserved using this method and no new map is created.
+	 * The keys are preserved using this method and a new map is created.
 	 *
 	 * @param callable $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self<int|string,mixed> Updated map for fluid interface
@@ -5658,7 +5658,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  [0 => 'a', 1 => 'B']
 	 *  [0 => 'a', 1 => 'B']
 	 *
-	 * The keys aren't preserved and elements get a new index.
+	 * The keys aren't preserved, elements get a new index and a new map is created.
 	 *
 	 * @param callable $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
 	 * @return self<int|string,mixed> Updated map for fluid interface
