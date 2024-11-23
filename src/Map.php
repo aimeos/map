@@ -5645,6 +5645,35 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Sorts a copy of all elements using a callback using new keys.
+	 *
+	 * The given callback will be used to compare the values. The callback must accept
+	 * two parameters (item A and B) and must return -1 if item A is smaller than
+	 * item B, 0 if both are equal and 1 if item A is greater than item B. Both, a
+	 * method name and an anonymous function can be passed.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => 'B', 'b' => 'a'] )->usorted( 'strcasecmp' );
+	 *  Map::from( ['a' => 'B', 'b' => 'a'] )->usorted( function( $itemA, $itemB ) {
+	 *      return strtolower( $itemA ) <=> strtolower( $itemB );
+	 *  } );
+	 *
+	 * Results:
+	 *  [0 => 'a', 1 => 'B']
+	 *  [0 => 'a', 1 => 'B']
+	 *
+	 * The keys aren't preserved and elements get a new index.
+	 *
+	 * @param callable $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
+	 * @return self<int|string,mixed> Updated map for fluid interface
+	 */
+	public function usorted( callable $callback ) : self
+	{
+		return ( clone $this )->usort( $callback );
+	}
+
+
+	/**
 	 * Resets the keys and return the values in a new map.
 	 *
 	 * Examples:

@@ -285,6 +285,7 @@ will return:
 <a href="#unique">unique</a>
 <a href="#unshift">unshift</a>
 <a href="#usort">usort</a>
+<a href="#usorted">usorted</a>
 <a href="#values">values</a>
 <a href="#walk">walk</a>
 <a href="#where">where</a>
@@ -391,6 +392,7 @@ will return:
 * [uksort()](#uksort) : Sorts elements by keys using callback
 * [uksorted()](#uksorted) : Sorts elements by keys using callback in a copy of the map
 * [usort()](#usort) : Sorts elements using callback assigning new keys
+* [usorted()](#usorted) : Sorts elements using callback assigning new keys in a copy of the map
 
 ### Shorten
 
@@ -6180,6 +6182,37 @@ Map::from( ['a' => 'B', 'b' => 'a'] )->usort( 'strcasecmp' );
 // [0 => 'a', 1 => 'B']
 
 Map::from( ['a' => 'B', 'b' => 'a'] )->usort( function( $itemA, $itemB ) {
+    return strtolower( $itemA ) <=> strtolower( $itemB );
+} );
+// [0 => 'a', 1 => 'B']
+```
+
+
+### usorted()
+
+Sorts a copy of all elements using a callback without maintaining the key association.
+
+```php
+public function usorted( callable $callback ) : self
+```
+
+* @param **callable** `$callback` Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
+
+The given callback will be used to compare the values. The callback must accept
+two parameters (item A and B) and must return -1 if item A is smaller than
+item B, 0 if both are equal and 1 if item A is greater than item B. Both, a
+method name and an anonymous function can be passed.
+
+The keys are NOT preserved and elements get a new index.
+
+**Examples:**
+
+```php
+Map::from( ['a' => 'B', 'b' => 'a'] )->usorted( 'strcasecmp' );
+// [0 => 'a', 1 => 'B']
+
+Map::from( ['a' => 'B', 'b' => 'a'] )->usorted( function( $itemA, $itemB ) {
     return strtolower( $itemA ) <=> strtolower( $itemB );
 } );
 // [0 => 'a', 1 => 'B']
