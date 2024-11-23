@@ -280,6 +280,7 @@ will return:
 <a href="#uasort">uasort</a>
 <a href="#uasorted">uasorted</a>
 <a href="#uksort">uksort</a>
+<a href="#uksorted">uksorted</a>
 <a href="#union">union</a>
 <a href="#unique">unique</a>
 <a href="#unshift">unshift</a>
@@ -388,6 +389,7 @@ will return:
 * [uasort()](#uasort) : Sorts elements preserving keys using callback
 * [uasorted()](#uasorted) : Sorts elements preserving keys using callback in a copy of the map
 * [uksort()](#uksort) : Sorts elements by keys using callback
+* [uksorted()](#uksorted) : Sorts elements by keys using callback in a copy of the map
 * [usort()](#usort) : Sorts elements using callback assigning new keys
 
 ### Shorten
@@ -6015,6 +6017,37 @@ Map::from( ['B' => 'a', 'a' => 'b'] )->uksort( 'strcasecmp' );
 // ['a' => 'b', 'B' => 'a']
 
 Map::from( ['B' => 'a', 'a' => 'b'] )->uksort( function( $keyA, $keyB ) {
+    return strtolower( $keyA ) <=> strtolower( $keyB );
+} );
+// ['a' => 'b', 'B' => 'a']
+```
+
+
+### uksorted()
+
+Sorts a copy of the map elements by their keys using a callback.
+
+```php
+public function uksorted( callable $callback ) : self
+```
+
+* @param **callable** `$callback` Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
+
+The given callback will be used to compare the keys. The callback must accept
+two parameters (key A and B) and must return -1 if key A is smaller than
+key B, 0 if both are equal and 1 if key A is greater than key B. Both, a
+method name and an anonymous function can be passed.
+
+The keys are preserved using this method and no new map is created.
+
+**Examples:**
+
+```php
+Map::from( ['B' => 'a', 'a' => 'b'] )->uksorted( 'strcasecmp' );
+// ['a' => 'b', 'B' => 'a']
+
+Map::from( ['B' => 'a', 'a' => 'b'] )->uksorted( function( $keyA, $keyB ) {
     return strtolower( $keyA ) <=> strtolower( $keyB );
 } );
 // ['a' => 'b', 'B' => 'a']
