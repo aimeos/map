@@ -1526,10 +1526,53 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function find( \Closure $callback, $default = null, bool $reverse = false )
 	{
-		foreach( ( $reverse ? array_reverse( $this->list() ) : $this->list() ) as $key => $value )
+		foreach( ( $reverse ? array_reverse( $this->list(), true ) : $this->list() ) as $key => $value )
 		{
 			if( $callback( $value, $key ) ) {
 				return $value;
+			}
+		}
+
+		if( $default instanceof \Throwable ) {
+			throw $default;
+		}
+
+		return $default;
+	}
+
+
+	/**
+	 * Returns the first/last key where the callback returns TRUE.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'c', 'e'] )->findKey( function( $value, $key ) {
+	 *      return $value >= 'b';
+	 *  } );
+	 *  Map::from( ['a', 'c', 'e'] )->findKey( function( $value, $key ) {
+	 *      return $value >= 'b';
+	 *  }, null, true );
+	 *  Map::from( [] )->findKey( function( $value, $key ) {
+	 *      return $value >= 'b';
+	 *  }, 'none' );
+	 *  Map::from( [] )->findKey( function( $value, $key ) {
+	 *      return $value >= 'b';
+	 *  }, new \Exception( 'error' ) );
+	 *
+	 * Results:
+	 * The first example will return '1' while the second will return '2' (last element).
+	 * The third one will return "none" and the last one will throw the exception.
+	 *
+	 * @param \Closure $callback Function with (value, key) parameters and returns TRUE/FALSE
+	 * @param mixed $default Default value or exception if the map contains no elements
+	 * @param bool $reverse TRUE to test elements from back to front, FALSE for front to back (default)
+	 * @return mixed Key of first matching element, passed default value or an exception
+	 */
+	public function findKey( \Closure $callback, $default = null, bool $reverse = false )
+	{
+		foreach( ( $reverse ? array_reverse( $this->list(), true ) : $this->list() ) as $key => $value )
+		{
+			if( $callback( $value, $key ) ) {
+				return $key;
 			}
 		}
 

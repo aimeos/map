@@ -160,6 +160,7 @@ will return:
 <a href="#explode">explode</a>
 <a href="#filter">filter</a>
 <a href="#find">find</a>
+<a href="#findkey">findKey</a>
 <a href="#first">first</a>
 <a href="#firstkey">firstKey</a>
 <a href="#flat">flat</a>
@@ -314,7 +315,8 @@ will return:
 * [at()](#at) : Returns the value at the given position
 * [bool()](#bool) : Returns an element by key and casts it to boolean
 * [call()](#call) : Calls the given method on all items
-* [find()](#find) : Returns the first/last matching element
+* [find()](#find) : Returns the first/last element where the callback returns TRUE
+* [findKey()](#findkey) : Returns the first/last key where the callback returns TRUE
 * [first()](#first) : Returns the first element
 * [firstKey()](#firstkey) : Returns the first key
 * [get()](#get) : Returns an element by key
@@ -1965,6 +1967,44 @@ Map::from( [] )->find( function( $value, $key ) {
     return $value >= 'b';
 }, new \Exception( 'error' ) );
 // throws \Exception
+```
+
+
+### findKey()
+
+Returns the first matching element where the callback returns TRUE.
+
+```php
+public function findKey( \Closure $callback, $default = null, bool $reverse = false )
+```
+
+* @param **\Closure** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
+* @param **mixed** `$default` Default value or exception if the map contains no elements
+* @param **bool** `$reverse` TRUE to test elements from back to front, FALSE for front to back (default)
+* @return **mixed&#124;null** First matching value, passed default value or an exception
+
+**Examples:**
+
+```php
+Map::from( ['a', 'c', 'e'] )->findKey( function( $value, $key ) {
+    return $value >= 'b';
+} );
+// 1 because array has keys 0, 1 and 2
+
+Map::from( ['a', 'c', 'e'] )->findKey( function( $value, $key ) {
+    return $value >= 'b';
+}, null, true );
+// 2 because array is reversed and 'e' >= 'b'
+
+Map::from( [] )->findKey( function( $value, $key ) {
+    return $value >= 'b';
+}, 'none' );
+// default value 'none'
+
+Map::from( [] )->findKey( function( $value, $key ) {
+    return $value >= 'b';
+}, new \Exception( 'error' ) );
+// throws exception
 ```
 
 

@@ -967,11 +967,48 @@ Array
 	{
 		$m = new Map( ['foo', 'bar', 'baz'] );
 
-		$this->expectException( \RuntimeException::class );
+		$this->expectException( \Exception::class );
 
 		$result = $m->find( function( $value ) {
 			return false;
-		}, new \RuntimeException( 'error' ) );
+		}, new \Exception( 'error' ) );
+	}
+
+
+	public function testFindKey()
+	{
+		$result = Map::from( ['a', 'c', 'e'] )->findKey( function( $value, $key ) {
+			return $value >= 'b';
+		} );
+		$this->assertSame( 1, $result );
+	}
+
+
+	public function testFindKeyLast()
+	{
+		$result = Map::from( ['a', 'c', 'e'] )->findKey( function( $value, $key ) {
+			return $value >= 'b';
+		}, null, true );
+		$this->assertSame( 2, $result );
+	}
+
+
+	public function testFindKeyDefault()
+	{
+		$result = Map::from( [] )->findKey( function( $value, $key ) {
+			return $value >= 'b';
+		}, 'none' );
+		$this->assertSame( 'none', $result );
+	}
+
+
+	public function testFindKeyException()
+	{
+		$this->expectException( \Exception::class );
+
+		$result = Map::from( [] )->findKey( function( $value, $key ) {
+			return $value >= 'b';
+		}, new \Exception( 'error' ) );
 	}
 
 
