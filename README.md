@@ -312,6 +312,7 @@ will return:
 * [__call()](#__call) : Calls a custom method
 * [__callStatic()](#__callstatic) : Calls a custom method statically
 * [all()](#all) : Returns the plain array
+* [any()](#any) : Tests if at least one element satisfies the callback function
 * [at()](#at) : Returns the value at the given position
 * [bool()](#bool) : Returns an element by key and casts it to boolean
 * [call()](#call) : Calls the given method on all items
@@ -425,6 +426,7 @@ will return:
 ### Test
 
 * [function is_map()](#is_map-function) : Tests if the variable is a map object
+* [any()](#any) : Tests if at least one element satisfies the callback function
 * [compare()](#compare) : Compares the value against all map elements
 * [contains()](#contains) : Tests if an item exists in the map
 * [each()](#each) : Applies a callback to each element
@@ -724,6 +726,32 @@ public function all() : array
 ```php
 Map::from( ['a'] )->all();
 // ['a']
+```
+
+
+### any()
+
+Tests if at least one element satisfies the callback function.
+
+```php
+public function any( \Closure $callback ) : bool
+```
+
+* @param \Closure $callback Anonymous function with (item, key) parameter
+* @return bool TRUE if at least one element satisfies the callback function, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b'] )->any( function( $item, $key ) {
+    return $item === 'a';
+} );
+// TRUE
+
+Map::from( ['a', 'b'] )->any( function( $item, $key ) {
+    return !is_string( $item );
+} );
+// FALSE
 ```
 
 

@@ -415,6 +415,40 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Tests if at least one element satisfies the callback function.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'b'] )->any( function( $item, $key ) {
+	 *    return $item === 'a';
+	 *  } );
+	 *  Map::from( ['a', 'b'] )->any( function( $item, $key ) {
+	 *    return !is_string( $item );
+	 *  } );
+	 *
+	 * Results:
+	 * The first example will return TRUE while the last one will return FALSE
+	 *
+	 * @param \Closure $callback Anonymous function with (item, key) parameter
+	 * @return bool TRUE if at least one element satisfies the callback function, FALSE if not
+	 */
+	public function any( \Closure $callback ) : bool
+	{
+		if( function_exists( 'array_any' ) ) {
+			return array_any( $this->list(), $callback );
+		}
+
+		foreach( $this->list() as $key => $item )
+		{
+			if( $callback( $item, $key ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
+	/**
 	 * Sorts all elements in reverse order and maintains the key association.
 	 *
 	 * Examples:
@@ -4246,7 +4280,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['a', 'b'] )->some( 'a' );
 	 *  Map::from( ['a', 'b'] )->some( ['a', 'c'] );
 	 *  Map::from( ['a', 'b'] )->some( function( $item, $key ) {
-	 *    return $item === 'a'
+	 *    return $item === 'a';
 	 *  } );
 	 *  Map::from( ['a', 'b'] )->some( ['c', 'd'] );
 	 *  Map::from( ['1', '2'] )->some( [2], true );

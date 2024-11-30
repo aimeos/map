@@ -75,6 +75,20 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testAny()
+	{
+		$result = Map::from( ['a', 'b'] )->any( function( $item, $key ) {
+			return $item === 'a';
+		} );
+		$this->assertTrue( $result );
+
+		$result = Map::from( ['a', 'b'] )->any( function( $item, $key ) {
+			return !is_string( $item );
+		} );
+		$this->assertFalse( $result );
+	}
+
+
 	public function testArsortNummeric()
 	{
 		$m = ( new Map( [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2] ) )->arsort();
