@@ -1844,6 +1844,18 @@ Array
 	}
 
 
+	public function testIsList()
+	{
+		$this->assertTrue( Map::from( [] )->isList() );
+		$this->assertTrue( Map::from( [1, 3, 2] )->isList() );
+		$this->assertTrue( Map::from( [0 => 1, 1 => 2, 2 => 3] )->isList() );
+
+		$this->assertFalse( Map::from( [1 => 1, 2 => 2, 3 => 3] )->isList() );
+		$this->assertFalse( Map::from( [0 => 1, 2 => 2, 3 => 3] )->isList() );
+		$this->assertFalse( Map::from( ['a' => 1, 1 => 2, 'c' => 3] )->isList() );
+	}
+
+
 	public function testIsStrict()
 	{
 		$map = new Map( ['foo' => 1, 'bar' => 2] );

@@ -190,6 +190,7 @@ will return:
 <a href="#intersectkeys">intersectKeys</a>
 <a href="#is">is</a>
 <a href="#isempty">isEmpty</a>
+<a href="#islist">isList</a>
 <a href="#isnumeric">isNumeric</a>
 <a href="#isobject">isObject</a>
 <a href="#isscalar">isScalar</a>
@@ -442,6 +443,7 @@ will return:
 * [inString()](#instring) : Tests if the item is part of the strings in the map
 * [is()](#is) : Tests if the map consists of the same keys and values
 * [isEmpty()](#isempty) : Tests if map is empty
+* [isList()](#islist) : Checks if the map contains a list of subsequentially numbered keys
 * [isNumeric()](#isnumeric) : Tests if all entries are numeric values
 * [isObject()](#isobject) : Tests if all entries are objects
 * [isScalar()](#isscalar) : Tests if all entries are scalar values.
@@ -3129,6 +3131,41 @@ Map::from( [] )->isEmpty();
 
 Map::from( ['a'] )-isEmpty();
 // false
+```
+
+
+### isList()
+
+Checks if the map contains a list of subsequentially numbered keys.
+
+```php
+public function isList() : bool
+```
+
+* @return bool TRUE if the map is a list, FALSE if not
+
+The method is equivalent to [empty()](#empty).
+
+**Examples:**
+
+```php
+Map::from( [] )->isList();
+// true
+
+Map::from( [1, 3, 2] )->isList();
+// true, keys are 0, 1 and 2
+
+Map::from( [0 => 1, 1 => 2, 2 => 3] )->isList();
+// true, keys are consecutive
+
+Map::from( [1 => 1, 2 => 2, 3 => 3] )->isList();
+// false, keys doesn't start with 0
+
+Map::from( [0 => 1, 2 => 2, 3 => 3] )->isList();
+// false, keys are not consecutive
+
+Map::from( ['a' => 1, 1 => 2, 'c' => 3] )->isList();
+// false, keys are not all numeric
 ```
 
 

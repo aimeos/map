@@ -2642,6 +2642,37 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Checks if the map contains a list of subsequentially numbered keys.
+	 *
+	 * Examples:
+	 * Map::from( [] )->isList();
+	 * Map::from( [1, 3, 2] )->isList();
+	 * Map::from( [0 => 1, 1 => 2, 2 => 3] )->isList();
+	 * Map::from( [1 => 1, 2 => 2, 3 => 3] )->isList();
+	 * Map::from( [0 => 1, 2 => 2, 3 => 3] )->isList();
+	 * Map::from( ['a' => 1, 1 => 2, 'c' => 3] )->isList();
+	 *
+	 * Results:
+	 * The first three examples return TRUE while the last three return FALSE
+	 *
+	 * @return bool TRUE if the map is a list, FALSE if not
+	 */
+	public function isList() : bool
+	{
+		$i = -1;
+
+		foreach( $this->list() as $k => $v )
+		{
+			if( $k !== ++$i ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+
+	/**
 	 * Determines if all entries are numeric values.
 	 *
 	 * Examples:
