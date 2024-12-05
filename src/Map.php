@@ -3245,14 +3245,21 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function nth( int $step, int $offset = 0 ) : self
 	{
-		$pos = 0;
-		$result = [];
+		if( $step < 1 ) {
+			throw new \InvalidArgumentException( 'Step width must be greater than zero' );
+		}
 
-		foreach( $this->list() as $key => $item )
+		if( $step === 1 ) {
+			return clone $this;
+		}
+
+		$result = [];
+		$list = $this->list();
+
+		while( !empty( $pair = array_slice( $list, $offset, 1, true ) ) )
 		{
-			if( $pos++ % $step === $offset ) {
-				$result[$key] = $item;
-			}
+			$result += $pair;
+			$offset += $step;
 		}
 
 		return new static( $result );

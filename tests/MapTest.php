@@ -2233,6 +2233,21 @@ Array
 	}
 
 
+	public function testNthException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] )->nth( -1 );
+	}
+
+
+	public function testNthSame()
+	{
+		$m = Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] );
+
+		$this->assertSame( ['a', 'b', 'c', 'd', 'e', 'f'], $m->nth( 1 )->toArray() );
+	}
+
+
 	public function testOffsetAccess()
 	{
 		$m = new Map( ['name' => 'test'] );
