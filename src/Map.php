@@ -3613,13 +3613,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			}
 		}
 
-		foreach( $list as $key => $item )
-		{
-			if( $item === $value ) {
-				return $pos;
-			}
 
-			++$pos;
+		if( ( $key = array_search( $value, $list, true ) ) !== false
+			&& ( $pos = array_search( $key, array_keys( $list ), true ) ) !== false
+		) {
+			return $pos;
 		}
 
 		return null;
