@@ -203,28 +203,26 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public static function explode( string $delimiter, string $string, int $limit = PHP_INT_MAX ) : self
 	{
-		return new static( function() use ( $delimiter, $string, $limit ) {
+		if( $delimiter !== '' ) {
+			return new static( explode( $delimiter, $string, $limit ) );
+		}
 
-			if( $delimiter !== '' ) {
-				return explode( $delimiter, $string, $limit );
-			}
+		$limit = $limit ?: 1;
+		$parts = mb_str_split( $string );
 
-			$limit = $limit ?: 1;
-			$parts = mb_str_split( $string );
+		if( $limit < 1 ) {
+			return new static( array_slice( $parts, 0, $limit ) );
+		}
 
-			if( $limit < 1 ) {
-				return array_slice( $parts, 0, $limit );
-			}
+		if( $limit < count( $parts ) )
+		{
+			$result = array_slice( $parts, 0, $limit );
+			$result[] = join( '', array_slice( $parts, $limit ) );
 
-			if( $limit < count( $parts ) )
-			{
-				$result = array_slice( $parts, 0, $limit );
-				$result[] = join( '', array_slice( $parts, $limit ) );
-				return $result;
-			}
+			return new static( $result );
+		}
 
-			return $parts;
-		} );
+		return new static( $parts );
 	}
 
 
@@ -286,14 +284,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public static function fromJson( string $json, int $options = JSON_BIGINT_AS_STRING ) : self
 	{
-		return new static( function() use ( $json, $options ) {
+		if( ( $result = json_decode( $json, true, 512, $options ) ) !== null ) {
+			return new static( $result );
+		}
 
-			if( ( $result = json_decode( $json, true, 512, $options ) ) !== null ) {
-				return $result;
-			}
-
-			throw new \RuntimeException( 'Not a valid JSON string: ' . $json );
-		} );
+		throw new \RuntimeException( 'Not a valid JSON string: ' . $json );
 	}
 
 
@@ -357,17 +352,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public static function times( int $num, \Closure $callback ) : self
 	{
-		return new static( function() use ( $num, $callback ) {
+		$list = [];
 
-			$list = [];
+		for( $i = 0; $i < $num; $i++ ) {
+			$key = $i;
+			$list[$key] = $callback( $i, $key );
+		}
 
-			for( $i = 0; $i < $num; $i++ ) {
-				$key = $i;
-				$list[$key] = $callback( $i, $key );
-			}
-
-			return $list;
-		} );
+		return new static( $list );
 	}
 
 
