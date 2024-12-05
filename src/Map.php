@@ -2498,10 +2498,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return new static( array_uintersect( $list, $elements, $callback ) );
 		}
 
-		// using array_intersect() is 7x slower
-		return ( new static( $list ) )
-			->remove( array_keys( array_diff( $list, $elements ) ) )
-			->remove( array_keys( array_diff( $elements, $list ) ) );
+		return new static( array_intersect( $list, $elements ) );
 	}
 
 
