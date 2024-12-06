@@ -4590,6 +4590,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param array|string $value The string or list of strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if one of the entries contains one of the strings, FALSE if not
+	 * @todo 4.0 Add $case parameter at second position
 	 */
 	public function strContains( $value, string $encoding = 'UTF-8' ) : bool
 	{
@@ -4638,6 +4639,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param array|string $value The string or list of strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if all of the entries contains at least one of the strings, FALSE if not
+	 * @todo 4.0 Add $case parameter at second position
 	 */
 	public function strContainsAll( $value, string $encoding = 'UTF-8' ) : bool
 	{
@@ -4682,6 +4684,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param array|string $value The string or strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if one of the entries ends with one of the strings, FALSE if not
+	 * @todo 4.0 Add $case parameter at second position
 	 */
 	public function strEnds( $value, string $encoding = 'UTF-8' ) : bool
 	{
@@ -4723,6 +4726,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param array|string $value The string or strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if all of the entries ends with at least one of the strings, FALSE if not
+	 * @todo 4.0 Add $case parameter at second position
 	 */
 	public function strEndsAll( $value, string $encoding = 'UTF-8' ) : bool
 	{
@@ -4893,6 +4897,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param array|string $value The string or strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if all of the entries ends with at least one of the strings, FALSE if not
+	 * @todo 4.0 Add $case parameter at second position
 	 */
 	public function strStarts( $value, string $encoding = 'UTF-8' ) : bool
 	{
@@ -4932,6 +4937,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param array|string $value The string or strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if one of the entries starts with one of the strings, FALSE if not
+	 * @todo 4.0 Add $case parameter at second position
 	 */
 	public function strStartsAll( $value, string $encoding = 'UTF-8' ) : bool
 	{
