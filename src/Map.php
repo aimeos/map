@@ -227,6 +227,30 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Creates a new map filled with given value.
+	 *
+	 * Exapmles:
+	 *  Map::fill( 3, 'a' );
+	 *  Map::fill( 3, 'a', 2 );
+	 *  Map::fill( 3, 'a', -2 );
+	 *
+	 * Results:
+	 * The first example will return [0 => 'a', 1 => 'a', 2 => 'a']. The second
+	 * example will return [2 => 'a', 3 => 'a', 4 => 'a'] and the last one
+	 * [-2 => 'a', -1 => 'a', 0 => 'a'] (PHP 8) or [-2 => 'a', 0 => 'a', 1 => 'a'] (PHP 7).
+	 *
+	 * @param int $num Number of elements to create
+	 * @param mixed $value Value to fill the map with
+	 * @param int $start Start index for the elements
+	 * @return self<int|string,mixed> New map with filled elements
+	 */
+	public static function fill( int $num, $value, int $start = 0 ) : self
+	{
+		return new static( array_fill( $start, $num, $value ) );
+	}
+
+
+	/**
 	 * Creates a new map instance if the value isn't one already.
 	 *
 	 * Examples:

@@ -158,6 +158,7 @@ will return:
 <a href="#every">every</a>
 <a href="#except">except</a>
 <a href="#explode">explode</a>
+<a href="#fill">fill</a>
 <a href="#filter">filter</a>
 <a href="#find">find</a>
 <a href="#findkey">findKey</a>
@@ -303,6 +304,7 @@ will return:
 * [clone()](#clone) : Clones the map and all objects within
 * [copy()](#copy) : Creates a new copy
 * [explode()](#explode) : Splits a string into a map of elements
+* [fill()](#fill) : Creates a new map filled with given value
 * [from()](#from) : Creates a new map from passed elements
 * [fromJson()](#fromjson) : Creates a new map from a JSON string
 * [times()](#times) : Creates a new map by invoking the closure a number of times
@@ -1927,6 +1929,34 @@ Map::explode( '|', 'a|b|c|d', -2 );
 
 Map::explode( '', 'string', -3 );
 // ['s', 't', 'r']
+```
+
+
+### fill()
+
+Creates a new map filled with given value.
+
+```php
+public static function fill( int $num, $value, int $start = 0 ) : self
+```
+
+* @param **int** `$num` Number of elements to create
+* @param **mixed** `$value` Value to fill the map with
+* @param **int** `$start` Start index for the elements
+* @return **self&#60;int&#124;string,mixed&#62;** New map with filled elements
+
+**Examples:**
+
+```php
+Map::fill( 3, 'a' );
+// [0 => 'a', 1 => 'a', 2 => 'a']
+
+Map::fill( 3, 'a', 2 );
+// [2 => 'a', 3 => 'a', 4 => 'a']
+
+Map::fill( 3, 'a', -2 );
+// [-2 => 'a', -1 => 'a', 0 => 'a'] (PHP 8)
+// [-2 => 'a', 0 => 'a', 1 => 'a'] (PHP 7)
 ```
 
 

@@ -917,6 +917,24 @@ Array
 	}
 
 
+	public function testFill()
+	{
+		$m = Map::fill( 3, 'test' );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertSame( ['test', 'test', 'test'], $m->toArray() );
+	}
+
+
+	public function testFillIndex()
+	{
+		$m = Map::fill( 3, 'test', 2 );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertSame( [2 => 'test', 3 => 'test', 4 => 'test'], $m->toArray() );
+	}
+
+
 	public function testFilter()
 	{
 		$m = new Map( [['id' => 1, 'name' => 'Hello'], ['id' => 2, 'name' => 'World']] );
