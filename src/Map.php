@@ -915,7 +915,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		foreach( $this->list() as $item )
 		{
-			$v = $valuecol ? $this->val( $item, $vparts ) : $item;
+			$v = $valuecol !== null ? $this->val( $item, $vparts ) : $item;
 
 			if( $indexcol !== null && ( $key = $this->val( $item, $iparts ) ) !== null ) {
 				$list[(string) $key] = $v;
@@ -1827,7 +1827,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function getIterator() : \ArrayIterator
 	{
-		return new \ArrayIterator( $this->list = $this->array( $this->list ) );
+		return new \ArrayIterator( $this->list() );
 	}
 
 
@@ -2569,17 +2569,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function intersectKeys( iterable $elements, ?callable $callback = null ) : self
 	{
-		$list = $this->list();
 		$elements = $this->array( $elements );
 
 		if( $callback ) {
-			return new static( array_intersect_ukey( $list, $elements, $callback ) );
+			return new static( array_intersect_ukey( $this->list(), $elements, $callback ) );
 		}
 
-		// using array_intersect_key() is 1.6x slower
-		return ( new static( $list ) )
-			->remove( array_keys( array_diff_key( $list, $elements ) ) )
-			->remove( array_keys( array_diff_key( $elements, $list ) ) );
+		return new static( array_intersect_key( $this->list(), $elements ) );
 	}
 
 
@@ -3391,7 +3387,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		$result = [];
 		$list = $this->list();
 
-		foreach( $this->array( $keys ) as $key ) {
+		foreach( $keys as $key ) {
 			$result[$key] = $list[$key] ?? null;
 		}
 
@@ -3604,7 +3600,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 				++$pos;
 			}
 		}
-
 
 		if( ( $key = array_search( $value, $list, true ) ) !== false
 			&& ( $pos = array_search( $key, array_keys( $list ), true ) ) !== false
