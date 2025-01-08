@@ -5185,6 +5185,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @return array<int|string,mixed> Plain array
 	 */
+	public function to() : array
+	{
+		return $this->list = $this->array( $this->list );
+	}
+
+
+	/**
+	 * Returns the elements as a plain array.
+	 *
+	 * @return array<int|string,mixed> Plain array
+	 */
 	public function toArray() : array
 	{
 		return $this->list = $this->array( $this->list );

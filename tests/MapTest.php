@@ -3374,6 +3374,34 @@ Array
 	}
 
 
+	public function testTo()
+	{
+		$m = new Map( ['name' => 'Hello'] );
+		$this->assertSame( ['name' => 'Hello'], $m->to() );
+	}
+
+
+	public function testToArray()
+	{
+		$m = new Map( ['name' => 'Hello'] );
+		$this->assertSame( ['name' => 'Hello'], $m->toArray() );
+	}
+
+
+	public function testToJson()
+	{
+		$m = new Map( ['name' => 'Hello'] );
+		$this->assertSame( '{"name":"Hello"}', $m->toJson() );
+	}
+
+
+	public function testToJsonOptions()
+	{
+		$m = new Map( ['name', 'Hello'] );
+		$this->assertSame( '{"0":"name","1":"Hello"}', $m->toJson( JSON_FORCE_OBJECT ) );
+	}
+
+
 	public function testToReversed()
 	{
 		$m = new Map( ['hello', 'world'] );
@@ -3393,6 +3421,19 @@ Array
 		$this->assertNotSame( $n, $m );
 		$this->assertInstanceOf( Map::class, $n );
 		$this->assertSame( [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5], $n->toArray() );
+	}
+
+
+	public function testToUrl()
+	{
+		$this->assertSame( 'a=1&b=2', Map::from( ['a' => 1, 'b' => 2] )->toUrl() );
+	}
+
+
+	public function testToUrlNested()
+	{
+		$url = Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
+		$this->assertSame( 'a%5Bb%5D=abc&a%5Bc%5D=def&d=123', $url );
 	}
 
 
@@ -3610,40 +3651,6 @@ Array
 	{
 		$this->assertEquals( ["abc", "cde"], Map::from( [" abc\n", "\tcde\r\n"] )->trim()->toArray() );
 		$this->assertEquals( [" b ", "x"], Map::from( ["a b c", "cbax"] )->trim( 'abc' )->toArray() );
-	}
-
-
-	public function testToArray()
-	{
-		$m = new Map( ['name' => 'Hello'] );
-		$this->assertSame( ['name' => 'Hello'], $m->toArray() );
-	}
-
-
-	public function testToJson()
-	{
-		$m = new Map( ['name' => 'Hello'] );
-		$this->assertSame( '{"name":"Hello"}', $m->toJson() );
-	}
-
-
-	public function testToJsonOptions()
-	{
-		$m = new Map( ['name', 'Hello'] );
-		$this->assertSame( '{"0":"name","1":"Hello"}', $m->toJson( JSON_FORCE_OBJECT ) );
-	}
-
-
-	public function testToUrl()
-	{
-		$this->assertSame( 'a=1&b=2', Map::from( ['a' => 1, 'b' => 2] )->toUrl() );
-	}
-
-
-	public function testToUrlNested()
-	{
-		$url = Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
-		$this->assertSame( 'a%5Bb%5D=abc&a%5Bc%5D=def&d=123', $url );
 	}
 
 

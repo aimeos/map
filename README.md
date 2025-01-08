@@ -270,6 +270,7 @@ will return:
 <a href="#take">take</a>
 <a href="#tap">tap</a>
 <a href="#times">times</a>
+<a href="#to">to</a>
 <a href="#toarray">toArray</a>
 <a href="#tojson">toJson</a>
 <a href="#toreversed">toReversed</a>
@@ -337,6 +338,7 @@ will return:
 * [search()](#search) : Find the key of an element
 * [shift()](#shift) : Returns and removes the first element
 * [string()](#string) : Returns an element by key and casts it to string
+* [to()](#to) : Returns the plain array
 * [toArray()](#toarray) : Returns the plain array
 * [unique()](#unique) : Returns all unique elements preserving keys
 * [values()](#values) : Returns all elements with new keys
@@ -5706,6 +5708,24 @@ Map::times( 2, function( $num ) {
     return new \stdClass();
 } );
 // [0 => new \stdClass(), 1 => new \stdClass()]
+```
+
+
+### to()
+
+Returns the elements as a plain array.
+
+```php
+public function to() : array
+```
+
+* @return **array** Plain array
+
+**Examples:**
+
+```php
+Map::from( ['a'] )->to();
+// ['a']
 ```
 
 
