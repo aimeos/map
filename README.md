@@ -841,7 +841,7 @@ public function arsorted( int $options = SORT_REGULAR ) : self
 ```
 
 * @param **int** `$options` Sort options for `arsort()`
-* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 The keys are preserved using this method and a new map is created.
 
@@ -925,7 +925,7 @@ public function asorted( int $options = SORT_REGULAR ) : self
 ```
 
 * @param **int** `$options` Sort options for `asort()`
-* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 The keys are preserved using this method and a new map is created.
 
@@ -3859,7 +3859,7 @@ public function krsorted( int $options = SORT_REGULAR ) : self
 ```
 
 * @param **int** `$options` Sort options for `krsort()`
-* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 The parameter modifies how the keys are compared. Possible values are:
 - SORT_REGULAR : compare elements normally (don't change types)
@@ -5107,7 +5107,7 @@ public function rsorted( int $options = SORT_REGULAR ) : self
 ```
 
 * @param **int** `$options` Sort options for `rsort()`
-* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 The parameter modifies how the values are compared. Possible parameter values are:
 - SORT_REGULAR : compare elements normally (don't change types)
@@ -5491,7 +5491,7 @@ public function sorted( int $options = SORT_REGULAR ) : self
 ```
 
 * @param **int** `$options` Sort options for PHP `sort()`
-* @return **self&#60;int&#124;string,mixed&#62;** New map with a sorted copy of the elements
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 The parameter modifies how the values are compared. Possible parameter values are:
 - SORT_REGULAR : compare elements normally (don't change types)
@@ -6833,7 +6833,7 @@ public function uksort( callable $callback ) : self
 ```
 
 * @param **callable** `$callback` Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
-* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 The given callback will be used to compare the keys. The callback must accept
 two parameters (key A and B) and must return -1 if key A is smaller than
@@ -7052,7 +7052,7 @@ public function usorted( callable $callback ) : self
 ```
 
 * @param **callable** `$callback` Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
-* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 The given callback will be used to compare the values. The callback must accept
 two parameters (item A and B) and must return -1 if item A is smaller than
