@@ -2031,6 +2031,18 @@ Array
 	}
 
 
+	public function testksorted()
+	{
+		$l = [3 => -4, 1 => -3, 2 => -2, 4 => -1, 5 => 0, 8 => 1, 9 => 2, 7 => 3, 6 => 4];
+		$m = new Map( $l );
+		$r = $m->ksorted();
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertNotSame( $r->toArray(), $m->toArray() );
+		$this->assertSame( [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2], $r->toArray() );
+	}
+
+
 	public function testLast()
 	{
 		$m = new Map( ['foo', 'bar'] );

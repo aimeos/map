@@ -2967,6 +2967,36 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Sorts a copy of the elements by their keys.
+	 *
+	 * Examples:
+	 *  Map::from( ['b' => 0, 'a' => 1] )->ksorted();
+	 *  Map::from( [1 => 'a', 0 => 'b'] )->ksorted();
+	 *
+	 * Results:
+	 *  ['a' => 1, 'b' => 0]
+	 *  [0 => 'b', 1 => 'a']
+	 *
+	 * The parameter modifies how the keys are compared. Possible values are:
+	 * - SORT_REGULAR : compare elements normally (don't change types)
+	 * - SORT_NUMERIC : compare elements numerically
+	 * - SORT_STRING : compare elements as strings
+	 * - SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
+	 * - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
+	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+	 *
+	 * The keys are preserved using this method and no new map is created.
+	 *
+	 * @param int $options Sort options for ksort()
+	 * @return self<int|string,mixed> Updated map for fluid interface
+	 */
+	public function ksorted( int $options = SORT_REGULAR ) : self
+	{
+		return ( clone $this )->ksort();
+	}
+
+
+	/**
 	 * Returns the last element from the map.
 	 *
 	 * Examples:

@@ -202,6 +202,7 @@ will return:
 <a href="#krsort">krsort</a>
 <a href="#krsorted">krsorted</a>
 <a href="#ksort">ksort</a>
+<a href="#ksorted">ksorted</a>
 <a href="#last">last</a>
 <a href="#lastkey">lastKey</a>
 <a href="#ltrim">ltrim</a>
@@ -384,6 +385,7 @@ will return:
 * [krsort()](#krsort) : Reverse sort elements by keys
 * [krsorted()](#krsorted) : Reverse sort elements by keys in a copy of the map
 * [ksort()](#ksort) : Sort elements by keys
+* [ksorted()](#ksorted) : Sorts a copy of the elements by their keys
 * [order()](#order) : Orders elements by the passed keys
 * [reverse()](#reverse) : Reverses the array order preserving keys
 * [reversed()](#reversed) : Reverses the element order in a copy of the map
@@ -3912,6 +3914,38 @@ Map::from( ['b' => 0, 'a' => 1] )->ksort();
 // ['a' => 1, 'b' => 0]
 
 Map::from( [1 => 'a', 0 => 'b'] )->ksort();
+// [0 => 'b', 1 => 'a']
+```
+
+
+### ksorted()
+
+Sorts a copy of the elements by their keys.
+
+```php
+public function ksorted( int $options = SORT_REGULAR ) : self
+```
+
+* @param **int** `$options` Sort options for `ksort()`
+* @return **self&#60;int&#124;string,mixed&#62;** New map
+
+The parameter modifies how the keys are compared. Possible values are:
+- SORT_REGULAR : compare elements normally (don't change types)
+- SORT_NUMERIC : compare elements numerically
+- SORT_STRING : compare elements as strings
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by `setlocale()`
+- SORT_NATURAL : compare elements as strings using "natural ordering" like `natsort()`
+- SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
+
+The keys are preserved using this method and a new map is created.
+
+**Examples:**
+
+```php
+Map::from( ['b' => 0, 'a' => 1] )->ksorted();
+// ['a' => 1, 'b' => 0]
+
+Map::from( [1 => 'a', 0 => 'b'] )->ksorted();
 // [0 => 'b', 1 => 'a']
 ```
 
