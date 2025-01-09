@@ -75,6 +75,20 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testAny()
+	{
+		$result = Map::from( ['a', 'b'] )->any( function( $item, $key ) {
+			return $item === 'a';
+		} );
+		$this->assertTrue( $result );
+
+		$result = Map::from( ['a', 'b'] )->any( function( $item, $key ) {
+			return !is_string( $item );
+		} );
+		$this->assertFalse( $result );
+	}
+
+
 	public function testArsortNummeric()
 	{
 		$m = ( new Map( [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2] ) )->arsort();
@@ -903,6 +917,24 @@ Array
 	}
 
 
+	public function testFill()
+	{
+		$m = Map::fill( 3, 'test' );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertSame( ['test', 'test', 'test'], $m->toArray() );
+	}
+
+
+	public function testFillIndex()
+	{
+		$m = Map::fill( 3, 'test', 2 );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertSame( [2 => 'test', 3 => 'test', 4 => 'test'], $m->toArray() );
+	}
+
+
 	public function testFilter()
 	{
 		$m = new Map( [['id' => 1, 'name' => 'Hello'], ['id' => 2, 'name' => 'World']] );
@@ -967,11 +999,48 @@ Array
 	{
 		$m = new Map( ['foo', 'bar', 'baz'] );
 
-		$this->expectException( \RuntimeException::class );
+		$this->expectException( \Exception::class );
 
 		$result = $m->find( function( $value ) {
 			return false;
-		}, new \RuntimeException( 'error' ) );
+		}, new \Exception( 'error' ) );
+	}
+
+
+	public function testFindKey()
+	{
+		$result = Map::from( ['a', 'c', 'e'] )->findKey( function( $value, $key ) {
+			return $value >= 'b';
+		} );
+		$this->assertSame( 1, $result );
+	}
+
+
+	public function testFindKeyLast()
+	{
+		$result = Map::from( ['a', 'c', 'e'] )->findKey( function( $value, $key ) {
+			return $value >= 'b';
+		}, null, true );
+		$this->assertSame( 2, $result );
+	}
+
+
+	public function testFindKeyDefault()
+	{
+		$result = Map::from( [] )->findKey( function( $value, $key ) {
+			return $value >= 'b';
+		}, 'none' );
+		$this->assertSame( 'none', $result );
+	}
+
+
+	public function testFindKeyException()
+	{
+		$this->expectException( \Exception::class );
+
+		$result = Map::from( [] )->findKey( function( $value, $key ) {
+			return $value >= 'b';
+		}, new \Exception( 'error' ) );
 	}
 
 
@@ -1793,6 +1862,18 @@ Array
 	}
 
 
+	public function testIsList()
+	{
+		$this->assertTrue( Map::from( [] )->isList() );
+		$this->assertTrue( Map::from( [1, 3, 2] )->isList() );
+		$this->assertTrue( Map::from( [0 => 1, 1 => 2, 2 => 3] )->isList() );
+
+		$this->assertFalse( Map::from( [1 => 1, 2 => 2, 3 => 3] )->isList() );
+		$this->assertFalse( Map::from( [0 => 1, 2 => 2, 3 => 3] )->isList() );
+		$this->assertFalse( Map::from( ['a' => 1, 1 => 2, 'c' => 3] )->isList() );
+	}
+
+
 	public function testIsStrict()
 	{
 		$map = new Map( ['foo' => 1, 'bar' => 2] );
@@ -1947,6 +2028,18 @@ Array
 
 		$this->assertInstanceOf( Map::class, $m );
 		$this->assertSame( ['a' => 'foo', 'b' => 'bar-1', 'c' => 'bar-10'], $m->toArray() );
+	}
+
+
+	public function testksorted()
+	{
+		$l = [3 => -4, 1 => -3, 2 => -2, 4 => -1, 5 => 0, 8 => 1, 9 => 2, 7 => 3, 6 => 4];
+		$m = new Map( $l );
+		$r = $m->ksorted();
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertNotSame( $r->toArray(), $m->toArray() );
+		$this->assertSame( [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2], $r->toArray() );
 	}
 
 
@@ -2167,6 +2260,21 @@ Array
 
 		$this->assertSame( [0 => 'a', 2 => 'c', 4 => 'e'], $m->nth( 2 )->toArray() );
 		$this->assertSame( [1 => 'b', 3 => 'd', 5 => 'f'], $m->nth( 2, 1 )->toArray() );
+	}
+
+
+	public function testNthException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] )->nth( -1 );
+	}
+
+
+	public function testNthSame()
+	{
+		$m = Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] );
+
+		$this->assertSame( ['a', 'b', 'c', 'd', 'e', 'f'], $m->nth( 1 )->toArray() );
 	}
 
 
@@ -3278,6 +3386,34 @@ Array
 	}
 
 
+	public function testTo()
+	{
+		$m = new Map( ['name' => 'Hello'] );
+		$this->assertSame( ['name' => 'Hello'], $m->to() );
+	}
+
+
+	public function testToArray()
+	{
+		$m = new Map( ['name' => 'Hello'] );
+		$this->assertSame( ['name' => 'Hello'], $m->toArray() );
+	}
+
+
+	public function testToJson()
+	{
+		$m = new Map( ['name' => 'Hello'] );
+		$this->assertSame( '{"name":"Hello"}', $m->toJson() );
+	}
+
+
+	public function testToJsonOptions()
+	{
+		$m = new Map( ['name', 'Hello'] );
+		$this->assertSame( '{"0":"name","1":"Hello"}', $m->toJson( JSON_FORCE_OBJECT ) );
+	}
+
+
 	public function testToReversed()
 	{
 		$m = new Map( ['hello', 'world'] );
@@ -3297,6 +3433,19 @@ Array
 		$this->assertNotSame( $n, $m );
 		$this->assertInstanceOf( Map::class, $n );
 		$this->assertSame( [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5], $n->toArray() );
+	}
+
+
+	public function testToUrl()
+	{
+		$this->assertSame( 'a=1&b=2', Map::from( ['a' => 1, 'b' => 2] )->toUrl() );
+	}
+
+
+	public function testToUrlNested()
+	{
+		$url = Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
+		$this->assertSame( 'a%5Bb%5D=abc&a%5Bc%5D=def&d=123', $url );
 	}
 
 
@@ -3514,40 +3663,6 @@ Array
 	{
 		$this->assertEquals( ["abc", "cde"], Map::from( [" abc\n", "\tcde\r\n"] )->trim()->toArray() );
 		$this->assertEquals( [" b ", "x"], Map::from( ["a b c", "cbax"] )->trim( 'abc' )->toArray() );
-	}
-
-
-	public function testToArray()
-	{
-		$m = new Map( ['name' => 'Hello'] );
-		$this->assertSame( ['name' => 'Hello'], $m->toArray() );
-	}
-
-
-	public function testToJson()
-	{
-		$m = new Map( ['name' => 'Hello'] );
-		$this->assertSame( '{"name":"Hello"}', $m->toJson() );
-	}
-
-
-	public function testToJsonOptions()
-	{
-		$m = new Map( ['name', 'Hello'] );
-		$this->assertSame( '{"0":"name","1":"Hello"}', $m->toJson( JSON_FORCE_OBJECT ) );
-	}
-
-
-	public function testToUrl()
-	{
-		$this->assertSame( 'a=1&b=2', Map::from( ['a' => 1, 'b' => 2] )->toUrl() );
-	}
-
-
-	public function testToUrlNested()
-	{
-		$url = Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
-		$this->assertSame( 'a%5Bb%5D=abc&a%5Bc%5D=def&d=123', $url );
 	}
 
 

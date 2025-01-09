@@ -158,8 +158,10 @@ will return:
 <a href="#every">every</a>
 <a href="#except">except</a>
 <a href="#explode">explode</a>
+<a href="#fill">fill</a>
 <a href="#filter">filter</a>
 <a href="#find">find</a>
+<a href="#findkey">findKey</a>
 <a href="#first">first</a>
 <a href="#firstkey">firstKey</a>
 <a href="#flat">flat</a>
@@ -189,6 +191,7 @@ will return:
 <a href="#intersectkeys">intersectKeys</a>
 <a href="#is">is</a>
 <a href="#isempty">isEmpty</a>
+<a href="#islist">isList</a>
 <a href="#isnumeric">isNumeric</a>
 <a href="#isobject">isObject</a>
 <a href="#isscalar">isScalar</a>
@@ -199,6 +202,7 @@ will return:
 <a href="#krsort">krsort</a>
 <a href="#krsorted">krsorted</a>
 <a href="#ksort">ksort</a>
+<a href="#ksorted">ksorted</a>
 <a href="#last">last</a>
 <a href="#lastkey">lastKey</a>
 <a href="#ltrim">ltrim</a>
@@ -267,6 +271,7 @@ will return:
 <a href="#take">take</a>
 <a href="#tap">tap</a>
 <a href="#times">times</a>
+<a href="#to">to</a>
 <a href="#toarray">toArray</a>
 <a href="#tojson">toJson</a>
 <a href="#toreversed">toReversed</a>
@@ -301,6 +306,7 @@ will return:
 * [clone()](#clone) : Clones the map and all objects within
 * [copy()](#copy) : Creates a new copy
 * [explode()](#explode) : Splits a string into a map of elements
+* [fill()](#fill) : Creates a new map filled with given value
 * [from()](#from) : Creates a new map from passed elements
 * [fromJson()](#fromjson) : Creates a new map from a JSON string
 * [times()](#times) : Creates a new map by invoking the closure a number of times
@@ -311,10 +317,12 @@ will return:
 * [__call()](#__call) : Calls a custom method
 * [__callStatic()](#__callstatic) : Calls a custom method statically
 * [all()](#all) : Returns the plain array
+* [any()](#any) : Tests if at least one element satisfies the callback function
 * [at()](#at) : Returns the value at the given position
 * [bool()](#bool) : Returns an element by key and casts it to boolean
 * [call()](#call) : Calls the given method on all items
-* [find()](#find) : Returns the first/last matching element
+* [find()](#find) : Returns the first/last element where the callback returns TRUE
+* [findKey()](#findkey) : Returns the first/last key where the callback returns TRUE
 * [first()](#first) : Returns the first element
 * [firstKey()](#firstkey) : Returns the first key
 * [get()](#get) : Returns an element by key
@@ -331,6 +339,7 @@ will return:
 * [search()](#search) : Find the key of an element
 * [shift()](#shift) : Returns and removes the first element
 * [string()](#string) : Returns an element by key and casts it to string
+* [to()](#to) : Returns the plain array
 * [toArray()](#toarray) : Returns the plain array
 * [unique()](#unique) : Returns all unique elements preserving keys
 * [values()](#values) : Returns all elements with new keys
@@ -376,6 +385,7 @@ will return:
 * [krsort()](#krsort) : Reverse sort elements by keys
 * [krsorted()](#krsorted) : Reverse sort elements by keys in a copy of the map
 * [ksort()](#ksort) : Sort elements by keys
+* [ksorted()](#ksorted) : Sorts a copy of the elements by their keys
 * [order()](#order) : Orders elements by the passed keys
 * [reverse()](#reverse) : Reverses the array order preserving keys
 * [reversed()](#reversed) : Reverses the element order in a copy of the map
@@ -402,6 +412,7 @@ will return:
 * [diff()](#diff) : Returns the elements missing in the given list
 * [diffAssoc()](#diffassoc) : Returns the elements missing in the given list and checks keys
 * [diffKeys()](#diffkeys) : Returns the elements missing in the given list by keys
+* [duplicates()](#duplicates) : Returns the duplicate values from the map
 * [except()](#except) : Returns a new map without the passed element keys
 * [filter()](#filter) : Applies a filter to all elements
 * [grep()](#grep) : Applies a regular expression to all elements
@@ -423,6 +434,7 @@ will return:
 ### Test
 
 * [function is_map()](#is_map-function) : Tests if the variable is a map object
+* [any()](#any) : Tests if at least one element satisfies the callback function
 * [compare()](#compare) : Compares the value against all map elements
 * [contains()](#contains) : Tests if an item exists in the map
 * [each()](#each) : Applies a callback to each element
@@ -438,6 +450,7 @@ will return:
 * [inString()](#instring) : Tests if the item is part of the strings in the map
 * [is()](#is) : Tests if the map consists of the same keys and values
 * [isEmpty()](#isempty) : Tests if map is empty
+* [isList()](#islist) : Checks if the map contains a list of subsequentially numbered keys
 * [isNumeric()](#isnumeric) : Tests if all entries are numeric values
 * [isObject()](#isobject) : Tests if all entries are objects
 * [isScalar()](#isscalar) : Tests if all entries are scalar values.
@@ -650,6 +663,11 @@ If the elements are not objects, they are skipped and if this applies to all
 elements, an empty map is returned. In case the map contains objects of mixed
 types and one of them doesn't implement the called method, an error will be thrown.
 
+**See also:**
+
+* [__callStatic()](#__callStatic) - Handles static calls to custom methods for the class
+* [call()](#call) - Calls the given method on all items and returns the result
+
 
 ### __callStatic()
 
@@ -673,6 +691,11 @@ has no access to the internal array because no object is available.
 Map::method( 'foo', function( $arg1, $arg2 ) {} );
 Map::foo( $arg1, $arg2 );
 ```
+
+**See also:**
+
+* [__call()](#__call) - Handles dynamic calls to custom methods for the class
+* [call()](#call) - Calls the given method on all items and returns the result
 
 
 ### after()
@@ -706,6 +729,10 @@ Map::from( ['a', 'c', 'b'] )->after( function( $item, $key ) {
 // [2 => 'b']
 ```
 
+**See also:**
+
+* [before()](#before) - Returns the elements before the given one
+
 
 ### all()
 
@@ -723,6 +750,44 @@ public function all() : array
 Map::from( ['a'] )->all();
 // ['a']
 ```
+
+This method is for compatibility to Laravel Collections. Use [`to()`](#to) instead if possible.
+
+**See also:**
+
+* [to()](#to) - Returns the elements as a plain array
+* [toArray()](#toArray) - Returns the elements as a plain array
+
+
+### any()
+
+Tests if at least one element satisfies the callback function.
+
+```php
+public function any( \Closure $callback ) : bool
+```
+
+* @param \Closure $callback Anonymous function with (item, key) parameter
+* @return bool TRUE if at least one element satisfies the callback function, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b'] )->any( function( $item, $key ) {
+    return $item === 'a';
+} );
+// TRUE
+
+Map::from( ['a', 'b'] )->any( function( $item, $key ) {
+    return !is_string( $item );
+} );
+// FALSE
+```
+
+**See also:**
+
+* [some()](#some) - Tests if at least one element passes the test or is part of the map
+* [every()](#every) - Verifies that all elements pass the test of the given callback
 
 
 ### arsort()
@@ -761,6 +826,52 @@ Map::from( [0 => 'C', 1 => 'b'] )->arsort();
 Map::from( [0 => 'C', 1 => 'b'] )->arsort( SORT_STRING|SORT_FLAG_CASE );
 // [0 => 'C', 1 => 'b'] because 'C' -> 'c' and 'c' > 'b'
 ```
+
+**See also:**
+
+* [arsorted()](#arsorted) - Sorts a copy of all elements in reverse order and maintains the key association
+
+
+### arsorted()
+
+Sorts a copy of all elements in reverse order and maintains the key association.
+
+```php
+public function arsorted( int $options = SORT_REGULAR ) : self
+```
+
+* @param **int** `$options` Sort options for `arsort()`
+* @return **self&#60;int&#124;string,mixed&#62;** New map
+
+The keys are preserved using this method and a new map is created.
+
+The `$options` parameter modifies how the values are compared. Possible parameter values are:
+- SORT_REGULAR : compare elements normally (don't change types)
+- SORT_NUMERIC : compare elements numerically
+- SORT_STRING : compare elements as strings
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by `setlocale()`
+- SORT_NATURAL : compare elements as strings using "natural ordering" like `natsort()`
+- SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
+
+**Examples:**
+
+```php
+Map::from( ['b' => 0, 'a' => 1] )->arsorted();
+// ['a' => 1, 'b' => 0]
+
+Map::from( ['a', 'b'] )->arsorted();
+// ['b', 'a']
+
+Map::from( [0 => 'C', 1 => 'b'] )->arsorted();
+// [1 => 'b', 0 => 'C']
+
+Map::from( [0 => 'C', 1 => 'b'] )->arsorted( SORT_STRING|SORT_FLAG_CASE );
+// [0 => 'C', 1 => 'b'] because 'C' -> 'c' and 'c' > 'b'
+```
+
+**See also:**
+
+* [arsort()](#arsort) - Sorts all elements in reverse order and maintains the key association
 
 
 ### arsorted()
@@ -834,9 +945,55 @@ Map::from( [0 => 'b', 1 => 'a'] )->asort();
 Map::from( [0 => 'C', 1 => 'b'] )->asort();
 // [0 => 'C', 1 => 'b'] because 'C' < 'b'
 
-Map::from( [0 => 'C', 1 => 'b'] )->arsort( SORT_STRING|SORT_FLAG_CASE );
+Map::from( [0 => 'C', 1 => 'b'] )->asort( SORT_STRING|SORT_FLAG_CASE );
 // [1 => 'b', 0 => 'C'] because 'C' -> 'c' and 'c' > 'b'
 ```
+
+**See also:**
+
+* [asorted()](#asorted) - Sorts a copy of all elements and maintains the key association
+
+
+### asorted()
+
+Sorts a copy of all elements and maintains the key association.
+
+```php
+public function asorted( int $options = SORT_REGULAR ) : self
+```
+
+* @param **int** `$options` Sort options for `asort()`
+* @return **self&#60;int&#124;string,mixed&#62;** New map
+
+The keys are preserved using this method and a new map is created.
+
+The parameter modifies how the values are compared. Possible parameter values are:
+- SORT_REGULAR : compare elements normally (don't change types)
+- SORT_NUMERIC : compare elements numerically
+- SORT_STRING : compare elements as strings
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by `setlocale()`
+- SORT_NATURAL : compare elements as strings using "natural ordering" like `natsort()`
+- SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 'b' => 0] )->asorted();
+// ['b' => 0, 'a' => 1]
+
+Map::from( [0 => 'b', 1 => 'a'] )->asorted();
+// [1 => 'a', 0 => 'b']
+
+Map::from( [0 => 'C', 1 => 'b'] )->asorted();
+// [0 => 'C', 1 => 'b'] because 'C' < 'b'
+
+Map::from( [0 => 'C', 1 => 'b'] )->asorted( SORT_STRING|SORT_FLAG_CASE );
+// [1 => 'b', 0 => 'C'] because 'C' -> 'c' and 'c' > 'b'
+```
+
+**See also:**
+
+* [asort()](#asort) - Sorts all elements and maintains the key association
 
 
 ### asorted()
@@ -908,6 +1065,11 @@ Map::from( [1, 3, 5] )->at( 3 );
 // NULL
 ```
 
+**See also:**
+
+* [index()](#index) - Returns the numerical index of the given key
+* [pos()](#pos) - Returns the numerical index of the value
+
 
 ### avg()
 
@@ -949,6 +1111,14 @@ Map::from( [30, 50, 10] )->avg( fn( $val, $key ) => $val < 50 );
 // 20
 ```
 
+**See also:**
+
+* [count()](#count) - Returns the total number of elements
+* [max()](#max) - Returns the maximum value of all elements
+* [min()](#min) - Returns the minium value of all elements
+* [percentage()](#percentage) - Returns the percentage of all elements passing the test
+* [sum()](#sum) - Returns the sum of all values in the map
+
 
 ### before()
 
@@ -980,6 +1150,10 @@ Map::from( ['a', 'c', 'b'] )->before( function( $item, $key ) {
 } );
 // [0 => 'a']
 ```
+
+**See also:**
+
+* [after()](#after) - Returns the elements after the given one
 
 
 ### bool()
@@ -1048,6 +1222,14 @@ Map::from( [] )->bool( 'c', new \Exception( 'error' ) );
 // throws exception
 ```
 
+**See also:**
+
+* [cast()](#cast) - Casts all entries to the passed type
+* [float()](#float) - Returns an element by key and casts it to float if possible
+* [get()](#get) - Returns an element from the map by key
+* [int()](#int) - Returns an element by key and casts it to integer if possible
+* [string()](#string) - Returns an element by key and casts it to string if possible
+
 
 ### call()
 
@@ -1078,6 +1260,11 @@ Map::from( [$item, $item] )->call( 'get', ['myprop'] );
 Map::from( [$item, $item] )->call( 'toArray' );
 // [['myprop' => 'val'], ['myprop' => 'val']]
 ```
+
+**See also:**
+
+* [__call()](#__call) - Handles dynamic calls to custom methods for the class
+* [__callStatic()](#__callStatic) - Handles static calls to custom methods for the class
 
 
 ### cast()
@@ -1115,6 +1302,13 @@ Map::from( [[], []] )->cast( 'object' );
 // [new stdClass, new stdClass]
 ```
 
+**See also:**
+
+* [bool()](#bool) - Returns an element by key and casts it to boolean if possible
+* [int()](#int) - Returns an element by key and casts it to integer if possible
+* [float()](#float) - Returns an element by key and casts it to float if possible
+* [string()](#string) - Returns an element by key and casts it to string if possible
+
 
 ### chunk()
 
@@ -1144,6 +1338,10 @@ Map::from( ['a' => 0, 'b' => 1, 'c' => 2] )->chunk( 2 );
 // [['a' => 0, 'b' => 1], ['c' => 2]]
 ```
 
+**See also:**
+
+* [partition()](#partition) - Breaks the list into the given number of groups
+
 
 ### clear()
 
@@ -1161,6 +1359,13 @@ public function clear() : self
 Map::from( [0, 1] )->clear();
 // internal : []
 ```
+
+**See also:**
+
+* [except()](#except) - Returns a new map without the passed element keys
+* [only()](#only) - Returns only those elements specified by the keys
+* [reject()](#reject) - Removes all matched elements
+* [remove()](#remove) - Removes an element by key
 
 
 ### clone()
@@ -1184,6 +1389,10 @@ The keys are preserved using this method.
 Map::from( [new \stdClass, new \stdClass] )->clone();
 // [new \stdClass, new \stdClass]
 ```
+
+**See also:**
+
+* [copy()](#copy) - Creates a new copy
 
 
 ### col()
@@ -1232,6 +1441,12 @@ Map::from( [['foo' => ['baz' => 'two']]] )->col( 'foo/baz', 'foo/bar' );
 // ['two']
 ```
 
+**See also:**
+
+* [map()](#map) - Applies a callback to each element and returns the results
+* [pluck()](#pluck) - Creates a key/value mapping (alias)
+* [rekey()](#pluck) - Changes the keys according to the passed function
+
 
 ### collapse()
 
@@ -1271,6 +1486,10 @@ Map::from( [0 => [0 => 0, 'a' => 1], 1 => Map::from( [0 => ['b' => 2, 0 => 3], 1
 // [0 => 3, 'a' => 1, 'b' => 2, 1 => 4]
 ```
 
+**See also:**
+
+* [flat()](#flat) - Flattens multi-dimensional elements without overwriting elements
+
 
 ### combine()
 
@@ -1289,6 +1508,10 @@ public function combine( iterable $values ) : self
 Map::from( ['name', 'age'] )->combine( ['Tom', 29] );
 // ['name' => 'Tom', 'age' => 29]
 ```
+
+**See also:**
+
+* [zip()](#zip) - Merges the values of all arrays at the corresponding index
 
 
 ### compare()
@@ -1331,6 +1554,12 @@ Map::from( [new \stdClass(), 'bar'] )->compare( 'foo' );
 // false
 ```
 
+**See also:**
+
+* [contains()](#contains) - Tests if an item exists in the map
+* [in()](#in) - Tests if element is included
+* [includes()](#includes) - Tests if element is included
+
 
 ### concat()
 
@@ -1354,6 +1583,11 @@ Map::from( ['foo'] )->concat( ['bar'] );
 Map::from( ['foo'] )->concat( new Map( ['bar' => 'baz'] ) );
 // ['foo', 'baz']
 ```
+
+**See also:**
+
+* [merge()](#merge) - Merges the map with the given elements without returning a new map
+* [union()](#union) - Builds a union of the elements and the given elements without returning a new map
 
 
 ### contains()
@@ -1395,6 +1629,12 @@ Map::from( [['type' => 'name']] )->contains( 'type', '!=', 'name' );
 // false
 ```
 
+**See also:**
+
+* [in()](#in) - Tests if element is included
+* [includes()](#includes) - Tests if element is included
+* [where()](#where) - Filters the list of elements by a given condition
+
 
 ### copy()
 
@@ -1418,6 +1658,10 @@ $m2 = $m->copy();
 // internal: ['foo', 'bar'] both two maps
 ```
 
+**See also:**
+
+* [clone()](#clone) - Clones the map and all objects within
+
 
 ### count()
 
@@ -1435,6 +1679,15 @@ public function count() : int
 Map::from( ['foo', 'bar'] )->count();
 // 2
 ```
+
+**See also:**
+
+* [avg()](#avg) - Returns the average of all integer and float values in the map
+* [countBy()](#countBy) - Counts how often the same values are in the map
+* [max()](#max) - Returns the maximum value of all elements
+* [min()](#min) - Returns the minium value of all elements
+* [percentage()](#percentage) - Returns the percentage of all elements passing the test
+* [sum()](#sum) - Returns the sum of all values in the map
 
 
 ### countBy()
@@ -1462,6 +1715,15 @@ Map::from( ['a@gmail.com', 'b@yahoo.com', 'c@gmail.com'] )->countBy( function( $
 } );
 // ['gmail.com' => 2, 'yahoo.com' => 1]
 ```
+
+**See also:**
+
+* [avg()](#avg) - Returns the average of all integer and float values in the map
+* [groupBy()](#groupBy) - Groups associative array elements or objects by the passed key or closure
+* [max()](#max) - Returns the maximum value of all elements
+* [min()](#min) - Returns the minium value of all elements
+* [percentage()](#percentage) - Returns the percentage of all elements passing the test
+* [sum()](#sum) - Returns the sum of all values in the map
 
 
 ### dd()
@@ -1519,6 +1781,10 @@ Map::from( ['foo' => ['bar' => 'baz']] )->get( 'foo.bar' );
 // 'baz'
 ```
 
+**See also:**
+
+* [sep()](#sep) - Sets the seperator for paths to values in multi-dimensional arrays or objects
+
 
 ### diff()
 
@@ -1561,6 +1827,11 @@ All examples will return an empty map because both contain the same values
 when compared case insensitive.
 
 The keys are preserved using this method.
+
+**See also:**
+
+* [diffAssoc()](#diffAssoc) - Returns the keys/values in the map whose keys AND values are not present in the passed elements in a new map
+* [diffKeys()](#diffKeys) - Returns the elements missing in the given list by keys
 
 
 ### diffAssoc()
@@ -1606,6 +1877,12 @@ match ("b" vs. "c").
 
 The keys are preserved using this method.
 
+**See also:**
+
+* [diff()](#diff) - Returns the keys/values in the map whose values are not present in the passed elements in a new map
+a new map
+* [diffKeys()](#diffKeys) - Returns the elements missing in the given list by keys
+
 
 ### diffKeys()
 
@@ -1649,6 +1926,11 @@ the same keys when compared case insensitive. The third example will return
 ['b' => 'a'] because the keys doesn't match ("b" vs. "c").
 
 The keys are preserved using this method.
+
+**See also:**
+
+* [diff()](#diff) - Returns the keys/values in the map whose values are not present in the passed elements in a new map
+* [diffAssoc()](#diffAssoc) - Returns the keys/values in the map whose keys AND values are not present in the passed elements in a new map
 
 
 ### dump()
@@ -1720,6 +2002,11 @@ Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i/p' )
 // [1 => ['i' => ['p' => '1']]]
 ```
 
+**See also:**
+
+* [reject()](#reject) - Removes all matched elements
+* [unique()](#unique) - Returns only unique elements from the map in a new map
+
 
 ### each()
 
@@ -1769,6 +2056,10 @@ Map::from( ['a'] )->empty();
 // false
 ```
 
+**See also:**
+
+* [isEmpty()](#isEmpty) - Determines if the map is empty or not
+
 
 ### equals()
 
@@ -1802,6 +2093,10 @@ Map::from( ['a', 'b'] )->equals( ['b', 'a'] );
 // true
 ```
 
+**See also:**
+
+* [is()](#is) - Tests if the map consists of the same keys and values
+
 
 ### every()
 
@@ -1828,6 +2123,11 @@ Map::from( [0 => 'a', 1 => 100] )->every( function( $value, $key ) {
 // false
 ```
 
+**See also:**
+
+* [some()](#some) - Tests if at least one element passes the test or is part of the map
+* [any()](#any) - Tests if at least one element satisfies the callback function
+
 
 ### except()
 
@@ -1851,6 +2151,13 @@ Map::from( ['a' => 1, 'b' => 2, 'c' => 3] )->except( 'b' );
 Map::from( [1 => 'a', 2 => 'b', 3 => 'c'] )->except( [1, 3] );
 // [2 => 'b']
 ```
+
+**See also:**
+
+* [clear()](#clear) - Removes all elements from the current map
+* [only()](#only) - Returns only those elements specified by the keys
+* [reject()](#reject) - Removes all matched elements
+* [remove()](#remove) - Removes an element by key
 
 
 ### explode()
@@ -1898,6 +2205,34 @@ Map::explode( '', 'string', -3 );
 ```
 
 
+### fill()
+
+Creates a new map filled with given value.
+
+```php
+public static function fill( int $num, $value, int $start = 0 ) : self
+```
+
+* @param **int** `$num` Number of elements to create
+* @param **mixed** `$value` Value to fill the map with
+* @param **int** `$start` Start index for the elements
+* @return **self&#60;int&#124;string,mixed&#62;** New map with filled elements
+
+**Examples:**
+
+```php
+Map::fill( 3, 'a' );
+// [0 => 'a', 1 => 'a', 2 => 'a']
+
+Map::fill( 3, 'a', 2 );
+// [2 => 'a', 3 => 'a', 4 => 'a']
+
+Map::fill( 3, 'a', -2 );
+// [-2 => 'a', -1 => 'a', 0 => 'a'] (PHP 8)
+// [-2 => 'a', 0 => 'a', 1 => 'a'] (PHP 7)
+```
+
+
 ### filter()
 
 Runs a filter over each element of the map and returns a new map.
@@ -1928,6 +2263,11 @@ Map::from( [2 => 'a', 6 => 'b', 13 => 'm', 30 => 'z'] )->filter( function( $valu
 } );
 // ['a', 'b']
 ```
+
+**See also:**
+
+* [grep()](#grep) - Applies a regular expression to all elements
+* [where()](#where) - Filters the list of elements by a given condition
 
 
 ### find()
@@ -1967,6 +2307,52 @@ Map::from( [] )->find( function( $value, $key ) {
 // throws \Exception
 ```
 
+**See also:**
+
+* [findKey()](#findKey) - Returns the first matching key where the callback returns TRUE
+
+
+### findKey()
+
+Returns the first matching key where the callback returns TRUE.
+
+```php
+public function findKey( \Closure $callback, $default = null, bool $reverse = false )
+```
+
+* @param **\Closure** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
+* @param **mixed** `$default` Default value or exception if the map contains no elements
+* @param **bool** `$reverse` TRUE to test elements from back to front, FALSE for front to back (default)
+* @return **mixed&#124;null** First matching value, passed default value or an exception
+
+**Examples:**
+
+```php
+Map::from( ['a', 'c', 'e'] )->findKey( function( $value, $key ) {
+    return $value >= 'b';
+} );
+// 1 because array has keys 0, 1 and 2
+
+Map::from( ['a', 'c', 'e'] )->findKey( function( $value, $key ) {
+    return $value >= 'b';
+}, null, true );
+// 2 because array is reversed and 'e' >= 'b'
+
+Map::from( [] )->findKey( function( $value, $key ) {
+    return $value >= 'b';
+}, 'none' );
+// default value 'none'
+
+Map::from( [] )->findKey( function( $value, $key ) {
+    return $value >= 'b';
+}, new \Exception( 'error' ) );
+// throws exception
+```
+
+**See also:**
+
+* [find()](#find) - Returns the first matching element where the callback returns TRUE
+
 
 ### first()
 
@@ -1995,10 +2381,14 @@ Map::from( [] )->first( function() { return rand(); } );
 // random integer
 ```
 
+**See also:**
+
+* [firstKey()](#firstKey) - Returns the key of the first element from the map
+
 
 ### firstKey()
 
-Returns the first key from the map.
+Returns the key of the first element from the map.
 
 ```php
 public function firstKey()
@@ -2015,6 +2405,10 @@ Map::from( ['a' => 1, 'b' => 2] )->lastKey();
 Map::from( [] )->lastKey();
 // null
 ```
+
+**See also:**
+
+* [first()](#first) - Returns the first element from the map
 
 
 ### flat()
@@ -2051,6 +2445,10 @@ Map::from( [[0, 1], [[2, 3], 4]] )->flat( 1 );
 Map::from( [[0, 1], Map::from( [[2, 3], 4] )] )->flat();
 // [0, 1, 2, 3, 4]
 ```
+
+**See also:**
+
+* [collapse()](#collapse) - Collapses all sub-array elements recursively to a new map
 
 
 ### flip()
@@ -2137,6 +2535,14 @@ Map::from( [] )->float( 'c', new \Exception( 'error' ) );
 // throws exception
 ```
 
+**See also:**
+
+* [bool()](#bool) - Returns an element by key and casts it to boolean if possible
+* [cast()](#cast) - Casts all entries to the passed type
+* [get()](#get) - Returns an element from the map by key
+* [int()](#int) - Returns an element by key and casts it to integer if possible
+* [string()](#string) - Returns an element by key and casts it to string if possible
+
 
 ### from()
 
@@ -2175,6 +2581,10 @@ Map::from( function() {
     return [];
 } );
 ```
+
+**See also:**
+
+* [fromJson()](#fromJson) - Creates a new map instance from a JSON string
 
 
 ### fromJson()
@@ -2215,6 +2625,10 @@ Map::fromJson( '""' );
 ['']
 ```
 
+**See also:**
+
+* [from()](#from) - Creates a new map instance if the value isn't one already
+
 
 ### get()
 
@@ -2251,6 +2665,15 @@ Map::from( [] )->get( 'c', new \Exception( 'error' ) );
 Map::from( [] )->get( 'c', function() { return rand(); } );
 // random integer
 ```
+
+**See also:**
+
+* [bool()](#bool) - Returns an element by key and casts it to boolean if possible
+* [int()](#int) - Returns an element by key and casts it to integer if possible
+* [float()](#float) - Returns an element by key and casts it to float if possible
+* [pull()](#pull) - Returns and removes an element from the map by its key
+* [set()](#set) - Sets an element in the map by key without returning a new map
+* [string()](#string) - Returns an element by key and casts it to string if possible
 
 
 ### getIterator()
@@ -2303,6 +2726,11 @@ Map::from( [1.5, 0, 1.0, 'a'] )->grep( '/^(\d+)?\.\d+$/' );
 // [1.5]
 // float 1.0 is converted to string "1"
 ```
+
+**See also:**
+
+* [filter()](#filter) - Runs a filter over each element of the map and returns a new map
+* [where()](#where) - Filters the list of elements by a given condition
 
 
 ### groupBy()
@@ -2379,6 +2807,10 @@ Map::from( $list )->groupBy( 'xid' );
 ]
 */
 ```
+
+**See also:**
+
+* [countBy()](#countBy) - Counts how often the same values are in the map
 
 
 ### has()
@@ -2481,6 +2913,11 @@ to previously defined variables but can not modify them. Also, they can not have
 a void return type and must/will always return something. Details about
 [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
 
+**See also:**
+
+* [ifAny()](#ifAny) - Executes callbacks depending if the map contains elements or not
+* [ifEmpty()](#ifEmpty) - Executes callbacks depending if the map is empty or not
+
 
 ### ifAny()
 
@@ -2524,6 +2961,11 @@ to previously defined variables but can not modify them. Also, they can not have
 a void return type and must/will always return something. Details about
 [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
 
+**See also:**
+
+* [if()](#if) - Executes callbacks depending on the condition
+* [ifEmpty()](#ifEmpty) - Executes callbacks depending if the map is empty or not
+
 
 ### ifEmpty()
 
@@ -2561,6 +3003,11 @@ Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')
 to previously defined variables but can not modify them. Also, they can not have
 a void return type and must/will always return something. Details about
 [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
+
+**See also:**
+
+* [if()](#if) - Executes callbacks depending on the condition
+* [ifAny()](#ifAny) - Executes callbacks depending if the map contains elements or not
 
 
 ### implements()
@@ -2627,6 +3074,13 @@ Map::from( ['1', '2'] )->in( 2, true );
 // false
 ```
 
+**See also:**
+
+* [compare()](#compare) - Compares the value against all map elements
+* [contains()](#contains) - Tests if an item exists in the map
+* [includes()](#includes) - Tests if element is included
+* [none()](#none) - Tests if none of the elements are part of the map
+
 
 ### includes()
 
@@ -2645,7 +3099,10 @@ because it uses one method call less than `includes()`.
 
 **See also:**
 
-* [in()](#in) - Underlying method with same parameters and return value but better performance
+* [compare()](#compare) - Compares the value against all map elements
+* [contains()](#contains) - Tests if an item exists in the map
+* [in()](#in) - Tests if element is included
+* [none()](#none) - Tests if none of the elements are part of the map
 
 
 ### index()
@@ -2674,6 +3131,11 @@ Map::from( [4 => 'a', 8 => 'b'] )->index( function( $key ) {
 Both examples will return "1" because the value "b" is at the second position
 and the returned index is zero based so the first item has the index "0".
 
+**See also:**
+
+* [at()](#at) - Returns the value at the given position
+* [pos()](#pos) - Returns the numerical index of the value
+
 
 ### insertAfter()
 
@@ -2701,6 +3163,11 @@ Map::from( ['foo', 'bar'] )->insertAfter( 'foo', ['baz', 'boo'] );
 Map::from( ['foo', 'bar'] )->insertAfter( null, 'baz' );
 // ['foo', 'bar', 'baz']
 ```
+
+**See also:**
+
+* [insertAt()](#insertAt) - Inserts the item at the given position in the map
+* [insertBefore()](#insertBefore) - Inserts the value or values before the given element
 
 
 ### insertAt()
@@ -2732,6 +3199,11 @@ Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( -1, 'baz', 'c' );
 // ['a' => 'foo', 'c' => 'baz', 'b' => 'bar']
 ```
 
+**See also:**
+
+* [insertAfter()](#insertAfter) - Inserts the value or values after the given element
+* [insertBefore()](#insertBefore) - Inserts the value or values before the given element
+
 
 ### insertBefore()
 
@@ -2759,6 +3231,11 @@ Map::from( ['foo', 'bar'] )->insertBefore( 'bar', ['baz', 'boo'] );
 Map::from( ['foo', 'bar'] )->insertBefore( null, 'baz' );
 // ['foo', 'bar', 'baz']
 ```
+
+**See also:**
+
+* [insertAfter()](#insertAfter) - Inserts the value or values after the given element
+* [insertAt()](#insertAt) - Inserts the item at the given position in the map
 
 
 ### inString()
@@ -2827,6 +3304,11 @@ Map::from( [false] )->inString( 0 );
 // false ('' doesn't contain '0')
 ```
 
+**See also:**
+
+* [strContains()](#strContains) - Tests if at least one of the passed strings is part of at least one entry
+* [strContainsAll()](#strContainsAll) - Tests if all of the entries contains one of the passed strings
+
 
 ### int()
 
@@ -2894,6 +3376,14 @@ Map::from( [] )->int( 'c', new \Exception( 'error' ) );
 // throws exception
 ```
 
+**See also:**
+
+* [bool()](#bool) - Returns an element by key and casts it to boolean if possible
+* [cast()](#cast) - Casts all entries to the passed type
+* [get()](#get) - Returns an element from the map by key
+* [float()](#float) - Returns an element by key and casts it to float if possible
+* [string()](#string) - Returns an element by key and casts it to string if possible
+
 
 ### intersect()
 
@@ -2933,6 +3423,11 @@ Map::from( ['b' => 'a'] )->intersect( ['c' => 'A'], function( $valA, $valB ) {
 } );
 // ['a']
 ```
+
+**See also:**
+
+* [intersectAssoc()](#intersectAssoc) - Returns all values in a new map that are available in both, the map and the given elements while comparing the keys too
+* [intersectKeys()](#intersectKeys) - Returns all values in a new map that are available in both, the map and the given elements by comparing the keys only
 
 
 ### intersectAssoc()
@@ -2974,6 +3469,11 @@ Map::from( ['b' => 'a'] )->intersectAssoc( ['c' => 'A'], function( $valA, $valB 
 // []
 ```
 
+**See also:**
+
+* [intersect()](#intersect) - Returns all values in a new map that are available in both, the map and the given elements
+* [intersectKeys()](#intersectKeys) - Returns all values in a new map that are available in both, the map and the given elements by comparing the keys only
+
 
 ### intersectKeys()
 
@@ -3014,6 +3514,11 @@ Map::from( ['b' => 'a'] )->intersectKeys( ['c' => 'a'], function( $keyA, $keyB )
 // []
 ```
 
+**See also:**
+
+* [intersect()](#intersect) - Returns all values in a new map that are available in both, the map and the given elements
+* [intersectAssoc()](#intersectAssoc) - Returns all values in a new map that are available in both, the map and the given elements while comparing the keys too
+
 
 ### is()
 
@@ -3040,6 +3545,10 @@ Map::from( [1, 2] )->is( ['1', '2'] );
 // false
 ```
 
+**See also:**
+
+* [equals()](#equals) - Tests if the passed elements are equal to the elements in the map
+
 
 ### isEmpty()
 
@@ -3062,6 +3571,50 @@ Map::from( [] )->isEmpty();
 Map::from( ['a'] )-isEmpty();
 // false
 ```
+
+**See also:**
+
+* [empty()](#empty) - Determines if the map is empty or not
+
+
+### isList()
+
+Checks if the map contains a list of subsequentially numbered keys.
+
+```php
+public function isList() : bool
+```
+
+* @return bool TRUE if the map is a list, FALSE if not
+
+**Examples:**
+
+```php
+Map::from( [] )->isList();
+// true
+
+Map::from( [1, 3, 2] )->isList();
+// true, keys are 0, 1 and 2
+
+Map::from( [0 => 1, 1 => 2, 2 => 3] )->isList();
+// true, keys are consecutive
+
+Map::from( [1 => 1, 2 => 2, 3 => 3] )->isList();
+// false, keys doesn't start with 0
+
+Map::from( [0 => 1, 2 => 2, 3 => 3] )->isList();
+// false, keys are not consecutive
+
+Map::from( ['a' => 1, 1 => 2, 'c' => 3] )->isList();
+// false, keys are not all numeric
+```
+
+**See also:**
+
+* [isObject()](#isObject) - Determines if all entries are objects
+* [isNumeric()](#isNumeric) - Determines if all entries are numeric values
+* [isScalar()](#isScalar) - Determines if all entries are scalar values
+* [isString()](#isString) - Determines if all entries are string values
 
 
 ### isObject()
@@ -3086,6 +3639,13 @@ Map::from( [new stdClass] )->isObject();
 Map::from( [1] )->isObject();
 // false
 ```
+
+**See also:**
+
+* [isList()](#isList) - Checks if the map contains a list of subsequentially numbered keys
+* [isNumeric()](#isNumeric) - Determines if all entries are numeric values
+* [isScalar()](#isScalar) - Determines if all entries are scalar values
+* [isString()](#isString) - Determines if all entries are string values
 
 
 ### isNumeric()
@@ -3156,6 +3716,13 @@ Map::from( [''] )->isNumeric();
 // false
 ```
 
+**See also:**
+
+* [isList()](#isList) - Checks if the map contains a list of subsequentially numbered keys
+* [isObject()](#isObject) - Determines if all entries are objects
+* [isScalar()](#isScalar) - Determines if all entries are scalar values
+* [isString()](#isString) - Determines if all entries are string values
+
 
 ### isScalar()
 
@@ -3198,6 +3765,13 @@ Map::from( [[1]] )->isScalar();
 // false
 ```
 
+**See also:**
+
+* [isList()](#isList) - Checks if the map contains a list of subsequentially numbered keys
+* [isObject()](#isObject) - Determines if all entries are objects
+* [isNumeric()](#isNumeric) - Determines if all entries are numeric values
+* [isString()](#isString) - Determines if all entries are string values
+
 
 ### isString()
 
@@ -3239,6 +3813,13 @@ Map::from( [null] )->isString();
 Map::from( [[1]] )->isString();
 // false
 ```
+
+**See also:**
+
+* [isList()](#isList) - Checks if the map contains a list of subsequentially numbered keys
+* [isObject()](#isObject) - Determines if all entries are objects
+* [isNumeric()](#isNumeric) - Determines if all entries are numeric values
+* [isScalar()](#isScalar) - Determines if all entries are scalar values
 
 
 ### join()
@@ -3340,6 +3921,46 @@ Map::from( [1 => 'a', 0 => 'b'] )->krsort();
 // [0 => 'b', 1 => 'a']
 ```
 
+**See also:**
+
+* [krsorted()](#krsorted) - Sorts a copy of the elements by their keys in reverse order
+
+
+### krsorted()
+
+Sorts a copy of the elements by their keys in reverse order.
+
+```php
+public function krsorted( int $options = SORT_REGULAR ) : self
+```
+
+* @param **int** `$options` Sort options for `krsort()`
+* @return **self&#60;int&#124;string,mixed&#62;** New map
+
+The parameter modifies how the keys are compared. Possible values are:
+- SORT_REGULAR : compare elements normally (don't change types)
+- SORT_NUMERIC : compare elements numerically
+- SORT_STRING : compare elements as strings
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by `setlocale()`
+- SORT_NATURAL : compare elements as strings using "natural ordering" like `natsort()`
+- SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
+
+The keys are preserved using this method and a new map is created.
+
+**Examples:**
+
+```php
+Map::from( ['b' => 0, 'a' => 1] )->krsorted();
+// ['a' => 1, 'b' => 0]
+
+Map::from( [1 => 'a', 0 => 'b'] )->krsorted();
+// [0 => 'b', 1 => 'a']
+```
+
+**See also:**
+
+* [krsort()](#krsort) - Sorts the elements by their keys in reverse order
+
 
 ### krsorted()
 
@@ -3405,6 +4026,38 @@ Map::from( [1 => 'a', 0 => 'b'] )->ksort();
 ```
 
 
+### ksorted()
+
+Sorts a copy of the elements by their keys.
+
+```php
+public function ksorted( int $options = SORT_REGULAR ) : self
+```
+
+* @param **int** `$options` Sort options for `ksort()`
+* @return **self&#60;int&#124;string,mixed&#62;** New map
+
+The parameter modifies how the keys are compared. Possible values are:
+- SORT_REGULAR : compare elements normally (don't change types)
+- SORT_NUMERIC : compare elements numerically
+- SORT_STRING : compare elements as strings
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by `setlocale()`
+- SORT_NATURAL : compare elements as strings using "natural ordering" like `natsort()`
+- SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
+
+The keys are preserved using this method and a new map is created.
+
+**Examples:**
+
+```php
+Map::from( ['b' => 0, 'a' => 1] )->ksorted();
+// ['a' => 1, 'b' => 0]
+
+Map::from( [1 => 'a', 0 => 'b'] )->ksorted();
+// [0 => 'b', 1 => 'a']
+```
+
+
 ### last()
 
 Returns the last element from the map.
@@ -3432,10 +4085,14 @@ Map::from( [] )->last( function() { return rand(); } );
 // random integer
 ```
 
+**See also:**
+
+* [lastKey()](#lastKey) - Returns the key of the last element from the map
+
 
 ### lastKey()
 
-Returns the last key from the map.
+Returns the key of the last element from the map.
 
 ```php
 public function lastKey()
@@ -3452,6 +4109,10 @@ Map::from( ['a' => 1, 'b' => 2] )->lastKey();
 Map::from( [] )->lastKey();
 // null
 ```
+
+**See also:**
+
+* [last()](#last) - Returns the last element from the map
 
 
 ### ltrim()
@@ -3475,6 +4136,12 @@ Map::from( ["a b c", "cbxa"] )->ltrim( 'abc' );
 // [" b c", "xa"]
 ```
 
+**See also:**
+
+* [ltrim()](#ltrim) - Removes the passed characters from the left of all strings
+* [rtrim()](#rtrim) - Removes the passed characters from the right of all strings
+* [trim()](#trim) - Removes the passed characters from the left/right of all strings
+
 
 ### map()
 
@@ -3497,6 +4164,12 @@ Map::from( ['a' => 2, 'b' => 4] )->map( function( $value, $key ) {
 } );
 // ['a' => 4, 'b' => 8]
 ```
+
+**See also:**
+
+* [col()](#col) - Returns the values of a single column/property from an array of arrays or list of elements in a new map
+* [pluck()](#pluck) - Creates a key/value mapping (alias)
+* [rekey()](#pluck) - Changes the keys according to the passed function
 
 
 ### max()
@@ -3537,6 +4210,14 @@ Map::from( [50, 10, 30] )->max( fn( $val, $key ) => $key > 0 );
 // 30
 ```
 
+**See also:**
+
+* [avg()](#avg) - Returns the average of all integer and float values in the map
+* [count()](#count) - Returns the total number of elements
+* [min()](#min) - Returns the minium value of all elements
+* [percentage()](#percentage) - Returns the percentage of all elements passing the test
+* [sum()](#sum) - Returns the sum of all values in the map
+
 
 ### merge()
 
@@ -3571,6 +4252,11 @@ Map::from( ['a' => 1, 'b' => 2] )->merge( ['b' => 4, 'c' => 6] );
 Map::from( ['a' => 1, 'b' => 2] )->merge( ['b' => 4, 'c' => 6], true );
 // ['a' => 1, 'b' => [2, 4], 'c' => 6]
 ```
+
+**See also:**
+
+* [concat()](#combine) - Adds all elements with new keys
+* [union()](#union) - Builds a union of the elements and the given elements without returning a new map
 
 
 ### method()
@@ -3659,6 +4345,14 @@ Map::from( [10, 50, 30] )->min( fn( $val, $key ) => $key > 0 );
 // 30
 ```
 
+**See also:**
+
+* [avg()](#avg) - Returns the average of all integer and float values in the map
+* [count()](#count) - Returns the total number of elements
+* [max()](#max) - Returns the maximum value of all elements
+* [percentage()](#percentage) - Returns the percentage of all elements passing the test
+* [sum()](#sum) - Returns the sum of all values in the map
+
 
 ### none()
 
@@ -3690,6 +4384,12 @@ Map::from( ['a', 'b'] )->none( ['a', 'b'] );
 Map::from( ['a', 'b'] )->none( ['a', 'x'] );
 // false
 ```
+
+**See also:**
+
+* [contains()](#contains) - Tests if an item exists in the map
+* [includes()](#includes) - Tests if element is included
+* [in()](#in) - Tests if element is included
 
 
 ### nth()
@@ -3741,6 +4441,12 @@ isset( $map['d'] );
 // false
 ```
 
+**See also:**
+
+* [offsetGet()](#offsetGet) - Returns an element at a given offset
+* [offsetSet()](#offsetGet) - Sets the element at a given offset
+* [offsetUnset()](#offsetUnset) - Unsets the element at a given offset
+
 
 ### offsetGet()
 
@@ -3761,6 +4467,12 @@ $map = Map::from( ['a' => 1, 'b' => 3] );
 $map['b'];
 // 3
 ```
+
+**See also:**
+
+* [offsetExists()](#offsetExists) - Determines if an element exists at an offset.
+* [offsetSet()](#offsetGet) - Sets the element at a given offset
+* [offsetUnset()](#offsetUnset) - Unsets the element at a given offset
 
 
 ### offsetSet()
@@ -3786,6 +4498,12 @@ $map[0] = 4;
 // ['a' => 1, 'b' => 2, 0 => 4]
 ```
 
+**See also:**
+
+* [offsetExists()](#offsetExists) - Determines if an element exists at an offset.
+* [offsetGet()](#offsetGet) - Returns an element at a given offset
+* [offsetUnset()](#offsetUnset) - Unsets the element at a given offset
+
 
 ### offsetUnset()
 
@@ -3805,6 +4523,12 @@ $map = Map::from( ['a' => 1] );
 unset( $map['a'] );
 // []
 ```
+
+**See also:**
+
+* [offsetExists()](#offsetExists) - Determines if an element exists at an offset.
+* [offsetGet()](#offsetGet) - Returns an element at a given offset
+* [offsetSet()](#offsetGet) - Sets the element at a given offset
 
 
 ### only()
@@ -3829,6 +4553,13 @@ Map::from( ['a' => 1, 0 => 'b'] )->only( 'a' );
 Map::from( ['a' => 1, 0 => 'b', 1 => 'c'] )->only( [0, 1] );
 // [0 => 'b', 1 => 'c']
 ```
+
+**See also:**
+
+* [clear()](#clear) - Removes all elements from the current map
+* [except()](#except) - Returns a new map without the passed element keys
+* [reject()](#reject) - Removes all matched elements
+* [remove()](#remove) - Removes an element by key
 
 
 ### order()
@@ -3926,6 +4657,10 @@ Map::from( [1, 2, 3, 4, 5] )->partition( function( $val, $idx ) {
 // [0 => [0 => 1, 3 => 4], 1 => [1 => 2, 4 => 5], 2 => [2 => 3]]
 ```
 
+**See also:**
+
+* [chunk()](#chunk) - Chunks the map into arrays with the given number of elements
+
 
 ### percentage()
 
@@ -3960,6 +4695,14 @@ Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val > 30, 0 );
 Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val < 50, -1 );
 // 70.0
 ```
+
+**See also:**
+
+* [avg()](#avg) - Returns the average of all integer and float values in the map
+* [count()](#count) - Returns the total number of elements
+* [max()](#max) - Returns the maximum value of all elements
+* [min()](#min) - Returns the minium value of all elements
+* [sum()](#sum) - Returns the sum of all values in the map
 
 
 ### pipe()
@@ -4000,7 +4743,11 @@ be preferred because it uses one method call less than `pluck()`.
 
 **See also:**
 
-* [col()](#col) - Underlying method with same parameters and return value but better performance
+* [col()](#col) - Returns the values of a single column/property from an array of arrays or list of elements in a new map
+* [map()](#map) - Applies a callback to each element and returns the results
+* [pluck()](#pluck) - Creates a key/value mapping (alias)
+* [rekey()](#pluck) - Changes the keys according to the passed function
+
 
 ### pop()
 
@@ -4018,6 +4765,10 @@ public function pop()
 Map::from( ['a', 'b'] )->pop();
 // 'b', map contains ['a']
 ```
+
+**See also:**
+
+* [push()](#push) - Adds an element onto the end of the map without returning a new map
 
 
 ### pos
@@ -4045,6 +4796,11 @@ Map::from( [4 => 'a', 8 => 'b'] )->pos( function( $item, $key ) {
 
 Both examples will return "1" because the value "b" is at the second position
 and the returned index is zero based so the first item has the index "0".
+
+**See also:**
+
+* [at()](#at) - Returns the value at the given position
+* [index()](#index) - Returns the numerical index of the given key
 
 
 ### prefix
@@ -4079,6 +4835,10 @@ Map::from( ['a', 'b'] )->prefix( function( $item, $key ) {
 } );
 // ['145-a', '147-b']
 ```
+
+**See also:**
+
+* [suffix()](#suffix) - Adds a suffix at the end of each map entry
 
 
 ### prepend()
@@ -4123,6 +4883,10 @@ Map::from( ['a', 'b', 'c'] )->pull( 'x', 'none' );
 // 'none', map contains ['a', 'b', 'c']
 ```
 
+**See also:**
+
+* [get()](#get) - Returns an element from the map by key
+
 
 ### push()
 
@@ -4141,6 +4905,10 @@ public function push( $value ) : self
 Map::from( ['a', 'b'] )->push( 'aa' );
 // ['a', 'b', 'aa']
 ```
+
+**See also:**
+
+* [pop()](#pop) - Returns and removes the last element from the map
 
 
 ### put()
@@ -4250,6 +5018,14 @@ Map::from( [2 => 'a', 6 => null, 13 => 'm'] )->reject();
 // [6 => null]
 ```
 
+**See also:**
+
+* [clear()](#clear) - Removes all elements from the current map
+* [duplicates()](#duplicates) - Returns the duplicate values from the map
+* [except()](#except) - Returns a new map without the passed element keys
+* [only()](#only) - Returns only those elements specified by the keys
+* [remove()](#remove) - Removes an element by key
+
 
 ### rekey()
 
@@ -4276,7 +5052,6 @@ Map::from( ['a' => 2, 'b' => 4] )->rekey( function( $value, $key ) {
 * [map()](#map) - Maps new values to the existing keys using the passed function and returns a new map for the result
 * [transform()](#transform) - Creates new key/value pairs using the passed function and returns a new map for the result
 
-
 ### remove()
 
 Removes one or more elements from the map by its keys without returning a new map.
@@ -4297,6 +5072,13 @@ Map::from( ['a' => 1, 2 => 'b'] )->remove( 'a' );
 Map::from( ['a' => 1, 2 => 'b'] )->remove( [2, 'a'] );
 // []
 ```
+
+**See also:**
+
+* [clear()](#clear) - Removes all elements from the current map
+* [except()](#except) - Returns a new map without the passed element keys
+* [only()](#only) - Returns only those elements specified by the keys
+* [reject()](#reject) - Removes all matched elements
 
 
 ### replace()
@@ -4419,6 +5201,52 @@ Map::from( [0 => 'C', 1 => 'b'] )->rsort( SORT_STRING|SORT_FLAG_CASE );
 // [0 => 'C', 1 => 'b'] because 'C' -> 'c' and 'c' > 'b'
 ```
 
+**See also:**
+
+* [rsorted()](#rsorted) - Sorts a copy of all elements in reverse order without maintaining the key association
+
+
+### rsorted()
+
+Sorts a copy of all elements in reverse order without maintaining the key association.
+
+```php
+public function rsorted( int $options = SORT_REGULAR ) : self
+```
+
+* @param **int** `$options` Sort options for `rsort()`
+* @return **self&#60;int&#124;string,mixed&#62;** New map
+
+The parameter modifies how the values are compared. Possible parameter values are:
+- SORT_REGULAR : compare elements normally (don't change types)
+- SORT_NUMERIC : compare elements numerically
+- SORT_STRING : compare elements as strings
+- SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by `setlocale()`
+- SORT_NATURAL : compare elements as strings using "natural ordering" like `natsort()`
+- SORT_FLAG_CASE : use SORT_STRING&#124;SORT_FLAG_CASE and SORT_NATURAL&#124;SORT_FLAG_CASE to sort strings case-insensitively
+
+The keys are NOT preserved, elements get a new index and a new map is created.
+
+**Examples:**
+
+```php
+Map::from( ['a' => 1, 'b' => 0] )->rsorted();
+// [0 => 1, 1 => 0]
+
+Map::from( [0 => 'b', 1 => 'a'] )->rsorted();
+// [0 => 'b', 1 => 'a']
+
+Map::from( [0 => 'C', 1 => 'b'] )->rsorted();
+// [0 => 'b', 1 => 'C']
+
+Map::from( [0 => 'C', 1 => 'b'] )->rsorted( SORT_STRING|SORT_FLAG_CASE );
+// [0 => 'C', 1 => 'b'] because 'C' -> 'c' and 'c' > 'b'
+```
+
+**See also:**
+
+* [rsort()](#rsort) - Sorts all elements in reverse order without maintaining the key association
+
 
 ### rsorted()
 
@@ -4479,6 +5307,11 @@ Map::from( ["a b c", "cbxa"] )->rtrim( 'abc' );
 // ["a b ", "cbx"]
 ```
 
+**See also:**
+
+* [ltrim()](#ltrim) - Removes the passed characters from the left of all strings
+* [trim()](#trim) - Removes the passed characters from the left/right of all strings
+
 
 ### search()
 
@@ -4525,6 +5358,10 @@ Map::from( ['foo' => ['bar' => 'baz']] )->sep( '.' )->get( 'foo.bar' );
 // 'baz'
 ```
 
+**See also:**
+
+* [delimiter()](#delimiter) - Sets or returns the seperator for paths to values in multi-dimensional arrays or objects
+
 
 ### set()
 
@@ -4547,6 +5384,11 @@ Map::from( ['a'] )->set( 1, 'b' );
 Map::from( ['a'] )->set( 0, 'b' );
 // [0 => 'b']
 ```
+
+**See also:**
+
+* [get()](#get) - Returns an element from the map by key
+* [with()](#with) - Returns a copy of the map with the element at the given index replaced with the given value
 
 
 ### shift()
@@ -4585,6 +5427,10 @@ instead of
 ```php
 $map->shift();
 ```
+
+**See also:**
+
+* [unshift()](#unshift) - Pushes an element onto the beginning of the map without returning a new map
 
 
 ### shuffle()
@@ -4702,6 +5548,10 @@ Map::from( ['a', 'b', 'c', 'd'] )->slice( -2, -1 );
 // ['c']
 ```
 
+**See also:**
+
+* [take()](#take) - Returns a new map with the given number of items.
+
 
 ### some()
 
@@ -4736,6 +5586,11 @@ Map::from( ['1', '2'] )->some( [2], true );
 // false
 ```
 
+**See also:**
+
+* [every()](#every) - Verifies that all elements pass the test of the given callback
+* [any()](#any) - Tests if at least one element satisfies the callback function
+
 
 ### sort()
 
@@ -4768,6 +5623,10 @@ Map::from( [0 => 'b', 1 => 'a'] )->sort();
 // [0 => 'a', 1 => 'b']
 ```
 
+**See also:**
+
+* [sorted()](#sorted) - Sorts a copy of the elements using new keys
+
 
 ### sorted()
 
@@ -4778,7 +5637,7 @@ public function sorted( int $options = SORT_REGULAR ) : self
 ```
 
 * @param **int** `$options` Sort options for PHP `sort()`
-* @return **self&#60;int&#124;string,mixed&#62;** New map with a sorted copy of the elements
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 The parameter modifies how the values are compared. Possible parameter values are:
 - SORT_REGULAR : compare elements normally (don't change types)
@@ -4804,7 +5663,7 @@ Map::from( [0 => 'b', 1 => 'a'] )->sorted();
 
 **See also:**
 
-* [sort()](#sort) - Sorts elements in-place in the original map
+* [sort()](#sort) - Sorts all elements without maintaining the key association
 
 
 ### splice()
@@ -4887,6 +5746,10 @@ Map::from( [0, 0.0, false, []] )->strAfter( '' );
 // ['0', '0']
 ```
 
+**See also:**
+
+* [strBefore()](#strBefore) - Returns the strings before the passed value
+
 
 ### strBefore()
 
@@ -4931,6 +5794,10 @@ Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strBefore( '' );
 Map::from( [0, 0.0, false, []] )->strBefore( '' );
 // ['0', '0']
 ```
+
+**See also:**
+
+* [strAfter()](#strAfter) - Returns the strings after the passed value
 
 
 ### strContains()
@@ -5000,6 +5867,10 @@ Map::from( ['abc'] )->strContains( 'cb', 'ASCII' );
 // false
 ```
 
+**See also:**
+
+* [strContainsAll()](#strContainsAll) - Tests if all of the entries contains one of the passed strings
+
 
 ### strContainsAll()
 
@@ -5062,6 +5933,10 @@ Map::from( ['abc', 'bca'] )->strContainsAll( 'cb', 'ASCII' );
 // false
 ```
 
+**See also:**
+
+* [strContains()](#strContains) - Tests if at least one of the passed strings is part of at least one entry
+
 
 ### strEnds()
 
@@ -5106,6 +5981,10 @@ Map::from( ['abc'] )->strEnds( 'cb', 'ASCII' );
 // false
 ```
 
+**See also:**
+
+* [strEndsAll()](#strEndsAll) - Tests if all of the entries ends with at least one of the passed strings
+
 
 ### strEndsAll()
 
@@ -5149,6 +6028,10 @@ Map::from( ['abc', 'acf'] )->strEndsAll( ['a', 'c'] );
 Map::from( ['abc', 'bca'] )->strEndsAll( 'ca', 'ASCII' );
 // false
 ```
+
+**See also:**
+
+* [strEnds()](#strEnds) - Tests if at least one of the entries ends with one of the passed strings
 
 
 ### string()
@@ -5211,6 +6094,14 @@ Map::from( [] )->string( 'c', new \Exception( 'error' ) );
 // throws exception
 ```
 
+**See also:**
+
+* [bool()](#bool) - Returns an element by key and casts it to boolean if possible
+* [cast()](#cast) - Casts all entries to the passed type
+* [get()](#get) - Returns an element from the map by key
+* [float()](#float) - Returns an element by key and casts it to float if possible
+* [int()](#int) - Returns an element by key and casts it to integer if possible
+
 
 ### strLower()
 
@@ -5235,6 +6126,10 @@ Map::from( ['Τάχιστη'] )->strLower();
 Map::from( ['Äpfel', 'Birnen'] )->strLower( 'ISO-8859-1' );
 // ["äpfel", "birnen"]
 ```
+
+**See also:**
+
+* [strUpper()](#strUpper) - Converts all alphabetic characters in strings to upper case
 
 
 ### strReplace()
@@ -5335,6 +6230,10 @@ Map::from( ['abc'] )->strStarts( 'bc', 'ASCII' );
 // false
 ```
 
+**See also:**
+
+* [strStartsAll()](#strStartsAll) - Tests if all of the entries starts with one of the passed strings
+
 
 ### strStartsAll()
 
@@ -5379,6 +6278,10 @@ Map::from( ['abc', 'cab'] )->strStartsAll( 'ab', 'ASCII' );
 // false
 ```
 
+**See also:**
+
+* [strStarts()](#strStarts) - Tests if at least one of the entries starts with at least one of the passed strings
+
 
 ### strUpper()
 
@@ -5403,6 +6306,10 @@ Map::from( ['τάχιστη'] )->strUpper();
 Map::from( ['äpfel', 'birnen'] )->strUpper( 'ISO-8859-1' );
 // ["ÄPFEL", "BIRNEN"]
 ```
+
+**See also:**
+
+* [strLower()](#strLower) - Converts all alphabetic characters in strings to lower case
 
 
 ### suffix
@@ -5437,6 +6344,10 @@ Map::from( ['a', 'b'] )->suffix( function( $item, $key ) {
 } );
 // ['a-145', 'b-147']
 ```
+
+**See also:**
+
+* [prefix()](#prefix) - Adds a prefix in front of each map entry
 
 
 ### sum()
@@ -5474,6 +6385,14 @@ Map::from( [30, 50, 10] )->sum( fn( $val, $key ) => $val < 50 );
 // 40
 ```
 
+**See also:**
+
+* [avg()](#avg) - Returns the average of all integer and float values in the map
+* [count()](#count) - Returns the total number of elements
+* [max()](#max) - Returns the maximum value of all elements
+* [min()](#min) - Returns the minium value of all elements
+* [percentage()](#percentage) - Returns the percentage of all elements passing the test
+
 
 ### take()
 
@@ -5506,6 +6425,10 @@ Map::from( [1, 2, 3, 4] )->take( 2, function( $item, $key ) {
 } );
 // [1 => 2, 2 => 3]
 ```
+
+**See also:**
+
+* [slice()](#slice) - Returns a map with the slice from the original map.
 
 
 ### tap()
@@ -5574,6 +6497,31 @@ Map::times( 2, function( $num ) {
 ```
 
 
+### to()
+
+Returns the elements as a plain array.
+
+```php
+public function to() : array
+```
+
+* @return **array** Plain array
+
+**Examples:**
+
+```php
+Map::from( ['a'] )->to();
+// ['a']
+```
+
+This is the preferred method for retrieving the plain array of the Map object.
+
+**See also:**
+
+* [all()](#all) - Returns the elements as a plain array
+* [toArray()](#toArray) - Returns the elements as a plain array
+
+
 ### toArray()
 
 Returns the elements as a plain array.
@@ -5590,6 +6538,11 @@ public function toArray() : array
 Map::from( ['a'] )->toArray();
 // ['a']
 ```
+
+**See also:**
+
+* [all()](#all) - Returns the elements as a plain array
+* [to()](#to) - Returns the elements as a plain array
 
 
 ### toJson()
@@ -5844,6 +6797,10 @@ Map::from( [[
 */
 ```
 
+**See also:**
+
+* [tree()](#tree) - Creates a tree structure from the list items
+
 
 ### tree()
 
@@ -5911,6 +6868,10 @@ Map::from( [['id' => 3, 'lvl' => 2], ...] )->usort( function( $item1, $item2 ) {
 } );
 ```
 
+**See also:**
+
+* [traverse()](#traverse) - Traverses trees of nested items passing each item to the callback
+
 
 ### trim()
 
@@ -5932,6 +6893,11 @@ Map::from( [" abc\n", "\tcde\r\n"] )->trim();
 Map::from( ["a b c", "cbax"] )->trim( 'abc' );
 // [" b ", "x"]
 ```
+
+**See also:**
+
+* [ltrim()](#ltrim) - Removes the passed characters from the left of all strings
+* [rtrim()](#rtrim) - Removes the passed characters from the right of all strings
 
 
 ### uasort()
@@ -5963,6 +6929,45 @@ Map::from( ['a' => 'B', 'b' => 'a'] )->uasort( function( $itemA, $itemB ) {
 } );
 // ['b' => 'a', 'a' => 'B']
 ```
+
+**See also:**
+
+* [uasorted()](#uasorted) - Sorts a copy of all elements using a callback and maintains the key association
+
+
+### uasorted()
+
+Sorts a copy of all elements using a callback and maintains the key association.
+
+```php
+public function uasorted( callable $callback ) : self
+```
+
+* @param **callable** `$callback` Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
+
+The given callback will be used to compare the values. The callback must accept
+two parameters (item A and B) and must return -1 if item A is smaller than
+item B, 0 if both are equal and 1 if item A is greater than item B. Both, a
+method name and an anonymous function can be passed.
+
+The keys are preserved using this method and a new map is created.
+
+**Examples:**
+
+```php
+Map::from( ['a' => 'B', 'b' => 'a'] )->uasorted( 'strcasecmp' );
+// ['b' => 'a', 'a' => 'B']
+
+Map::from( ['a' => 'B', 'b' => 'a'] )->uasorted( function( $itemA, $itemB ) {
+    return strtolower( $itemA ) <=> strtolower( $itemB );
+} );
+// ['b' => 'a', 'a' => 'B']
+```
+
+**See also:**
+
+* [uasort()](#uasort) - Sorts all elements using a callback and maintains the key association
 
 
 ### uasorted()
@@ -6005,7 +7010,7 @@ public function uksort( callable $callback ) : self
 ```
 
 * @param **callable** `$callback` Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
-* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
+* @return **self&#60;int&#124;string,mixed&#62;** New map
 
 The given callback will be used to compare the keys. The callback must accept
 two parameters (key A and B) and must return -1 if key A is smaller than
@@ -6025,6 +7030,45 @@ Map::from( ['B' => 'a', 'a' => 'b'] )->uksort( function( $keyA, $keyB ) {
 } );
 // ['a' => 'b', 'B' => 'a']
 ```
+
+**See also:**
+
+* [uksorted()](#uksorted) - Sorts a copy of the map elements by their keys using a callback
+
+
+### uksorted()
+
+Sorts a copy of the map elements by their keys using a callback.
+
+```php
+public function uksorted( callable $callback ) : self
+```
+
+* @param **callable** `$callback` Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
+
+The given callback will be used to compare the keys. The callback must accept
+two parameters (key A and B) and must return -1 if key A is smaller than
+key B, 0 if both are equal and 1 if key A is greater than key B. Both, a
+method name and an anonymous function can be passed.
+
+The keys are preserved using this method and a new map is created.
+
+**Examples:**
+
+```php
+Map::from( ['B' => 'a', 'a' => 'b'] )->uksorted( 'strcasecmp' );
+// ['a' => 'b', 'B' => 'a']
+
+Map::from( ['B' => 'a', 'a' => 'b'] )->uksorted( function( $keyA, $keyB ) {
+    return strtolower( $keyA ) <=> strtolower( $keyB );
+} );
+// ['a' => 'b', 'B' => 'a']
+```
+
+**See also:**
+
+* [uksort()](#uksort) - Sorts the map elements by their keys using a callback
 
 
 ### uksorted()
@@ -6083,10 +7127,15 @@ Map::from( ['a' => 1, 'b' => 2] )->union( ['c' => 1] );
 // ['a' => 1, 'b' => 2, 'c' => 1]
 ```
 
+**See also:**
+
+* [concat()](#combine) - Adds all elements with new keys
+* [merge()](#merge) - Merges the map with the given elements without returning a new map
+
 
 ### unique()
 
-Returns only unique elements from the map in a new map
+Returns only unique elements from the map in a new map.
 
 ```php
 public function unique( string $key = null ) : self
@@ -6115,6 +7164,10 @@ Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->unique( 'p' );
 Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->unique( 'i/p' );
 // [['i' => ['p' => '1']]]
 ```
+
+**See also:**
+
+* [duplicates()](#duplicates) - Returns the duplicate values from the map
 
 
 ### unshift()
@@ -6158,6 +7211,10 @@ instead of
 $map->unshift( 'a' )->unshift( 'b' );
 ```
 
+**See also:**
+
+* [shift()](#shift) - Returns and removes the first element from the map
+
 
 ### usort()
 
@@ -6188,6 +7245,45 @@ Map::from( ['a' => 'B', 'b' => 'a'] )->usort( function( $itemA, $itemB ) {
 } );
 // [0 => 'a', 1 => 'B']
 ```
+
+**See also:**
+
+* [usorted()](#usorted) - Sorts a copy of all elements using a callback without maintaining the key association
+
+
+### usorted()
+
+Sorts a copy of all elements using a callback without maintaining the key association.
+
+```php
+public function usorted( callable $callback ) : self
+```
+
+* @param **callable** `$callback` Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
+* @return **self&#60;int&#124;string,mixed&#62;** New map
+
+The given callback will be used to compare the values. The callback must accept
+two parameters (item A and B) and must return -1 if item A is smaller than
+item B, 0 if both are equal and 1 if item A is greater than item B. Both, a
+method name and an anonymous function can be passed.
+
+The keys are NOT preserved and elements get a new index and a new map is created.
+
+**Examples:**
+
+```php
+Map::from( ['a' => 'B', 'b' => 'a'] )->usorted( 'strcasecmp' );
+// [0 => 'a', 1 => 'B']
+
+Map::from( ['a' => 'B', 'b' => 'a'] )->usorted( function( $itemA, $itemB ) {
+    return strtolower( $itemA ) <=> strtolower( $itemB );
+} );
+// [0 => 'a', 1 => 'B']
+```
+
+**See also:**
+
+* [usort()](#usort) - Sorts all elements using a callback without maintaining the key association
 
 
 ### usorted()
@@ -6365,6 +7461,11 @@ Map::from( [
 */
 ```
 
+**See also:**
+
+* [filter()](#filter) - Runs a filter over each element of the map and returns a new map
+* [grep()](#grep) - Applies a regular expression to all elements
+
 
 ### with()
 
@@ -6396,6 +7497,10 @@ $m->all();
 // ['a' => 1]
 ```
 
+**See also:**
+
+* [set()](#set) - Sets an element in the map by key without returning a new map
+
 
 ### zip()
 
@@ -6420,6 +7525,10 @@ Map::from( [1, 2, 3] )->zip( ['one', 'two', 'three'], ['uno', 'dos', 'tres'] );
 ]
 */
 ```
+
+**See also:**
+
+* [combine()](#combine) - Combines the values of the map as keys with the passed elements as values
 
 
 

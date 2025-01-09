@@ -203,28 +203,50 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public static function explode( string $delimiter, string $string, int $limit = PHP_INT_MAX ) : self
 	{
-		return new static( function() use ( $delimiter, $string, $limit ) {
+		if( $delimiter !== '' ) {
+			return new static( explode( $delimiter, $string, $limit ) );
+		}
 
-			if( $delimiter !== '' ) {
-				return explode( $delimiter, $string, $limit );
-			}
+		$limit = $limit ?: 1;
+		$parts = mb_str_split( $string );
 
-			$limit = $limit ?: 1;
-			$parts = mb_str_split( $string );
+		if( $limit < 1 ) {
+			return new static( array_slice( $parts, 0, $limit ) );
+		}
 
-			if( $limit < 1 ) {
-				return array_slice( $parts, 0, $limit );
-			}
+		if( $limit < count( $parts ) )
+		{
+			$result = array_slice( $parts, 0, $limit );
+			$result[] = join( '', array_slice( $parts, $limit ) );
 
-			if( $limit < count( $parts ) )
-			{
-				$result = array_slice( $parts, 0, $limit );
-				$result[] = join( '', array_slice( $parts, $limit ) );
-				return $result;
-			}
+			return new static( $result );
+		}
 
-			return $parts;
-		} );
+		return new static( $parts );
+	}
+
+
+	/**
+	 * Creates a new map filled with given value.
+	 *
+	 * Exapmles:
+	 *  Map::fill( 3, 'a' );
+	 *  Map::fill( 3, 'a', 2 );
+	 *  Map::fill( 3, 'a', -2 );
+	 *
+	 * Results:
+	 * The first example will return [0 => 'a', 1 => 'a', 2 => 'a']. The second
+	 * example will return [2 => 'a', 3 => 'a', 4 => 'a'] and the last one
+	 * [-2 => 'a', -1 => 'a', 0 => 'a'] (PHP 8) or [-2 => 'a', 0 => 'a', 1 => 'a'] (PHP 7).
+	 *
+	 * @param int $num Number of elements to create
+	 * @param mixed $value Value to fill the map with
+	 * @param int $start Start index for the elements
+	 * @return self<int|string,mixed> New map with filled elements
+	 */
+	public static function fill( int $num, $value, int $start = 0 ) : self
+	{
+		return new static( array_fill( $start, $num, $value ) );
 	}
 
 
@@ -286,14 +308,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public static function fromJson( string $json, int $options = JSON_BIGINT_AS_STRING ) : self
 	{
-		return new static( function() use ( $json, $options ) {
+		if( ( $result = json_decode( $json, true, 512, $options ) ) !== null ) {
+			return new static( $result );
+		}
 
-			if( ( $result = json_decode( $json, true, 512, $options ) ) !== null ) {
-				return $result;
-			}
-
-			throw new \RuntimeException( 'Not a valid JSON string: ' . $json );
-		} );
+		throw new \RuntimeException( 'Not a valid JSON string: ' . $json );
 	}
 
 
@@ -357,17 +376,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public static function times( int $num, \Closure $callback ) : self
 	{
-		return new static( function() use ( $num, $callback ) {
+		$list = [];
 
-			$list = [];
+		for( $i = 0; $i < $num; $i++ ) {
+			$key = $i;
+			$list[$key] = $callback( $i, $key );
+		}
 
-			for( $i = 0; $i < $num; $i++ ) {
-				$key = $i;
-				$list[$key] = $callback( $i, $key );
-			}
-
-			return $list;
-		} );
+		return new static( $list );
 	}
 
 
@@ -411,6 +427,40 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function all() : array
 	{
 		return $this->list = $this->array( $this->list );
+	}
+
+
+	/**
+	 * Tests if at least one element satisfies the callback function.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'b'] )->any( function( $item, $key ) {
+	 *    return $item === 'a';
+	 *  } );
+	 *  Map::from( ['a', 'b'] )->any( function( $item, $key ) {
+	 *    return !is_string( $item );
+	 *  } );
+	 *
+	 * Results:
+	 * The first example will return TRUE while the last one will return FALSE
+	 *
+	 * @param \Closure $callback Anonymous function with (item, key) parameter
+	 * @return bool TRUE if at least one element satisfies the callback function, FALSE if not
+	 */
+	public function any( \Closure $callback ) : bool
+	{
+		if( function_exists( 'array_any' ) ) {
+			return array_any( $this->list(), $callback );
+		}
+
+		foreach( $this->list() as $key => $item )
+		{
+			if( $callback( $item, $key ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 
@@ -891,7 +941,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		foreach( $this->list() as $item )
 		{
-			$v = $valuecol ? $this->val( $item, $vparts ) : $item;
+			$v = $valuecol !== null ? $this->val( $item, $vparts ) : $item;
 
 			if( $indexcol !== null && ( $key = $this->val( $item, $iparts ) ) !== null ) {
 				$list[(string) $key] = $v;
@@ -1528,10 +1578,53 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function find( \Closure $callback, $default = null, bool $reverse = false )
 	{
-		foreach( ( $reverse ? array_reverse( $this->list() ) : $this->list() ) as $key => $value )
+		foreach( ( $reverse ? array_reverse( $this->list(), true ) : $this->list() ) as $key => $value )
 		{
 			if( $callback( $value, $key ) ) {
 				return $value;
+			}
+		}
+
+		if( $default instanceof \Throwable ) {
+			throw $default;
+		}
+
+		return $default;
+	}
+
+
+	/**
+	 * Returns the first/last key where the callback returns TRUE.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'c', 'e'] )->findKey( function( $value, $key ) {
+	 *      return $value >= 'b';
+	 *  } );
+	 *  Map::from( ['a', 'c', 'e'] )->findKey( function( $value, $key ) {
+	 *      return $value >= 'b';
+	 *  }, null, true );
+	 *  Map::from( [] )->findKey( function( $value, $key ) {
+	 *      return $value >= 'b';
+	 *  }, 'none' );
+	 *  Map::from( [] )->findKey( function( $value, $key ) {
+	 *      return $value >= 'b';
+	 *  }, new \Exception( 'error' ) );
+	 *
+	 * Results:
+	 * The first example will return '1' while the second will return '2' (last element).
+	 * The third one will return "none" and the last one will throw the exception.
+	 *
+	 * @param \Closure $callback Function with (value, key) parameters and returns TRUE/FALSE
+	 * @param mixed $default Default value or exception if the map contains no elements
+	 * @param bool $reverse TRUE to test elements from back to front, FALSE for front to back (default)
+	 * @return mixed Key of first matching element, passed default value or an exception
+	 */
+	public function findKey( \Closure $callback, $default = null, bool $reverse = false )
+	{
+		foreach( ( $reverse ? array_reverse( $this->list(), true ) : $this->list() ) as $key => $value )
+		{
+			if( $callback( $value, $key ) ) {
+				return $key;
 			}
 		}
 
@@ -1760,7 +1853,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function getIterator() : \ArrayIterator
 	{
-		return new \ArrayIterator( $this->list = $this->array( $this->list ) );
+		return new \ArrayIterator( $this->list() );
 	}
 
 
@@ -2423,10 +2516,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return new static( array_uintersect( $list, $elements, $callback ) );
 		}
 
-		// using array_intersect() is 7x slower
-		return ( new static( $list ) )
-			->remove( array_keys( array_diff( $list, $elements ) ) )
-			->remove( array_keys( array_diff( $elements, $list ) ) );
+		return new static( array_intersect( $list, $elements ) );
 	}
 
 
@@ -2505,17 +2595,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function intersectKeys( iterable $elements, ?callable $callback = null ) : self
 	{
-		$list = $this->list();
 		$elements = $this->array( $elements );
 
 		if( $callback ) {
-			return new static( array_intersect_ukey( $list, $elements, $callback ) );
+			return new static( array_intersect_ukey( $this->list(), $elements, $callback ) );
 		}
 
-		// using array_intersect_key() is 1.6x slower
-		return ( new static( $list ) )
-			->remove( array_keys( array_diff_key( $list, $elements ) ) )
-			->remove( array_keys( array_diff_key( $elements, $list ) ) );
+		return new static( array_intersect_key( $this->list(), $elements ) );
 	}
 
 
@@ -2563,6 +2649,37 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function isEmpty() : bool
 	{
 		return empty( $this->list() );
+	}
+
+
+	/**
+	 * Checks if the map contains a list of subsequentially numbered keys.
+	 *
+	 * Examples:
+	 * Map::from( [] )->isList();
+	 * Map::from( [1, 3, 2] )->isList();
+	 * Map::from( [0 => 1, 1 => 2, 2 => 3] )->isList();
+	 * Map::from( [1 => 1, 2 => 2, 3 => 3] )->isList();
+	 * Map::from( [0 => 1, 2 => 2, 3 => 3] )->isList();
+	 * Map::from( ['a' => 1, 1 => 2, 'c' => 3] )->isList();
+	 *
+	 * Results:
+	 * The first three examples return TRUE while the last three return FALSE
+	 *
+	 * @return bool TRUE if the map is a list, FALSE if not
+	 */
+	public function isList() : bool
+	{
+		$i = -1;
+
+		foreach( $this->list() as $k => $v )
+		{
+			if( $k !== ++$i ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 
@@ -2848,6 +2965,36 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	{
 		ksort( $this->list(), $options );
 		return $this;
+	}
+
+
+	/**
+	 * Sorts a copy of the elements by their keys.
+	 *
+	 * Examples:
+	 *  Map::from( ['b' => 0, 'a' => 1] )->ksorted();
+	 *  Map::from( [1 => 'a', 0 => 'b'] )->ksorted();
+	 *
+	 * Results:
+	 *  ['a' => 1, 'b' => 0]
+	 *  [0 => 'b', 1 => 'a']
+	 *
+	 * The parameter modifies how the keys are compared. Possible values are:
+	 * - SORT_REGULAR : compare elements normally (don't change types)
+	 * - SORT_NUMERIC : compare elements numerically
+	 * - SORT_STRING : compare elements as strings
+	 * - SORT_LOCALE_STRING : compare elements as strings, based on the current locale or changed by setlocale()
+	 * - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
+	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
+	 *
+	 * The keys are preserved using this method and no new map is created.
+	 *
+	 * @param int $options Sort options for ksort()
+	 * @return self<int|string,mixed> Updated map for fluid interface
+	 */
+	public function ksorted( int $options = SORT_REGULAR ) : self
+	{
+		return ( clone $this )->ksort();
 	}
 
 
@@ -3142,14 +3289,21 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function nth( int $step, int $offset = 0 ) : self
 	{
-		$pos = 0;
-		$result = [];
+		if( $step < 1 ) {
+			throw new \InvalidArgumentException( 'Step width must be greater than zero' );
+		}
 
-		foreach( $this->list() as $key => $item )
+		if( $step === 1 ) {
+			return clone $this;
+		}
+
+		$result = [];
+		$list = $this->list();
+
+		while( !empty( $pair = array_slice( $list, $offset, 1, true ) ) )
 		{
-			if( $pos++ % $step === $offset ) {
-				$result[$key] = $item;
-			}
+			$result += $pair;
+			$offset += $step;
 		}
 
 		return new static( $result );
@@ -3289,7 +3443,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		$result = [];
 		$list = $this->list();
 
-		foreach( $this->array( $keys ) as $key ) {
+		foreach( $keys as $key ) {
 			$result[$key] = $list[$key] ?? null;
 		}
 
@@ -3503,13 +3657,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			}
 		}
 
-		foreach( $list as $key => $item )
-		{
-			if( $item === $value ) {
-				return $pos;
-			}
-
-			++$pos;
+		if( ( $key = array_search( $value, $list, true ) ) !== false
+			&& ( $pos = array_search( $key, array_keys( $list ), true ) ) !== false
+		) {
+			return $pos;
 		}
 
 		return null;
@@ -4205,7 +4356,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['a', 'b'] )->some( 'a' );
 	 *  Map::from( ['a', 'b'] )->some( ['a', 'c'] );
 	 *  Map::from( ['a', 'b'] )->some( function( $item, $key ) {
-	 *    return $item === 'a'
+	 *    return $item === 'a';
 	 *  } );
 	 *  Map::from( ['a', 'b'] )->some( ['c', 'd'] );
 	 *  Map::from( ['1', '2'] )->some( [2], true );
@@ -4495,6 +4646,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param array|string $value The string or list of strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if one of the entries contains one of the strings, FALSE if not
+	 * @todo 4.0 Add $case parameter at second position
 	 */
 	public function strContains( $value, string $encoding = 'UTF-8' ) : bool
 	{
@@ -4543,6 +4695,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param array|string $value The string or list of strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if all of the entries contains at least one of the strings, FALSE if not
+	 * @todo 4.0 Add $case parameter at second position
 	 */
 	public function strContainsAll( $value, string $encoding = 'UTF-8' ) : bool
 	{
@@ -4587,6 +4740,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param array|string $value The string or strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if one of the entries ends with one of the strings, FALSE if not
+	 * @todo 4.0 Add $case parameter at second position
 	 */
 	public function strEnds( $value, string $encoding = 'UTF-8' ) : bool
 	{
@@ -4628,6 +4782,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param array|string $value The string or strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if all of the entries ends with at least one of the strings, FALSE if not
+	 * @todo 4.0 Add $case parameter at second position
 	 */
 	public function strEndsAll( $value, string $encoding = 'UTF-8' ) : bool
 	{
@@ -4798,6 +4953,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param array|string $value The string or strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if all of the entries ends with at least one of the strings, FALSE if not
+	 * @todo 4.0 Add $case parameter at second position
 	 */
 	public function strStarts( $value, string $encoding = 'UTF-8' ) : bool
 	{
@@ -4837,6 +4993,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param array|string $value The string or strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if one of the entries starts with one of the strings, FALSE if not
+	 * @todo 4.0 Add $case parameter at second position
 	 */
 	public function strStartsAll( $value, string $encoding = 'UTF-8' ) : bool
 	{
@@ -5054,6 +5211,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	{
 		$callback( clone $this );
 		return $this;
+	}
+
+
+	/**
+	 * Returns the elements as a plain array.
+	 *
+	 * @return array<int|string,mixed> Plain array
+	 */
+	public function to() : array
+	{
+		return $this->list = $this->array( $this->list );
 	}
 
 
