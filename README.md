@@ -116,13 +116,14 @@ will return:
 
 <nav>
 
-<a href="#map-function">function map</a>
 <a href="#is_map-function">function is_map</a>
+<a href="#map-function">function map</a>
+<a href="#__construct">__construct</a>
 <a href="#__call">__call</a>
 <a href="#__callstatic">__callStatic</a>
-<a href="#__construct">__construct</a>
 <a href="#after">after</a>
 <a href="#all">all</a>
+<a href="#any">any</a>
 <a href="#arsort">arsort</a>
 <a href="#arsorted">arsorted</a>
 <a href="#asort">asort</a>
@@ -192,8 +193,8 @@ will return:
 <a href="#is">is</a>
 <a href="#isempty">isEmpty</a>
 <a href="#islist">isList</a>
-<a href="#isnumeric">isNumeric</a>
 <a href="#isobject">isObject</a>
+<a href="#isnumeric">isNumeric</a>
 <a href="#isscalar">isScalar</a>
 <a href="#isstring">isString</a>
 <a href="#join">join</a>
@@ -254,8 +255,8 @@ will return:
 <a href="#sort">sort</a>
 <a href="#sorted">sorted</a>
 <a href="#splice">splice</a>
-<a href="#split">split</a>
 <a href="#strafter">strAfter</a>
+<a href="#strbefore">strBefore</a>
 <a href="#strcontains">strContains</a>
 <a href="#strcontainsall">strContainsAll</a>
 <a href="#strends">strEnds</a>
@@ -341,7 +342,6 @@ will return:
 * [string()](#string) : Returns an element by key and casts it to string
 * [to()](#to) : Returns the plain array
 * [toArray()](#toarray) : Returns the plain array
-* [unique()](#unique) : Returns all unique elements preserving keys
 * [values()](#values) : Returns all elements with new keys
 
 ### Add
@@ -429,6 +429,7 @@ will return:
 * [skip()](#skip) : Skips the given number of items and return the rest
 * [slice()](#slice) : Returns a slice of the map
 * [take()](#take) : Returns a new map with the given number of items
+* [unique()](#unique) : Returns all unique elements preserving keys
 * [where()](#where) : Filters the list of elements by a given condition
 
 ### Test
@@ -488,13 +489,14 @@ will return:
 * [rtrim()](#rtrim) : Removes the passed characters from the right of all strings
 * [splice()](#splice) : Replaces a slice by new elements
 * [strAfter()](#strafter) : Returns the strings after the passed value
+* [strBefore()](#strbefore) : Returns the strings before the passed value
 * [strLower()](#strlower) : Converts all alphabetic characters to lower case
 * [strReplace()](#strreplace) : Replaces all occurrences of the search string with the replacement string
 * [strUpper()](#strupper) : Converts all alphabetic characters to upper case
 * [suffix()](#suffix) : Adds a suffix to each map entry
 * [toJson()](#tojson) : Returns the elements in JSON format
 * [toUrl()](#tourl) : Creates a HTTP query string
-* [transfrom()](#transfrom) : Applies a callback to each element which creates new key/value pairs
+* [transform()](#transform) : Applies a callback to each element which creates new key/value pairs
 * [transpose()](#transpose) : Exchanges rows and columns for a two dimensional map
 * [traverse()](#traverse) : Traverses trees of nested items passing each item to the callback
 * [trim()](#trim) : Removes the passed characters from the left/right of all strings
@@ -756,7 +758,7 @@ This method is for compatibility to Laravel Collections. Use [`to()`](#to) inste
 **See also:**
 
 * [to()](#to) - Returns the elements as a plain array
-* [toArray()](#toArray) - Returns the elements as a plain array
+* [toArray()](#toarray) - Returns the elements as a plain array
 
 
 ### any()
@@ -1607,7 +1609,7 @@ Map::from( ['foo', 'bar'] )->count();
 **See also:**
 
 * [avg()](#avg) - Returns the average of all integer and float values in the map
-* [countBy()](#countBy) - Counts how often the same values are in the map
+* [countBy()](#countby) - Counts how often the same values are in the map
 * [max()](#max) - Returns the maximum value of all elements
 * [min()](#min) - Returns the minium value of all elements
 * [percentage()](#percentage) - Returns the percentage of all elements passing the test
@@ -1643,7 +1645,7 @@ Map::from( ['a@gmail.com', 'b@yahoo.com', 'c@gmail.com'] )->countBy( function( $
 **See also:**
 
 * [avg()](#avg) - Returns the average of all integer and float values in the map
-* [groupBy()](#groupBy) - Groups associative array elements or objects by the passed key or closure
+* [groupBy()](#groupby) - Groups associative array elements or objects by the passed key or closure
 * [max()](#max) - Returns the maximum value of all elements
 * [min()](#min) - Returns the minium value of all elements
 * [percentage()](#percentage) - Returns the percentage of all elements passing the test
@@ -1754,8 +1756,8 @@ The keys are preserved using this method.
 
 **See also:**
 
-* [diffAssoc()](#diffAssoc) - Returns the keys/values in the map whose keys AND values are not present in the passed elements in a new map
-* [diffKeys()](#diffKeys) - Returns the elements missing in the given list by keys
+* [diffAssoc()](#diffassoc) - Returns the keys/values in the map whose keys AND values are not present in the passed elements in a new map
+* [diffKeys()](#diffkeys) - Returns the elements missing in the given list by keys
 
 
 ### diffAssoc()
@@ -1805,7 +1807,7 @@ The keys are preserved using this method.
 
 * [diff()](#diff) - Returns the keys/values in the map whose values are not present in the passed elements in a new map
 a new map
-* [diffKeys()](#diffKeys) - Returns the elements missing in the given list by keys
+* [diffKeys()](#diffkeys) - Returns the elements missing in the given list by keys
 
 
 ### diffKeys()
@@ -1854,7 +1856,7 @@ The keys are preserved using this method.
 **See also:**
 
 * [diff()](#diff) - Returns the keys/values in the map whose values are not present in the passed elements in a new map
-* [diffAssoc()](#diffAssoc) - Returns the keys/values in the map whose keys AND values are not present in the passed elements in a new map
+* [diffAssoc()](#diffassoc) - Returns the keys/values in the map whose keys AND values are not present in the passed elements in a new map
 
 
 ### dump()
@@ -1982,7 +1984,7 @@ Map::from( ['a'] )->empty();
 
 **See also:**
 
-* [isEmpty()](#isEmpty) - Determines if the map is empty or not
+* [isEmpty()](#isempty) - Determines if the map is empty or not
 
 
 ### equals()
@@ -2233,7 +2235,7 @@ Map::from( [] )->find( function( $value, $key ) {
 
 **See also:**
 
-* [findKey()](#findKey) - Returns the first matching key where the callback returns TRUE
+* [findKey()](#findkey) - Returns the first matching key where the callback returns TRUE
 
 
 ### findKey()
@@ -2307,7 +2309,7 @@ Map::from( [] )->first( function() { return rand(); } );
 
 **See also:**
 
-* [firstKey()](#firstKey) - Returns the key of the first element from the map
+* [firstKey()](#firstkey) - Returns the key of the first element from the map
 
 
 ### firstKey()
@@ -2508,7 +2510,7 @@ Map::from( function() {
 
 **See also:**
 
-* [fromJson()](#fromJson) - Creates a new map instance from a JSON string
+* [fromJson()](#fromjson) - Creates a new map instance from a JSON string
 
 
 ### fromJson()
@@ -2734,7 +2736,7 @@ Map::from( $list )->groupBy( 'xid' );
 
 **See also:**
 
-* [countBy()](#countBy) - Counts how often the same values are in the map
+* [countBy()](#countby) - Counts how often the same values are in the map
 
 
 ### has()
@@ -2839,8 +2841,8 @@ a void return type and must/will always return something. Details about
 
 **See also:**
 
-* [ifAny()](#ifAny) - Executes callbacks depending if the map contains elements or not
-* [ifEmpty()](#ifEmpty) - Executes callbacks depending if the map is empty or not
+* [ifAny()](#ifany) - Executes callbacks depending if the map contains elements or not
+* [ifEmpty()](#ifempty) - Executes callbacks depending if the map is empty or not
 
 
 ### ifAny()
@@ -2888,7 +2890,7 @@ a void return type and must/will always return something. Details about
 **See also:**
 
 * [if()](#if) - Executes callbacks depending on the condition
-* [ifEmpty()](#ifEmpty) - Executes callbacks depending if the map is empty or not
+* [ifEmpty()](#ifempty) - Executes callbacks depending if the map is empty or not
 
 
 ### ifEmpty()
@@ -2931,7 +2933,7 @@ a void return type and must/will always return something. Details about
 **See also:**
 
 * [if()](#if) - Executes callbacks depending on the condition
-* [ifAny()](#ifAny) - Executes callbacks depending if the map contains elements or not
+* [ifAny()](#ifany) - Executes callbacks depending if the map contains elements or not
 
 
 ### implements()
@@ -3090,8 +3092,8 @@ Map::from( ['foo', 'bar'] )->insertAfter( null, 'baz' );
 
 **See also:**
 
-* [insertAt()](#insertAt) - Inserts the item at the given position in the map
-* [insertBefore()](#insertBefore) - Inserts the value or values before the given element
+* [insertAt()](#insertat) - Inserts the item at the given position in the map
+* [insertBefore()](#insertbefore) - Inserts the value or values before the given element
 
 
 ### insertAt()
@@ -3125,8 +3127,8 @@ Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( -1, 'baz', 'c' );
 
 **See also:**
 
-* [insertAfter()](#insertAfter) - Inserts the value or values after the given element
-* [insertBefore()](#insertBefore) - Inserts the value or values before the given element
+* [insertAfter()](#insertafter) - Inserts the value or values after the given element
+* [insertBefore()](#insertbefore) - Inserts the value or values before the given element
 
 
 ### insertBefore()
@@ -3158,8 +3160,8 @@ Map::from( ['foo', 'bar'] )->insertBefore( null, 'baz' );
 
 **See also:**
 
-* [insertAfter()](#insertAfter) - Inserts the value or values after the given element
-* [insertAt()](#insertAt) - Inserts the item at the given position in the map
+* [insertAfter()](#insertafter) - Inserts the value or values after the given element
+* [insertAt()](#insertat) - Inserts the item at the given position in the map
 
 
 ### inString()
@@ -3230,8 +3232,8 @@ Map::from( [false] )->inString( 0 );
 
 **See also:**
 
-* [strContains()](#strContains) - Tests if at least one of the passed strings is part of at least one entry
-* [strContainsAll()](#strContainsAll) - Tests if all of the entries contains one of the passed strings
+* [strContains()](#strcontains) - Tests if at least one of the passed strings is part of at least one entry
+* [strContainsAll()](#strcontainsall) - Tests if all of the entries contains one of the passed strings
 
 
 ### int()
@@ -3350,8 +3352,8 @@ Map::from( ['b' => 'a'] )->intersect( ['c' => 'A'], function( $valA, $valB ) {
 
 **See also:**
 
-* [intersectAssoc()](#intersectAssoc) - Returns all values in a new map that are available in both, the map and the given elements while comparing the keys too
-* [intersectKeys()](#intersectKeys) - Returns all values in a new map that are available in both, the map and the given elements by comparing the keys only
+* [intersectAssoc()](#intersectassoc) - Returns all values in a new map that are available in both, the map and the given elements while comparing the keys too
+* [intersectKeys()](#intersectkeys) - Returns all values in a new map that are available in both, the map and the given elements by comparing the keys only
 
 
 ### intersectAssoc()
@@ -3396,7 +3398,7 @@ Map::from( ['b' => 'a'] )->intersectAssoc( ['c' => 'A'], function( $valA, $valB 
 **See also:**
 
 * [intersect()](#intersect) - Returns all values in a new map that are available in both, the map and the given elements
-* [intersectKeys()](#intersectKeys) - Returns all values in a new map that are available in both, the map and the given elements by comparing the keys only
+* [intersectKeys()](#intersectkeys) - Returns all values in a new map that are available in both, the map and the given elements by comparing the keys only
 
 
 ### intersectKeys()
@@ -3441,7 +3443,7 @@ Map::from( ['b' => 'a'] )->intersectKeys( ['c' => 'a'], function( $keyA, $keyB )
 **See also:**
 
 * [intersect()](#intersect) - Returns all values in a new map that are available in both, the map and the given elements
-* [intersectAssoc()](#intersectAssoc) - Returns all values in a new map that are available in both, the map and the given elements while comparing the keys too
+* [intersectAssoc()](#intersectassoc) - Returns all values in a new map that are available in both, the map and the given elements while comparing the keys too
 
 
 ### is()
@@ -3535,10 +3537,10 @@ Map::from( ['a' => 1, 1 => 2, 'c' => 3] )->isList();
 
 **See also:**
 
-* [isObject()](#isObject) - Determines if all entries are objects
-* [isNumeric()](#isNumeric) - Determines if all entries are numeric values
-* [isScalar()](#isScalar) - Determines if all entries are scalar values
-* [isString()](#isString) - Determines if all entries are string values
+* [isObject()](#isobject) - Determines if all entries are objects
+* [isNumeric()](#isnumeric) - Determines if all entries are numeric values
+* [isScalar()](#isscalar) - Determines if all entries are scalar values
+* [isString()](#isstring) - Determines if all entries are string values
 
 
 ### isObject()
@@ -3566,10 +3568,10 @@ Map::from( [1] )->isObject();
 
 **See also:**
 
-* [isList()](#isList) - Checks if the map contains a list of subsequentially numbered keys
-* [isNumeric()](#isNumeric) - Determines if all entries are numeric values
-* [isScalar()](#isScalar) - Determines if all entries are scalar values
-* [isString()](#isString) - Determines if all entries are string values
+* [isList()](#islist) - Checks if the map contains a list of subsequentially numbered keys
+* [isNumeric()](#isnumeric) - Determines if all entries are numeric values
+* [isScalar()](#isscalar) - Determines if all entries are scalar values
+* [isString()](#isstring) - Determines if all entries are string values
 
 
 ### isNumeric()
@@ -3642,10 +3644,10 @@ Map::from( [''] )->isNumeric();
 
 **See also:**
 
-* [isList()](#isList) - Checks if the map contains a list of subsequentially numbered keys
-* [isObject()](#isObject) - Determines if all entries are objects
-* [isScalar()](#isScalar) - Determines if all entries are scalar values
-* [isString()](#isString) - Determines if all entries are string values
+* [isList()](#islist) - Checks if the map contains a list of subsequentially numbered keys
+* [isObject()](#isobject) - Determines if all entries are objects
+* [isScalar()](#isscalar) - Determines if all entries are scalar values
+* [isString()](#isstring) - Determines if all entries are string values
 
 
 ### isScalar()
@@ -3691,10 +3693,10 @@ Map::from( [[1]] )->isScalar();
 
 **See also:**
 
-* [isList()](#isList) - Checks if the map contains a list of subsequentially numbered keys
-* [isObject()](#isObject) - Determines if all entries are objects
-* [isNumeric()](#isNumeric) - Determines if all entries are numeric values
-* [isString()](#isString) - Determines if all entries are string values
+* [isList()](#islist) - Checks if the map contains a list of subsequentially numbered keys
+* [isObject()](#isobject) - Determines if all entries are objects
+* [isNumeric()](#isnumeric) - Determines if all entries are numeric values
+* [isString()](#isstring) - Determines if all entries are string values
 
 
 ### isString()
@@ -3740,10 +3742,10 @@ Map::from( [[1]] )->isString();
 
 **See also:**
 
-* [isList()](#isList) - Checks if the map contains a list of subsequentially numbered keys
-* [isObject()](#isObject) - Determines if all entries are objects
-* [isNumeric()](#isNumeric) - Determines if all entries are numeric values
-* [isScalar()](#isScalar) - Determines if all entries are scalar values
+* [isList()](#islist) - Checks if the map contains a list of subsequentially numbered keys
+* [isObject()](#isobject) - Determines if all entries are objects
+* [isNumeric()](#isnumeric) - Determines if all entries are numeric values
+* [isScalar()](#isscalar) - Determines if all entries are scalar values
 
 
 ### join()
@@ -3979,7 +3981,7 @@ Map::from( [] )->last( function() { return rand(); } );
 
 **See also:**
 
-* [lastKey()](#lastKey) - Returns the key of the last element from the map
+* [lastKey()](#lastkey) - Returns the key of the last element from the map
 
 
 ### lastKey()
@@ -4335,9 +4337,9 @@ isset( $map['d'] );
 
 **See also:**
 
-* [offsetGet()](#offsetGet) - Returns an element at a given offset
-* [offsetSet()](#offsetGet) - Sets the element at a given offset
-* [offsetUnset()](#offsetUnset) - Unsets the element at a given offset
+* [offsetGet()](#offsetget) - Returns an element at a given offset
+* [offsetSet()](#offsetset) - Sets the element at a given offset
+* [offsetUnset()](#offsetunset) - Unsets the element at a given offset
 
 
 ### offsetGet()
@@ -4362,9 +4364,9 @@ $map['b'];
 
 **See also:**
 
-* [offsetExists()](#offsetExists) - Determines if an element exists at an offset.
-* [offsetSet()](#offsetGet) - Sets the element at a given offset
-* [offsetUnset()](#offsetUnset) - Unsets the element at a given offset
+* [offsetExists()](#offsetexists) - Determines if an element exists at an offset.
+* [offsetSet()](#offsetset) - Sets the element at a given offset
+* [offsetUnset()](#offsetunset) - Unsets the element at a given offset
 
 
 ### offsetSet()
@@ -4392,9 +4394,9 @@ $map[0] = 4;
 
 **See also:**
 
-* [offsetExists()](#offsetExists) - Determines if an element exists at an offset.
-* [offsetGet()](#offsetGet) - Returns an element at a given offset
-* [offsetUnset()](#offsetUnset) - Unsets the element at a given offset
+* [offsetExists()](#offsetexists) - Determines if an element exists at an offset.
+* [offsetGet()](#offsetget) - Returns an element at a given offset
+* [offsetUnset()](#offsetunset) - Unsets the element at a given offset
 
 
 ### offsetUnset()
@@ -4418,9 +4420,9 @@ unset( $map['a'] );
 
 **See also:**
 
-* [offsetExists()](#offsetExists) - Determines if an element exists at an offset.
-* [offsetGet()](#offsetGet) - Returns an element at a given offset
-* [offsetSet()](#offsetGet) - Sets the element at a given offset
+* [offsetExists()](#offsetexists) - Determines if an element exists at an offset.
+* [offsetGet()](#offsetget) - Returns an element at a given offset
+* [offsetSet()](#offsetset) - Sets the element at a given offset
 
 
 ### only()
@@ -5602,7 +5604,7 @@ Map::from( [0, 0.0, false, []] )->strAfter( '' );
 
 **See also:**
 
-* [strBefore()](#strBefore) - Returns the strings before the passed value
+* [strBefore()](#strbefore) - Returns the strings before the passed value
 
 
 ### strBefore()
@@ -5651,7 +5653,7 @@ Map::from( [0, 0.0, false, []] )->strBefore( '' );
 
 **See also:**
 
-* [strAfter()](#strAfter) - Returns the strings after the passed value
+* [strAfter()](#strafter) - Returns the strings after the passed value
 
 
 ### strContains()
@@ -5723,7 +5725,7 @@ Map::from( ['abc'] )->strContains( 'cb', 'ASCII' );
 
 **See also:**
 
-* [strContainsAll()](#strContainsAll) - Tests if all of the entries contains one of the passed strings
+* [strContainsAll()](#strcontainsall) - Tests if all of the entries contains one of the passed strings
 
 
 ### strContainsAll()
@@ -5789,7 +5791,7 @@ Map::from( ['abc', 'bca'] )->strContainsAll( 'cb', 'ASCII' );
 
 **See also:**
 
-* [strContains()](#strContains) - Tests if at least one of the passed strings is part of at least one entry
+* [strContains()](#strcontains) - Tests if at least one of the passed strings is part of at least one entry
 
 
 ### strEnds()
@@ -5837,7 +5839,7 @@ Map::from( ['abc'] )->strEnds( 'cb', 'ASCII' );
 
 **See also:**
 
-* [strEndsAll()](#strEndsAll) - Tests if all of the entries ends with at least one of the passed strings
+* [strEndsAll()](#strendsall) - Tests if all of the entries ends with at least one of the passed strings
 
 
 ### strEndsAll()
@@ -5885,7 +5887,7 @@ Map::from( ['abc', 'bca'] )->strEndsAll( 'ca', 'ASCII' );
 
 **See also:**
 
-* [strEnds()](#strEnds) - Tests if at least one of the entries ends with one of the passed strings
+* [strEnds()](#strends) - Tests if at least one of the entries ends with one of the passed strings
 
 
 ### string()
@@ -5983,7 +5985,7 @@ Map::from( ['Äpfel', 'Birnen'] )->strLower( 'ISO-8859-1' );
 
 **See also:**
 
-* [strUpper()](#strUpper) - Converts all alphabetic characters in strings to upper case
+* [strUpper()](#strupper) - Converts all alphabetic characters in strings to upper case
 
 
 ### strReplace()
@@ -6086,7 +6088,7 @@ Map::from( ['abc'] )->strStarts( 'bc', 'ASCII' );
 
 **See also:**
 
-* [strStartsAll()](#strStartsAll) - Tests if all of the entries starts with one of the passed strings
+* [strStartsAll()](#strstartsall) - Tests if all of the entries starts with one of the passed strings
 
 
 ### strStartsAll()
@@ -6134,7 +6136,7 @@ Map::from( ['abc', 'cab'] )->strStartsAll( 'ab', 'ASCII' );
 
 **See also:**
 
-* [strStarts()](#strStarts) - Tests if at least one of the entries starts with at least one of the passed strings
+* [strStarts()](#strstarts) - Tests if at least one of the entries starts with at least one of the passed strings
 
 
 ### strUpper()
@@ -6163,7 +6165,7 @@ Map::from( ['äpfel', 'birnen'] )->strUpper( 'ISO-8859-1' );
 
 **See also:**
 
-* [strLower()](#strLower) - Converts all alphabetic characters in strings to lower case
+* [strLower()](#strlower) - Converts all alphabetic characters in strings to lower case
 
 
 ### suffix
@@ -6373,7 +6375,7 @@ This is the preferred method for retrieving the plain array of the Map object.
 **See also:**
 
 * [all()](#all) - Returns the elements as a plain array
-* [toArray()](#toArray) - Returns the elements as a plain array
+* [toArray()](#toarray) - Returns the elements as a plain array
 
 
 ### toArray()
@@ -7365,7 +7367,7 @@ Conclusion: Using `new Map()` is fastest and `map()` is faster than `Map::from()
 ### Populating Map vs. array
 
 Adding an element to a Map object using `$map[] = 'a'` is ca. 5x slower than
-doing the same on a plain array. This is because the method [offsetSet()](#offsetSet) will
+doing the same on a plain array. This is because the method [offsetSet()](#offsetset) will
 be called instead of adding the new element to the array directly. This applies
 to the `$map->push( 'a' )` method too.
 
