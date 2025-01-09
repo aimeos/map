@@ -71,7 +71,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testAll()
 	{
 		$m = new Map( ['name' => 'Hello'] );
-		$this->assertSame( ['name' => 'Hello'], $m->all() );
+		$this->assertSame( ['name' => 'Hello'], $m->toArray() );
 	}
 
 
@@ -265,12 +265,12 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testCast()
 	{
-		$this->assertEquals( ['1', '1', '1', 'yes'], Map::from( [true, 1, 1.0, 'yes'] )->cast()->all() );
-		$this->assertEquals( [true, true, true, true], Map::from( [true, 1, 1.0, 'yes'] )->cast( 'bool' )->all() );
-		$this->assertEquals( [1, 1, 1, 0], Map::from( [true, 1, 1.0, 'yes'] )->cast( 'int' )->all() );
-		$this->assertEquals( [1.0, 1.0, 1.0, 0.0], Map::from( [true, 1, 1.0, 'yes'] )->cast( 'float' )->all() );
-		$this->assertEquals( [[], []], Map::from( [new \stdClass, new \stdClass] )->cast( 'array' )->all() );
-		$this->assertEquals( [new \stdClass, new \stdClass], Map::from( [[], []] )->cast( 'object' )->all() );
+		$this->assertEquals( ['1', '1', '1', 'yes'], Map::from( [true, 1, 1.0, 'yes'] )->cast()->toArray() );
+		$this->assertEquals( [true, true, true, true], Map::from( [true, 1, 1.0, 'yes'] )->cast( 'bool' )->toArray() );
+		$this->assertEquals( [1, 1, 1, 0], Map::from( [true, 1, 1.0, 'yes'] )->cast( 'int' )->toArray() );
+		$this->assertEquals( [1.0, 1.0, 1.0, 0.0], Map::from( [true, 1, 1.0, 'yes'] )->cast( 'float' )->toArray() );
+		$this->assertEquals( [[], []], Map::from( [new \stdClass, new \stdClass] )->cast( 'array' )->toArray() );
+		$this->assertEquals( [new \stdClass, new \stdClass], Map::from( [[], []] )->cast( 'object' )->toArray() );
 	}
 
 
@@ -1478,7 +1478,7 @@ Array
 		);
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( ['b'], $r->all() );
+		$this->assertSame( ['b'], $r->toArray() );
 	}
 
 
@@ -1491,7 +1491,7 @@ Array
 		);
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( [], $r->all() );
+		$this->assertSame( [], $r->toArray() );
 	}
 
 
@@ -1504,7 +1504,7 @@ Array
 		);
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( [], $r->all() );
+		$this->assertSame( [], $r->toArray() );
 	}
 
 
@@ -1515,7 +1515,7 @@ Array
 		} );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( ['a', 'b', 'c'], $r->all() );
+		$this->assertSame( ['a', 'b', 'c'], $r->toArray() );
 	}
 
 
@@ -1526,7 +1526,7 @@ Array
 		} );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( ['b'], $r->all() );
+		$this->assertSame( ['b'], $r->toArray() );
 	}
 
 
@@ -1537,7 +1537,7 @@ Array
 		);
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( ['b'], $r->all() );
+		$this->assertSame( ['b'], $r->toArray() );
 	}
 
 
@@ -1549,7 +1549,7 @@ Array
 		);
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( ['c'], $r->all() );
+		$this->assertSame( ['c'], $r->toArray() );
 	}
 
 
@@ -1558,7 +1558,7 @@ Array
 		$r = Map::from( ['a'] )->ifAny();
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( ['a'], $r->all() );
+		$this->assertSame( ['a'], $r->toArray() );
 	}
 
 
@@ -3088,27 +3088,27 @@ Array
 
 	public function testStrAfter()
 	{
-		$this->assertEquals( ['1', '1', '1'], Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strAfter( '' )->all() );
-		$this->assertEquals( ['0', '0'], Map::from( [0, 0.0, false, []] )->strAfter( '' )->all() );
-		$this->assertEquals( ['üß'], Map::from( ['äöüß'] )->strAfter( 'ö' )->all() );
-		$this->assertEquals( ['abc'], Map::from( ['abc'] )->strAfter( '' )->all() );
-		$this->assertEquals( ['c'], Map::from( ['abc'] )->strAfter( 'b' )->all() );
-		$this->assertEquals( [''], Map::from( ['abc'] )->strAfter( 'c' )->all() );
-		$this->assertEquals( [], Map::from( ['abc'] )->strAfter( 'x' )->all() );
-		$this->assertEquals( [], Map::from( [''] )->strAfter( '' )->all() );
+		$this->assertEquals( ['1', '1', '1'], Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strAfter( '' )->toArray() );
+		$this->assertEquals( ['0', '0'], Map::from( [0, 0.0, false, []] )->strAfter( '' )->toArray() );
+		$this->assertEquals( ['üß'], Map::from( ['äöüß'] )->strAfter( 'ö' )->toArray() );
+		$this->assertEquals( ['abc'], Map::from( ['abc'] )->strAfter( '' )->toArray() );
+		$this->assertEquals( ['c'], Map::from( ['abc'] )->strAfter( 'b' )->toArray() );
+		$this->assertEquals( [''], Map::from( ['abc'] )->strAfter( 'c' )->toArray() );
+		$this->assertEquals( [], Map::from( ['abc'] )->strAfter( 'x' )->toArray() );
+		$this->assertEquals( [], Map::from( [''] )->strAfter( '' )->toArray() );
 	}
 
 
 	public function testStrBefore()
 	{
-		$this->assertEquals( ['1', '1', '1'], Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strBefore( '' )->all() );
-		$this->assertEquals( ['0', '0'], Map::from( [0, 0.0, false, []] )->strBefore( '' )->all() );
-		$this->assertEquals( ['äö'], Map::from( ['äöüß'] )->strBefore( 'ü' )->all() );
-		$this->assertEquals( ['abc'], Map::from( ['abc'] )->strBefore( '' )->all() );
-		$this->assertEquals( ['a'], Map::from( ['abc'] )->strBefore( 'b' )->all() );
-		$this->assertEquals( [''], Map::from( ['abc'] )->strBefore( 'a' )->all() );
-		$this->assertEquals( [], Map::from( ['abc'] )->strBefore( 'x' )->all() );
-		$this->assertEquals( [], Map::from( [''] )->strBefore( '' )->all() );
+		$this->assertEquals( ['1', '1', '1'], Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strBefore( '' )->toArray() );
+		$this->assertEquals( ['0', '0'], Map::from( [0, 0.0, false, []] )->strBefore( '' )->toArray() );
+		$this->assertEquals( ['äö'], Map::from( ['äöüß'] )->strBefore( 'ü' )->toArray() );
+		$this->assertEquals( ['abc'], Map::from( ['abc'] )->strBefore( '' )->toArray() );
+		$this->assertEquals( ['a'], Map::from( ['abc'] )->strBefore( 'b' )->toArray() );
+		$this->assertEquals( [''], Map::from( ['abc'] )->strBefore( 'a' )->toArray() );
+		$this->assertEquals( [], Map::from( ['abc'] )->strBefore( 'x' )->toArray() );
+		$this->assertEquals( [], Map::from( [''] )->strBefore( '' )->toArray() );
 	}
 
 
@@ -3186,15 +3186,15 @@ Array
 
 	public function testStrLower()
 	{
-		$this->assertEquals( ["my string"], Map::from( ['My String'] )->strLower()->all() );
-		$this->assertEquals( ["τάχιστη"], Map::from( ['Τάχιστη'] )->strLower()->all() );
+		$this->assertEquals( ["my string"], Map::from( ['My String'] )->strLower()->toArray() );
+		$this->assertEquals( ["τάχιστη"], Map::from( ['Τάχιστη'] )->strLower()->toArray() );
 
 		$list = [mb_convert_encoding( 'ÄPFEL', 'ISO-8859-1' ), 'BIRNEN'];
 		$expected = [mb_convert_encoding( 'äpfel', 'ISO-8859-1' ), "birnen"];
-		$this->assertEquals( $expected, Map::from( $list )->strLower( 'ISO-8859-1' )->all() );
+		$this->assertEquals( $expected, Map::from( $list )->strLower( 'ISO-8859-1' )->toArray() );
 
-		$this->assertEquals( [123], Map::from( [123] )->strLower()->all() );
-		$this->assertEquals( [new \stdClass], Map::from( [new \stdClass] )->strLower()->all() );
+		$this->assertEquals( [123], Map::from( [123] )->strLower()->toArray() );
+		$this->assertEquals( [new \stdClass], Map::from( [new \stdClass] )->strLower()->toArray() );
 	}
 
 
@@ -3217,15 +3217,15 @@ Array
 
 	public function testStrUpper()
 	{
-		$this->assertEquals( ["MY STRING"], Map::from( ['My String'] )->strUpper()->all() );
-		$this->assertEquals( ["ΤΆΧΙΣΤΗ"], Map::from( ['τάχιστη'] )->strUpper()->all() );
+		$this->assertEquals( ["MY STRING"], Map::from( ['My String'] )->strUpper()->toArray() );
+		$this->assertEquals( ["ΤΆΧΙΣΤΗ"], Map::from( ['τάχιστη'] )->strUpper()->toArray() );
 
 		$list = [mb_convert_encoding( 'äpfel', 'ISO-8859-1' ), 'birnen'];
 		$expected = [mb_convert_encoding( 'ÄPFEL', 'ISO-8859-1' ), "BIRNEN"];
-		$this->assertEquals( $expected, Map::from( $list )->strUpper( 'ISO-8859-1' )->all() );
+		$this->assertEquals( $expected, Map::from( $list )->strUpper( 'ISO-8859-1' )->toArray() );
 
-		$this->assertEquals( [123], Map::from( [123] )->strUpper()->all() );
-		$this->assertEquals( [new \stdClass], Map::from( [new \stdClass] )->strUpper()->all() );
+		$this->assertEquals( [123], Map::from( [123] )->strUpper()->toArray() );
+		$this->assertEquals( [new \stdClass], Map::from( [new \stdClass] )->strUpper()->toArray() );
 	}
 
 
@@ -3244,13 +3244,13 @@ Array
 
 	public function testStringReplace()
 	{
-		$this->assertEquals( ['google.de', 'aimeos.de'], Map::from( ['google.com', 'aimeos.com'] )->strReplace( '.com', '.de' )->all() );
-		$this->assertEquals( ['google.de', 'aimeos.de'], Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], '.de' )->all() );
-		$this->assertEquals( ['google.de', 'aimeos'], Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.de'] )->all() );
-		$this->assertEquals( ['google.fr', 'aimeos.de'], Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.fr', '.de'] )->all() );
-		$this->assertEquals( ['google.de', 'aimeos.de'], Map::from( ['google.com', 'aimeos.com'] )->strReplace( ['.com', '.co'], ['.co', '.de', '.fr'] )->all() );
-		$this->assertEquals( ['google.de', 'aimeos.de', 123], Map::from( ['google.com', 'aimeos.com', 123] )->strReplace( '.com', '.de' )->all() );
-		$this->assertEquals( ['GOOGLE.de', 'AIMEOS.de'], Map::from( ['GOOGLE.COM', 'AIMEOS.COM'] )->strReplace( '.com', '.de', true )->all() );
+		$this->assertEquals( ['google.de', 'aimeos.de'], Map::from( ['google.com', 'aimeos.com'] )->strReplace( '.com', '.de' )->toArray() );
+		$this->assertEquals( ['google.de', 'aimeos.de'], Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], '.de' )->toArray() );
+		$this->assertEquals( ['google.de', 'aimeos'], Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.de'] )->toArray() );
+		$this->assertEquals( ['google.fr', 'aimeos.de'], Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.fr', '.de'] )->toArray() );
+		$this->assertEquals( ['google.de', 'aimeos.de'], Map::from( ['google.com', 'aimeos.com'] )->strReplace( ['.com', '.co'], ['.co', '.de', '.fr'] )->toArray() );
+		$this->assertEquals( ['google.de', 'aimeos.de', 123], Map::from( ['google.com', 'aimeos.com', 123] )->strReplace( '.com', '.de' )->toArray() );
+		$this->assertEquals( ['GOOGLE.de', 'AIMEOS.de'], Map::from( ['GOOGLE.COM', 'AIMEOS.COM'] )->strReplace( '.com', '.de', true )->toArray() );
    }
 
 
