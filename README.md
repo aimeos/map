@@ -6947,7 +6947,7 @@ Two elements are considered equal if comparing their string representions return
 (string) $elem1 === (string) $elem2
 ```
 
-The keys of the elements are only preserved in the new map if the first parameter is NULL.
+The keys of the elements are preserved in the new map.
 
 **Examples:**
 
@@ -6956,13 +6956,13 @@ Map::from( [0 => 'a', 1 => 'b', 2 => 'b', 3 => 'c'] )->unique();
 // [0 => 'a', 1 => 'b', 3 => 'c']
 
 Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->unique( 'p' );
-// [['p' => 1], ['p' => 2]]
+// [0 => ['p' => '1'], 2 => ['p' => 2]]
 
 Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->unique( 'i/p' );
-// [['i' => ['p' => 1]]]
+// [0 => ['i' => ['p' => '1']]]
 
 Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->unique( fn( $item, $key ) => $item['i']['p'] );
-// [['i' => ['p' => 1]]]
+// [0 => ['i' => ['p' => '1']]]
 ```
 
 **See also:**

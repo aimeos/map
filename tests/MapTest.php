@@ -3784,7 +3784,7 @@ Array
 		$r = $m->unique( 'p' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( [['p' => 1], ['p' => 2]], $r->toArray() );
+		$this->assertSame( [0 => ['p' => '1'], 2 => ['p' => 2]], $r->toArray() );
 	}
 
 
@@ -3794,7 +3794,7 @@ Array
 		$r = $m->unique( 'i/p' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( [['i' => ['p' => 1]]], $r->toArray() );
+		$this->assertSame( [0 => ['i' => ['p' => '1']]], $r->toArray() );
 	}
 
 
@@ -3804,7 +3804,7 @@ Array
 		$r = $m->unique( fn( $item, $key ) => $item['i']['p'] );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( [['i' => ['p' => 1]]], $r->toArray() );
+		$this->assertSame( [0 => ['i' => ['p' => '1']]], $r->toArray() );
 	}
 
 

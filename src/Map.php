@@ -5736,8 +5736,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 * [0 => 'a', 1 => 'b', 3 => 'c']
 	 * [['p' => 1], ['p' => 2]]
-	 * [['i' => ['p' => 1]]]
-	 * [['i' => ['p' => 1]]]
+	 * [['i' => ['p' => '1']]]
+	 * [['i' => ['p' => '1']]]
 	 *
 	 * Two elements are considered equal if comparing their string representions returns TRUE:
 	 * (string) $elem1 === (string) $elem2
@@ -5749,25 +5749,32 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function unique( $col = null ) : self
 	{
-		if( $col instanceof \Closure )
+		if( $col === null ) {
+			return new static( array_unique( $this->list() ) );
+		}
+
+		if( !( $col instanceof \Closure ) )
 		{
-			$unique = [];
+			$parts = explode( $this->sep, (string) $col );
 
-			foreach( $this->list() as $key => $item )
-			{
-				$value = (string) $col( $item, $key );
-				$unique[$value] = $item;
+			$col = function( $item ) use ( $parts ) {
+				return $this->val( $item, $parts );
+			};
+		}
+
+		$list = $unique = [];
+
+		foreach( $this->list() as $key => $item )
+		{
+			$value = (string) $col( $item, $key );
+
+			if( !isset( $unique[$value] ) ) {
+				$unique[$value] = true;
+				$list[$key] = $item;
 			}
-
-			return new static( array_values( $unique ) );
-
 		}
 
-		if( $col !== null ) {
-			return $this->col( null, $col )->values();
-		}
-
-		return new static( array_unique( $this->list() ) );
+		return new static( $list );
 	}
 
 
