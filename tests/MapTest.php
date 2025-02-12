@@ -736,7 +736,9 @@ Array
 	public function testDuplicatesClosure()
 	{
 		$m = new Map( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] );
-		$r = $m->duplicates( fn( $item, $key ) => $item['i']['p'] );
+		$r = $m->duplicates( function( $item, $key ) {
+			return $item['i']['p'];
+		} );
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( [1 => ['i' => ['p' => 1]]], $r->toArray() );
@@ -3801,7 +3803,9 @@ Array
 	public function testUniqueClosure()
 	{
 		$m = new Map( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] );
-		$r = $m->unique( fn( $item, $key ) => $item['i']['p'] );
+		$r = $m->unique( function( $item, $key ) {
+			return $item['i']['p'];
+		} );
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( [0 => ['i' => ['p' => '1']]], $r->toArray() );
