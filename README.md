@@ -6932,10 +6932,10 @@ Map::from( ['a' => 1, 'b' => 2] )->union( ['c' => 1] );
 Returns only unique elements from the map in a new map.
 
 ```php
-public function unique( string $key = null ) : self
+public function unique( string $col = null ) : self
 ```
 
-* @param **string&#124;null** `$key` Key or path of the nested array or object to check for
+* @param **\Closure&#124;string&#124;null** `$col` Key, path of the nested array or anonymous function with ($item, $key) parameters returning the value for comparison
 * @return **self&#60;int&#124;string,mixed&#62;** New map
 
 Two elements are considered equal if comparing their string representions returns TRUE:
@@ -6944,7 +6944,7 @@ Two elements are considered equal if comparing their string representions return
 (string) $elem1 === (string) $elem2
 ```
 
-The keys of the elements are only preserved in the new map if no key is passed.
+The keys of the elements are only preserved in the new map if the first parameter is NULL.
 
 **Examples:**
 
@@ -6956,7 +6956,10 @@ Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->unique( 'p' );
 // [['p' => 1], ['p' => 2]]
 
 Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->unique( 'i/p' );
-// [['i' => ['p' => '1']]]
+// [['i' => ['p' => 1]]]
+
+Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->unique( fn( $item, $key ) => $item['i']['p'] );
+// [['i' => ['p' => 1]]]
 ```
 
 **See also:**

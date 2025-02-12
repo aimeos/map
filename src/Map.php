@@ -5715,24 +5715,40 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( [0 => 'a', 1 => 'b', 2 => 'b', 3 => 'c'] )->unique();
 	 *  Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->unique( 'p' )
 	 *  Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->unique( 'i/p' )
+	 *  Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->unique( fn( $item, $key ) => $item['i']['p'] )
 	 *
 	 * Results:
 	 * [0 => 'a', 1 => 'b', 3 => 'c']
 	 * [['p' => 1], ['p' => 2]]
-	 * [['i' => ['p' => '1']]]
+	 * [['i' => ['p' => 1]]]
+	 * [['i' => ['p' => 1]]]
 	 *
 	 * Two elements are considered equal if comparing their string representions returns TRUE:
 	 * (string) $elem1 === (string) $elem2
 	 *
 	 * The keys of the elements are only preserved in the new map if no key is passed.
 	 *
-	 * @param string|null $key Key or path of the nested array or object to check for
+	 * @param \Closure|string|null $col Key, path of the nested array or anonymous function with ($item, $key) parameters returning the value for comparison
 	 * @return self<int|string,mixed> New map
 	 */
-	public function unique( ?string $key = null ) : self
+	public function unique( $col = null ) : self
 	{
-		if( $key !== null ) {
-			return $this->col( null, $key )->values();
+		if( $col instanceof \Closure )
+		{
+			$unique = [];
+
+			foreach( $this->list() as $key => $item )
+			{
+				$value = (string) $col( $item, $key );
+				$unique[$value] = $item;
+			}
+
+			return new static( array_values( $unique ) );
+
+		}
+
+		if( $col !== null ) {
+			return $this->col( null, $col )->values();
 		}
 
 		return new static( array_unique( $this->list() ) );

@@ -3788,6 +3788,16 @@ Array
 	}
 
 
+	public function testUniqueClosure()
+	{
+		$m = new Map( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] );
+		$r = $m->unique( fn( $item, $key ) => $item['i']['p'] );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [['i' => ['p' => 1]]], $r->toArray() );
+	}
+
+
 	public function testUnshift()
 	{
 		$m = ( new Map( ['one', 'two', 'three', 'four'] ) )->unshift( 'zero' );
