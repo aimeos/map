@@ -1902,7 +1902,7 @@ Returns the duplicate values from the map.
 public function duplicates( string $col = null ) : self
 ```
 
-* @param **string&#124;null** `$col` Key of the nested array or object to check for
+* @param **\Closure&#124;string&#124;null** `$col` Key, path of the nested array or anonymous function with ($item, $key) parameters returning the value for comparison
 * @return **self&#60;int&#124;string,mixed&#62;** New map
 
 For nested arrays, you have to pass the name of the column of the nested array which
@@ -1925,7 +1925,10 @@ Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->duplicates( 'p' )
 // [1 => ['p' => 1]]
 
 Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i/p' )
-// [1 => ['i' => ['p' => '1']]]
+// [1 => ['i' => ['p' => 1]]]
+
+Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->unique( fn( $item, $key ) => $item['i']['p'] );
+// [1 => ['i' => ['p' => 1]]]
 ```
 
 **See also:**

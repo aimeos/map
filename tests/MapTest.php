@@ -733,6 +733,16 @@ Array
 	}
 
 
+	public function testDuplicatesClosure()
+	{
+		$m = new Map( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] );
+		$r = $m->duplicates( fn( $item, $key ) => $item['i']['p'] );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [1 => ['i' => ['p' => 1]]], $r->toArray() );
+	}
+
+
 	public function testEach()
 	{
 		$m = new Map( $original = [1, 2, 'foo' => 'bar', 'bam' => 'baz'] );

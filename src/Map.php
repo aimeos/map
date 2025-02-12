@@ -1360,11 +1360,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( [1, 2, '1', 3] )->duplicates()
 	 *  Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->duplicates( 'p' )
 	 *  Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i/p' )
+	 *  Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( fn( $item, $key ) => $item['i']['p'] )
 	 *
 	 * Results:
 	 *  [2 => '1']
 	 *  [1 => ['p' => 1]]
-	 *  [1 => ['i' => ['p' => '1']]]
+	 *  [1 => ['i' => ['p' => 1]]]
+	 *  [1 => ['i' => ['p' => 1]]]
 	 *
 	 * This does also work for multi-dimensional arrays by passing the keys
 	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
@@ -1373,13 +1375,27 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * The keys are preserved using this method.
 	 *
-	 * @param string|null $key Key or path of the nested array or object to check for
+	 * @param \Closure|string|null $col Key, path of the nested array or anonymous function with ($item, $key) parameters returning the value for comparison
 	 * @return self<int|string,mixed> New map
 	 */
-	public function duplicates( ?string $key = null ) : self
+	public function duplicates( $col = null ) : self
 	{
-		$list = $this->list();
-		$items = ( $key !== null ? $this->col( $key )->toArray() : $list );
+		$items = $list = $this->list();
+
+		if( $col instanceof \Closure )
+		{
+			$items = [];
+
+			foreach( $this->list() as $key => $item )
+			{
+				$value = (string) $col( $item, $key );
+				$items[$key] = $value;
+			}
+		}
+		elseif( $col !== null )
+		{
+			$items = $this->col( $col )->toArray();
+		}
 
 		return new static( array_diff_key( $list, array_unique( $items ) ) );
 	}
