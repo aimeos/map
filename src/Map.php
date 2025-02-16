@@ -1380,21 +1380,27 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function duplicates( $col = null ) : self
 	{
-		$items = $list = $this->list();
+		$list = $this->list();
 
-		if( $col instanceof \Closure )
-		{
-			$items = [];
-
-			foreach( $this->list() as $key => $item )
-			{
-				$value = (string) $col( $item, $key );
-				$items[$key] = $value;
-			}
+		if( $col === null ) {
+			return new static( array_diff_key( $list, array_unique( $list ) ) );
 		}
-		elseif( $col !== null )
+
+		if( !( $col instanceof \Closure ) )
 		{
-			$items = $this->col( $col )->toArray();
+			$parts = explode( $this->sep, (string) $col );
+
+			$col = function( $item ) use ( $parts ) {
+				return $this->val( $item, $parts );
+			};
+		}
+
+		$items = [];
+
+		foreach( $list as $key => $item )
+		{
+			$value = $col( $item, $key );
+			$items[$key] = $value;
 		}
 
 		return new static( array_diff_key( $list, array_unique( $items ) ) );
