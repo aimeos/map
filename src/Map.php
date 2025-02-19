@@ -1380,30 +1380,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function duplicates( $col = null ) : self
 	{
-		$list = $this->list();
+		$list = $map = $this->list();
 
-		if( $col === null ) {
-			return new static( array_diff_key( $list, array_unique( $list ) ) );
+		if( $col !== null ) {
+			$map = array_map( $this->mapper( $col ), array_values( $list ), array_keys( $list ) );
 		}
 
-		if( !( $col instanceof \Closure ) )
-		{
-			$parts = explode( $this->sep, (string) $col );
-
-			$col = function( $item ) use ( $parts ) {
-				return $this->val( $item, $parts );
-			};
-		}
-
-		$items = [];
-
-		foreach( $list as $key => $item )
-		{
-			$value = $col( $item, $key );
-			$items[$key] = $value;
-		}
-
-		return new static( array_diff_key( $list, array_unique( $items ) ) );
+		return new static( array_diff_key( $list, array_unique( $map ) ) );
 	}
 
 
@@ -5759,28 +5742,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return new static( array_unique( $this->list() ) );
 		}
 
-		if( !( $col instanceof \Closure ) )
-		{
-			$parts = explode( $this->sep, (string) $col );
+		$list = $this->list();
+		$map = array_map( $this->mapper( $col ), array_values( $list ), array_keys( $list ) );
 
-			$col = function( $item ) use ( $parts ) {
-				return $this->val( $item, $parts );
-			};
-		}
-
-		$list = $unique = [];
-
-		foreach( $this->list() as $key => $item )
-		{
-			$value = (string) $col( $item, $key );
-
-			if( !isset( $unique[$value] ) ) {
-				$unique[$value] = true;
-				$list[$key] = $item;
-			}
-		}
-
-		return new static( $list );
+		return new static( array_intersect_key( $list, array_unique( $map ) ) );
 	}
 
 
@@ -6167,6 +6132,27 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		}
 
 		return $this->list;
+	}
+
+
+	/**
+	 * Returns a closure that retrieves the value for the passed key
+	 *
+	 * @param \Closure|string|null $key Closure or key (e.g. "key1/key2/key3") to retrieve the value for
+	 * @return \Closure Closure that retrieves the value for the passed key
+	 */
+	protected function mapper( $key = null, bool $cast = false ) : \Closure
+	{
+		if( $key instanceof \Closure ) {
+			return $key;
+		}
+
+		$parts = $key ? explode( $this->sep, (string) $key ) : [];
+
+		return function( $item ) use ( $cast, $parts ) {
+			$val = $this->val( $item, $parts );
+			return $cast ? (string) $val : $val;
+		};
 	}
 
 
