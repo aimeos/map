@@ -3110,9 +3110,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	{
 		$list = $this->list();
 		$keys = array_keys( $list );
-		$elements = array_map( $callback, $list, $keys );
+		$map = array_map( $callback, array_values( $list ), $keys );
 
-		return new static( array_combine( $keys, $elements ) ?: [] );
+		return new static( array_combine( $keys, $map ) );
 	}
 
 
@@ -3890,7 +3890,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	{
 		$isCallable = $callback instanceof \Closure;
 
-		return new static( array_filter( $this->list(), function( $value, $key ) use  ( $callback, $isCallable ) {
+		return new static( array_filter( $this->list(), function( $value, $key ) use ( $callback, $isCallable ) {
 			return $isCallable ? !$callback( $value, $key ) : $value != $callback;
 		}, ARRAY_FILTER_USE_BOTH ) );
 	}
