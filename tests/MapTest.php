@@ -564,6 +564,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testCountByPath()
+	{
+		$r = Map::from( [['i' => ['p' => 1.11]], ['i' => ['p' => 3.33]], ['i' => ['p' => 3.33]]] )->countBy( 'i/p' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['1.11' => 1, '3.33' => 2], $r->toArray() );
+	}
+
+
 	public function testCountByCallback()
 	{
 		$r = Map::from( ['a@gmail.com', 'b@yahoo.com', 'c@gmail.com'] )->countBy( function( $email ) {

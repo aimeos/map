@@ -1144,6 +1144,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Examples:
 	 *  Map::from( [1, 'foo', 2, 'foo', 1] )->countBy();
 	 *  Map::from( [1.11, 3.33, 3.33, 9.99] )->countBy();
+	 *  Map::from( [['i' => ['p' => 1.11]], ['i' => ['p' => 3.33]], ['i' => ['p' => 3.33]]] )->countBy( 'i/p' );
 	 *  Map::from( ['a@gmail.com', 'b@yahoo.com', 'c@gmail.com'] )->countBy( function( $email ) {
 	 *    return substr( strrchr( $email, '@' ), 1 );
 	 *  } );
@@ -1151,6 +1152,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 *  [1 => 2, 'foo' => 2, 2 => 1]
 	 *  ['1.11' => 1, '3.33' => 2, '9.99' => 1]
+	 *  ['1.11' => 1, '3.33' => 2]
 	 *  ['gmail.com' => 2, 'yahoo.com' => 1]
 	 *
 	 * Counting values does only work for integers and strings because these are
@@ -1158,16 +1160,21 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * if no callback is passed. Custom callbacks need to make sure that only
 	 * string or integer values are returned!
 	 *
-	 * @param  callable|null $callback Function with (value, key) parameters which returns the value to use for counting
+	 * @param \Closure|string|null $col Key as "key1/key2/key3" or function with (value, key) parameters returning the values for counting
 	 * @return self<int|string,mixed> New map with values as keys and their count as value
 	 */
-	public function countBy( ?callable $callback = null ) : self
+	public function countBy( $col = null ) : self
 	{
-		$callback = $callback ?: function( $value ) {
-			return (string) $value;
-		};
+		if( !( $col instanceof \Closure ) )
+		{
+			$parts = $col ? explode( $this->sep, (string) $col ) : [];
 
-		return new static( array_count_values( array_map( $callback, $this->list() ) ) );
+			$col = function( $item ) use ( $parts ) {
+				return (string) $this->val( $item, $parts );
+			};
+		}
+
+		return new static( array_count_values( array_map( $col, $this->list() ) ) );
 	}
 
 
@@ -6140,7 +6147,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|string|null $key Closure or key (e.g. "key1/key2/key3") to retrieve the value for
 	 * @return \Closure Closure that retrieves the value for the passed key
 	 */
-	protected function mapper( $key = null, bool $cast = false ) : \Closure
+	protected function mapper( $key = null ) : \Closure
 	{
 		if( $key instanceof \Closure ) {
 			return $key;
@@ -6148,9 +6155,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		$parts = $key ? explode( $this->sep, (string) $key ) : [];
 
-		return function( $item ) use ( $cast, $parts ) {
-			$val = $this->val( $item, $parts );
-			return $cast ? (string) $val : $val;
+		return function( $item ) use ( $parts ) {
+			return $this->val( $item, $parts );
 		};
 	}
 
