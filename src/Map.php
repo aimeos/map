@@ -659,15 +659,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		if( $col instanceof \Closure ) {
 			$vals = array_filter( $this->list(), $col, ARRAY_FILTER_USE_BOTH );
 		} elseif( is_string( $col ) ) {
-			$vals = $this->col( $col )->toArray();
+			$vals = array_map( $this->mapper( $col ), $this->list() );
 		} elseif( is_null( $col ) ) {
 			$vals = $this->list();
 		} else {
 			throw new \InvalidArgumentException( 'Parameter is no closure or string' );
 		}
 
-		$cnt = count( $vals );
-		return $cnt > 0 ? array_sum( $vals ) / $cnt : 0;
+		return !empty( $vals ) ? array_sum( $vals ) / count( $vals ) : 0;
 	}
 
 
@@ -3147,7 +3146,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		if( $col instanceof \Closure ) {
 			$vals = array_filter( $this->list(), $col, ARRAY_FILTER_USE_BOTH );
 		} elseif( is_string( $col ) ) {
-			$vals = $this->col( $col )->toArray();
+			$vals = array_map( $this->mapper( $col ), $this->list() );
 		} elseif( is_null( $col ) ) {
 			$vals = $this->list();
 		} else {
@@ -3227,7 +3226,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		if( $col instanceof \Closure ) {
 			$vals = array_filter( $this->list(), $col, ARRAY_FILTER_USE_BOTH );
 		} elseif( is_string( $col ) ) {
-			$vals = $this->col( $col )->toArray();
+			$vals = array_map( $this->mapper( $col ), $this->list() );
 		} elseif( is_null( $col ) ) {
 			$vals = $this->list();
 		} else {
@@ -5124,7 +5123,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		if( $col instanceof \Closure ) {
 			$vals = array_filter( $this->list(), $col, ARRAY_FILTER_USE_BOTH );
 		} elseif( is_string( $col ) ) {
-			$vals = $this->col( $col )->toArray();
+			$vals = array_map( $this->mapper( $col ), $this->list() );
 		} elseif( is_null( $col ) ) {
 			$vals = $this->list();
 		} else {
