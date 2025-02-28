@@ -3133,6 +3133,18 @@ Array
 	}
 
 
+	public function testStrCompare()
+	{
+		$this->assertEquals( true, Map::from( ['foo', 'bar'] )->strCompare( 'foo' ) );
+		$this->assertEquals( true, Map::from( ['foo', 'bar'] )->strCompare( 'Foo', false ) );
+		$this->assertEquals( true, Map::from( [123, 12.3] )->strCompare( '12.3' ) );
+		$this->assertEquals( true, Map::from( [false, true] )->strCompare( '1' ) );
+		$this->assertEquals( false, Map::from( ['foo', 'bar'] )->strCompare( 'Foo' ) );
+		$this->assertEquals( false, Map::from( ['foo', 'bar'] )->strCompare( 'baz' ) );
+		$this->assertEquals( false, Map::from( [new \stdClass(), 'bar'] )->strCompare( 'foo' ) );
+	}
+
+
 	public function testStrContains()
 	{
 		$this->assertTrue( Map::from( ['abc'] )->strContains( '' ) );

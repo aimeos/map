@@ -140,7 +140,6 @@ will return:
 <a href="#col">col</a>
 <a href="#collapse">collapse</a>
 <a href="#combine">combine</a>
-<a href="#compare">compare</a>
 <a href="#concat">concat</a>
 <a href="#contains">contains</a>
 <a href="#copy">copy</a>
@@ -257,6 +256,7 @@ will return:
 <a href="#splice">splice</a>
 <a href="#strafter">strAfter</a>
 <a href="#strbefore">strBefore</a>
+<a href="#strcompare">strCompare</a>
 <a href="#strcontains">strContains</a>
 <a href="#strcontainsall">strContainsAll</a>
 <a href="#strends">strEnds</a>
@@ -436,7 +436,6 @@ will return:
 
 * [function is_map()](#is_map-function) : Tests if the variable is a map object
 * [any()](#any) : Tests if at least one element satisfies the callback function
-* [compare()](#compare) : Compares the value against all map elements
 * [contains()](#contains) : Tests if an item exists in the map
 * [each()](#each) : Applies a callback to each element
 * [empty()](#empty) : Tests if map is empty
@@ -459,6 +458,7 @@ will return:
 * [implements()](#implements) : Tests if all entries are objects implementing the interface
 * [none()](#none) : Tests if none of the elements are part of the map
 * [some()](#some) : Tests if at least one element is included
+* [strCompare()](#strcompare) : Compares the value against all map elements
 * [strContains()](#strcontains) : Tests if at least one of the passed strings is part of at least one entry
 * [strContainsAll()](#strcontainsall) : Tests if all of the entries contains one of the passed strings
 * [strEnds()](#strends) : Tests if at least one of the entries ends with one of the passed strings
@@ -1438,53 +1438,6 @@ Map::from( ['name', 'age'] )->combine( ['Tom', 29] );
 **See also:**
 
 * [zip()](#zip) - Merges the values of all arrays at the corresponding index
-
-
-### compare()
-
-Compares the value against all map elements.
-
-```php
-public function compare( string $value, bool $case = true ) : bool
-```
-
-* @param **string** `$value` Value to compare map elements to
-* @param **bool** `$case` TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
-* @return **bool** TRUE If at least one element matches, FALSE if value is not in map
-
-All scalar values (bool, float, int and string) are casted to string values before
-comparing to the given value. Non-scalar values in the map are ignored.
-
-**Examples:**
-
-```php
-Map::from( ['foo', 'bar'] )->compare( 'foo' );
-// true
-
-Map::from( ['foo', 'bar'] )->compare( 'Foo', false );
-// true (case insensitive)
-
-Map::from( [123, 12.3] )->compare( '12.3' );
-// true
-
-Map::from( [false, true] )->compare( '1' );
-// true
-
-Map::from( ['foo', 'bar'] )->compare( 'Foo' );
-// false (case sensitive)
-
-Map::from( ['foo', 'bar'] )->compare( 'baz' );
-// false
-
-Map::from( [new \stdClass(), 'bar'] )->compare( 'foo' );
-// false
-```
-
-**See also:**
-
-* [contains()](#contains) - Tests if an item exists in the map
-* [in()](#in) - Tests if element is included
-* [includes()](#includes) - Tests if element is included
 
 
 ### concat()
@@ -5657,6 +5610,53 @@ Map::from( [0, 0.0, false, []] )->strBefore( '' );
 **See also:**
 
 * [strAfter()](#strafter) - Returns the strings after the passed value
+
+
+### strCompare()
+
+Compares the value against all map elements.
+
+```php
+public function strCompare( string $value, bool $case = true ) : bool
+```
+
+* @param **string** `$value` Value to compare map elements to
+* @param **bool** `$case` TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
+* @return **bool** TRUE If at least one element matches, FALSE if value is not in map
+
+All scalar values (bool, float, int and string) are casted to string values before
+comparing to the given value. Non-scalar values in the map are ignored.
+
+**Examples:**
+
+```php
+Map::from( ['foo', 'bar'] )->strCompare( 'foo' );
+// true
+
+Map::from( ['foo', 'bar'] )->strCompare( 'Foo', false );
+// true (case insensitive)
+
+Map::from( [123, 12.3] )->strCompare( '12.3' );
+// true
+
+Map::from( [false, true] )->strCompare( '1' );
+// true
+
+Map::from( ['foo', 'bar'] )->strCompare( 'Foo' );
+// false (case sensitive)
+
+Map::from( ['foo', 'bar'] )->strCompare( 'baz' );
+// false
+
+Map::from( [new \stdClass(), 'bar'] )->strCompare( 'foo' );
+// false
+```
+
+**See also:**
+
+* [contains()](#contains) - Tests if an item exists in the map
+* [in()](#in) - Tests if element is included
+* [includes()](#includes) - Tests if element is included
 
 
 ### strContains()
