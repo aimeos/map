@@ -186,8 +186,12 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testAvgClosure()
 	{
-		$this->assertSame( 40.0, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( fn( $val, $key ) => $val['i']['p'] ?? null ) );
-		$this->assertSame( 30.0, Map::from( [30, 50, 10] )->avg( function( $val, $key ) { return $key < 1 ? $val : null; } ) );
+		$this->assertSame( 40.0, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( function( $val, $key ) {
+			return $val['i']['p'] ?? null;
+		} ) );
+		$this->assertSame( 30.0, Map::from( [30, 50, 10] )->avg( function( $val, $key ) {
+			return $key < 1 ? $val : null;
+		} ) );
 	}
 
 
@@ -2137,8 +2141,12 @@ Array
 
 	public function testMaxClosure()
 	{
-		$this->assertSame( 50, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( fn( $val, $key ) => $val['i']['p'] ?? null ) );
-		$this->assertSame( 30, Map::from( [50, 10, 30] )->max( fn( $val, $key ) => $key > 0 ? $val : null ) );
+		$this->assertSame( 50, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( function( $val, $key ) {
+			return $val['i']['p'] ?? null;
+		} ) );
+		$this->assertSame( 30, Map::from( [50, 10, 30] )->max( function( $val, $key ) {
+			return $key > 0 ? $val : null;
+		} ) );
 	}
 
 
@@ -2246,8 +2254,12 @@ Array
 
 	public function testMinClosure()
 	{
-		$this->assertSame( 30, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( fn( $val, $key ) => $val['i']['p'] ?? null ) );
-		$this->assertSame( 30, Map::from( [10, 50, 30] )->min( fn( $val, $key ) => $key > 0 ? $val : null ) );
+		$this->assertSame( 30, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( function( $val, $key ) {
+			return $val['i']['p'] ?? null;
+		} ) );
+		$this->assertSame( 30, Map::from( [10, 50, 30] )->min( function( $val, $key ) {
+			return $key > 0 ? $val : null;
+		} ) );
 	}
 
 
@@ -3337,8 +3349,12 @@ Array
 
 	public function testSumClosure()
 	{
-		$this->assertSame( 80.0, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( fn( $val, $key ) => $val['i']['p'] ?? null ) );
-		$this->assertSame( 40.0, Map::from( [30, 50, 10] )->sum( fn( $val, $key ) => $val < 50 ? $val : null ) );
+		$this->assertSame( 80.0, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( function( $val, $key ) {
+			return $val['i']['p'] ?? null;
+		} ) );
+		$this->assertSame( 40.0, Map::from( [30, 50, 10] )->sum( function( $val, $key ) {
+			return $val < 50 ? $val : null;
+		} ) );
 	}
 
 
