@@ -638,13 +638,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( [1, 'sum', 5] )->avg();
 	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( 'p' );
 	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( 'i/p' );
-	 *  Map::from( [30, 50, 10] )->avg( fn( $val, $key ) => $val < 50 );
+	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( fn( $val, $key ) => $val['i']['p'] ?? null );
+	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( fn( $val, $key ) => $key < 1 ? $val : null );
 	 *
 	 * Results:
 	 * The first and second line will return "3", the third one "2", the forth
-	 * one "30", the fifth one "40" and the last one "20".
+	 * one "30", the fifth and sixth one "40" and the last one "30".
 	 *
-	 * NULL values are treated as 0, non-numeric values will generate an error.
+	 * Non-numeric values will be removed before calculation.
 	 *
 	 * This does also work for multi-dimensional arrays by passing the keys
 	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
@@ -656,15 +657,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function avg( $col = null ) : float
 	{
-		if( $col instanceof \Closure ) {
-			$vals = array_filter( $this->list(), $col, ARRAY_FILTER_USE_BOTH );
-		} elseif( is_string( $col ) ) {
-			$vals = array_map( $this->mapper( $col ), $this->list() );
-		} elseif( is_null( $col ) ) {
-			$vals = $this->list();
-		} else {
-			throw new \InvalidArgumentException( 'Parameter is no closure or string' );
-		}
+		$list = $this->list();
+		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list, 'is_numeric' );
 
 		return !empty( $vals ) ? array_sum( $vals ) / count( $vals ) : 0;
 	}

@@ -1008,7 +1008,7 @@ public function avg( $col = null ) : float
 * @param **Closure&#124;string&#124;null** `$col` Closure, key or path to the values in the nested array or object to compute the average for
 * @return **float** Average of all elements or 0 if there are no elements in the map
 
-NULL values are treated as 0, non-numeric values will generate an error.
+Non-numeric values will be removed before calculation.
 
 This does also work for multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
@@ -1033,8 +1033,11 @@ Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( 'p' );
 Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( 'i/p' );
 // 40
 
-Map::from( [30, 50, 10] )->avg( fn( $val, $key ) => $val < 50 );
-// 20
+Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( fn( $val, $key ) => $val['i']['p'] ?? null );
+// 40
+
+Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( fn( $val, $key ) => $key < 1 ? $val : null );
+// 30
 ```
 
 **See also:**
