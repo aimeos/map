@@ -3103,11 +3103,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['bar', 'foo', 'baz'] )->max()
 	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' )
 	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( 'i/p' )
-	 *  Map::from( [50, 10, 30] )->max( fn( $val, $key ) => $key > 0 )
+	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( fn( $val, $key ) => $val['i']['p'] ?? null )
+	 *  Map::from( [50, 10, 30] )->max( fn( $val, $key ) => $key > 0 ? $val : null )
 	 *
 	 * Results:
-	 * The first line will return "5", the second one "foo" and the third/fourth
-	 * one return both 50 while the last one will return 30.
+	 * The first line will return "5", the second one "foo" and the third to fitfh
+	 * one return 50 while the last one will return 30.
+	 *
+	 * NULL values are removed before the comparison. If there are no values or all
+	 * values are NULL, NULL is returned.
 	 *
 	 * This does also work for multi-dimensional arrays by passing the keys
 	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
@@ -3123,15 +3127,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function max( $col = null )
 	{
-		if( $col instanceof \Closure ) {
-			$vals = array_filter( $this->list(), $col, ARRAY_FILTER_USE_BOTH );
-		} elseif( is_string( $col ) ) {
-			$vals = array_map( $this->mapper( $col ), $this->list() );
-		} elseif( is_null( $col ) ) {
-			$vals = $this->list();
-		} else {
-			throw new \InvalidArgumentException( 'Parameter is no closure or string' );
-		}
+		$list = $this->list();
+		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list );
 
 		return !empty( $vals ) ? max( $vals ) : null;
 	}

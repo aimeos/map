@@ -2137,8 +2137,8 @@ Array
 
 	public function testMaxClosure()
 	{
-		$this->assertSame( 30, Map::from( [50, 10, 30] )->max( function( $val ) { return $val < 50; } ) );
-		$this->assertSame( 30, Map::from( [50, 10, 30] )->max( function( $val, $key ) { return $key > 0; } ) );
+		$this->assertSame( 50, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( fn( $val, $key ) => $val['i']['p'] ?? null ) );
+		$this->assertSame( 30, Map::from( [50, 10, 30] )->max( fn( $val, $key ) => $key > 0 ? $val : null ) );
 	}
 
 
