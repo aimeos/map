@@ -6235,6 +6235,8 @@ public function sum( $col = null ) : float
 * @param **Closure&#124;string&#124;null** `$col` Closure, key in the nested array or object to sum up
 * @return **float** Sum of all elements or 0 if there are no elements in the map
 
+Non-numeric values will be removed before calculation.
+
 This does also work to map values from multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
 to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
@@ -6253,6 +6255,9 @@ Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' );
 // 90
 
 Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( 'i/p' );
+// 80
+
+Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( fn( $val, $key ) => $val['i']['p'] ?? null )
 // 80
 
 Map::from( [30, 50, 10] )->sum( fn( $val, $key ) => $val < 50 );

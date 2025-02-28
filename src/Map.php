@@ -5113,13 +5113,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( [1, 'sum', 5] )->sum();
 	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' );
 	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( 'i/p' );
-	 *  Map::from( [30, 50, 10] )->sum( fn( $val, $key ) => $val < 50 );
+	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( fn( $val, $key ) => $val['i']['p'] ?? null )
+	 *  Map::from( [30, 50, 10] )->sum( fn( $val, $key ) => $val < 50 ? $val : null )
 	 *
 	 * Results:
 	 * The first line will return "9", the second one "6", the third one "90"
-	 * the forth on "80" and the last one "40".
+	 * the forth/fifth "80" and the last one "40".
 	 *
-	 * NULL values are treated as 0, non-numeric values will generate an error.
+	 * Non-numeric values will be removed before calculation.
 	 *
 	 * This does also work for multi-dimensional arrays by passing the keys
 	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
@@ -5131,15 +5132,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function sum( $col = null ) : float
 	{
-		if( $col instanceof \Closure ) {
-			$vals = array_filter( $this->list(), $col, ARRAY_FILTER_USE_BOTH );
-		} elseif( is_string( $col ) ) {
-			$vals = array_map( $this->mapper( $col ), $this->list() );
-		} elseif( is_null( $col ) ) {
-			$vals = $this->list();
-		} else {
-			throw new \InvalidArgumentException( 'Parameter is no closure or string' );
-		}
+		$list = $this->list();
+		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list, 'is_numeric' );
 
 		return array_sum( $vals );
 	}

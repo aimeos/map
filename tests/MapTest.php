@@ -3337,8 +3337,8 @@ Array
 
 	public function testSumClosure()
 	{
-		$this->assertSame( 40.0, Map::from( [30, 50, 10] )->sum( function( $val ) { return $val < 50; } ) );
-		$this->assertSame( 60.0, Map::from( [30, 50, 10] )->sum( function( $val, $key ) { return $key > 0; } ) );
+		$this->assertSame( 80.0, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( fn( $val, $key ) => $val['i']['p'] ?? null ) );
+		$this->assertSame( 40.0, Map::from( [30, 50, 10] )->sum( fn( $val, $key ) => $val < 50 ? $val : null ) );
 	}
 
 
