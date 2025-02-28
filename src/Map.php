@@ -3180,11 +3180,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['baz', 'foo', 'bar'] )->min()
 	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' )
 	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( 'i/p' )
-	 *  Map::from( [10, 50, 30] )->min( fn( $val, $key ) => $key > 0 )
+	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( fn( $val, $key ) => $val['i']['p'] ?? null )
+	 *  Map::from( [10, 50, 30] )->min( fn( $val, $key ) => $key > 0 ? $val : null )
 	 *
 	 * Results:
 	 * The first line will return "1", the second one "bar", the third one
-	 * 10, the forth and last one 30.
+	 * 10, and the forth to the last one 30.
+	 *
+	 * NULL values are removed before the comparison. If there are no values or all
+	 * values are NULL, NULL is returned.
 	 *
 	 * This does also work for multi-dimensional arrays by passing the keys
 	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
@@ -3200,15 +3204,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function min( $col = null )
 	{
-		if( $col instanceof \Closure ) {
-			$vals = array_filter( $this->list(), $col, ARRAY_FILTER_USE_BOTH );
-		} elseif( is_string( $col ) ) {
-			$vals = array_map( $this->mapper( $col ), $this->list() );
-		} elseif( is_null( $col ) ) {
-			$vals = $this->list();
-		} else {
-			throw new \InvalidArgumentException( 'Parameter is no closure or string' );
-		}
+		$list = $this->list();
+		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list );
 
 		return !empty( $vals ) ? min( $vals ) : null;
 	}

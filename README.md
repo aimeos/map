@@ -4177,6 +4177,9 @@ public function min( $col = null )
 * @param **Closure&#124;string&#124;null** `$col` Closure, key in the nested array or object to check for
 * @return **mixed** Minimum value or NULL if there are no elements in the map
 
+NULL values are removed before the comparison. If there are no values or all
+values are NULL, NULL is returned.
+
 This does also work to map values from multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
 to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
@@ -4200,7 +4203,10 @@ Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' );
 Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( 'i/p' );
 // 30
 
-Map::from( [10, 50, 30] )->min( fn( $val, $key ) => $key > 0 );
+Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( fn( $val, $key ) => $val['i']['p'] ?? null )
+// 30
+
+Map::from( [10, 50, 30] )->min( fn( $val, $key ) => $key > 0 ? $val : null )
 // 30
 ```
 

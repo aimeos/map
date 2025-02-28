@@ -2246,8 +2246,8 @@ Array
 
 	public function testMinClosure()
 	{
-		$this->assertSame( 30, Map::from( [10, 50, 30] )->min( function( $val ) { return $val > 10; } ) );
-		$this->assertSame( 30, Map::from( [10, 50, 30] )->min( function( $val, $key ) { return $key > 0; } ) );
+		$this->assertSame( 30, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( fn( $val, $key ) => $val['i']['p'] ?? null ) );
+		$this->assertSame( 30, Map::from( [10, 50, 30] )->min( fn( $val, $key ) => $key > 0 ? $val : null ) );
 	}
 
 
