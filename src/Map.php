@@ -3631,6 +3631,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 				++$pos;
 			}
+
+			return null;
 		}
 
 		if( ( $key = array_search( $value, $list, true ) ) !== false
@@ -4265,7 +4267,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function skip( $offset ) : self
 	{
-		if( is_scalar( $offset ) ) {
+		if( is_numeric( $offset ) ) {
 			return new static( array_slice( $this->list(), (int) $offset, null, true ) );
 		}
 
@@ -5168,7 +5170,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	{
 		$list = $this->list();
 
-		if( is_scalar( $offset ) ) {
+		if( is_numeric( $offset ) ) {
 			return new static( array_slice( $list, (int) $offset, $size, true ) );
 		}
 

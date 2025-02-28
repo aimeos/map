@@ -2929,7 +2929,7 @@ Array
 	}
 
 
-	public function testSkipFunction()
+	public function testSkipClosure()
 	{
 		$fcn = function( $item, $key ) {
 			return $item < 4;
@@ -3383,7 +3383,7 @@ Array
 	}
 
 
-	public function testTakeFunction()
+	public function testTakeClosure()
 	{
 		$fcn = function( $item, $key ) {
 			return $item < 2;
