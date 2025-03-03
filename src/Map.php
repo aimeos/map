@@ -924,20 +924,22 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		$vparts = explode( $this->sep, (string) $valuecol );
 		$iparts = explode( $this->sep, (string) $indexcol );
 
-		if( count( $vparts ) === 1 && count( $iparts ) === 1 ) {
+		if( ( $valuecol === null || count( $vparts ) === 1 )
+			&& ( $indexcol === null || count( $iparts ) === 1 )
+		) {
 			return new static( array_column( $this->list(), $valuecol, $indexcol ) );
 		}
 
 		$list = [];
 
-		foreach( $this->list() as $item )
+		foreach( $this->list() as $key => $item )
 		{
-			$v = $valuecol !== null ? $this->val( $item, $vparts ) : $item;
+			$v = $valuecol ? $this->val( $item, $vparts ) : $item;
 
-			if( $indexcol !== null && ( $key = $this->val( $item, $iparts ) ) !== null ) {
-				$list[(string) $key] = $v;
+			if( $indexcol && ( $k = (string) $this->val( $item, $iparts ) ) ) {
+				$list[$k] = $v;
 			} else {
-				$list[] = $v;
+				$list[$key] = $v;
 			}
 		}
 
