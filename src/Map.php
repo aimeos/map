@@ -1526,11 +1526,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function filter( ?callable $callback = null ) : self
 	{
-		if( $callback ) {
-			return new static( array_filter( $this->list(), $callback, ARRAY_FILTER_USE_BOTH ) );
-		}
-
-		return new static( array_filter( $this->list() ) );
+		return new static( array_filter( $this->list(), $callback, ARRAY_FILTER_USE_BOTH ) );
 	}
 
 
