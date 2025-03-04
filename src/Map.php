@@ -1999,6 +1999,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * In case the passed key doesn't exist in one or more items, these items
 	 * are stored in a sub-array using an empty string as key.
 	 *
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
+	 *
 	 * @param  \Closure|string|int $key Closure function with (item, idx) parameters returning the key or the key itself to group by
 	 * @return self<int|string,mixed> New map with elements grouped by the given key
 	 */
@@ -2006,19 +2011,23 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	{
 		$result = [];
 
-		foreach( $this->list() as $idx => $item )
+		if( is_callable( $key ) )
 		{
-			if( is_callable( $key ) ) {
-				$keyval = $key( $item, $idx );
-			} elseif( ( is_array( $item ) || $item instanceof \ArrayAccess ) && isset( $item[$key] ) ) {
-				$keyval = $item[$key];
-			} elseif( is_object( $item ) && isset( $item->{$key} ) ) {
-				$keyval = $item->{$key};
-			} else {
-				$keyval = '';
+			foreach( $this->list() as $idx => $item )
+			{
+				$keyval = (string) $key( $item, $idx );
+				$result[$keyval][$idx] = $item;
 			}
+		}
+		else
+		{
+			$parts = explode( $this->sep, (string) $key );
 
-			$result[$keyval][$idx] = $item;
+			foreach( $this->list() as $idx => $item )
+			{
+				$keyval = (string) $this->val( $item, $parts );
+				$result[$keyval][$idx] = $item;
+			}
 		}
 
 		return new static( $result );

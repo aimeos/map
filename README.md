@@ -2653,6 +2653,11 @@ Instead of overwriting items with the same keys like to the [col()](#col) method
 [groupBy()](#groupby) keeps all entries in sub-arrays. It's preserves the keys of the
 orignal map entries too.
 
+This does also work for multi-dimensional arrays by passing the keys
+of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+public properties of objects or objects implementing __isset() and __get() methods.
+
 **Examples:**
 
 ```php
