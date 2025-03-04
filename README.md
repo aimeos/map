@@ -2252,8 +2252,10 @@ Returns the first element from the map.
 public function first( $default = null )
 ```
 
-* @param **mixed** `$default` Default value or exception if the map contains no elements
+* @param **mixed** `$default` Default value, closure or exception if the map contains no elements
 * @return **mixed** First value of map, (generated) default value or an exception
+
+Using this method doesn't affect the internal array pointer.
 
 **Examples:**
 
@@ -2274,6 +2276,8 @@ Map::from( [] )->first( function() { return rand(); } );
 **See also:**
 
 * [firstKey()](#firstkey) - Returns the key of the first element from the map
+* [last()](#last) - Returns the last element from the map
+* [lastKey()](#lastkey) - Returns the key of the last element from the map
 
 
 ### firstKey()
@@ -2281,24 +2285,35 @@ Map::from( [] )->first( function() { return rand(); } );
 Returns the key of the first element from the map.
 
 ```php
-public function firstKey()
+public function firstKey( $default = null )
 ```
 
-* @return **mixed** First key of map or NULL if empty
+* @param **mixed** `$default` Default value, closure or exception if the map contains no elements
+* @return **mixed** First key of map, (generated) default value or an exception
+
+Using this method doesn't affect the internal array pointer.
 
 **Examples:**
 
 ```php
-Map::from( ['a' => 1, 'b' => 2] )->lastKey();
+Map::from( ['a' => 1, 'b' => 2] )->firstKey();
 // 'a'
 
-Map::from( [] )->lastKey();
-// null
+Map::from( [] )->firstKey( 'x' );
+// 'x'
+
+Map::from( [] )->firstKey( new \Exception( 'error' ) );
+// throws \Exception
+
+Map::from( [] )->firstKey( function() { return rand(); } );
+// random integer
 ```
 
 **See also:**
 
 * [first()](#first) - Returns the first element from the map
+* [last()](#last) - Returns the last element from the map
+* [lastKey()](#lastkey) - Returns the last key from the map
 
 
 ### flat()
@@ -3924,8 +3939,10 @@ Returns the last element from the map.
 public function last( $default = null )
 ```
 
-* @param **mixed** `$default` Default value or exception if the map contains no elements
+* @param **mixed** `$default` Default value, closure or exception if the map contains no elements
 * @return **mixed** Last value of map, (generated) default value or an exception
+
+Using this method doesn't affect the internal array pointer.
 
 **Examples:**
 
@@ -3945,6 +3962,8 @@ Map::from( [] )->last( function() { return rand(); } );
 
 **See also:**
 
+* [first()](#first) - Returns the first element from the map
+* [firstKey()](#firstkey) - Returns the key of the first element from the map
 * [lastKey()](#lastkey) - Returns the key of the last element from the map
 
 
@@ -3953,10 +3972,13 @@ Map::from( [] )->last( function() { return rand(); } );
 Returns the key of the last element from the map.
 
 ```php
-public function lastKey()
+public function lastKey( $default = null )
 ```
 
-* @return **mixed** Last key of map or NULL if empty
+* @param **mixed** `$default` Default value, closure or exception if the map contains no elements
+* @return **mixed** Last key of map, (generated) default value or an exception
+
+Using this method doesn't affect the internal array pointer.
 
 **Examples:**
 
@@ -3964,12 +3986,20 @@ public function lastKey()
 Map::from( ['a' => 1, 'b' => 2] )->lastKey();
 // 'b'
 
-Map::from( [] )->lastKey();
-// null
+Map::from( [] )->lastKey( 'x' );
+// 'x'
+
+Map::from( [] )->lastKey( new \Exception( 'error' ) );
+// throws \Exception
+
+Map::from( [] )->lastKey( function() { return rand(); } );
+// random integer
 ```
 
 **See also:**
 
+* [first()](#first) - Returns the first element from the map
+* [firstKey()](#firstkey) - Returns the key of the first element from the map
 * [last()](#last) - Returns the last element from the map
 
 

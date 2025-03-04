@@ -1099,6 +1099,21 @@ Array
 	}
 
 
+	public function testFirstEmpty()
+	{
+		$this->assertSame( null, Map::from( [] )->first() );
+	}
+
+
+	public function testFirstWithClosure()
+	{
+		$m = new Map;
+		$result = $m->first( function() { return rand( 10, 11 ); } );
+
+		$this->assertGreaterThanOrEqual( 10, $result );
+	}
+
+
 	public function testFirstWithDefault()
 	{
 		$m = new Map;
@@ -1116,15 +1131,6 @@ Array
 	}
 
 
-	public function testFirstWithClosure()
-	{
-		$m = new Map;
-		$result = $m->first( function() { return rand( 10, 11 ); } );
-
-		$this->assertGreaterThanOrEqual( 10, $result );
-	}
-
-
 	public function testFirstKey()
 	{
 		$this->assertSame( 'a', Map::from( ['a' => 1, 'b' => 2] )->firstKey() );
@@ -1134,6 +1140,32 @@ Array
 	public function testFirstKeyEmpty()
 	{
 		$this->assertSame( null, Map::from( [] )->firstKey() );
+	}
+
+
+	public function testFirstKeyWithClosure()
+	{
+		$m = new Map;
+		$result = $m->firstKey( function() { return rand( 10, 11 ); } );
+
+		$this->assertGreaterThanOrEqual( 10, $result );
+	}
+
+
+	public function testFirstKeyWithDefault()
+	{
+		$m = new Map;
+		$result = $m->firstKey( 'default' );
+		$this->assertSame( 'default', $result );
+	}
+
+
+	public function testFirstKeyWithException()
+	{
+		$m = new Map;
+
+		$this->expectException( \RuntimeException::class );
+		$result = $m->firstKey( new \RuntimeException( 'error' ) );
 	}
 
 
@@ -2098,6 +2130,21 @@ Array
 	}
 
 
+	public function testLastEmpty()
+	{
+		$this->assertSame( null, Map::from( [] )->last() );
+	}
+
+
+	public function testLastWithClosure()
+	{
+		$m = new Map;
+		$result = $m->last( function() { return rand( 10, 11 ); } );
+
+		$this->assertGreaterThanOrEqual( 10, $result );
+	}
+
+
 	public function testLastWithDefault()
 	{
 		$m = new Map;
@@ -2115,15 +2162,6 @@ Array
 	}
 
 
-	public function testLastWithClosure()
-	{
-		$m = new Map;
-		$result = $m->last( function() { return rand( 10, 11 ); } );
-
-		$this->assertGreaterThanOrEqual( 10, $result );
-	}
-
-
 	public function testLastKey()
 	{
 		$this->assertSame( 'b', Map::from( ['a' => 1, 'b' => 2] )->lastKey() );
@@ -2133,6 +2171,32 @@ Array
 	public function testLastKeyEmpty()
 	{
 		$this->assertSame( null, Map::from( [] )->lastKey() );
+	}
+
+
+	public function testLastKeyWithClosure()
+	{
+		$m = new Map;
+		$result = $m->lastKey( function() { return rand( 10, 11 ); } );
+
+		$this->assertGreaterThanOrEqual( 10, $result );
+	}
+
+
+	public function testLastKeyWithDefault()
+	{
+		$m = new Map;
+		$result = $m->lastKey( 'default' );
+		$this->assertSame( 'default', $result );
+	}
+
+
+	public function testLastKeyWithException()
+	{
+		$m = new Map;
+
+		$this->expectException( \RuntimeException::class );
+		$result = $m->lastKey( new \RuntimeException( 'error' ) );
 	}
 
 
