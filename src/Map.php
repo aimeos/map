@@ -1733,6 +1733,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	{
 		$list = $this->list();
 
+		// PHP 7.x compatibility
 		if( function_exists( 'array_key_first' ) ) {
 			$key = array_key_first( $list );
 		} else {
@@ -3125,6 +3126,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	{
 		$list = $this->list();
 
+		// PHP 7.x compatibility
 		if( function_exists( 'array_key_last' ) ) {
 			$key = array_key_last( $list );
 		} else {
@@ -3606,7 +3608,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 			return new static( $result );
 		}
-		elseif( is_int( $number ) )
+
+		if( is_int( $number ) )
 		{
 			$start = 0;
 			$size = (int) ceil( count( $list ) / $number );
@@ -4451,7 +4454,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 * The first three examples will return TRUE while the fourth and fifth will return FALSE
 	 *
-	 * @param \Closure|iterable|mixed $values Anonymous function with (item, key) parameter, element or list of elements to test against
+	 * @param \Closure|iterable|mixed $values Closure with (item, key) parameter, element or list of elements to test against
 	 * @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
 	 * @return bool TRUE if at least one element is available in map, FALSE if the map contains none of them
 	 */
@@ -4470,7 +4473,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 			return false;
 		}
-		elseif( is_callable( $values ) )
+
+		if( $values instanceof \Closure )
 		{
 			foreach( $list as $key => $item )
 			{
@@ -4479,12 +4483,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 				}
 			}
 		}
-		elseif( in_array( $values, $list, $strict ) === true )
-		{
-			return true;
-		}
 
-		return false;
+		return in_array( $values, $list, $strict );
 	}
 
 
@@ -4584,6 +4584,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function splice( int $offset, ?int $length = null, $replacement = [] ) : self
 	{
+		// PHP 7.x doesn't allow to pass NULL as replacement
 		if( $length === null ) {
 			$length = count( $this->list() );
 		}
@@ -4695,7 +4696,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 					$list[$key] = mb_substr( $str, 0, $pos, $encoding );
 				} elseif( $str !== '' && $pos !== false ) {
 					$list[$key] = $str;
-				} else {
 				}
 			}
 		}
