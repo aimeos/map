@@ -4013,10 +4013,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function rekey( callable $callback ) : self
 	{
 		$list = $this->list();
-		$keys = array_keys( $list );
-		$newKeys = array_map( $callback, $list, $keys );
+		$newKeys = array_map( $callback, $list, array_keys( $list ) );
 
-		return new static( array_combine( $newKeys, $list ) ?: [] );
+		return new static( array_combine( $newKeys, array_values( $list ) ) );
 	}
 
 
