@@ -3964,16 +3964,33 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * If no callback is passed, all values which are NOT empty, null or false will be
 	 * removed. The keys of the original map are preserved in the returned map.
 	 *
-	 * @param Closure|mixed $callback Function with (item) parameter which returns TRUE/FALSE or value to compare with
+	 * @param Closure|mixed $callback Function with (item, key) parameter which returns TRUE/FALSE
 	 * @return self<int|string,mixed> New map
 	 */
 	public function reject( $callback = true ) : self
 	{
-		$isCallable = $callback instanceof \Closure;
+		$result = [];
 
-		return new static( array_filter( $this->list(), function( $value, $key ) use ( $callback, $isCallable ) {
-			return $isCallable ? !$callback( $value, $key ) : $value != $callback;
-		}, ARRAY_FILTER_USE_BOTH ) );
+		if( $callback instanceof \Closure )
+		{
+			foreach( $this->list() as $key => $value )
+			{
+				if( !$callback( $value, $key ) ) {
+					$result[$key] = $value;
+				}
+			}
+		}
+		else
+		{
+			foreach( $this->list() as $key => $value )
+			{
+				if( $value != $callback ) {
+					$result[$key] = $value;
+				}
+			}
+		}
+
+		return new static( $result );
 	}
 
 
