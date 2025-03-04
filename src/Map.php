@@ -4394,21 +4394,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return new static( array_slice( $this->list(), (int) $offset, null, true ) );
 		}
 
-		if( is_callable( $offset ) )
-		{
-			$idx = 0;
-			$list = $this->list();
-
-			foreach( $list as $key => $item )
-			{
-				if( !$offset( $item, $key ) ) {
-					break;
-				}
-
-				++$idx;
-			}
-
-			return new static( array_slice( $list, $idx, null, true ) );
+		if( $offset instanceof \Closure ) {
+			return new static( array_slice( $this->list(), $this->until( $this->list(), $offset ), null, true ) );
 		}
 
 		throw new \InvalidArgumentException( 'Only an integer or a closure is allowed as first argument for skip()' );
@@ -5297,20 +5284,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return new static( array_slice( $list, (int) $offset, $size, true ) );
 		}
 
-		if( is_callable( $offset ) )
-		{
-			$idx = 0;
-
-			foreach( $list as $key => $item )
-			{
-				if( !$offset( $item, $key ) ) {
-					break;
-				}
-
-				++$idx;
-			}
-
-			return new static( array_slice( $list, $idx, $size, true ) );
+		if( $offset instanceof \Closure ) {
+			return new static( array_slice( $list, $this->until( $list, $offset ), $size, true ) );
 		}
 
 		throw new \InvalidArgumentException( 'Only an integer or a closure is allowed as second argument for take()' );
@@ -6281,6 +6256,30 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		return function( $item ) use ( $parts ) {
 			return $this->val( $item, $parts );
 		};
+	}
+
+
+	/**
+	 * Returns the position of the first element that doesn't match the condition
+	 *
+	 * @param iterable<int|string,mixed> $list List of elements to check
+	 * @param \Closure $callback Closure with ($item, $key) arguments to check the condition
+	 * @return int Position of the first element that doesn't match the condition
+	 */
+	protected function until( iterable $list, \Closure $callback ) : int
+	{
+		$idx = 0;
+
+		foreach( $list as $key => $item )
+		{
+			if( !$callback( $item, $key ) ) {
+				break;
+			}
+
+			++$idx;
+		}
+
+		return $idx;
 	}
 
 
