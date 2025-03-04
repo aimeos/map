@@ -2164,7 +2164,7 @@ public function find( \Closure $callback, $default = null, bool $reverse = false
 ```
 
 * @param **\Closure** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
-* @param **mixed** `$default` Default value or exception if the map contains no elements
+* @param **mixed** `$default` Default value, closure or exception if the callback only returns FALSE
 * @param **bool** `$reverse` TRUE to test elements from back to front, FALSE for front to back (default)
 * @return **mixed&#124;null** First matching value, passed default value or an exception
 
@@ -2188,6 +2188,11 @@ Map::from( [] )->find( function( $value, $key ) {
 
 Map::from( [] )->find( function( $value, $key ) {
     return $value >= 'b';
+}, fn() => 'none' );
+// 'none'
+
+Map::from( [] )->find( function( $value, $key ) {
+    return $value >= 'b';
 }, new \Exception( 'error' ) );
 // throws \Exception
 ```
@@ -2206,7 +2211,7 @@ public function findKey( \Closure $callback, $default = null, bool $reverse = fa
 ```
 
 * @param **\Closure** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
-* @param **mixed** `$default` Default value or exception if the map contains no elements
+* @param **mixed** `$default` Default value, closure or exception if the callback only returns FALSE
 * @param **bool** `$reverse` TRUE to test elements from back to front, FALSE for front to back (default)
 * @return **mixed&#124;null** First matching value, passed default value or an exception
 
@@ -2225,7 +2230,7 @@ Map::from( ['a', 'c', 'e'] )->findKey( function( $value, $key ) {
 
 Map::from( [] )->findKey( function( $value, $key ) {
     return $value >= 'b';
-}, 'none' );
+}, fn() => 'none' );
 // default value 'none'
 
 Map::from( [] )->findKey( function( $value, $key ) {

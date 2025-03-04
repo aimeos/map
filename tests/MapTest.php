@@ -1020,6 +1020,18 @@ Array
 	}
 
 
+	public function testFindDefaultClosure()
+	{
+		$m = new Map( ['foo', 'bar', 'baz'] );
+		$result = $m->find( function( $value ) {
+			return false;
+		}, function() {
+			return 'none';
+		} );
+		$this->assertSame( 'none', $result );
+	}
+
+
 	public function testFindException()
 	{
 		$m = new Map( ['foo', 'bar', 'baz'] );
@@ -1055,6 +1067,17 @@ Array
 		$result = Map::from( [] )->findKey( function( $value, $key ) {
 			return $value >= 'b';
 		}, 'none' );
+		$this->assertSame( 'none', $result );
+	}
+
+
+	public function testFindKeyDefaultClosure()
+	{
+		$result = Map::from( [] )->findKey( function( $value, $key ) {
+			return $value >= 'b';
+		}, function() {
+			return 'none';
+		} );
 		$this->assertSame( 'none', $result );
 	}
 
