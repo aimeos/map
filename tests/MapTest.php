@@ -1015,7 +1015,7 @@ Array
 		$m = new Map( ['foo', 'bar', 'baz'] );
 		$result = $m->find( function( $value ) {
 			return false;
-		}, 'none' );
+		}, 'none', true );
 		$this->assertSame( 'none', $result );
 	}
 

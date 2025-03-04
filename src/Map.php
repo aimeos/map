@@ -1558,10 +1558,33 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function find( \Closure $callback, $default = null, bool $reverse = false )
 	{
-		foreach( ( $reverse ? array_reverse( $this->list(), true ) : $this->list() ) as $key => $value )
+		$list = $this->list();
+
+		if( !empty( $list ) )
 		{
-			if( $callback( $value, $key ) ) {
-				return $value;
+			if( $reverse )
+			{
+				$value = end( $list );
+				$key = key( $list );
+
+				do
+				{
+					if( $callback( $value, $key ) ) {
+						return $value;
+					}
+				}
+				while( ( $value = prev( $list ) ) !== false && ( $key = key( $list ) ) !== null );
+
+				reset( $list );
+			}
+			else
+			{
+				foreach( $list as $key => $value )
+				{
+					if( $callback( $value, $key ) ) {
+						return $value;
+					}
+				}
 			}
 		}
 
@@ -1601,10 +1624,33 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function findKey( \Closure $callback, $default = null, bool $reverse = false )
 	{
-		foreach( ( $reverse ? array_reverse( $this->list(), true ) : $this->list() ) as $key => $value )
+		$list = $this->list();
+
+		if( !empty( $list ) )
 		{
-			if( $callback( $value, $key ) ) {
-				return $key;
+			if( $reverse )
+			{
+				$value = end( $list );
+				$key = key( $list );
+
+				do
+				{
+					if( $callback( $value, $key ) ) {
+						return $key;
+					}
+				}
+				while( ( $value = prev( $list ) ) !== false && ( $key = key( $list ) ) !== null );
+
+				reset( $list );
+			}
+			else
+			{
+				foreach( $list as $key => $value )
+				{
+					if( $callback( $value, $key ) ) {
+						return $key;
+					}
+				}
 			}
 		}
 
