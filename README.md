@@ -184,7 +184,6 @@ will return:
 <a href="#insertafter">insertAfter</a>
 <a href="#insertat">insertAt</a>
 <a href="#insertbefore">insertBefore</a>
-<a href="#instring">inString</a>
 <a href="#int">int</a>
 <a href="#intersect">intersect</a>
 <a href="#intersectassoc">intersectAssoc</a>
@@ -447,7 +446,6 @@ will return:
 * [ifEmpty()](#ifempty) : Executes callbacks if the map is empty
 * [in()](#in) : Tests if element is included
 * [includes()](#includes) : Tests if element is included
-* [inString()](#instring) : Tests if the item is part of the strings in the map
 * [is()](#is) : Tests if the map consists of the same keys and values
 * [isEmpty()](#isempty) : Tests if map is empty
 * [isList()](#islist) : Checks if the map contains a list of subsequentially numbered keys
