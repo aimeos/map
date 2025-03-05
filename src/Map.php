@@ -638,13 +638,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( [1, 'sum', 5] )->avg();
 	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( 'p' );
 	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( 'i/p' );
-	 *  Map::from( [30, 50, 10] )->avg( fn( $val, $key ) => $val < 50 );
+	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( fn( $val, $key ) => $val['i']['p'] ?? null );
+	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( fn( $val, $key ) => $key < 1 ? $val : null );
 	 *
 	 * Results:
 	 * The first and second line will return "3", the third one "2", the forth
-	 * one "30", the fifth one "40" and the last one "20".
+	 * one "30", the fifth and sixth one "40" and the last one "30".
 	 *
-	 * NULL values are treated as 0, non-numeric values will generate an error.
+	 * Non-numeric values will be removed before calculation.
 	 *
 	 * NULL values are treated as 0, non-numeric values will generate an error.
 	 *
@@ -658,18 +659,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function avg( $col = null ) : float
 	{
-		if( $col instanceof \Closure ) {
-			$vals = array_filter( $this->list(), $col, ARRAY_FILTER_USE_BOTH );
-		} elseif( is_string( $col ) ) {
-			$vals = $this->col( $col )->toArray();
-		} elseif( is_null( $col ) ) {
-			$vals = $this->list();
-		} else {
-			throw new \InvalidArgumentException( 'Parameter is no closure or string' );
-		}
+		$list = $this->list();
+		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list, 'is_numeric' );
 
-		$cnt = count( $vals );
-		return $cnt > 0 ? array_sum( $vals ) / $cnt : 0;
+		return !empty( $vals ) ? array_sum( $vals ) / count( $vals ) : 0;
 	}
 
 
@@ -933,20 +926,22 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		$vparts = explode( $this->sep, (string) $valuecol );
 		$iparts = explode( $this->sep, (string) $indexcol );
 
-		if( count( $vparts ) === 1 && count( $iparts ) === 1 ) {
+		if( ( $valuecol === null || count( $vparts ) === 1 )
+			&& ( $indexcol === null || count( $iparts ) === 1 )
+		) {
 			return new static( array_column( $this->list(), $valuecol, $indexcol ) );
 		}
 
 		$list = [];
 
-		foreach( $this->list() as $item )
+		foreach( $this->list() as $key => $item )
 		{
-			$v = $valuecol !== null ? $this->val( $item, $vparts ) : $item;
+			$v = $valuecol ? $this->val( $item, $vparts ) : $item;
 
-			if( $indexcol !== null && ( $key = $this->val( $item, $iparts ) ) !== null ) {
-				$list[(string) $key] = $v;
+			if( $indexcol && ( $k = (string) $this->val( $item, $iparts ) ) ) {
+				$list[$k] = $v;
 			} else {
-				$list[] = $v;
+				$list[$key] = $v;
 			}
 		}
 
@@ -1015,37 +1010,16 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	/**
 	 * Compares the value against all map elements.
 	 *
-	 * Examples:
-	 *  Map::from( ['foo', 'bar'] )->compare( 'foo' );
-	 *  Map::from( ['foo', 'bar'] )->compare( 'Foo', false );
-	 *  Map::from( [123, 12.3] )->compare( '12.3' );
-	 *  Map::from( [false, true] )->compare( '1' );
-	 *  Map::from( ['foo', 'bar'] )->compare( 'Foo' );
-	 *  Map::from( ['foo', 'bar'] )->compare( 'baz' );
-	 *  Map::from( [new \stdClass(), 'bar'] )->compare( 'foo' );
-	 *
-	 * Results:
-	 * The first four examples return TRUE, the last three examples will return FALSE.
-	 *
-	 * All scalar values (bool, float, int and string) are casted to string values before
-	 * comparing to the given value. Non-scalar values in the map are ignored.
+	 * This method is an alias for strCompare().
 	 *
 	 * @param string $value Value to compare map elements to
 	 * @param bool $case TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
 	 * @return bool TRUE If at least one element matches, FALSE if value is not in map
+	 * @deprecated Use strCompare() method instead
 	 */
 	public function compare( string $value, bool $case = true ) : bool
 	{
-		$fcn = $case ? 'strcmp' : 'strcasecmp';
-
-		foreach( $this->list() as $item )
-		{
-			if( is_scalar( $item ) && !$fcn( (string) $item, $value ) ) {
-				return true;
-			}
-		}
-
-		return false;
+		return $this->strCompare( $value, $case );
 	}
 
 
@@ -1147,6 +1121,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Examples:
 	 *  Map::from( [1, 'foo', 2, 'foo', 1] )->countBy();
 	 *  Map::from( [1.11, 3.33, 3.33, 9.99] )->countBy();
+	 *  Map::from( [['i' => ['p' => 1.11]], ['i' => ['p' => 3.33]], ['i' => ['p' => 3.33]]] )->countBy( 'i/p' );
 	 *  Map::from( ['a@gmail.com', 'b@yahoo.com', 'c@gmail.com'] )->countBy( function( $email ) {
 	 *    return substr( strrchr( $email, '@' ), 1 );
 	 *  } );
@@ -1154,6 +1129,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 *  [1 => 2, 'foo' => 2, 2 => 1]
 	 *  ['1.11' => 1, '3.33' => 2, '9.99' => 1]
+	 *  ['1.11' => 1, '3.33' => 2]
 	 *  ['gmail.com' => 2, 'yahoo.com' => 1]
 	 *
 	 * Counting values does only work for integers and strings because these are
@@ -1161,16 +1137,21 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * if no callback is passed. Custom callbacks need to make sure that only
 	 * string or integer values are returned!
 	 *
-	 * @param  callable|null $callback Function with (value, key) parameters which returns the value to use for counting
+	 * @param \Closure|string|null $col Key as "key1/key2/key3" or function with (value, key) parameters returning the values for counting
 	 * @return self<int|string,mixed> New map with values as keys and their count as value
 	 */
-	public function countBy( ?callable $callback = null ) : self
+	public function countBy( $col = null ) : self
 	{
-		$callback = $callback ?: function( $value ) {
-			return (string) $value;
-		};
+		if( !( $col instanceof \Closure ) )
+		{
+			$parts = $col ? explode( $this->sep, (string) $col ) : [];
 
-		return new static( array_count_values( array_map( $callback, $this->list() ) ) );
+			$col = function( $item ) use ( $parts ) {
+				return (string) $this->val( $item, $parts );
+			};
+		}
+
+		return new static( array_count_values( array_map( $col, $this->list() ) ) );
 	}
 
 
@@ -1362,11 +1343,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( [1, 2, '1', 3] )->duplicates()
 	 *  Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->duplicates( 'p' )
 	 *  Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i/p' )
+	 *  Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( fn( $item, $key ) => $item['i']['p'] )
 	 *
 	 * Results:
 	 *  [2 => '1']
 	 *  [1 => ['p' => 1]]
-	 *  [1 => ['i' => ['p' => '1']]]
+	 *  [1 => ['i' => ['p' => 1]]]
+	 *  [1 => ['i' => ['p' => 1]]]
 	 *
 	 * This does also work for multi-dimensional arrays by passing the keys
 	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
@@ -1375,15 +1358,18 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * The keys are preserved using this method.
 	 *
-	 * @param string|null $key Key or path of the nested array or object to check for
+	 * @param \Closure|string|null $col Key, path of the nested array or anonymous function with ($item, $key) parameters returning the value for comparison
 	 * @return self<int|string,mixed> New map
 	 */
-	public function duplicates( ?string $key = null ) : self
+	public function duplicates( $col = null ) : self
 	{
-		$list = $this->list();
-		$items = ( $key !== null ? $this->col( $key )->toArray() : $list );
+		$list = $map = $this->list();
 
-		return new static( array_diff_key( $list, array_unique( $items ) ) );
+		if( $col !== null ) {
+			$map = array_map( $this->mapper( $col ), array_values( $list ), array_keys( $list ) );
+		}
+
+		return new static( array_diff_key( $list, array_unique( $map ) ) );
 	}
 
 
@@ -1542,6 +1528,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function filter( ?callable $callback = null ) : self
 	{
+		// PHP 7.x compatibility
 		if( $callback ) {
 			return new static( array_filter( $this->list(), $callback, ARRAY_FILTER_USE_BOTH ) );
 		}
@@ -1562,27 +1549,54 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  }, null, true );
 	 *  Map::from( [] )->find( function( $value, $key ) {
 	 *      return $value >= 'b';
-	 *  }, 'none' );
+	 *  }, fn() => 'none' );
 	 *  Map::from( [] )->find( function( $value, $key ) {
 	 *      return $value >= 'b';
 	 *  }, new \Exception( 'error' ) );
 	 *
 	 * Results:
 	 * The first example will return 'c' while the second will return 'e' (last element).
-	 * The third one will return "none" and the last one will throw the exception.
+	 * The third and forth one will return "none" and the last one will throw the exception.
 	 *
 	 * @param \Closure $callback Function with (value, key) parameters and returns TRUE/FALSE
-	 * @param mixed $default Default value or exception if the map contains no elements
+	 * @param mixed $default Default value, closure or exception if the callback only returns FALSE
 	 * @param bool $reverse TRUE to test elements from back to front, FALSE for front to back (default)
 	 * @return mixed First matching value, passed default value or an exception
 	 */
 	public function find( \Closure $callback, $default = null, bool $reverse = false )
 	{
-		foreach( ( $reverse ? array_reverse( $this->list(), true ) : $this->list() ) as $key => $value )
+		$list = $this->list();
+
+		if( !empty( $list ) )
 		{
-			if( $callback( $value, $key ) ) {
-				return $value;
+			if( $reverse )
+			{
+				$value = end( $list );
+				$key = key( $list );
+
+				do
+				{
+					if( $callback( $value, $key ) ) {
+						return $value;
+					}
+				}
+				while( ( $value = prev( $list ) ) !== false && ( $key = key( $list ) ) !== null );
+
+				reset( $list );
 			}
+			else
+			{
+				foreach( $list as $key => $value )
+				{
+					if( $callback( $value, $key ) ) {
+						return $value;
+					}
+				}
+			}
+		}
+
+		if( $default instanceof \Closure ) {
+			return $default();
 		}
 
 		if( $default instanceof \Throwable ) {
@@ -1608,24 +1622,54 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  }, 'none' );
 	 *  Map::from( [] )->findKey( function( $value, $key ) {
 	 *      return $value >= 'b';
+	 *  }, fn() => 'none' );
+	 *  Map::from( [] )->findKey( function( $value, $key ) {
+	 *      return $value >= 'b';
 	 *  }, new \Exception( 'error' ) );
 	 *
 	 * Results:
 	 * The first example will return '1' while the second will return '2' (last element).
-	 * The third one will return "none" and the last one will throw the exception.
+	 * The third and forth one will return "none" and the last one will throw the exception.
 	 *
 	 * @param \Closure $callback Function with (value, key) parameters and returns TRUE/FALSE
-	 * @param mixed $default Default value or exception if the map contains no elements
+	 * @param mixed $default Default value, closure or exception if the callback only returns FALSE
 	 * @param bool $reverse TRUE to test elements from back to front, FALSE for front to back (default)
 	 * @return mixed Key of first matching element, passed default value or an exception
 	 */
 	public function findKey( \Closure $callback, $default = null, bool $reverse = false )
 	{
-		foreach( ( $reverse ? array_reverse( $this->list(), true ) : $this->list() ) as $key => $value )
+		$list = $this->list();
+
+		if( !empty( $list ) )
 		{
-			if( $callback( $value, $key ) ) {
-				return $key;
+			if( $reverse )
+			{
+				$value = end( $list );
+				$key = key( $list );
+
+				do
+				{
+					if( $callback( $value, $key ) ) {
+						return $key;
+					}
+				}
+				while( ( $value = prev( $list ) ) !== false && ( $key = key( $list ) ) !== null );
+
+				reset( $list );
 			}
+			else
+			{
+				foreach( $list as $key => $value )
+				{
+					if( $callback( $value, $key ) ) {
+						return $key;
+					}
+				}
+			}
+		}
+
+		if( $default instanceof \Closure ) {
+			return $default();
 		}
 
 		if( $default instanceof \Throwable ) {
@@ -1651,13 +1695,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * fourth example, a random value generated by the closure function will be
 	 * returned.
 	 *
-	 * @param mixed $default Default value or exception if the map contains no elements
+	 * Using this method doesn't affect the internal array pointer.
+	 *
+	 * @param mixed $default Default value, closure or exception if the map contains no elements
 	 * @return mixed First value of map, (generated) default value or an exception
 	 */
 	public function first( $default = null )
 	{
-		if( ( $value = reset( $this->list() ) ) !== false ) {
-			return $value;
+		if( !empty( $this->list() ) ) {
+			return current( array_slice( $this->list(), 0, 1 ) );
 		}
 
 		if( $default instanceof \Closure ) {
@@ -1677,23 +1723,43 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * Examples:
 	 *  Map::from( ['a' => 1, 'b' => 2] )->firstKey();
-	 *  Map::from( [] )->firstKey();
+	 *  Map::from( [] )->firstKey( 'x' );
+	 *  Map::from( [] )->firstKey( new \Exception( 'error' ) );
+	 *  Map::from( [] )->firstKey( function() { return rand(); } );
 	 *
 	 * Results:
-	 * The first example will return 'a' and the second one NULL.
+	 * The first example will return 'a' and the second one 'x', the third one will throw
+	 * an exception and the last one will return a random value.
 	 *
-	 * @return mixed First key of map or NULL if empty
+	 * Using this method doesn't affect the internal array pointer.
+	 *
+	 * @param mixed $default Default value, closure or exception if the map contains no elements
+	 * @return mixed First key of map, (generated) default value or an exception
 	 */
-	public function firstKey()
+	public function firstKey( $default = null )
 	{
 		$list = $this->list();
 
+		// PHP 7.x compatibility
 		if( function_exists( 'array_key_first' ) ) {
-			return array_key_first( $list );
+			$key = array_key_first( $list );
+		} else {
+			$key = key( array_slice( $list, 0, 1, true ) );
 		}
 
-		reset( $list );
-		return key( $list );
+		if( $key !== null ) {
+			return $key;
+		}
+
+		if( $default instanceof \Closure ) {
+			return $default();
+		}
+
+		if( $default instanceof \Throwable ) {
+			throw $default;
+		}
+
+		return $default;
 	}
 
 
@@ -1941,6 +2007,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * In case the passed key doesn't exist in one or more items, these items
 	 * are stored in a sub-array using an empty string as key.
 	 *
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
+	 *
 	 * @param  \Closure|string|int $key Closure function with (item, idx) parameters returning the key or the key itself to group by
 	 * @return self<int|string,mixed> New map with elements grouped by the given key
 	 */
@@ -1948,19 +2019,23 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	{
 		$result = [];
 
-		foreach( $this->list() as $idx => $item )
+		if( is_callable( $key ) )
 		{
-			if( is_callable( $key ) ) {
-				$keyval = $key( $item, $idx );
-			} elseif( ( is_array( $item ) || $item instanceof \ArrayAccess ) && isset( $item[$key] ) ) {
-				$keyval = $item[$key];
-			} elseif( is_object( $item ) && isset( $item->{$key} ) ) {
-				$keyval = $item->{$key};
-			} else {
-				$keyval = '';
+			foreach( $this->list() as $idx => $item )
+			{
+				$keyval = (string) $key( $item, $idx );
+				$result[$keyval][$idx] = $item;
 			}
+		}
+		else
+		{
+			$parts = explode( $this->sep, (string) $key );
 
-			$result[$keyval][$idx] = $item;
+			foreach( $this->list() as $idx => $item )
+			{
+				$keyval = (string) $this->val( $item, $parts );
+				$result[$keyval][$idx] = $item;
+			}
 		}
 
 		return new static( $result );
@@ -3013,13 +3088,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * fourth example, a random value generated by the closure function will be
 	 * returned.
 	 *
+	 * Using this method doesn't affect the internal array pointer.
+	 *
 	 * @param mixed $default Default value or exception if the map contains no elements
 	 * @return mixed Last value of map, (generated) default value or an exception
 	 */
 	public function last( $default = null )
 	{
-		if( ( $value = end( $this->list() ) ) !== false ) {
-			return $value;
+		if( !empty( $this->list() ) ) {
+			return current( array_slice( $this->list(), -1, 1 ) );
 		}
 
 		if( $default instanceof \Closure ) {
@@ -3039,23 +3116,43 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * Examples:
 	 *  Map::from( ['a' => 1, 'b' => 2] )->lastKey();
-	 *  Map::from( [] )->lastKey();
+	 *  Map::from( [] )->lastKey( 'x' );
+	 *  Map::from( [] )->lastKey( new \Exception( 'error' ) );
+	 *  Map::from( [] )->lastKey( function() { return rand(); } );
 	 *
 	 * Results:
-	 * The first example will return 'b' and the second one NULL.
+	 * The first example will return 'a' and the second one 'x', the third one will throw
+	 * an exception and the last one will return a random value.
 	 *
-	 * @return mixed Last key of map or NULL if empty
+	 * Using this method doesn't affect the internal array pointer.
+	 *
+	 * @param mixed $default Default value, closure or exception if the map contains no elements
+	 * @return mixed Last key of map, (generated) default value or an exception
 	 */
-	public function lastKey()
+	public function lastKey( $default = null )
 	{
 		$list = $this->list();
 
+		// PHP 7.x compatibility
 		if( function_exists( 'array_key_last' ) ) {
-			return array_key_last( $list );
+			$key = array_key_last( $list );
+		} else {
+			$key = key( array_slice( $list, -1, 1, true ) );
 		}
 
-		end( $list );
-		return key( $list );
+		if( $key !== null ) {
+			return $key;
+		}
+
+		if( $default instanceof \Closure ) {
+			return $default();
+		}
+
+		if( $default instanceof \Throwable ) {
+			throw $default;
+		}
+
+		return $default;
 	}
 
 
@@ -3107,9 +3204,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	{
 		$list = $this->list();
 		$keys = array_keys( $list );
-		$elements = array_map( $callback, $list, $keys );
+		$map = array_map( $callback, array_values( $list ), $keys );
 
-		return new static( array_combine( $keys, $elements ) ?: [] );
+		return new static( array_combine( $keys, $map ) );
 	}
 
 
@@ -3121,11 +3218,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['bar', 'foo', 'baz'] )->max()
 	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' )
 	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( 'i/p' )
-	 *  Map::from( [50, 10, 30] )->max( fn( $val, $key ) => $key > 0 )
+	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( fn( $val, $key ) => $val['i']['p'] ?? null )
+	 *  Map::from( [50, 10, 30] )->max( fn( $val, $key ) => $key > 0 ? $val : null )
 	 *
 	 * Results:
-	 * The first line will return "5", the second one "foo" and the third/fourth
-	 * one return both 50 while the last one will return 30.
+	 * The first line will return "5", the second one "foo" and the third to fitfh
+	 * one return 50 while the last one will return 30.
+	 *
+	 * NULL values are removed before the comparison. If there are no values or all
+	 * values are NULL, NULL is returned.
 	 *
 	 * This does also work for multi-dimensional arrays by passing the keys
 	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
@@ -3141,15 +3242,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function max( $col = null )
 	{
-		if( $col instanceof \Closure ) {
-			$vals = array_filter( $this->list(), $col, ARRAY_FILTER_USE_BOTH );
-		} elseif( is_string( $col ) ) {
-			$vals = $this->col( $col )->toArray();
-		} elseif( is_null( $col ) ) {
-			$vals = $this->list();
-		} else {
-			throw new \InvalidArgumentException( 'Parameter is no closure or string' );
-		}
+		$list = $this->list();
+		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list );
 
 		return !empty( $vals ) ? max( $vals ) : null;
 	}
@@ -3201,11 +3295,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['baz', 'foo', 'bar'] )->min()
 	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' )
 	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( 'i/p' )
-	 *  Map::from( [10, 50, 30] )->min( fn( $val, $key ) => $key > 0 )
+	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( fn( $val, $key ) => $val['i']['p'] ?? null )
+	 *  Map::from( [10, 50, 30] )->min( fn( $val, $key ) => $key > 0 ? $val : null )
 	 *
 	 * Results:
 	 * The first line will return "1", the second one "bar", the third one
-	 * 10, the forth and last one 30.
+	 * 10, and the forth to the last one 30.
+	 *
+	 * NULL values are removed before the comparison. If there are no values or all
+	 * values are NULL, NULL is returned.
 	 *
 	 * This does also work for multi-dimensional arrays by passing the keys
 	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
@@ -3221,15 +3319,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function min( $col = null )
 	{
-		if( $col instanceof \Closure ) {
-			$vals = array_filter( $this->list(), $col, ARRAY_FILTER_USE_BOTH );
-		} elseif( is_string( $col ) ) {
-			$vals = $this->col( $col )->toArray();
-		} elseif( is_null( $col ) ) {
-			$vals = $this->list();
-		} else {
-			throw new \InvalidArgumentException( 'Parameter is no closure or string' );
-		}
+		$list = $this->list();
+		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list );
 
 		return !empty( $vals ) ? min( $vals ) : null;
 	}
@@ -3524,7 +3615,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 			return new static( $result );
 		}
-		elseif( is_int( $number ) )
+
+		if( is_int( $number ) )
 		{
 			$start = 0;
 			$size = (int) ceil( count( $list ) / $number );
@@ -3655,6 +3747,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 				++$pos;
 			}
+
+			return null;
 		}
 
 		if( ( $key = array_search( $value, $list, true ) ) !== false
@@ -3880,16 +3974,33 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * If no callback is passed, all values which are NOT empty, null or false will be
 	 * removed. The keys of the original map are preserved in the returned map.
 	 *
-	 * @param Closure|mixed $callback Function with (item) parameter which returns TRUE/FALSE or value to compare with
+	 * @param Closure|mixed $callback Function with (item, key) parameter which returns TRUE/FALSE
 	 * @return self<int|string,mixed> New map
 	 */
 	public function reject( $callback = true ) : self
 	{
-		$isCallable = $callback instanceof \Closure;
+		$result = [];
 
-		return new static( array_filter( $this->list(), function( $value, $key ) use  ( $callback, $isCallable ) {
-			return $isCallable ? !$callback( $value, $key ) : $value != $callback;
-		}, ARRAY_FILTER_USE_BOTH ) );
+		if( $callback instanceof \Closure )
+		{
+			foreach( $this->list() as $key => $value )
+			{
+				if( !$callback( $value, $key ) ) {
+					$result[$key] = $value;
+				}
+			}
+		}
+		else
+		{
+			foreach( $this->list() as $key => $value )
+			{
+				if( $value != $callback ) {
+					$result[$key] = $value;
+				}
+			}
+		}
+
+		return new static( $result );
 	}
 
 
@@ -3912,10 +4023,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function rekey( callable $callback ) : self
 	{
 		$list = $this->list();
-		$keys = array_keys( $list );
-		$newKeys = array_map( $callback, $list, $keys );
+		$newKeys = array_map( $callback, $list, array_keys( $list ) );
 
-		return new static( array_combine( $newKeys, $list ) ?: [] );
+		return new static( array_combine( $newKeys, array_values( $list ) ) );
 	}
 
 
@@ -4289,25 +4399,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function skip( $offset ) : self
 	{
-		if( is_scalar( $offset ) ) {
+		if( is_numeric( $offset ) ) {
 			return new static( array_slice( $this->list(), (int) $offset, null, true ) );
 		}
 
-		if( is_callable( $offset ) )
-		{
-			$idx = 0;
-			$list = $this->list();
-
-			foreach( $list as $key => $item )
-			{
-				if( !$offset( $item, $key ) ) {
-					break;
-				}
-
-				++$idx;
-			}
-
-			return new static( array_slice( $list, $idx, null, true ) );
+		if( $offset instanceof \Closure ) {
+			return new static( array_slice( $this->list(), $this->until( $this->list(), $offset ), null, true ) );
 		}
 
 		throw new \InvalidArgumentException( 'Only an integer or a closure is allowed as first argument for skip()' );
@@ -4364,7 +4461,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 * The first three examples will return TRUE while the fourth and fifth will return FALSE
 	 *
-	 * @param \Closure|iterable|mixed $values Anonymous function with (item, key) parameter, element or list of elements to test against
+	 * @param \Closure|iterable|mixed $values Closure with (item, key) parameter, element or list of elements to test against
 	 * @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
 	 * @return bool TRUE if at least one element is available in map, FALSE if the map contains none of them
 	 */
@@ -4383,7 +4480,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 			return false;
 		}
-		elseif( is_callable( $values ) )
+
+		if( $values instanceof \Closure )
 		{
 			foreach( $list as $key => $item )
 			{
@@ -4392,12 +4490,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 				}
 			}
 		}
-		elseif( in_array( $values, $list, $strict ) === true )
-		{
-			return true;
-		}
 
-		return false;
+		return in_array( $values, $list, $strict );
 	}
 
 
@@ -4497,6 +4591,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function splice( int $offset, ?int $length = null, $replacement = [] ) : self
 	{
+		// PHP 7.x doesn't allow to pass NULL as replacement
 		if( $length === null ) {
 			$length = count( $this->list() );
 		}
@@ -4608,12 +4703,48 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 					$list[$key] = mb_substr( $str, 0, $pos, $encoding );
 				} elseif( $str !== '' && $pos !== false ) {
 					$list[$key] = $str;
-				} else {
 				}
 			}
 		}
 
 		return new static( $list );
+	}
+
+
+	/**
+	 * Compares the value against all map elements.
+	 *
+	 * Examples:
+	 *  Map::from( ['foo', 'bar'] )->compare( 'foo' );
+	 *  Map::from( ['foo', 'bar'] )->compare( 'Foo', false );
+	 *  Map::from( [123, 12.3] )->compare( '12.3' );
+	 *  Map::from( [false, true] )->compare( '1' );
+	 *  Map::from( ['foo', 'bar'] )->compare( 'Foo' );
+	 *  Map::from( ['foo', 'bar'] )->compare( 'baz' );
+	 *  Map::from( [new \stdClass(), 'bar'] )->compare( 'foo' );
+	 *
+	 * Results:
+	 * The first four examples return TRUE, the last three examples will return FALSE.
+	 *
+	 * All scalar values (bool, float, int and string) are casted to string values before
+	 * comparing to the given value. Non-scalar values in the map are ignored.
+	 *
+	 * @param string $value Value to compare map elements to
+	 * @param bool $case TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
+	 * @return bool TRUE If at least one element matches, FALSE if value is not in map
+	 */
+	public function strCompare( string $value, bool $case = true ) : bool
+	{
+		$fcn = $case ? 'strcmp' : 'strcasecmp';
+
+		foreach( $this->list() as $item )
+		{
+			if( is_scalar( $item ) && !$fcn( (string) $item, $value ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 
@@ -5100,13 +5231,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( [1, 'sum', 5] )->sum();
 	 *  Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' );
 	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( 'i/p' );
-	 *  Map::from( [30, 50, 10] )->sum( fn( $val, $key ) => $val < 50 );
+	 *  Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( fn( $val, $key ) => $val['i']['p'] ?? null )
+	 *  Map::from( [30, 50, 10] )->sum( fn( $val, $key ) => $val < 50 ? $val : null )
 	 *
 	 * Results:
 	 * The first line will return "9", the second one "6", the third one "90"
-	 * the forth on "80" and the last one "40".
+	 * the forth/fifth "80" and the last one "40".
 	 *
-	 * NULL values are treated as 0, non-numeric values will generate an error.
+	 * Non-numeric values will be removed before calculation.
 	 *
 	 * NULL values are treated as 0, non-numeric values will generate an error.
 	 *
@@ -5120,15 +5252,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function sum( $col = null ) : float
 	{
-		if( $col instanceof \Closure ) {
-			$vals = array_filter( $this->list(), $col, ARRAY_FILTER_USE_BOTH );
-		} elseif( is_string( $col ) ) {
-			$vals = $this->col( $col )->toArray();
-		} elseif( is_null( $col ) ) {
-			$vals = $this->list();
-		} else {
-			throw new \InvalidArgumentException( 'Parameter is no closure or string' );
-		}
+		$list = $this->list();
+		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list, 'is_numeric' );
 
 		return array_sum( $vals );
 	}
@@ -5163,24 +5288,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	{
 		$list = $this->list();
 
-		if( is_scalar( $offset ) ) {
+		if( is_numeric( $offset ) ) {
 			return new static( array_slice( $list, (int) $offset, $size, true ) );
 		}
 
-		if( is_callable( $offset ) )
-		{
-			$idx = 0;
-
-			foreach( $list as $key => $item )
-			{
-				if( !$offset( $item, $key ) ) {
-					break;
-				}
-
-				++$idx;
-			}
-
-			return new static( array_slice( $list, $idx, $size, true ) );
+		if( $offset instanceof \Closure ) {
+			return new static( array_slice( $list, $this->until( $list, $offset ), $size, true ) );
 		}
 
 		throw new \InvalidArgumentException( 'Only an integer or a closure is allowed as second argument for take()' );
@@ -5719,10 +5832,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( [0 => 'a', 1 => 'b', 2 => 'b', 3 => 'c'] )->unique();
 	 *  Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->unique( 'p' )
 	 *  Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->unique( 'i/p' )
+	 *  Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->unique( fn( $item, $key ) => $item['i']['p'] )
 	 *
 	 * Results:
 	 * [0 => 'a', 1 => 'b', 3 => 'c']
 	 * [['p' => 1], ['p' => 2]]
+	 * [['i' => ['p' => '1']]]
 	 * [['i' => ['p' => '1']]]
 	 *
 	 * Two elements are considered equal if comparing their string representions returns TRUE:
@@ -5730,16 +5845,19 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * The keys of the elements are only preserved in the new map if no key is passed.
 	 *
-	 * @param string|null $key Key or path of the nested array or object to check for
+	 * @param \Closure|string|null $col Key, path of the nested array or anonymous function with ($item, $key) parameters returning the value for comparison
 	 * @return self<int|string,mixed> New map
 	 */
-	public function unique( ?string $key = null ) : self
+	public function unique( $col = null ) : self
 	{
-		if( $key !== null ) {
-			return $this->col( null, $key )->values();
+		if( $col === null ) {
+			return new static( array_unique( $this->list() ) );
 		}
 
-		return new static( array_unique( $this->list() ) );
+		$list = $this->list();
+		$map = array_map( $this->mapper( $col ), array_values( $list ), array_keys( $list ) );
+
+		return new static( array_intersect_key( $list, array_unique( $map ) ) );
 	}
 
 
@@ -6126,6 +6244,50 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		}
 
 		return $this->list;
+	}
+
+
+	/**
+	 * Returns a closure that retrieves the value for the passed key
+	 *
+	 * @param \Closure|string|null $key Closure or key (e.g. "key1/key2/key3") to retrieve the value for
+	 * @return \Closure Closure that retrieves the value for the passed key
+	 */
+	protected function mapper( $key = null ) : \Closure
+	{
+		if( $key instanceof \Closure ) {
+			return $key;
+		}
+
+		$parts = $key ? explode( $this->sep, (string) $key ) : [];
+
+		return function( $item ) use ( $parts ) {
+			return $this->val( $item, $parts );
+		};
+	}
+
+
+	/**
+	 * Returns the position of the first element that doesn't match the condition
+	 *
+	 * @param iterable<int|string,mixed> $list List of elements to check
+	 * @param \Closure $callback Closure with ($item, $key) arguments to check the condition
+	 * @return int Position of the first element that doesn't match the condition
+	 */
+	protected function until( iterable $list, \Closure $callback ) : int
+	{
+		$idx = 0;
+
+		foreach( $list as $key => $item )
+		{
+			if( !$callback( $item, $key ) ) {
+				break;
+			}
+
+			++$idx;
+		}
+
+		return $idx;
 	}
 
 

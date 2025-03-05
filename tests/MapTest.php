@@ -71,7 +71,7 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testAll()
 	{
 		$m = new Map( ['name' => 'Hello'] );
-		$this->assertSame( ['name' => 'Hello'], $m->all() );
+		$this->assertSame( ['name' => 'Hello'], $m->toArray() );
 	}
 
 
@@ -179,15 +179,19 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	public function testAvg()
 	{
 		$this->assertSame( 3.0, Map::from( [1, 3, 5] )->avg() );
-		$this->assertSame( 2.0, Map::from( [1, null, 5] )->avg() );
+		$this->assertSame( 3.0, Map::from( [1, null, 5] )->avg() );
 		$this->assertSame( 2.0, Map::from( [1, 0.0, 5] )->avg() );
 	}
 
 
 	public function testAvgClosure()
 	{
-		$this->assertSame( 20.0, Map::from( [30, 50, 10] )->avg( function( $val ) { return $val < 50; } ) );
-		$this->assertSame( 30.0, Map::from( [30, 50, 10] )->avg( function( $val, $key ) { return $key < 1; } ) );
+		$this->assertSame( 40.0, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( function( $val, $key ) {
+			return $val['i']['p'] ?? null;
+		} ) );
+		$this->assertSame( 30.0, Map::from( [30, 50, 10] )->avg( function( $val, $key ) {
+			return $key < 1 ? $val : null;
+		} ) );
 	}
 
 
@@ -265,12 +269,12 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 	public function testCast()
 	{
-		$this->assertEquals( ['1', '1', '1', 'yes'], Map::from( [true, 1, 1.0, 'yes'] )->cast()->all() );
-		$this->assertEquals( [true, true, true, true], Map::from( [true, 1, 1.0, 'yes'] )->cast( 'bool' )->all() );
-		$this->assertEquals( [1, 1, 1, 0], Map::from( [true, 1, 1.0, 'yes'] )->cast( 'int' )->all() );
-		$this->assertEquals( [1.0, 1.0, 1.0, 0.0], Map::from( [true, 1, 1.0, 'yes'] )->cast( 'float' )->all() );
-		$this->assertEquals( [[], []], Map::from( [new \stdClass, new \stdClass] )->cast( 'array' )->all() );
-		$this->assertEquals( [new \stdClass, new \stdClass], Map::from( [[], []] )->cast( 'object' )->all() );
+		$this->assertEquals( ['1', '1', '1', 'yes'], Map::from( [true, 1, 1.0, 'yes'] )->cast()->toArray() );
+		$this->assertEquals( [true, true, true, true], Map::from( [true, 1, 1.0, 'yes'] )->cast( 'bool' )->toArray() );
+		$this->assertEquals( [1, 1, 1, 0], Map::from( [true, 1, 1.0, 'yes'] )->cast( 'int' )->toArray() );
+		$this->assertEquals( [1.0, 1.0, 1.0, 0.0], Map::from( [true, 1, 1.0, 'yes'] )->cast( 'float' )->toArray() );
+		$this->assertEquals( [[], []], Map::from( [new \stdClass, new \stdClass] )->cast( 'array' )->toArray() );
+		$this->assertEquals( [new \stdClass, new \stdClass], Map::from( [[], []] )->cast( 'object' )->toArray() );
 	}
 
 
@@ -564,6 +568,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testCountByPath()
+	{
+		$r = Map::from( [['i' => ['p' => 1.11]], ['i' => ['p' => 3.33]], ['i' => ['p' => 3.33]]] )->countBy( 'i/p' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['1.11' => 1, '3.33' => 2], $r->toArray() );
+	}
+
+
 	public function testCountByCallback()
 	{
 		$r = Map::from( ['a@gmail.com', 'b@yahoo.com', 'c@gmail.com'] )->countBy( function( $email ) {
@@ -727,6 +740,18 @@ Array
 	public function testDuplicatesPath()
 	{
 		$r = Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i/p' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [1 => ['i' => ['p' => 1]]], $r->toArray() );
+	}
+
+
+	public function testDuplicatesClosure()
+	{
+		$m = new Map( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] );
+		$r = $m->duplicates( function( $item, $key ) {
+			return $item['i']['p'];
+		} );
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( [1 => ['i' => ['p' => 1]]], $r->toArray() );
@@ -990,7 +1015,19 @@ Array
 		$m = new Map( ['foo', 'bar', 'baz'] );
 		$result = $m->find( function( $value ) {
 			return false;
-		}, 'none' );
+		}, 'none', true );
+		$this->assertSame( 'none', $result );
+	}
+
+
+	public function testFindDefaultClosure()
+	{
+		$m = new Map( ['foo', 'bar', 'baz'] );
+		$result = $m->find( function( $value ) {
+			return false;
+		}, function() {
+			return 'none';
+		} );
 		$this->assertSame( 'none', $result );
 	}
 
@@ -1034,6 +1071,17 @@ Array
 	}
 
 
+	public function testFindKeyDefaultClosure()
+	{
+		$result = Map::from( [] )->findKey( function( $value, $key ) {
+			return $value >= 'b';
+		}, function() {
+			return 'none';
+		} );
+		$this->assertSame( 'none', $result );
+	}
+
+
 	public function testFindKeyException()
 	{
 		$this->expectException( \Exception::class );
@@ -1048,6 +1096,21 @@ Array
 	{
 		$m = new Map( ['foo', 'bar'] );
 		$this->assertSame( 'foo', $m->first() );
+	}
+
+
+	public function testFirstEmpty()
+	{
+		$this->assertSame( null, Map::from( [] )->first() );
+	}
+
+
+	public function testFirstWithClosure()
+	{
+		$m = new Map;
+		$result = $m->first( function() { return rand( 10, 11 ); } );
+
+		$this->assertGreaterThanOrEqual( 10, $result );
 	}
 
 
@@ -1068,15 +1131,6 @@ Array
 	}
 
 
-	public function testFirstWithClosure()
-	{
-		$m = new Map;
-		$result = $m->first( function() { return rand( 10, 11 ); } );
-
-		$this->assertGreaterThanOrEqual( 10, $result );
-	}
-
-
 	public function testFirstKey()
 	{
 		$this->assertSame( 'a', Map::from( ['a' => 1, 'b' => 2] )->firstKey() );
@@ -1086,6 +1140,32 @@ Array
 	public function testFirstKeyEmpty()
 	{
 		$this->assertSame( null, Map::from( [] )->firstKey() );
+	}
+
+
+	public function testFirstKeyWithClosure()
+	{
+		$m = new Map;
+		$result = $m->firstKey( function() { return rand( 10, 11 ); } );
+
+		$this->assertGreaterThanOrEqual( 10, $result );
+	}
+
+
+	public function testFirstKeyWithDefault()
+	{
+		$m = new Map;
+		$result = $m->firstKey( 'default' );
+		$this->assertSame( 'default', $result );
+	}
+
+
+	public function testFirstKeyWithException()
+	{
+		$m = new Map;
+
+		$this->expectException( \RuntimeException::class );
+		$result = $m->firstKey( new \RuntimeException( 'error' ) );
 	}
 
 
@@ -1478,7 +1558,7 @@ Array
 		);
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( ['b'], $r->all() );
+		$this->assertSame( ['b'], $r->toArray() );
 	}
 
 
@@ -1491,7 +1571,7 @@ Array
 		);
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( [], $r->all() );
+		$this->assertSame( [], $r->toArray() );
 	}
 
 
@@ -1504,7 +1584,7 @@ Array
 		);
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( [], $r->all() );
+		$this->assertSame( [], $r->toArray() );
 	}
 
 
@@ -1515,7 +1595,7 @@ Array
 		} );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( ['a', 'b', 'c'], $r->all() );
+		$this->assertSame( ['a', 'b', 'c'], $r->toArray() );
 	}
 
 
@@ -1526,7 +1606,7 @@ Array
 		} );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( ['b'], $r->all() );
+		$this->assertSame( ['b'], $r->toArray() );
 	}
 
 
@@ -1537,7 +1617,7 @@ Array
 		);
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( ['b'], $r->all() );
+		$this->assertSame( ['b'], $r->toArray() );
 	}
 
 
@@ -1549,7 +1629,7 @@ Array
 		);
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( ['c'], $r->all() );
+		$this->assertSame( ['c'], $r->toArray() );
 	}
 
 
@@ -1558,7 +1638,7 @@ Array
 		$r = Map::from( ['a'] )->ifAny();
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( ['a'], $r->all() );
+		$this->assertSame( ['a'], $r->toArray() );
 	}
 
 
@@ -2050,6 +2130,21 @@ Array
 	}
 
 
+	public function testLastEmpty()
+	{
+		$this->assertSame( null, Map::from( [] )->last() );
+	}
+
+
+	public function testLastWithClosure()
+	{
+		$m = new Map;
+		$result = $m->last( function() { return rand( 10, 11 ); } );
+
+		$this->assertGreaterThanOrEqual( 10, $result );
+	}
+
+
 	public function testLastWithDefault()
 	{
 		$m = new Map;
@@ -2067,15 +2162,6 @@ Array
 	}
 
 
-	public function testLastWithClosure()
-	{
-		$m = new Map;
-		$result = $m->last( function() { return rand( 10, 11 ); } );
-
-		$this->assertGreaterThanOrEqual( 10, $result );
-	}
-
-
 	public function testLastKey()
 	{
 		$this->assertSame( 'b', Map::from( ['a' => 1, 'b' => 2] )->lastKey() );
@@ -2085,6 +2171,32 @@ Array
 	public function testLastKeyEmpty()
 	{
 		$this->assertSame( null, Map::from( [] )->lastKey() );
+	}
+
+
+	public function testLastKeyWithClosure()
+	{
+		$m = new Map;
+		$result = $m->lastKey( function() { return rand( 10, 11 ); } );
+
+		$this->assertGreaterThanOrEqual( 10, $result );
+	}
+
+
+	public function testLastKeyWithDefault()
+	{
+		$m = new Map;
+		$result = $m->lastKey( 'default' );
+		$this->assertSame( 'default', $result );
+	}
+
+
+	public function testLastKeyWithException()
+	{
+		$m = new Map;
+
+		$this->expectException( \RuntimeException::class );
+		$result = $m->lastKey( new \RuntimeException( 'error' ) );
 	}
 
 
@@ -2116,8 +2228,12 @@ Array
 
 	public function testMaxClosure()
 	{
-		$this->assertSame( 30, Map::from( [50, 10, 30] )->max( function( $val ) { return $val < 50; } ) );
-		$this->assertSame( 30, Map::from( [50, 10, 30] )->max( function( $val, $key ) { return $key > 0; } ) );
+		$this->assertSame( 50, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( function( $val, $key ) {
+			return $val['i']['p'] ?? null;
+		} ) );
+		$this->assertSame( 30, Map::from( [50, 10, 30] )->max( function( $val, $key ) {
+			return $key > 0 ? $val : null;
+		} ) );
 	}
 
 
@@ -2225,8 +2341,12 @@ Array
 
 	public function testMinClosure()
 	{
-		$this->assertSame( 30, Map::from( [10, 50, 30] )->min( function( $val ) { return $val > 10; } ) );
-		$this->assertSame( 30, Map::from( [10, 50, 30] )->min( function( $val, $key ) { return $key > 0; } ) );
+		$this->assertSame( 30, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( function( $val, $key ) {
+			return $val['i']['p'] ?? null;
+		} ) );
+		$this->assertSame( 30, Map::from( [10, 50, 30] )->min( function( $val, $key ) {
+			return $key > 0 ? $val : null;
+		} ) );
 	}
 
 
@@ -2896,7 +3016,7 @@ Array
 	}
 
 
-	public function testSkipFunction()
+	public function testSkipClosure()
 	{
 		$fcn = function( $item, $key ) {
 			return $item < 4;
@@ -3088,27 +3208,39 @@ Array
 
 	public function testStrAfter()
 	{
-		$this->assertEquals( ['1', '1', '1'], Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strAfter( '' )->all() );
-		$this->assertEquals( ['0', '0'], Map::from( [0, 0.0, false, []] )->strAfter( '' )->all() );
-		$this->assertEquals( ['üß'], Map::from( ['äöüß'] )->strAfter( 'ö' )->all() );
-		$this->assertEquals( ['abc'], Map::from( ['abc'] )->strAfter( '' )->all() );
-		$this->assertEquals( ['c'], Map::from( ['abc'] )->strAfter( 'b' )->all() );
-		$this->assertEquals( [''], Map::from( ['abc'] )->strAfter( 'c' )->all() );
-		$this->assertEquals( [], Map::from( ['abc'] )->strAfter( 'x' )->all() );
-		$this->assertEquals( [], Map::from( [''] )->strAfter( '' )->all() );
+		$this->assertEquals( ['1', '1', '1'], Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strAfter( '' )->toArray() );
+		$this->assertEquals( ['0', '0'], Map::from( [0, 0.0, false, []] )->strAfter( '' )->toArray() );
+		$this->assertEquals( ['üß'], Map::from( ['äöüß'] )->strAfter( 'ö' )->toArray() );
+		$this->assertEquals( ['abc'], Map::from( ['abc'] )->strAfter( '' )->toArray() );
+		$this->assertEquals( ['c'], Map::from( ['abc'] )->strAfter( 'b' )->toArray() );
+		$this->assertEquals( [''], Map::from( ['abc'] )->strAfter( 'c' )->toArray() );
+		$this->assertEquals( [], Map::from( ['abc'] )->strAfter( 'x' )->toArray() );
+		$this->assertEquals( [], Map::from( [''] )->strAfter( '' )->toArray() );
 	}
 
 
 	public function testStrBefore()
 	{
-		$this->assertEquals( ['1', '1', '1'], Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strBefore( '' )->all() );
-		$this->assertEquals( ['0', '0'], Map::from( [0, 0.0, false, []] )->strBefore( '' )->all() );
-		$this->assertEquals( ['äö'], Map::from( ['äöüß'] )->strBefore( 'ü' )->all() );
-		$this->assertEquals( ['abc'], Map::from( ['abc'] )->strBefore( '' )->all() );
-		$this->assertEquals( ['a'], Map::from( ['abc'] )->strBefore( 'b' )->all() );
-		$this->assertEquals( [''], Map::from( ['abc'] )->strBefore( 'a' )->all() );
-		$this->assertEquals( [], Map::from( ['abc'] )->strBefore( 'x' )->all() );
-		$this->assertEquals( [], Map::from( [''] )->strBefore( '' )->all() );
+		$this->assertEquals( ['1', '1', '1'], Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strBefore( '' )->toArray() );
+		$this->assertEquals( ['0', '0'], Map::from( [0, 0.0, false, []] )->strBefore( '' )->toArray() );
+		$this->assertEquals( ['äö'], Map::from( ['äöüß'] )->strBefore( 'ü' )->toArray() );
+		$this->assertEquals( ['abc'], Map::from( ['abc'] )->strBefore( '' )->toArray() );
+		$this->assertEquals( ['a'], Map::from( ['abc'] )->strBefore( 'b' )->toArray() );
+		$this->assertEquals( [''], Map::from( ['abc'] )->strBefore( 'a' )->toArray() );
+		$this->assertEquals( [], Map::from( ['abc'] )->strBefore( 'x' )->toArray() );
+		$this->assertEquals( [], Map::from( [''] )->strBefore( '' )->toArray() );
+	}
+
+
+	public function testStrCompare()
+	{
+		$this->assertEquals( true, Map::from( ['foo', 'bar'] )->strCompare( 'foo' ) );
+		$this->assertEquals( true, Map::from( ['foo', 'bar'] )->strCompare( 'Foo', false ) );
+		$this->assertEquals( true, Map::from( [123, 12.3] )->strCompare( '12.3' ) );
+		$this->assertEquals( true, Map::from( [false, true] )->strCompare( '1' ) );
+		$this->assertEquals( false, Map::from( ['foo', 'bar'] )->strCompare( 'Foo' ) );
+		$this->assertEquals( false, Map::from( ['foo', 'bar'] )->strCompare( 'baz' ) );
+		$this->assertEquals( false, Map::from( [new \stdClass(), 'bar'] )->strCompare( 'foo' ) );
 	}
 
 
@@ -3186,15 +3318,15 @@ Array
 
 	public function testStrLower()
 	{
-		$this->assertEquals( ["my string"], Map::from( ['My String'] )->strLower()->all() );
-		$this->assertEquals( ["τάχιστη"], Map::from( ['Τάχιστη'] )->strLower()->all() );
+		$this->assertEquals( ["my string"], Map::from( ['My String'] )->strLower()->toArray() );
+		$this->assertEquals( ["τάχιστη"], Map::from( ['Τάχιστη'] )->strLower()->toArray() );
 
 		$list = [mb_convert_encoding( 'ÄPFEL', 'ISO-8859-1' ), 'BIRNEN'];
 		$expected = [mb_convert_encoding( 'äpfel', 'ISO-8859-1' ), "birnen"];
-		$this->assertEquals( $expected, Map::from( $list )->strLower( 'ISO-8859-1' )->all() );
+		$this->assertEquals( $expected, Map::from( $list )->strLower( 'ISO-8859-1' )->toArray() );
 
-		$this->assertEquals( [123], Map::from( [123] )->strLower()->all() );
-		$this->assertEquals( [new \stdClass], Map::from( [new \stdClass] )->strLower()->all() );
+		$this->assertEquals( [123], Map::from( [123] )->strLower()->toArray() );
+		$this->assertEquals( [new \stdClass], Map::from( [new \stdClass] )->strLower()->toArray() );
 	}
 
 
@@ -3217,15 +3349,15 @@ Array
 
 	public function testStrUpper()
 	{
-		$this->assertEquals( ["MY STRING"], Map::from( ['My String'] )->strUpper()->all() );
-		$this->assertEquals( ["ΤΆΧΙΣΤΗ"], Map::from( ['τάχιστη'] )->strUpper()->all() );
+		$this->assertEquals( ["MY STRING"], Map::from( ['My String'] )->strUpper()->toArray() );
+		$this->assertEquals( ["ΤΆΧΙΣΤΗ"], Map::from( ['τάχιστη'] )->strUpper()->toArray() );
 
 		$list = [mb_convert_encoding( 'äpfel', 'ISO-8859-1' ), 'birnen'];
 		$expected = [mb_convert_encoding( 'ÄPFEL', 'ISO-8859-1' ), "BIRNEN"];
-		$this->assertEquals( $expected, Map::from( $list )->strUpper( 'ISO-8859-1' )->all() );
+		$this->assertEquals( $expected, Map::from( $list )->strUpper( 'ISO-8859-1' )->toArray() );
 
-		$this->assertEquals( [123], Map::from( [123] )->strUpper()->all() );
-		$this->assertEquals( [new \stdClass], Map::from( [new \stdClass] )->strUpper()->all() );
+		$this->assertEquals( [123], Map::from( [123] )->strUpper()->toArray() );
+		$this->assertEquals( [new \stdClass], Map::from( [new \stdClass] )->strUpper()->toArray() );
 	}
 
 
@@ -3244,13 +3376,13 @@ Array
 
 	public function testStringReplace()
 	{
-		$this->assertEquals( ['google.de', 'aimeos.de'], Map::from( ['google.com', 'aimeos.com'] )->strReplace( '.com', '.de' )->all() );
-		$this->assertEquals( ['google.de', 'aimeos.de'], Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], '.de' )->all() );
-		$this->assertEquals( ['google.de', 'aimeos'], Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.de'] )->all() );
-		$this->assertEquals( ['google.fr', 'aimeos.de'], Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.fr', '.de'] )->all() );
-		$this->assertEquals( ['google.de', 'aimeos.de'], Map::from( ['google.com', 'aimeos.com'] )->strReplace( ['.com', '.co'], ['.co', '.de', '.fr'] )->all() );
-		$this->assertEquals( ['google.de', 'aimeos.de', 123], Map::from( ['google.com', 'aimeos.com', 123] )->strReplace( '.com', '.de' )->all() );
-		$this->assertEquals( ['GOOGLE.de', 'AIMEOS.de'], Map::from( ['GOOGLE.COM', 'AIMEOS.COM'] )->strReplace( '.com', '.de', true )->all() );
+		$this->assertEquals( ['google.de', 'aimeos.de'], Map::from( ['google.com', 'aimeos.com'] )->strReplace( '.com', '.de' )->toArray() );
+		$this->assertEquals( ['google.de', 'aimeos.de'], Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], '.de' )->toArray() );
+		$this->assertEquals( ['google.de', 'aimeos'], Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.de'] )->toArray() );
+		$this->assertEquals( ['google.fr', 'aimeos.de'], Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.fr', '.de'] )->toArray() );
+		$this->assertEquals( ['google.de', 'aimeos.de'], Map::from( ['google.com', 'aimeos.com'] )->strReplace( ['.com', '.co'], ['.co', '.de', '.fr'] )->toArray() );
+		$this->assertEquals( ['google.de', 'aimeos.de', 123], Map::from( ['google.com', 'aimeos.com', 123] )->strReplace( '.com', '.de' )->toArray() );
+		$this->assertEquals( ['GOOGLE.de', 'AIMEOS.de'], Map::from( ['GOOGLE.COM', 'AIMEOS.COM'] )->strReplace( '.com', '.de', true )->toArray() );
    }
 
 
@@ -3304,8 +3436,12 @@ Array
 
 	public function testSumClosure()
 	{
-		$this->assertSame( 40.0, Map::from( [30, 50, 10] )->sum( function( $val ) { return $val < 50; } ) );
-		$this->assertSame( 60.0, Map::from( [30, 50, 10] )->sum( function( $val, $key ) { return $key > 0; } ) );
+		$this->assertSame( 80.0, Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( function( $val, $key ) {
+			return $val['i']['p'] ?? null;
+		} ) );
+		$this->assertSame( 40.0, Map::from( [30, 50, 10] )->sum( function( $val, $key ) {
+			return $val < 50 ? $val : null;
+		} ) );
 	}
 
 
@@ -3334,7 +3470,7 @@ Array
 	}
 
 
-	public function testTakeFunction()
+	public function testTakeClosure()
 	{
 		$fcn = function( $item, $key ) {
 			return $item < 2;
@@ -3774,7 +3910,7 @@ Array
 		$r = $m->unique( 'p' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( [['p' => 1], ['p' => 2]], $r->toArray() );
+		$this->assertSame( [0 => ['p' => '1'], 2 => ['p' => 2]], $r->toArray() );
 	}
 
 
@@ -3784,7 +3920,19 @@ Array
 		$r = $m->unique( 'i/p' );
 
 		$this->assertInstanceOf( Map::class, $r );
-		$this->assertSame( [['i' => ['p' => 1]]], $r->toArray() );
+		$this->assertSame( [0 => ['i' => ['p' => '1']]], $r->toArray() );
+	}
+
+
+	public function testUniqueClosure()
+	{
+		$m = new Map( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] );
+		$r = $m->unique( function( $item, $key ) {
+			return $item['i']['p'];
+		} );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [0 => ['i' => ['p' => '1']]], $r->toArray() );
 	}
 
 

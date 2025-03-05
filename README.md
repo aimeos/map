@@ -140,7 +140,6 @@ will return:
 <a href="#col">col</a>
 <a href="#collapse">collapse</a>
 <a href="#combine">combine</a>
-<a href="#compare">compare</a>
 <a href="#concat">concat</a>
 <a href="#contains">contains</a>
 <a href="#copy">copy</a>
@@ -257,6 +256,7 @@ will return:
 <a href="#splice">splice</a>
 <a href="#strafter">strAfter</a>
 <a href="#strbefore">strBefore</a>
+<a href="#strcompare">strCompare</a>
 <a href="#strcontains">strContains</a>
 <a href="#strcontainsall">strContainsAll</a>
 <a href="#strends">strEnds</a>
@@ -436,7 +436,6 @@ will return:
 
 * [function is_map()](#is_map-function) : Tests if the variable is a map object
 * [any()](#any) : Tests if at least one element satisfies the callback function
-* [compare()](#compare) : Compares the value against all map elements
 * [contains()](#contains) : Tests if an item exists in the map
 * [each()](#each) : Applies a callback to each element
 * [empty()](#empty) : Tests if map is empty
@@ -459,6 +458,7 @@ will return:
 * [implements()](#implements) : Tests if all entries are objects implementing the interface
 * [none()](#none) : Tests if none of the elements are part of the map
 * [some()](#some) : Tests if at least one element is included
+* [strCompare()](#strcompare) : Compares the value against all map elements
 * [strContains()](#strcontains) : Tests if at least one of the passed strings is part of at least one entry
 * [strContainsAll()](#strcontainsall) : Tests if all of the entries contains one of the passed strings
 * [strEnds()](#strends) : Tests if at least one of the entries ends with one of the passed strings
@@ -1008,7 +1008,7 @@ public function avg( $col = null ) : float
 * @param **Closure&#124;string&#124;null** `$col` Closure, key or path to the values in the nested array or object to compute the average for
 * @return **float** Average of all elements or 0 if there are no elements in the map
 
-NULL values are treated as 0, non-numeric values will generate an error.
+Non-numeric values will be removed before calculation.
 
 This does also work for multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
@@ -1033,8 +1033,11 @@ Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( 'p' );
 Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( 'i/p' );
 // 40
 
-Map::from( [30, 50, 10] )->avg( fn( $val, $key ) => $val < 50 );
-// 20
+Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->avg( fn( $val, $key ) => $val['i']['p'] ?? null );
+// 40
+
+Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( fn( $val, $key ) => $key < 1 ? $val : null );
+// 30
 ```
 
 **See also:**
@@ -1438,53 +1441,6 @@ Map::from( ['name', 'age'] )->combine( ['Tom', 29] );
 **See also:**
 
 * [zip()](#zip) - Merges the values of all arrays at the corresponding index
-
-
-### compare()
-
-Compares the value against all map elements.
-
-```php
-public function compare( string $value, bool $case = true ) : bool
-```
-
-* @param **string** `$value` Value to compare map elements to
-* @param **bool** `$case` TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
-* @return **bool** TRUE If at least one element matches, FALSE if value is not in map
-
-All scalar values (bool, float, int and string) are casted to string values before
-comparing to the given value. Non-scalar values in the map are ignored.
-
-**Examples:**
-
-```php
-Map::from( ['foo', 'bar'] )->compare( 'foo' );
-// true
-
-Map::from( ['foo', 'bar'] )->compare( 'Foo', false );
-// true (case insensitive)
-
-Map::from( [123, 12.3] )->compare( '12.3' );
-// true
-
-Map::from( [false, true] )->compare( '1' );
-// true
-
-Map::from( ['foo', 'bar'] )->compare( 'Foo' );
-// false (case sensitive)
-
-Map::from( ['foo', 'bar'] )->compare( 'baz' );
-// false
-
-Map::from( [new \stdClass(), 'bar'] )->compare( 'foo' );
-// false
-```
-
-**See also:**
-
-* [contains()](#contains) - Tests if an item exists in the map
-* [in()](#in) - Tests if element is included
-* [includes()](#includes) - Tests if element is included
 
 
 ### concat()
@@ -1902,7 +1858,7 @@ Returns the duplicate values from the map.
 public function duplicates( string $col = null ) : self
 ```
 
-* @param **string&#124;null** `$col` Key of the nested array or object to check for
+* @param **\Closure&#124;string&#124;null** `$col` Key, path of the nested array or anonymous function with ($item, $key) parameters returning the value for comparison
 * @return **self&#60;int&#124;string,mixed&#62;** New map
 
 For nested arrays, you have to pass the name of the column of the nested array which
@@ -1925,7 +1881,10 @@ Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->duplicates( 'p' )
 // [1 => ['p' => 1]]
 
 Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i/p' )
-// [1 => ['i' => ['p' => '1']]]
+// [1 => ['i' => ['p' => 1]]]
+
+Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->unique( fn( $item, $key ) => $item['i']['p'] );
+// [1 => ['i' => ['p' => 1]]]
 ```
 
 **See also:**
@@ -2205,7 +2164,7 @@ public function find( \Closure $callback, $default = null, bool $reverse = false
 ```
 
 * @param **\Closure** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
-* @param **mixed** `$default` Default value or exception if the map contains no elements
+* @param **mixed** `$default` Default value, closure or exception if the callback only returns FALSE
 * @param **bool** `$reverse` TRUE to test elements from back to front, FALSE for front to back (default)
 * @return **mixed&#124;null** First matching value, passed default value or an exception
 
@@ -2229,6 +2188,11 @@ Map::from( [] )->find( function( $value, $key ) {
 
 Map::from( [] )->find( function( $value, $key ) {
     return $value >= 'b';
+}, fn() => 'none' );
+// 'none'
+
+Map::from( [] )->find( function( $value, $key ) {
+    return $value >= 'b';
 }, new \Exception( 'error' ) );
 // throws \Exception
 ```
@@ -2247,7 +2211,7 @@ public function findKey( \Closure $callback, $default = null, bool $reverse = fa
 ```
 
 * @param **\Closure** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
-* @param **mixed** `$default` Default value or exception if the map contains no elements
+* @param **mixed** `$default` Default value, closure or exception if the callback only returns FALSE
 * @param **bool** `$reverse` TRUE to test elements from back to front, FALSE for front to back (default)
 * @return **mixed&#124;null** First matching value, passed default value or an exception
 
@@ -2266,7 +2230,7 @@ Map::from( ['a', 'c', 'e'] )->findKey( function( $value, $key ) {
 
 Map::from( [] )->findKey( function( $value, $key ) {
     return $value >= 'b';
-}, 'none' );
+}, fn() => 'none' );
 // default value 'none'
 
 Map::from( [] )->findKey( function( $value, $key ) {
@@ -2288,8 +2252,10 @@ Returns the first element from the map.
 public function first( $default = null )
 ```
 
-* @param **mixed** `$default` Default value or exception if the map contains no elements
+* @param **mixed** `$default` Default value, closure or exception if the map contains no elements
 * @return **mixed** First value of map, (generated) default value or an exception
+
+Using this method doesn't affect the internal array pointer.
 
 **Examples:**
 
@@ -2310,6 +2276,8 @@ Map::from( [] )->first( function() { return rand(); } );
 **See also:**
 
 * [firstKey()](#firstkey) - Returns the key of the first element from the map
+* [last()](#last) - Returns the last element from the map
+* [lastKey()](#lastkey) - Returns the key of the last element from the map
 
 
 ### firstKey()
@@ -2317,24 +2285,35 @@ Map::from( [] )->first( function() { return rand(); } );
 Returns the key of the first element from the map.
 
 ```php
-public function firstKey()
+public function firstKey( $default = null )
 ```
 
-* @return **mixed** First key of map or NULL if empty
+* @param **mixed** `$default` Default value, closure or exception if the map contains no elements
+* @return **mixed** First key of map, (generated) default value or an exception
+
+Using this method doesn't affect the internal array pointer.
 
 **Examples:**
 
 ```php
-Map::from( ['a' => 1, 'b' => 2] )->lastKey();
+Map::from( ['a' => 1, 'b' => 2] )->firstKey();
 // 'a'
 
-Map::from( [] )->lastKey();
-// null
+Map::from( [] )->firstKey( 'x' );
+// 'x'
+
+Map::from( [] )->firstKey( new \Exception( 'error' ) );
+// throws \Exception
+
+Map::from( [] )->firstKey( function() { return rand(); } );
+// random integer
 ```
 
 **See also:**
 
 * [first()](#first) - Returns the first element from the map
+* [last()](#last) - Returns the last element from the map
+* [lastKey()](#lastkey) - Returns the last key from the map
 
 
 ### flat()
@@ -2673,6 +2652,11 @@ public function groupBy( $key ) : self
 Instead of overwriting items with the same keys like to the [col()](#col) method does,
 [groupBy()](#groupby) keeps all entries in sub-arrays. It's preserves the keys of the
 orignal map entries too.
+
+This does also work for multi-dimensional arrays by passing the keys
+of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+public properties of objects or objects implementing __isset() and __get() methods.
 
 **Examples:**
 
@@ -3992,8 +3976,10 @@ Returns the last element from the map.
 public function last( $default = null )
 ```
 
-* @param **mixed** `$default` Default value or exception if the map contains no elements
+* @param **mixed** `$default` Default value, closure or exception if the map contains no elements
 * @return **mixed** Last value of map, (generated) default value or an exception
+
+Using this method doesn't affect the internal array pointer.
 
 **Examples:**
 
@@ -4013,6 +3999,8 @@ Map::from( [] )->last( function() { return rand(); } );
 
 **See also:**
 
+* [first()](#first) - Returns the first element from the map
+* [firstKey()](#firstkey) - Returns the key of the first element from the map
 * [lastKey()](#lastkey) - Returns the key of the last element from the map
 
 
@@ -4021,10 +4009,13 @@ Map::from( [] )->last( function() { return rand(); } );
 Returns the key of the last element from the map.
 
 ```php
-public function lastKey()
+public function lastKey( $default = null )
 ```
 
-* @return **mixed** Last key of map or NULL if empty
+* @param **mixed** `$default` Default value, closure or exception if the map contains no elements
+* @return **mixed** Last key of map, (generated) default value or an exception
+
+Using this method doesn't affect the internal array pointer.
 
 **Examples:**
 
@@ -4032,12 +4023,20 @@ public function lastKey()
 Map::from( ['a' => 1, 'b' => 2] )->lastKey();
 // 'b'
 
-Map::from( [] )->lastKey();
-// null
+Map::from( [] )->lastKey( 'x' );
+// 'x'
+
+Map::from( [] )->lastKey( new \Exception( 'error' ) );
+// throws \Exception
+
+Map::from( [] )->lastKey( function() { return rand(); } );
+// random integer
 ```
 
 **See also:**
 
+* [first()](#first) - Returns the first element from the map
+* [firstKey()](#firstkey) - Returns the key of the first element from the map
 * [last()](#last) - Returns the last element from the map
 
 
@@ -4109,6 +4108,9 @@ public function max( $col = null )
 * @param **Closure&#124;string&#124;null** `$col` Closure, key in the nested array or object to check for
 * @return **mixed** Maximum value or NULL if there are no elements in the map
 
+NULL values are removed before the comparison. If there are no values or all
+values are NULL, NULL is returned.
+
 This does also work to map values from multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
 to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
@@ -4132,7 +4134,10 @@ Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->max( 'p' );
 Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( 'i/p' );
 // 50
 
-Map::from( [50, 10, 30] )->max( fn( $val, $key ) => $key > 0 );
+Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->max( fn( $val, $key ) => $val['i']['p'] ?? null )
+// 50
+
+Map::from( [50, 10, 30] )->max( fn( $val, $key ) => $key > 0 ? $val : null )
 // 30
 ```
 
@@ -4244,6 +4249,9 @@ public function min( $col = null )
 * @param **Closure&#124;string&#124;null** `$col` Closure, key in the nested array or object to check for
 * @return **mixed** Minimum value or NULL if there are no elements in the map
 
+NULL values are removed before the comparison. If there are no values or all
+values are NULL, NULL is returned.
+
 This does also work to map values from multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
 to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
@@ -4267,7 +4275,10 @@ Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->min( 'p' );
 Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( 'i/p' );
 // 30
 
-Map::from( [10, 50, 30] )->min( fn( $val, $key ) => $key > 0 );
+Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->min( fn( $val, $key ) => $val['i']['p'] ?? null )
+// 30
+
+Map::from( [10, 50, 30] )->min( fn( $val, $key ) => $key > 0 ? $val : null )
 // 30
 ```
 
@@ -5688,6 +5699,53 @@ Map::from( [0, 0.0, false, []] )->strBefore( '' );
 * [strAfter()](#strafter) - Returns the strings after the passed value
 
 
+### strCompare()
+
+Compares the value against all map elements.
+
+```php
+public function strCompare( string $value, bool $case = true ) : bool
+```
+
+* @param **string** `$value` Value to compare map elements to
+* @param **bool** `$case` TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
+* @return **bool** TRUE If at least one element matches, FALSE if value is not in map
+
+All scalar values (bool, float, int and string) are casted to string values before
+comparing to the given value. Non-scalar values in the map are ignored.
+
+**Examples:**
+
+```php
+Map::from( ['foo', 'bar'] )->strCompare( 'foo' );
+// true
+
+Map::from( ['foo', 'bar'] )->strCompare( 'Foo', false );
+// true (case insensitive)
+
+Map::from( [123, 12.3] )->strCompare( '12.3' );
+// true
+
+Map::from( [false, true] )->strCompare( '1' );
+// true
+
+Map::from( ['foo', 'bar'] )->strCompare( 'Foo' );
+// false (case sensitive)
+
+Map::from( ['foo', 'bar'] )->strCompare( 'baz' );
+// false
+
+Map::from( [new \stdClass(), 'bar'] )->strCompare( 'foo' );
+// false
+```
+
+**See also:**
+
+* [contains()](#contains) - Tests if an item exists in the map
+* [in()](#in) - Tests if element is included
+* [includes()](#includes) - Tests if element is included
+
+
 ### strContains()
 
 Tests if at least one of the passed strings is part of at least one entry.
@@ -6249,6 +6307,8 @@ public function sum( $col = null ) : float
 * @param **Closure&#124;string&#124;null** `$col` Closure, key in the nested array or object to sum up
 * @return **float** Sum of all elements or 0 if there are no elements in the map
 
+Non-numeric values will be removed before calculation.
+
 This does also work to map values from multi-dimensional arrays by passing the keys
 of the arrays separated by the delimiter ("/" by default), e.g. `key1/key2/key3`
 to get `val` from `['key1' => ['key2' => ['key3' => 'val']]]`. The same applies to
@@ -6267,6 +6327,9 @@ Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->sum( 'p' );
 // 90
 
 Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( 'i/p' );
+// 80
+
+Map::from( [['i' => ['p' => 30]], ['i' => ['p' => 50]]] )->sum( fn( $val, $key ) => $val['i']['p'] ?? null )
 // 80
 
 Map::from( [30, 50, 10] )->sum( fn( $val, $key ) => $val < 50 );
@@ -6964,10 +7027,10 @@ Map::from( ['a' => 1, 'b' => 2] )->union( ['c' => 1] );
 Returns only unique elements from the map in a new map.
 
 ```php
-public function unique( string $key = null ) : self
+public function unique( string $col = null ) : self
 ```
 
-* @param **string&#124;null** `$key` Key or path of the nested array or object to check for
+* @param **\Closure&#124;string&#124;null** `$col` Key, path of the nested array or anonymous function with ($item, $key) parameters returning the value for comparison
 * @return **self&#60;int&#124;string,mixed&#62;** New map
 
 Two elements are considered equal if comparing their string representions returns TRUE:
@@ -6976,7 +7039,7 @@ Two elements are considered equal if comparing their string representions return
 (string) $elem1 === (string) $elem2
 ```
 
-The keys of the elements are only preserved in the new map if no key is passed.
+The keys of the elements are preserved in the new map.
 
 **Examples:**
 
@@ -6985,10 +7048,13 @@ Map::from( [0 => 'a', 1 => 'b', 2 => 'b', 3 => 'c'] )->unique();
 // [0 => 'a', 1 => 'b', 3 => 'c']
 
 Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->unique( 'p' );
-// [['p' => 1], ['p' => 2]]
+// [0 => ['p' => '1'], 2 => ['p' => 2]]
 
 Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->unique( 'i/p' );
-// [['i' => ['p' => '1']]]
+// [0 => ['i' => ['p' => '1']]]
+
+Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->unique( fn( $item, $key ) => $item['i']['p'] );
+// [0 => ['i' => ['p' => '1']]]
 ```
 
 **See also:**
