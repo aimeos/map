@@ -1575,11 +1575,16 @@ Map::from( ['foo', 'bar'] )->count();
 Counts how often the same values are in the map.
 
 ```php
-public function countBy( callable $callback = null ) : self
+public function countBy( $col = null ) : self
 ```
 
-* @param **callable&#124;null** `$callback` Function with (value, key) parameters which returns the value to use for counting
+* @param **\Closure&#124;string&#124;null** `$col` Key as "key1/key2/key3" or closure with (value, key) parameters returning the values for counting
 * @return **self&#60;int&#124;string,mixed&#62;** New map with values as keys and their count as value
+
+This does also work for multi-dimensional arrays by passing the keys
+of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+public properties of objects or objects implementing __isset() and __get() methods.
 
 **Examples:**
 
@@ -1589,6 +1594,9 @@ Map::from( [1, 'foo', 2, 'foo', 1] )->countBy();
 
 Map::from( [1.11, 3.33, 3.33, 9.99] )->countBy();
 // ['1.11' => 1, '3.33' => 2, '9.99' => 1]
+
+Map::from( [['i' => ['p' => 1.11]], ['i' => ['p' => 3.33]], ['i' => ['p' => 3.33]]] )->countBy( 'i/p' );
+// ['1.11' => 1, '3.33' => 2]
 
 Map::from( ['a@gmail.com', 'b@yahoo.com', 'c@gmail.com'] )->countBy( function( $email ) {
     return substr( strrchr( $email, '@' ), 1 );
@@ -1853,7 +1861,7 @@ array(1) {
 Returns the duplicate values from the map.
 
 ```php
-public function duplicates( string $col = null ) : self
+public function duplicates( $col = null ) : self
 ```
 
 * @param **\Closure&#124;string&#124;null** `$col` Key, path of the nested array or anonymous function with ($item, $key) parameters returning the value for comparison
@@ -7025,7 +7033,7 @@ Map::from( ['a' => 1, 'b' => 2] )->union( ['c' => 1] );
 Returns only unique elements from the map in a new map.
 
 ```php
-public function unique( string $col = null ) : self
+public function unique( $col = null ) : self
 ```
 
 * @param **\Closure&#124;string&#124;null** `$col` Key, path of the nested array or anonymous function with ($item, $key) parameters returning the value for comparison

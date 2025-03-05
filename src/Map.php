@@ -1137,6 +1137,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * if no callback is passed. Custom callbacks need to make sure that only
 	 * string or integer values are returned!
 	 *
+	 * This does also work for multi-dimensional arrays by passing the keys
+	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
+	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
+	 * public properties of objects or objects implementing __isset() and __get() methods.
+	 *
 	 * @param \Closure|string|null $col Key as "key1/key2/key3" or function with (value, key) parameters returning the values for counting
 	 * @return self<int|string,mixed> New map with values as keys and their count as value
 	 */
