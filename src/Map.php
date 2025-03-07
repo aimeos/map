@@ -4254,7 +4254,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * delimiter() method instead.
 	 *
 	 * Examples:
-	 *  Map::from( ['foo' => ['bar' => 'baz']] )->sep( '/' )->get( 'foo/bar' );
+	 *  Map::from( ['foo' => ['bar' => 'baz']] )->sep( '.' )->get( 'foo.bar' );
 	 *
 	 * Results:
 	 *  'baz'
@@ -5797,6 +5797,38 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function uksorted( callable $callback ) : self
 	{
 		return ( clone $this )->uksort( $callback );
+	}
+
+
+	/**
+	 * Unflattens the key path/value pairs into a multi-dimensional array.
+	 *
+	 * Examples:
+	 *  Map::from( ['a/b/c' => 1, 'a/b/d' => 2, 'b/e' => 3] )->unflatten();
+	 *  Map::from( ['a.b.c' => 1, 'a.b.d' => 2, 'b.e' => 3] )->sep( '.' )->unflatten();
+	 *
+	 * Results:
+	 * ['a' => ['b' => ['c' => 1, 'd' => 2]], 'b' => ['e' => 3]]
+	 *
+	 * @return self<int|string,mixed> New map with multi-dimensional arrays
+	 */
+	public function unflatten() : self
+	{
+		$result = [];
+
+		foreach( $this->list() as $key => $value )
+		{
+			$nested = &$result;
+			$parts = explode( $this->sep, $key );
+
+			while( count( $parts ) > 1 ) {
+				$nested = &$nested[array_shift( $parts )] ?? [];
+			}
+
+			$nested[array_shift( $parts )] = $value;
+		}
+
+		return new static( $result );
 	}
 
 

@@ -3874,6 +3874,16 @@ Array
 	}
 
 
+	public function testUnflatten()
+	{
+		$flat = ['a/b/c' => 1, 'a/b/d' => 2, 'b/e' => 3];
+		$exp = ['a' => ['b' => ['c' => 1, 'd' => 2]], 'b' => ['e' => 3]];
+
+		$this->assertSame( $exp, Map::from( ['a/b/c' => 1, 'a/b/d' => 2, 'b/e' => 3] )->unflatten()->toArray() );
+		$this->assertSame( $exp, Map::from( ['a.b.c' => 1, 'a.b.d' => 2, 'b.e' => 3] )->sep( '.' )->unflatten()->toArray() );
+	}
+
+
 	public function testUnionArray()
 	{
 		$m = new Map( ['name' => 'Hello'] );

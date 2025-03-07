@@ -286,6 +286,7 @@ will return:
 <a href="#uasorted">uasorted</a>
 <a href="#uksort">uksort</a>
 <a href="#uksorted">uksorted</a>
+<a href="#unflatten">unflatten</a>
 <a href="#union">union</a>
 <a href="#unique">unique</a>
 <a href="#unshift">unshift</a>
@@ -498,6 +499,7 @@ will return:
 * [transpose()](#transpose) : Exchanges rows and columns for a two dimensional map
 * [traverse()](#traverse) : Traverses trees of nested items passing each item to the callback
 * [trim()](#trim) : Removes the passed characters from the left/right of all strings
+* [unflatten()](#unflatten) : Unflattens the key path/value pairs into a multi-dimensional array
 * [walk()](#walk) : Applies the given callback to all elements
 * [zip()](#zip) : Merges the values of all arrays at the corresponding index
 
@@ -6963,6 +6965,32 @@ Map::from( ['B' => 'a', 'a' => 'b'] )->uksorted( function( $keyA, $keyB ) {
 **See also:**
 
 * [uksort()](#uksort) - Sorts the map elements by their keys using a callback
+
+
+### unflatten()
+
+Unflattens the key path/value pairs into a multi-dimensional array.
+
+```php
+public function unflatten() : self
+```
+
+* @return **self&#60;string,mixed&#62;** New map with multi-dimensional arrays
+
+**Examples:**
+
+```php
+Map::from( ['a/b/c' => 1, 'a/b/d' => 2, 'b/e' => 3] )->unflatten();
+// ['a' => ['b' => ['c' => 1, 'd' => 2]], 'b' => ['e' => 3]]
+
+Map::from( ['a.b.c' => 1, 'a.b.d' => 2, 'b.e' => 3] )->sep( '.' )->unflatten();
+// ['a' => ['b' => ['c' => 1, 'd' => 2]], 'b' => ['e' => 3]]
+```
+
+**See also:**
+
+* [flat()](#flat) - Flattens multi-dimensional elements without overwriting elements
+* [collapse()](#collapse) - Collapses all sub-array elements recursively to a new map
 
 
 ### union()
