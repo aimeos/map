@@ -165,6 +165,7 @@ will return:
 <a href="#first">first</a>
 <a href="#firstkey">firstKey</a>
 <a href="#flat">flat</a>
+<a href="#flatten">flatten</a>
 <a href="#flip">flip</a>
 <a href="#float">float</a>
 <a href="#from">from</a>
@@ -473,6 +474,7 @@ will return:
 * [collapse()](#collapse) : Collapses multi-dimensional elements overwriting elements
 * [combine()](#combine) : Combines the map elements as keys with the given values
 * [flat()](#flat) : Flattens multi-dimensional elements without overwriting elements
+* [flatten()](#flatten) : Creates a new map with keys joined recursively
 * [flip()](#flip) : Exchanges keys with their values
 * [groupBy()](#groupby) : Groups associative array elements or objects
 * [join()](#join) : Returns concatenated elements as string with separator
@@ -2362,6 +2364,39 @@ Map::from( [[0, 1], Map::from( [[2, 3], 4] )] )->flat();
 **See also:**
 
 * [collapse()](#collapse) - Collapses all sub-array elements recursively to a new map
+
+
+### flatten()
+
+c.
+
+```php
+public function flatten( ?int $depth = null ) : self
+```
+
+* @param **int&#124;null** `$depth` Number of levels to flatten multi-dimensional arrays or NULL for all
+* @return **self&#60;string,mixed&#62;** New map with keys joined recursively, up to the specified depth
+
+To create the original multi-dimensional array again, use the [unflatten()](#unflatten) method.
+
+**Examples:**
+
+```php
+Map::from( ['a' => ['b' => ['c' => 1, 'd' => 2]], 'b' => ['e' => 3]] )->flatten();
+// ['a/b/c' => 1, 'a/b/d' => 2, 'b/e' => 3]
+
+Map::from( ['a' => ['b' => ['c' => 1, 'd' => 2]], 'b' => ['e' => 3]] )->flatten( 1 );
+// ['a/b' => ['c' => 1, 'd' => 2], 'b/e' => 3]
+
+Map::from( ['a' => ['b' => ['c' => 1, 'd' => 2]], 'b' => ['e' => 3]] )->sep( '.' )->flatten();
+// ['a.b.c' => 1, 'a.b.d' => 2, 'b.e' => 3]
+```
+
+**See also:**
+
+* [flat()](#flat) - Flattens multi-dimensional elements without overwriting elements
+* [collapse()](#collapse) - Collapses all sub-array elements recursively to a new map
+* [unflatten()](#unflatten) - Unflattens the key path/value pairs into a multi-dimensional array
 
 
 ### flip()
@@ -6975,6 +7010,8 @@ Unflattens the key path/value pairs into a multi-dimensional array.
 public function unflatten() : self
 ```
 
+This is the inverse method for [flatten()](#flatten).
+
 * @return **self&#60;string,mixed&#62;** New map with multi-dimensional arrays
 
 **Examples:**
@@ -6989,8 +7026,9 @@ Map::from( ['a.b.c' => 1, 'a.b.d' => 2, 'b.e' => 3] )->sep( '.' )->unflatten();
 
 **See also:**
 
-* [flat()](#flat) - Flattens multi-dimensional elements without overwriting elements
 * [collapse()](#collapse) - Collapses all sub-array elements recursively to a new map
+* [flat()](#flat) - Flattens multi-dimensional elements without overwriting elements
+* [flatten()](#flatten) - Creates a new map with keys joined recursively
 
 
 ### union()

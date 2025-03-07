@@ -1767,7 +1767,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Creates a new map with all sub-array elements added recursively withput overwriting existing keys.
+	 * Creates a new map with all sub-array elements added recursively without overwriting existing keys.
 	 *
 	 * Examples:
 	 *  Map::from( [[0, 1], [2, 3]] )->flat();
@@ -1800,7 +1800,38 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		}
 
 		$result = [];
-		$this->flatten( $this->list(), $result, $depth ?? 0x7fffffff );
+		$this->nflatten( $this->list(), $result, $depth ?? 0x7fffffff );
+		return new static( $result );
+	}
+
+
+	/**
+	 * Creates a new map with keys joined recursively.
+	 *
+	 * Examples:
+	 *  Map::from( ['a' => ['b' => ['c' => 1, 'd' => 2]], 'b' => ['e' => 3]] )->flatten();
+	 *  Map::from( ['a' => ['b' => ['c' => 1, 'd' => 2]], 'b' => ['e' => 3]] )->flatten( 1 );
+	 *  Map::from( ['a' => ['b' => ['c' => 1, 'd' => 2]], 'b' => ['e' => 3]] )->sep( '.' )->flatten();
+	 *
+	 * Results:
+	 *  ['a/b/c' => 1, 'a/b/d' => 2, 'b/e' => 3]
+	 *  ['a/b' => ['c' => 1, 'd' => 2], 'b/e' => 3]
+	 *  ['a.b.c' => 1, 'a.b.d' => 2, 'b.e' => 3]
+	 *
+	 * To create the original multi-dimensional array again, use the unflatten() method.
+	 *
+	 * @param int|null $depth Number of levels to flatten multi-dimensional arrays or NULL for all
+	 * @return self<string,mixed> New map with keys joined recursively, up to the specified depth
+	 * @throws \InvalidArgumentException If depth must be greater or equal than 0 or NULL
+	 */
+	public function flatten( ?int $depth = null ) : self
+	{
+		if( $depth < 0 ) {
+			throw new \InvalidArgumentException( 'Depth must be greater or equal than 0 or NULL' );
+		}
+
+		$result = [];
+		$this->rflatten( $this->list(), $result, $depth ?? 0x7fffffff );
 		return new static( $result );
 	}
 
@@ -5810,6 +5841,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 * ['a' => ['b' => ['c' => 1, 'd' => 2]], 'b' => ['e' => 3]]
 	 *
+	 * This is the inverse method for flatten().
+	 *
 	 * @return self<int|string,mixed> New map with multi-dimensional arrays
 	 */
 	public function unflatten() : self
@@ -6229,26 +6262,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Flattens a multi-dimensional array or map into a single level array.
 	 *
 	 * @param iterable<int|string,mixed> $entries Single of multi-level array, map or everything foreach can be used with
-	 * @param array<mixed> &$result Will contain all elements from the multi-dimensional arrays afterwards
-	 * @param int $depth Number of levels to flatten in multi-dimensional arrays
-	 */
-	protected function flatten( iterable $entries, array &$result, int $depth ) : void
-	{
-		foreach( $entries as $entry )
-		{
-			if( is_iterable( $entry ) && $depth > 0 ) {
-				$this->flatten( $entry, $result, $depth - 1 );
-			} else {
-				$result[] = $entry;
-			}
-		}
-	}
-
-
-	/**
-	 * Flattens a multi-dimensional array or map into a single level array.
-	 *
-	 * @param iterable<int|string,mixed> $entries Single of multi-level array, map or everything foreach can be used with
 	 * @param array<int|string,mixed> $result Will contain all elements from the multi-dimensional arrays afterwards
 	 * @param int $depth Number of levels to flatten in multi-dimensional arrays
 	 */
@@ -6297,6 +6310,47 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		return function( $item ) use ( $parts ) {
 			return $this->val( $item, $parts );
 		};
+	}
+
+
+	/**
+	 * Flattens a multi-dimensional array or map into a single level array.
+	 *
+	 * @param iterable<int|string,mixed> $entries Single of multi-level array, map or everything foreach can be used with
+	 * @param array<mixed> &$result Will contain all elements from the multi-dimensional arrays afterwards
+	 * @param int $depth Number of levels to flatten in multi-dimensional arrays
+	 */
+	protected function nflatten( iterable $entries, array &$result, int $depth ) : void
+	{
+		foreach( $entries as $entry )
+		{
+			if( is_iterable( $entry ) && $depth > 0 ) {
+				$this->nflatten( $entry, $result, $depth - 1 );
+			} else {
+				$result[] = $entry;
+			}
+		}
+	}
+
+
+	/**
+	 * Flattens a multi-dimensional array or map into an array with joined keys.
+	 *
+	 * @param iterable<int|string,mixed> $entries Single of multi-level array, map or everything foreach can be used with
+	 * @param array<int|string,mixed> $result Will contain joined key/value pairs from the multi-dimensional arrays afterwards
+	 * @param int $depth Number of levels to flatten in multi-dimensional arrays
+	 * @param string $path Path prefix of the current key
+	 */
+	protected function rflatten( iterable $entries, array &$result, int $depth, string $path = '' ) : void
+	{
+		foreach( $entries as $key => $entry )
+		{
+			if( is_iterable( $entry ) && $depth > 0 ) {
+				$this->rflatten( $entry, $result, $depth - 1, $path . $key . $this->sep );
+			} else {
+				$result[$path . $key] = $entry;
+			}
+		}
 	}
 
 

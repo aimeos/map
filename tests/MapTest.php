@@ -1211,6 +1211,23 @@ Array
 	}
 
 
+	public function testFlatten()
+	{
+		$a = ['a' => ['b' => ['c' => 1, 'd' => 2]], 'b' => ['e' => 3]];
+
+		$this->assertSame( ['a/b/c' => 1, 'a/b/d' => 2, 'b/e' => 3], Map::from( $a )->flatten()->toArray() );
+		$this->assertSame( ['a/b' => ['c' => 1, 'd' => 2], 'b/e' => 3], Map::from( $a )->flatten( 1 )->toArray() );
+		$this->assertSame( ['a.b.c' => 1, 'a.b.d' => 2, 'b.e' => 3], Map::from( $a )->sep( '.' )->flatten()->toArray() );
+	}
+
+
+	public function testFlattenException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [] )->flatten( -1 );
+	}
+
+
 	public function testFlip()
 	{
 		$m = Map::from( ['a' => 'X', 'b' => 'Y'] );
