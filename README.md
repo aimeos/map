@@ -1656,7 +1656,7 @@ Sets or returns the seperator for paths to values in multi-dimensional arrays or
 public static function delimiter( ?string $char = null ) : string
 ```
 
-* @param **string** `$char` Separator character, e.g. "." for "key.to.value" instaed of "key/to/value"
+* @param **string&#124;null** `$char` Separator character, e.g. "." for "key.to.value" instaed of "key/to/value"
 * @return **string** Separator used up to now
 
 The static method only changes the separator for new maps created afterwards.
@@ -3128,12 +3128,12 @@ Map::from( ['foo', 'bar'] )->insertAfter( null, 'baz' );
 Inserts the item at the given position in the map.
 
 ```php
-public function insertAt( int $pos, $element, $key = null ) : self
+public function insertAt( int $pos, $value, $key = null ) : self
 ```
 
-* @param **int** `$pos` Position the element it should be inserted at
-* @param **mixed** `$element` Element to be inserted
-* @param **mixed&#124;null** `$key` Element key or NULL to assign an integer key automatically
+* @param **int** `$pos` Position the value should be inserted at
+* @param **mixed** `$value` Value to be inserted
+* @param **mixed&#124;null** `$key` Value key or NULL to assign an integer key automatically
 * @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 **Examples:**

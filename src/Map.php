@@ -2439,12 +2439,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  ['a' => 'foo', 'b' => 'bar', 'c' => 'baz']
 	 *  ['a' => 'foo', 'c' => 'baz', 'b' => 'bar']
 	 *
-	 * @param int $pos Position the element it should be inserted at
-	 * @param mixed $element Element to be inserted
-	 * @param mixed|null $key Element key or NULL to assign an integer key automatically
+	 * @param int $pos Position the value should be inserted at
+	 * @param mixed $value Value to be inserted
+	 * @param mixed|null $key Value key or NULL to assign an integer key automatically
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
-	public function insertAt( int $pos, $element, $key = null ) : self
+	public function insertAt( int $pos, $value, $key = null ) : self
 	{
 		if( $key !== null )
 		{
@@ -2452,13 +2452,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 			$this->list = array_merge(
 				array_slice( $list, 0, $pos, true ),
-				[$key => $element],
+				[$key => $value],
 				array_slice( $list, $pos, null, true )
 			);
 		}
 		else
 		{
-			array_splice( $this->list(), $pos, 0, [$element] );
+			array_splice( $this->list(), $pos, 0, [$value] );
 		}
 
 		return $this;
