@@ -3104,6 +3104,20 @@ Array
 	}
 
 
+	public function testSliding()
+	{
+		$expected = [[0 => 1, 1 => 2], [1 => 2, 2 => 3], [2 => 3, 3 => 4], [3 => 4, 4 => 5]];
+		$this->assertSame( $expected, Map::from( [1, 2, 3, 4, 5] )->sliding( 2 )->toArray() );
+	}
+
+
+	public function testSlidingStep()
+	{
+		$expected = [[0 => 1, 1 => 2, 2 => 3], [2 => 3, 3 => 4, 4 => 5]];
+		$this->assertSame( $expected, Map::from( [1, 2, 3, 4, 5] )->sliding( 3, 2 )->toArray() );
+	}
+
+
 	public function testSome()
 	{
 		$this->assertTrue( Map::from( ['a', 'b'] )->some( 'a' ) );

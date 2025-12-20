@@ -4481,6 +4481,34 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Returns a new map containing sliding windows of the original map.
+	 *
+	 * Examples:
+	 *  Map::from( [1, 2, 3, 4] )->sliding( 2 );
+	 *  Map::from( [1, 2, 3, 4] )->sliding( 3, 2 );
+	 *
+	 * Results:
+	 * The first example will return [[0 => 1, 1 => 2], [1 => 2, 2 => 3], [2 => 3, 3 => 4]]
+	 * while the second one will return [[0 => 1, 1 => 2, 2 => 3], [2 => 3, 3 => 4, 4 => 5]]
+	 *
+	 * @param int $size Size of each window
+	 * @param int $step Step size to move the window
+	 * @return self<int,array<int|string,mixed>> New map containing arrays for each window
+	 */
+	public function sliding( int $size = 2, int $step = 1 ) : self
+	{
+		$result = [];
+        $chunks = floor( ( $this->count() - $size ) / $step ) + 1;
+
+		for( $i = 0; $i < $chunks; $i++ ) {
+			$result[] = array_slice( $this->list(), $i * $step, $size, true );
+		}
+
+        return new static( $result );
+	}
+
+
+	/**
 	 * Tests if at least one element passes the test or is part of the map.
 	 *
 	 * Examples:

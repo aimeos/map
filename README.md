@@ -250,6 +250,7 @@ will return:
 <a href="#shuffled">shuffled</a>
 <a href="#skip">skip</a>
 <a href="#slice">slice</a>
+<a href="#sliding">sliding</a>
 <a href="#some">some</a>
 <a href="#sort">sort</a>
 <a href="#sorted">sorted</a>
@@ -488,6 +489,7 @@ will return:
 * [rekey()](#rekey) : Changes the keys according to the passed function
 * [replace()](#replace) : Replaces elements recursively
 * [rtrim()](#rtrim) : Removes the passed characters from the right of all strings
+* [sliding()](#sliding) : Returns a new map containing sliding windows of the original map
 * [splice()](#splice) : Replaces a slice by new elements
 * [strAfter()](#strafter) : Returns the strings after the passed value
 * [strBefore()](#strbefore) : Returns the strings before the passed value
@@ -5461,6 +5463,36 @@ Map::from( ['a', 'b', 'c', 'd'] )->slice( -2, -1 );
 **See also:**
 
 * [take()](#take) - Returns a new map with the given number of items.
+
+
+### sliding()
+
+Returns a new map containing sliding windows of the original map.
+
+```php
+public function sliding( int $size = 2, int $step = 1 ) : self
+```
+
+* @param **int** $size Size of each window
+* @param **int** $step Step size to move the window
+* @return **self&#60;int,array&#60;int&#124;string,mixed&#62;&#62;** New map containing arrays for each window
+
+**Examples:**
+
+```php
+Map::from( [1, 2, 3, 4] )->sliding( 2 );
+// [
+//   [0 => 1, 1 => 2],
+//   [1 => 2, 2 => 3],
+//   [2 => 3, 3 => 4]
+// ]
+
+Map::from( [1, 2, 3, 4] )->sliding( 3, 2 );
+// [
+//   [0 => 1, 1 => 2, 2 => 3],
+//   [2 => 3, 3 => 4, 4 => 5]
+// ]
+```
 
 
 ### some()
