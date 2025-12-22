@@ -4498,13 +4498,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function sliding( int $size = 2, int $step = 1 ) : self
 	{
 		$result = [];
-        $chunks = floor( ( $this->count() - $size ) / $step ) + 1;
+		$chunks = floor( ( $this->count() - $size ) / $step ) + 1;
 
 		for( $i = 0; $i < $chunks; $i++ ) {
 			$result[] = array_slice( $this->list(), $i * $step, $size, true );
 		}
 
-        return new static( $result );
+		return new static( $result );
 	}
 
 
