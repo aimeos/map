@@ -165,6 +165,7 @@ will return:
 <a href="#first">first</a>
 <a href="#firstkey">firstKey</a>
 <a href="#flat">flat</a>
+<a href="#flatten">flatten</a>
 <a href="#flip">flip</a>
 <a href="#float">float</a>
 <a href="#from">from</a>
@@ -249,6 +250,7 @@ will return:
 <a href="#shuffled">shuffled</a>
 <a href="#skip">skip</a>
 <a href="#slice">slice</a>
+<a href="#sliding">sliding</a>
 <a href="#some">some</a>
 <a href="#sort">sort</a>
 <a href="#sorted">sorted</a>
@@ -286,6 +288,7 @@ will return:
 <a href="#uasorted">uasorted</a>
 <a href="#uksort">uksort</a>
 <a href="#uksorted">uksorted</a>
+<a href="#unflatten">unflatten</a>
 <a href="#union">union</a>
 <a href="#unique">unique</a>
 <a href="#unshift">unshift</a>
@@ -472,6 +475,7 @@ will return:
 * [collapse()](#collapse) : Collapses multi-dimensional elements overwriting elements
 * [combine()](#combine) : Combines the map elements as keys with the given values
 * [flat()](#flat) : Flattens multi-dimensional elements without overwriting elements
+* [flatten()](#flatten) : Creates a new map with keys joined recursively
 * [flip()](#flip) : Exchanges keys with their values
 * [groupBy()](#groupby) : Groups associative array elements or objects
 * [join()](#join) : Returns concatenated elements as string with separator
@@ -485,6 +489,7 @@ will return:
 * [rekey()](#rekey) : Changes the keys according to the passed function
 * [replace()](#replace) : Replaces elements recursively
 * [rtrim()](#rtrim) : Removes the passed characters from the right of all strings
+* [sliding()](#sliding) : Returns a new map containing sliding windows of the original map
 * [splice()](#splice) : Replaces a slice by new elements
 * [strAfter()](#strafter) : Returns the strings after the passed value
 * [strBefore()](#strbefore) : Returns the strings before the passed value
@@ -498,6 +503,7 @@ will return:
 * [transpose()](#transpose) : Exchanges rows and columns for a two dimensional map
 * [traverse()](#traverse) : Traverses trees of nested items passing each item to the callback
 * [trim()](#trim) : Removes the passed characters from the left/right of all strings
+* [unflatten()](#unflatten) : Unflattens the key path/value pairs into a multi-dimensional array
 * [walk()](#walk) : Applies the given callback to all elements
 * [zip()](#zip) : Merges the values of all arrays at the corresponding index
 
@@ -1652,7 +1658,7 @@ Sets or returns the seperator for paths to values in multi-dimensional arrays or
 public static function delimiter( ?string $char = null ) : string
 ```
 
-* @param **string** `$char` Separator character, e.g. "." for "key.to.value" instaed of "key/to/value"
+* @param **string&#124;null** `$char` Separator character, e.g. "." for "key.to.value" instaed of "key/to/value"
 * @return **string** Separator used up to now
 
 The static method only changes the separator for new maps created afterwards.
@@ -2360,6 +2366,39 @@ Map::from( [[0, 1], Map::from( [[2, 3], 4] )] )->flat();
 **See also:**
 
 * [collapse()](#collapse) - Collapses all sub-array elements recursively to a new map
+
+
+### flatten()
+
+c.
+
+```php
+public function flatten( ?int $depth = null ) : self
+```
+
+* @param **int&#124;null** `$depth` Number of levels to flatten multi-dimensional arrays or NULL for all
+* @return **self&#60;string,mixed&#62;** New map with keys joined recursively, up to the specified depth
+
+To create the original multi-dimensional array again, use the [unflatten()](#unflatten) method.
+
+**Examples:**
+
+```php
+Map::from( ['a' => ['b' => ['c' => 1, 'd' => 2]], 'b' => ['e' => 3]] )->flatten();
+// ['a/b/c' => 1, 'a/b/d' => 2, 'b/e' => 3]
+
+Map::from( ['a' => ['b' => ['c' => 1, 'd' => 2]], 'b' => ['e' => 3]] )->flatten( 1 );
+// ['a/b' => ['c' => 1, 'd' => 2], 'b/e' => 3]
+
+Map::from( ['a' => ['b' => ['c' => 1, 'd' => 2]], 'b' => ['e' => 3]] )->sep( '.' )->flatten();
+// ['a.b.c' => 1, 'a.b.d' => 2, 'b.e' => 3]
+```
+
+**See also:**
+
+* [flat()](#flat) - Flattens multi-dimensional elements without overwriting elements
+* [collapse()](#collapse) - Collapses all sub-array elements recursively to a new map
+* [unflatten()](#unflatten) - Unflattens the key path/value pairs into a multi-dimensional array
 
 
 ### flip()
@@ -3091,12 +3130,12 @@ Map::from( ['foo', 'bar'] )->insertAfter( null, 'baz' );
 Inserts the item at the given position in the map.
 
 ```php
-public function insertAt( int $pos, $element, $key = null ) : self
+public function insertAt( int $pos, $value, $key = null ) : self
 ```
 
-* @param **int** `$pos` Position the element it should be inserted at
-* @param **mixed** `$element` Element to be inserted
-* @param **mixed&#124;null** `$key` Element key or NULL to assign an integer key automatically
+* @param **int** `$pos` Position the value should be inserted at
+* @param **mixed** `$value` Value to be inserted
+* @param **mixed&#124;null** `$key` Value key or NULL to assign an integer key automatically
 * @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 **Examples:**
@@ -5458,6 +5497,36 @@ Map::from( ['a', 'b', 'c', 'd'] )->slice( -2, -1 );
 * [take()](#take) - Returns a new map with the given number of items.
 
 
+### sliding()
+
+Returns a new map containing sliding windows of the original map.
+
+```php
+public function sliding( int $size = 2, int $step = 1 ) : self
+```
+
+* @param **int** $size Size of each window
+* @param **int** $step Step size to move the window
+* @return **self&#60;int,array&#60;int&#124;string,mixed&#62;&#62;** New map containing arrays for each window
+
+**Examples:**
+
+```php
+Map::from( [1, 2, 3, 4] )->sliding( 2 );
+// [
+//   [0 => 1, 1 => 2],
+//   [1 => 2, 2 => 3],
+//   [2 => 3, 3 => 4]
+// ]
+
+Map::from( [1, 2, 3, 4] )->sliding( 3, 2 );
+// [
+//   [0 => 1, 1 => 2, 2 => 3],
+//   [2 => 3, 3 => 4, 4 => 5]
+// ]
+```
+
+
 ### some()
 
 Tests if at least one element passes the test or is part of the map.
@@ -6995,6 +7064,35 @@ Map::from( ['B' => 'a', 'a' => 'b'] )->uksorted( function( $keyA, $keyB ) {
 **See also:**
 
 * [uksort()](#uksort) - Sorts the map elements by their keys using a callback
+
+
+### unflatten()
+
+Unflattens the key path/value pairs into a multi-dimensional array.
+
+```php
+public function unflatten() : self
+```
+
+This is the inverse method for [flatten()](#flatten).
+
+* @return **self&#60;string,mixed&#62;** New map with multi-dimensional arrays
+
+**Examples:**
+
+```php
+Map::from( ['a/b/c' => 1, 'a/b/d' => 2, 'b/e' => 3] )->unflatten();
+// ['a' => ['b' => ['c' => 1, 'd' => 2]], 'b' => ['e' => 3]]
+
+Map::from( ['a.b.c' => 1, 'a.b.d' => 2, 'b.e' => 3] )->sep( '.' )->unflatten();
+// ['a' => ['b' => ['c' => 1, 'd' => 2]], 'b' => ['e' => 3]]
+```
+
+**See also:**
+
+* [collapse()](#collapse) - Collapses all sub-array elements recursively to a new map
+* [flat()](#flat) - Flattens multi-dimensional elements without overwriting elements
+* [flatten()](#flatten) - Creates a new map with keys joined recursively
 
 
 ### union()

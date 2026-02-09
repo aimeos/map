@@ -1211,6 +1211,23 @@ Array
 	}
 
 
+	public function testFlatten()
+	{
+		$a = ['a' => ['b' => ['c' => 1, 'd' => 2]], 'b' => ['e' => 3]];
+
+		$this->assertSame( ['a/b/c' => 1, 'a/b/d' => 2, 'b/e' => 3], Map::from( $a )->flatten()->toArray() );
+		$this->assertSame( ['a/b' => ['c' => 1, 'd' => 2], 'b/e' => 3], Map::from( $a )->flatten( 1 )->toArray() );
+		$this->assertSame( ['a.b.c' => 1, 'a.b.d' => 2, 'b.e' => 3], Map::from( $a )->sep( '.' )->flatten()->toArray() );
+	}
+
+
+	public function testFlattenException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [] )->flatten( -1 );
+	}
+
+
 	public function testFlip()
 	{
 		$m = Map::from( ['a' => 'X', 'b' => 'Y'] );
@@ -3087,6 +3104,20 @@ Array
 	}
 
 
+	public function testSliding()
+	{
+		$expected = [[0 => 1, 1 => 2], [1 => 2, 2 => 3], [2 => 3, 3 => 4], [3 => 4, 4 => 5]];
+		$this->assertSame( $expected, Map::from( [1, 2, 3, 4, 5] )->sliding( 2 )->toArray() );
+	}
+
+
+	public function testSlidingStep()
+	{
+		$expected = [[0 => 1, 1 => 2, 2 => 3], [2 => 3, 3 => 4, 4 => 5]];
+		$this->assertSame( $expected, Map::from( [1, 2, 3, 4, 5] )->sliding( 3, 2 )->toArray() );
+	}
+
+
 	public function testSome()
 	{
 		$this->assertTrue( Map::from( ['a', 'b'] )->some( 'a' ) );
@@ -3871,6 +3902,16 @@ Array
 		$this->assertNotSame( $r, $m );
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( ['bar-10', 'bar-1', 'foo'], $r->toArray() );
+	}
+
+
+	public function testUnflatten()
+	{
+		$flat = ['a/b/c' => 1, 'a/b/d' => 2, 'b/e' => 3];
+		$exp = ['a' => ['b' => ['c' => 1, 'd' => 2]], 'b' => ['e' => 3]];
+
+		$this->assertSame( $exp, Map::from( ['a/b/c' => 1, 'a/b/d' => 2, 'b/e' => 3] )->unflatten()->toArray() );
+		$this->assertSame( $exp, Map::from( ['a.b.c' => 1, 'a.b.d' => 2, 'b.e' => 3] )->sep( '.' )->unflatten()->toArray() );
 	}
 
 
