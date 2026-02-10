@@ -195,6 +195,7 @@ will return:
 <a href="#isobject">isObject</a>
 <a href="#isnumeric">isNumeric</a>
 <a href="#isscalar">isScalar</a>
+<a href="#issole">isSole</a>
 <a href="#isstring">isString</a>
 <a href="#join">join</a>
 <a href="#jsonserialize">jsonSerialize</a>
@@ -458,6 +459,7 @@ will return:
 * [isNumeric()](#isnumeric) : Tests if all entries are numeric values
 * [isObject()](#isobject) : Tests if all entries are objects
 * [isScalar()](#isscalar) : Tests if all entries are scalar values.
+* [isSole()](#issole) : Returns only true if exactly one item is matching.
 * [isString()](#isstring) : Tests if all entries are string values.
 * [implements()](#implements) : Tests if all entries are objects implementing the interface
 * [none()](#none) : Tests if none of the elements are part of the map
@@ -3731,6 +3733,45 @@ Map::from( [[1]] )->isScalar();
 * [isString()](#isstring) - Determines if all entries are string values
 
 
+### isSole()
+
+Tests for the matching item, but is true only if exactly one item is matching.
+
+```php
+public function isSole( $value = null, $key = null ) : bool
+```
+
+* @param **\Closure&#124;mixed** `$value` Closure with (item, key) parameter or element to test against
+* @param **string&#124;int&#124;null** `$key` Key to compare the value to if `$value` is not a closure
+* @return **bool** TRUE if exactly one item matches, FALSE if no or more than one item matches
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b'] )->isSole( 'a' );
+// true
+
+Map::from( ['a', 'b', 'a'] )->isSole( fn( $v, $k ) => $v === 'a' && $k < 2 );
+// true
+
+Map::from( [['name' => 'test'], ['name' => 'user']] )->isSole( fn( $v, $k ) => $v['name'] === 'user' );
+// true
+
+Map::from( ['b', 'c'] )->isSole( 'a' );
+// false
+
+Map::from( ['a', 'b', 'a'] )->isSole( 'a' );
+// false
+
+Map::from( [['name' => 'test'], ['name' => 'user'], ['name' => 'test']] )->isSole( 'test', 'name' );
+// false
+```
+
+**See also:**
+
+* [sole()]#sole) - Returns only the items matching the value (and key) from the map
+
+
 ### isString()
 
 Determines if all entries are string values.
@@ -5570,11 +5611,11 @@ Map::from( ['a', 'b', 'a'] )->sole( 'a' );
 
 Map::from( [['name' => 'test'], ['name' => 'user'], ['name' => 'test']] )->restrict( 'test', 'name' );
 // LengthException
-
 ```
 
 **See also:**
 
+* [isSole()]#issole) - Tests for the matching item, but is true only if exactly one item is matching
 * [restrict()]#restrict) - Returns only the items matching the value (and key) from the map
 
 

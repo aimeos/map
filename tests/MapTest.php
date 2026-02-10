@@ -2042,6 +2042,24 @@ Array
 	}
 
 
+	public function testIsSole()
+	{
+		$this->assertTrue( Map::from( ['a', 'b'] )->isSole( 'a' ) );
+	}
+
+
+	public function testIsSoleMultiple()
+	{
+		$this->assertFalse( Map::from( ['a', 'b', 'a'] )->isSole( 'a' ) );
+	}
+
+
+	public function testIsSoleNotFound()
+	{
+		$this->assertFalse( Map::from( ['a', 'b'] )->isSole( 'c' ) );
+	}
+
+
 	public function testIsString()
 	{
 		$this->assertTrue( Map::from( [] )->isString() );

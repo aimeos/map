@@ -2891,6 +2891,30 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Tests for the matching item, but is true only if exactly one item is matching.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'b'] )->isSole( 'a' );
+	 *  Map::from( ['a', 'b', 'a'] )->isSole( fn( $v, $k ) => $v === 'a' && $k < 2 );
+	 *  Map::from( [['name' => 'test'], ['name' => 'user']] )->isSole( fn( $v, $k ) => $v['name'] === 'user' );
+	 *  Map::from( ['b', 'c'] )->isSole( 'a' );
+	 *  Map::from( ['a', 'b', 'a'] )->isSole( 'a' );
+	 *  Map::from( [['name' => 'test'], ['name' => 'user'], ['name' => 'test']] )->isSole( 'test', 'name' );
+	 *
+	 * Results:
+	 * The first three examples will return TRUE while all others will return FALSE.
+	 *
+	 * @param \Closure|mixed $values Closure with (item, key) parameter or element to test against
+	 * @param string|int|null $key Key to compare the value for if $values is not a closure
+	 * @return bool TRUE if exactly one item matches, FALSE if no or more than one item matches
+	 */
+	public function isSole( $value = null, $key = null ) : bool
+	{
+		return $this->restrict( $value, $key )->count() === 1;
+	}
+
+
+	/**
 	 * Determines if all entries are string values.
 	 *
 	 * Examples:
