@@ -2899,7 +2899,9 @@ Array
 
 	public function testRestrictClosure()
 	{
-		$r = Map::from( [['name' => 'test'], ['name' => 'user']] )->restrict( fn( $v, $k ) => $v['name'] === 'user' );
+		$r = Map::from( [['name' => 'test'], ['name' => 'user']] )->restrict( function( $v, $k ) {
+			return $v['name'] === 'user';
+		} );
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( [1 => ['name' => 'user']], $r->toArray() );
@@ -2908,7 +2910,9 @@ Array
 
 	public function testRestrictClosureKey()
 	{
-		$r = Map::from( ['a', 'b', 'a'] )->restrict( fn( $v, $k ) => $v === 'a' && $k < 2 );
+		$r = Map::from( ['a', 'b', 'a'] )->restrict( function( $v, $k ) {
+			return $v === 'a' && $k < 2;
+		} );
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( [0 => 'a'], $r->toArray() );
