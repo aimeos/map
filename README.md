@@ -195,6 +195,7 @@ will return:
 <a href="#isobject">isObject</a>
 <a href="#isnumeric">isNumeric</a>
 <a href="#isscalar">isScalar</a>
+<a href="#issole">isSole</a>
 <a href="#isstring">isString</a>
 <a href="#join">join</a>
 <a href="#jsonserialize">jsonSerialize</a>
@@ -237,6 +238,7 @@ will return:
 <a href="#rekey">rekey</a>
 <a href="#remove">remove</a>
 <a href="#replace">replace</a>
+<a href="#restrict">restrict</a>
 <a href="#reverse">reverse</a>
 <a href="#reversed">reversed</a>
 <a href="#rsort">rsort</a>
@@ -341,6 +343,7 @@ will return:
 * [random()](#random) : Returns random elements preserving keys
 * [search()](#search) : Find the key of an element
 * [shift()](#shift) : Returns and removes the first element
+* [sole()](#sole) : Returns the matching item if it's the only one
 * [string()](#string) : Returns an element by key and casts it to string
 * [to()](#to) : Returns the plain array
 * [toArray()](#toarray) : Returns the plain array
@@ -427,6 +430,7 @@ will return:
 * [pull()](#pull) : Returns and removes an element by key
 * [reject()](#reject) : Removes all matched elements
 * [remove()](#remove) : Removes an element by key
+* [restrict()](#restrict) : Returns only the items matching the value (and key)
 * [shift()](#shift) : Returns and removes the first element
 * [skip()](#skip) : Skips the given number of items and return the rest
 * [slice()](#slice) : Returns a slice of the map
@@ -455,6 +459,7 @@ will return:
 * [isNumeric()](#isnumeric) : Tests if all entries are numeric values
 * [isObject()](#isobject) : Tests if all entries are objects
 * [isScalar()](#isscalar) : Tests if all entries are scalar values.
+* [isSole()](#issole) : Returns only true if exactly one item is matching.
 * [isString()](#isstring) : Tests if all entries are string values.
 * [implements()](#implements) : Tests if all entries are objects implementing the interface
 * [none()](#none) : Tests if none of the elements are part of the map
@@ -3728,6 +3733,45 @@ Map::from( [[1]] )->isScalar();
 * [isString()](#isstring) - Determines if all entries are string values
 
 
+### isSole()
+
+Tests for the matching item, but is true only if exactly one item is matching.
+
+```php
+public function isSole( $value = null, $key = null ) : bool
+```
+
+* @param **\Closure&#124;mixed** `$value` Closure with (item, key) parameter or element to test against
+* @param **string&#124;int&#124;null** `$key` Key to compare the value to if `$value` is not a closure
+* @return **bool** TRUE if exactly one item matches, FALSE if no or more than one item matches
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b'] )->isSole( 'a' );
+// true
+
+Map::from( ['a', 'b', 'a'] )->isSole( fn( $v, $k ) => $v === 'a' && $k < 2 );
+// true
+
+Map::from( [['name' => 'test'], ['name' => 'user']] )->isSole( fn( $v, $k ) => $v['name'] === 'user' );
+// true
+
+Map::from( ['b', 'c'] )->isSole( 'a' );
+// false
+
+Map::from( ['a', 'b', 'a'] )->isSole( 'a' );
+// false
+
+Map::from( [['name' => 'test'], ['name' => 'user'], ['name' => 'test']] )->isSole( 'test', 'name' );
+// false
+```
+
+**See also:**
+
+* [sole()]#sole) - Returns only the items matching the value (and key) from the map
+
+
 ### isString()
 
 Determines if all entries are string values.
@@ -5091,6 +5135,43 @@ Map::from( ['a' => 1, 'b' => ['c' => 3, 'd' => 4]] )->replace( ['b' => ['c' => 9
 ```
 
 
+### restrict()
+
+Returns only the items matching the value (and key) from the map.
+
+```php
+public function restrict( $value = null, $key = null ) : self
+```
+
+* @param **\Closure&#124;mixed** `$value` Closure with (item, key) parameter or element to test against
+* @param **string&#124;int&#124;null** `$key` Key to compare the value to if `$value` is not a closure
+* @return **self&#60;int&#124;string,mixed&#62;** New map with matching items only
+
+The keys are preserved in the returned map.
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b', 'a'] )->restrict( 'a' );
+// [0 => 'a', 2 => 'a']
+
+Map::from( [['name' => 'test'], ['name' => 'user'], ['name' => 'test']] )->restrict( 'test', 'name' );
+// [0 => ['name' => 'test'], 2 => ['name' => 'test']]
+
+Map::from( [['name' => 'test'], ['name' => 'user']] )->restrict( fn( $v, $k ) => $v['name'] === 'user' );
+// [1 => ['name' => 'user']]
+
+Map::from( ['a', 'b', 'a'] )->restrict( fn( $v, $k ) => $v === 'a' && $k < 2 );
+// [0 => 'a']
+```
+
+**See also:**
+
+* [filter()](#filter) - Applies a filter to all elements
+* [only()](#only) - Returns only those elements specified by the keys
+* [where()]#where) - Filters the list of elements by a given condition
+
+
 ### reverse()
 
 Reverses the element order without returning a new map.
@@ -5525,6 +5606,49 @@ Map::from( [1, 2, 3, 4] )->sliding( 3, 2 );
 //   [2 => 3, 3 => 4, 4 => 5]
 // ]
 ```
+
+
+### sole()
+
+Returns the matching item, but only if one matching item exists.
+
+```php
+public function sole( $value = null, $key = null )
+```
+
+* @param **\Closure&#124;mixed** `$value` Closure with (item, key) parameter or element to test against
+* @param **string&#124;int&#124;null** `$key` Key to compare the value to if `$value` is not a closure
+* @return **mixed** Value from map if exactly one matching item exists
+* @throws **\LengthException** If no items or more than one item is found
+
+The keys are preserved in the returned map.
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b'] )->sole( 'a' );
+// "a"
+
+Map::from( ['a', 'b', 'a'] )->restrict( fn( $v, $k ) => $v === 'a' && $k < 2 );
+// "a"
+
+Map::from( [['name' => 'test'], ['name' => 'user']] )->restrict( fn( $v, $k ) => $v['name'] === 'user' );
+// [['name' => 'user']]
+
+Map::from( ['b', 'c'] )->sole( 'a' );
+// LengthException
+
+Map::from( ['a', 'b', 'a'] )->sole( 'a' );
+// LengthException
+
+Map::from( [['name' => 'test'], ['name' => 'user'], ['name' => 'test']] )->restrict( 'test', 'name' );
+// LengthException
+```
+
+**See also:**
+
+* [isSole()]#issole) - Tests for the matching item, but is true only if exactly one item is matching
+* [restrict()]#restrict) - Returns only the items matching the value (and key) from the map
 
 
 ### some()
@@ -7440,7 +7564,7 @@ Returns a copy of the map with the element at the given index replaced with the 
 public function with( $key, $value ) : self
 ```
 
-* @param **int|string** `$key` Array key to set or replace
+* @param **int&#124;string** `$key` Array key to set or replace
 * @param **mixed** `$value` New value for the given key
 * @return **self&#60;int&#124;string,mixed&#62;** New map of the values
 

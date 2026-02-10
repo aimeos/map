@@ -2042,6 +2042,24 @@ Array
 	}
 
 
+	public function testIsSole()
+	{
+		$this->assertTrue( Map::from( ['a', 'b'] )->isSole( 'a' ) );
+	}
+
+
+	public function testIsSoleMultiple()
+	{
+		$this->assertFalse( Map::from( ['a', 'b', 'a'] )->isSole( 'a' ) );
+	}
+
+
+	public function testIsSoleNotFound()
+	{
+		$this->assertFalse( Map::from( ['a', 'b'] )->isSole( 'c' ) );
+	}
+
+
 	public function testIsString()
 	{
 		$this->assertTrue( Map::from( [] )->isString() );
@@ -2861,6 +2879,42 @@ Array
 	}
 
 
+	public function testRestrict()
+	{
+		$r = Map::from( ['a', 'b', 'a'] )->restrict( 'a' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [0 => 'a', 2 => 'a'], $r->toArray() );
+	}
+
+
+	public function testRestrictKey()
+	{
+		$r = Map::from( [['name' => 'test'], ['name' => 'user'], ['name' => 'test']] )->restrict( 'test', 'name' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [0 => ['name' => 'test'], 2 => ['name' => 'test']], $r->toArray() );
+	}
+
+
+	public function testRestrictClosure()
+	{
+		$r = Map::from( [['name' => 'test'], ['name' => 'user']] )->restrict( fn( $v, $k ) => $v['name'] === 'user' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [1 => ['name' => 'user']], $r->toArray() );
+	}
+
+
+	public function testRestrictClosureKey()
+	{
+		$r = Map::from( ['a', 'b', 'a'] )->restrict( fn( $v, $k ) => $v === 'a' && $k < 2 );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [0 => 'a'], $r->toArray() );
+	}
+
+
 	public function testReverse()
 	{
 		$m = new Map( ['hello', 'world'] );
@@ -3115,6 +3169,26 @@ Array
 	{
 		$expected = [[0 => 1, 1 => 2, 2 => 3], [2 => 3, 3 => 4, 4 => 5]];
 		$this->assertSame( $expected, Map::from( [1, 2, 3, 4, 5] )->sliding( 3, 2 )->toArray() );
+	}
+
+
+	public function testSole()
+	{
+		$this->assertSame( 'a', Map::from( ['a', 'b'] )->sole( 'a' ) );
+	}
+
+
+	public function testSoleMultiple()
+	{
+		$this->expectException( \LengthException::class );
+		Map::from( ['a', 'b', 'a'] )->sole( 'a' );
+	}
+
+
+	public function testSoleNotFound()
+	{
+		$this->expectException( \LengthException::class );
+		Map::from( ['a', 'b'] )->sole( 'c' );
 	}
 
 

@@ -67,7 +67,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param string $name Method name
 	 * @param array<mixed> $params List of parameters
 	 * @return mixed Result from called function or new map with results from the element methods
-	 *
 	 * @throws \BadMethodCallException
 	 */
 	public static function __callStatic( string $name, array $params )
@@ -2894,6 +2893,30 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Tests for the matching item, but is true only if exactly one item is matching.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'b'] )->isSole( 'a' );
+	 *  Map::from( ['a', 'b', 'a'] )->isSole( fn( $v, $k ) => $v === 'a' && $k < 2 );
+	 *  Map::from( [['name' => 'test'], ['name' => 'user']] )->isSole( fn( $v, $k ) => $v['name'] === 'user' );
+	 *  Map::from( ['b', 'c'] )->isSole( 'a' );
+	 *  Map::from( ['a', 'b', 'a'] )->isSole( 'a' );
+	 *  Map::from( [['name' => 'test'], ['name' => 'user'], ['name' => 'test']] )->isSole( 'test', 'name' );
+	 *
+	 * Results:
+	 * The first three examples will return TRUE while all others will return FALSE.
+	 *
+	 * @param \Closure|mixed $values Closure with (item, key) parameter or element to test against
+	 * @param string|int|null $key Key to compare the value for if $values is not a closure
+	 * @return bool TRUE if exactly one item matches, FALSE if no or more than one item matches
+	 */
+	public function isSole( $value = null, $key = null ) : bool
+	{
+		return $this->restrict( $value, $key )->count() === 1;
+	}
+
+
+	/**
 	 * Determines if all entries are string values.
 	 *
 	 * Examples:
@@ -4122,6 +4145,39 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Returns only the items matching the value (and key) from the map.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'b', 'a'] )->restrict( 'a' );
+	 *  Map::from( [['name' => 'test'], ['name' => 'user'], ['name' => 'test']] )->restrict( 'test', 'name' );
+	 *  Map::from( [['name' => 'test'], ['name' => 'user']] )->restrict( fn( $v, $k ) => $v['name'] === 'user' );
+	 *  Map::from( ['a', 'b', 'a'] )->restrict( fn( $v, $k ) => $v === 'a' && $k < 2 );
+	 *
+	 * Results:
+	 *  [0 => 'a', 2 => 'a']
+	 *  [0 => ['name' => 'test'], 2 => ['name' => 'test']]
+	 *  [1 => ['name' => 'user']]
+	 *  [0 => 'a']
+	 *
+	 * The keys are preserved in the returned map.
+	 *
+	 * @param \Closure|mixed $value Closure with (item, key) parameter or element to test against
+	 * @param string|int|null $key Key to compare the value to if $value is not a closure
+	 * @return self<int|string,mixed> New map with matching items only
+	 */
+	public function restrict( $value = null, $key = null ) : self
+	{
+		if( !( $value instanceof \Closure ) ) {
+			$filter = $key === null ? fn( $v ) => $v === $value : fn( $v, $k ) => ( $v[$key] ?? null ) === $value;
+		} else {
+			$filter = $value;
+		}
+
+		return $this->filter( $filter );
+	}
+
+
+	/**
 	 * Reverses the element order with keys without returning a new map.
 	 *
 	 * Examples:
@@ -4507,6 +4563,38 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		}
 
 		return new static( $result );
+	}
+
+
+	/**
+	 * Returns the matching item, but only if one matching item exists.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'b'] )->sole( 'a' );
+	 *  Map::from( ['a', 'b', 'a'] )->restrict( fn( $v, $k ) => $v === 'a' && $k < 2 );
+	 *  Map::from( [['name' => 'test'], ['name' => 'user']] )->restrict( fn( $v, $k ) => $v['name'] === 'user' );
+	 *  Map::from( ['b', 'c'] )->sole( 'a' );
+	 *  Map::from( ['a', 'b', 'a'] )->sole( 'a' );
+	 *  Map::from( [['name' => 'test'], ['name' => 'user'], ['name' => 'test']] )->restrict( 'test', 'name' );
+	 *
+	 * Results:
+	 * The first two examples will return "a" while the third one will return [1 => ['name' => 'user']].
+	 * All other examples throw a LengthException because more than one item matches the test.
+	 *
+	 * @param \Closure|mixed $values Closure with (item, key) parameter or element to test against
+	 * @param string|int|null $key Key to compare the value for if $values is not a closure
+	 * @return mixed Value from map if exactly one matching item exists
+	 * @throws \LengthException If no items or more than one item is found
+	 */
+	public function sole( $value = null, $key = null )
+	{
+		$items = $this->restrict( $value, $key );
+
+		if( $items->count() > 1 ) {
+			throw new \LengthException( 'Multiple items found' );
+		}
+
+		return $items->first( new \LengthException( 'No items found' ) );
 	}
 
 
