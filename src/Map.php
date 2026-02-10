@@ -4165,10 +4165,22 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function restrict( $value = null, $key = null ) : self
 	{
-		if( !( $value instanceof \Closure ) ) {
-			$filter = $key === null ? fn( $v ) => $v === $value : fn( $v, $k ) => ( $v[$key] ?? null ) === $value;
-		} else {
-			$filter = $value;
+		$filter = $value;
+
+		if( !( $value instanceof \Closure ) )
+		{
+			if( $key === null )
+			{
+				$filter = function( $v ) use ( $value ) {
+					return $v === $value;
+				};
+			}
+			else
+			{
+				$filter = function( $v, $k ) use ( $key, $value ) {
+					return ( $v[$key] ?? null ) === $value;
+				};
+			}
 		}
 
 		return $this->filter( $filter );
