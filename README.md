@@ -342,6 +342,7 @@ will return:
 * [random()](#random) : Returns random elements preserving keys
 * [search()](#search) : Find the key of an element
 * [shift()](#shift) : Returns and removes the first element
+* [sole()](#sole) : Returns the matching item if it's the only one
 * [string()](#string) : Returns an element by key and casts it to string
 * [to()](#to) : Returns the plain array
 * [toArray()](#toarray) : Returns the plain array
@@ -5532,6 +5533,49 @@ Map::from( [1, 2, 3, 4] )->sliding( 3, 2 );
 //   [2 => 3, 3 => 4, 4 => 5]
 // ]
 ```
+
+
+### sole()
+
+Returns the matching item, but only if one matching item exists.
+
+```php
+public function sole( $value = null, $key = null )
+```
+
+* @param **\Closure&#124;mixed** `$value` Closure with (item, key) parameter or element to test against
+* @param **string&#124;int&#124;null** `$key` Key to compare the value to if `$value` is not a closure
+* @return **mixed** Value from map if exactly one matching item exists
+* @throws **\LengthException** If no items or more than one item is found
+
+The keys are preserved in the returned map.
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b'] )->sole( 'a' );
+// "a"
+
+Map::from( ['a', 'b', 'a'] )->restrict( fn( $v, $k ) => $v === 'a' && $k < 2 );
+// "a"
+
+Map::from( [['name' => 'test'], ['name' => 'user']] )->restrict( fn( $v, $k ) => $v['name'] === 'user' );
+// [['name' => 'user']]
+
+Map::from( ['b', 'c'] )->sole( 'a' );
+// LengthException
+
+Map::from( ['a', 'b', 'a'] )->sole( 'a' );
+// LengthException
+
+Map::from( [['name' => 'test'], ['name' => 'user'], ['name' => 'test']] )->restrict( 'test', 'name' );
+// LengthException
+
+```
+
+**See also:**
+
+* [restrict()]#restrict) - Returns only the items matching the value (and key) from the map
 
 
 ### some()

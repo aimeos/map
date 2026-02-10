@@ -3154,6 +3154,26 @@ Array
 	}
 
 
+	public function testSole()
+	{
+		$this->assertSame( 'a', Map::from( ['a', 'b'] )->sole( 'a' ) );
+	}
+
+
+	public function testSoleMultiple()
+	{
+		$this->expectException( \LengthException::class );
+		Map::from( ['a', 'b', 'a'] )->sole( 'a' );
+	}
+
+
+	public function testSoleNotFound()
+	{
+		$this->expectException( \LengthException::class );
+		Map::from( ['a', 'b'] )->sole( 'c' );
+	}
+
+
 	public function testSome()
 	{
 		$this->assertTrue( Map::from( ['a', 'b'] )->some( 'a' ) );

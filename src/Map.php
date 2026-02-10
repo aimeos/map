@@ -4541,6 +4541,38 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Returns the matching item, but only if one matching item exists.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'b'] )->sole( 'a' );
+	 *  Map::from( ['a', 'b', 'a'] )->restrict( fn( $v, $k ) => $v === 'a' && $k < 2 );
+	 *  Map::from( [['name' => 'test'], ['name' => 'user']] )->restrict( fn( $v, $k ) => $v['name'] === 'user' );
+	 *  Map::from( ['b', 'c'] )->sole( 'a' );
+	 *  Map::from( ['a', 'b', 'a'] )->sole( 'a' );
+	 *  Map::from( [['name' => 'test'], ['name' => 'user'], ['name' => 'test']] )->restrict( 'test', 'name' );
+	 *
+	 * Results:
+	 * The first two examples will return "a" while the third one will return [1 => ['name' => 'user']].
+	 * All other examples throw a LengthException because more than one item matches the test.
+	 *
+	 * @param \Closure|mixed $values Closure with (item, key) parameter or element to test against
+	 * @param string|int|null $key Key to compare the value for if $values is not a closure
+	 * @return mixed Value from map if exactly one matching item exists
+	 * @throws \LengthException If no items or more than one item is found
+	 */
+	public function sole( $value = null, $key = null )
+	{
+		$items = $this->restrict( $value, $key );
+
+		if( $items->count() > 1 ) {
+			throw new \LengthException( 'Multiple items found' );
+		}
+
+		return $items->first( new \LengthException( 'No items found' ) );
+	}
+
+
+	/**
 	 * Tests if at least one element passes the test or is part of the map.
 	 *
 	 * Examples:
