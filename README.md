@@ -237,6 +237,7 @@ will return:
 <a href="#rekey">rekey</a>
 <a href="#remove">remove</a>
 <a href="#replace">replace</a>
+<a href="#restrict">restrict</a>
 <a href="#reverse">reverse</a>
 <a href="#reversed">reversed</a>
 <a href="#rsort">rsort</a>
@@ -427,6 +428,7 @@ will return:
 * [pull()](#pull) : Returns and removes an element by key
 * [reject()](#reject) : Removes all matched elements
 * [remove()](#remove) : Removes an element by key
+* [restrict()](#restrict) : Returns only the items matching the value (and key)
 * [shift()](#shift) : Returns and removes the first element
 * [skip()](#skip) : Skips the given number of items and return the rest
 * [slice()](#slice) : Returns a slice of the map
@@ -5059,6 +5061,43 @@ Map::from( ['a' => 1, 'b' => ['c' => 3, 'd' => 4]] )->replace( ['b' => ['c' => 9
 ```
 
 
+### restrict()
+
+Returns only the items matching the value (and key) from the map.
+
+```php
+public function restrict( $value = null, $key = null ) : self
+```
+
+* @param **\Closure&#124;mixed** `$value` Closure with (item, key) parameter or element to test against
+* @param **string&#124;int&#124;null** `$key` Key to compare the value to if `$value` is not a closure
+* @return **self&#60;int&#124;string,mixed&#62;** New map with matching items only
+
+The keys are preserved in the returned map.
+
+**Examples:**
+
+```php
+Map::from( ['a', 'b', 'a'] )->restrict( 'a' );
+// [0 => 'a', 2 => 'a']
+
+Map::from( [['name' => 'test'], ['name' => 'user'], ['name' => 'test']] )->restrict( 'test', 'name' );
+// [0 => ['name' => 'test'], 2 => ['name' => 'test']]
+
+Map::from( [['name' => 'test'], ['name' => 'user']] )->restrict( fn( $v, $k ) => $v['name'] === 'user' );
+// [1 => ['name' => 'user']]
+
+Map::from( ['a', 'b', 'a'] )->restrict( fn( $v, $k ) => $v === 'a' && $k < 2 );
+// [0 => 'a']
+```
+
+**See also:**
+
+* [filter()](#filter) - Applies a filter to all elements
+* [only()](#only) - Returns only those elements specified by the keys
+* [where()]#where) - Filters the list of elements by a given condition
+
+
 ### reverse()
 
 Reverses the element order without returning a new map.
@@ -7408,7 +7447,7 @@ Returns a copy of the map with the element at the given index replaced with the 
 public function with( $key, $value ) : self
 ```
 
-* @param **int|string** `$key` Array key to set or replace
+* @param **int&#124;string** `$key` Array key to set or replace
 * @param **mixed** `$value` New value for the given key
 * @return **self&#60;int&#124;string,mixed&#62;** New map of the values
 

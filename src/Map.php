@@ -67,7 +67,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param string $name Method name
 	 * @param array<mixed> $params List of parameters
 	 * @return mixed Result from called function or new map with results from the element methods
-	 *
 	 * @throws \BadMethodCallException
 	 */
 	public static function __callStatic( string $name, array $params )
@@ -4116,6 +4115,39 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		}
 
 		return $this;
+	}
+
+
+	/**
+	 * Returns only the items matching the value (and key) from the map.
+	 *
+	 * Examples:
+	 *  Map::from( ['a', 'b', 'a'] )->restrict( 'a' );
+	 *  Map::from( [['name' => 'test'], ['name' => 'user'], ['name' => 'test']] )->restrict( 'test', 'name' );
+	 *  Map::from( [['name' => 'test'], ['name' => 'user']] )->restrict( fn( $v, $k ) => $v['name'] === 'user' );
+	 *  Map::from( ['a', 'b', 'a'] )->restrict( fn( $v, $k ) => $v === 'a' && $k < 2 );
+	 *
+	 * Results:
+	 *  [0 => 'a', 2 => 'a']
+	 *  [0 => ['name' => 'test'], 2 => ['name' => 'test']]
+	 *  [1 => ['name' => 'user']]
+	 *  [0 => 'a']
+	 *
+	 * The keys are preserved in the returned map.
+	 *
+	 * @param \Closure|mixed $value Closure with (item, key) parameter or element to test against
+	 * @param string|int|null $key Key to compare the value to if $value is not a closure
+	 * @return self<int|string,mixed> New map with matching items only
+	 */
+	public function restrict( $value = null, $key = null ) : self
+	{
+		if( !( $value instanceof \Closure ) ) {
+			$filter = $key === null ? fn( $v ) => $v === $value : fn( $v, $k ) => ( $v[$key] ?? null ) === $value;
+		} else {
+			$filter = $value;
+		}
+
+		return $this->filter( $filter );
 	}
 
 

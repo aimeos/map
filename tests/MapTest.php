@@ -2861,6 +2861,42 @@ Array
 	}
 
 
+	public function testRestrict()
+	{
+		$r = Map::from( ['a', 'b', 'a'] )->restrict( 'a' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [0 => 'a', 2 => 'a'], $r->toArray() );
+	}
+
+
+	public function testRestrictKey()
+	{
+		$r = Map::from( [['name' => 'test'], ['name' => 'user'], ['name' => 'test']] )->restrict( 'test', 'name' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [0 => ['name' => 'test'], 2 => ['name' => 'test']], $r->toArray() );
+	}
+
+
+	public function testRestrictClosure()
+	{
+		$r = Map::from( [['name' => 'test'], ['name' => 'user']] )->restrict( fn( $v, $k ) => $v['name'] === 'user' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [1 => ['name' => 'user']], $r->toArray() );
+	}
+
+
+	public function testRestrictClosureKey()
+	{
+		$r = Map::from( ['a', 'b', 'a'] )->restrict( fn( $v, $k ) => $v === 'a' && $k < 2 );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [0 => 'a'], $r->toArray() );
+	}
+
+
 	public function testReverse()
 	{
 		$m = new Map( ['hello', 'world'] );
