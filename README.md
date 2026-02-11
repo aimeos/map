@@ -253,6 +253,7 @@ will return:
 <a href="#skip">skip</a>
 <a href="#slice">slice</a>
 <a href="#sliding">sliding</a>
+<a href="#sole">sole</a>
 <a href="#some">some</a>
 <a href="#sort">sort</a>
 <a href="#sorted">sorted</a>
@@ -2375,7 +2376,7 @@ Map::from( [[0, 1], Map::from( [[2, 3], 4] )] )->flat();
 
 ### flatten()
 
-c.
+Creates a new map with keys joined recursively.
 
 ```php
 public function flatten( ?int $depth = null ) : self
