@@ -4102,8 +4102,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function remove( $keys ) : self
 	{
-		foreach( $this->array( $keys ) as $key ) {
-			unset( $this->list()[$key] );
+		If( !is_iterable( $keys ) ) {
+			$keys = [$keys];
+		}
+
+		$list = $this->list();
+
+		foreach( (array) $keys as $key ) {
+			unset( $list[$key] );
 		}
 
 		return $this;
