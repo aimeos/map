@@ -2976,13 +2976,13 @@ a void return type and must/will always return something. Details about
 Tests if all entries in the map are objects implementing the given interface.
 
 ```php
-public function implements( string $interface, $throw = false ) : bool
+public function implements( string $interface, bool $throw = false ) : bool
 ```
 
 * @param **string** `$interface` Name of the interface that must be implemented
-* @param **\Throwable&#124;bool** `$throw` Passing TRUE or an exception name will throw the exception instead of returning FALSE
+* @param **bool** `$throw` Passing TRUE will throw the exception instead of returning FALSE
 * @return **bool** TRUE if all entries implement the interface or FALSE if at least one doesn't
-* @throws **\UnexpectedValueException&#124;\Throwable** If one entry doesn't implement the interface
+* @throws **\UnexpectedValueException** If one entry doesn't implement the interface and `$throw` is TRUE
 
 **Examples:**
 
@@ -2998,9 +2998,6 @@ Map::from( [new Map(), 123] )->implements( '\Countable' );
 
 Map::from( [new Map(), 123] )->implements( '\Countable', true );
 // throws \UnexpectedValueException
-
-Map::from( [new Map(), 123] )->implements( '\Countable', '\RuntimeException' );
-// throws \RuntimeException
 ```
 
 
@@ -7732,6 +7729,21 @@ $map->push( 'z' )->push( 'y' )->push( 'x' )->reverse(); // use push() for adding
 
 
 ## Upgrade guide
+
+### 3.x -> 4.x
+
+#### No custom exception in implements()
+
+It's not possible to pass a custom exception name as second argument to
+implements() any more because it only accepts a boolean value now. In case an
+entry doesn't implement the passed interface, an **UnexpectedValueException**
+will be always thrown instead.
+
+```php
+$map->implements( '\Countable', '\RuntimeException' );
+// change to:
+$map->implements( '\Countable', true );
+```
 
 ### 2.x -> 3.x
 

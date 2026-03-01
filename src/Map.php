@@ -2281,20 +2281,18 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  throws a RuntimeException.
 	 *
 	 * @param string $interface Name of the interface that must be implemented
-	 * @param \Throwable|bool $throw Passing TRUE or an exception name will throw the exception instead of returning FALSE
+	 * @param bool $throw Passing TRUE will throw an exception instead of returning FALSE
 	 * @return bool TRUE if all entries implement the interface or FALSE if at least one doesn't
-	 * @throws \UnexpectedValueException|\Throwable If one entry doesn't implement the interface
+	 * @throws \UnexpectedValueException If one entry doesn't implement the interface if $throw is TRUE
 	 */
-	public function implements( string $interface, $throw = false ) : bool
+	public function implements( string $interface, bool $throw = false ) : bool
 	{
 		foreach( $this->list() as $entry )
 		{
 			if( !( $entry instanceof $interface ) )
 			{
-				if( $throw )
-				{
-					$name = is_string( $throw ) ? $throw : '\UnexpectedValueException';
-					throw new $name( "Does not implement $interface: " . print_r( $entry, true ) );
+				if( $throw ) {
+					throw new \UnexpectedValueException( "Does not implement $interface: " . print_r( $entry, true ) );
 				}
 
 				return false;
