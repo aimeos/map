@@ -1015,7 +1015,7 @@ Returns the average of all integer and float values in the map.
 public function avg( $col = null ) : float
 ```
 
-* @param **Closure&#124;string&#124;null** `$col` Closure, key or path to the values in the nested array or object to compute the average for
+* @param **\Closure&#124;string&#124;null** `$col` Closure, key or path to the values in the nested array or object to compute the average for
 * @return **float** Average of all elements or 0 if there are no elements in the map
 
 Non-numeric values will be removed before calculation.
@@ -1493,8 +1493,8 @@ public function contains( $key, string $operator = null, $value = null ) : bool
 This method combines the power of the `where()` method with `some()` to check
 if the map contains at least one of the passed values or conditions.
 
-* @param **\Closure&#124;iterable&#124;mixed** `$values` Anonymous function with (item, key) parameter, element or list of elements to test against
-* @param **string&#124;null** `$op` Operator used for comparison
+* @param **\Closure&#124;iterable&#124;mixed** `$key` Anonymous function with (item, key) parameter, element or list of elements to test against
+* @param **string&#124;null** `$operator` Operator used for comparison
 * @param **mixed** `$value` Value used for comparison
 * @return **bool** TRUE if at least one element is available in map, FALSE if the map contains none of them
 
@@ -4195,7 +4195,7 @@ Returns the maximum value of all elements.
 public function max( $col = null )
 ```
 
-* @param **Closure&#124;string&#124;null** `$col` Closure, key in the nested array or object to check for
+* @param **\Closure&#124;string&#124;null** `$col` Closure, key in the nested array or object to check for
 * @return **mixed** Maximum value or NULL if there are no elements in the map
 
 NULL values are removed before the comparison. If there are no values or all
@@ -4336,7 +4336,7 @@ Returns the minimum value of all elements.
 public function min( $col = null )
 ```
 
-* @param **Closure&#124;string&#124;null** `$col` Closure, key in the nested array or object to check for
+* @param **\Closure&#124;string&#124;null** `$col` Closure, key in the nested array or object to check for
 * @return **mixed** Minimum value or NULL if there are no elements in the map
 
 NULL values are removed before the comparison. If there are no values or all
@@ -6189,7 +6189,7 @@ public function string( $key, $default = '' ) : string
 ```
 
 * @param **int&#124;string** `$key` Key or path to the requested item
-* @param **mixed** `$default` Default value if key isn't found (will be casted to string)
+* @param **string** `$default` Default value if key isn't found
 * @return **string** Value from map or default value
 
 This does also work to map values from multi-dimensional arrays by passing the keys
@@ -6504,7 +6504,7 @@ Returns the sum of all integer and float values in the map.
 public function sum( $col = null ) : float
 ```
 
-* @param **Closure&#124;string&#124;null** `$col` Closure, key in the nested array or object to sum up
+* @param **\Closure&#124;string&#124;null** `$col` Closure, key in the nested array or object to sum up
 * @return **float** Sum of all elements or 0 if there are no elements in the map
 
 Non-numeric values will be removed before calculation.
