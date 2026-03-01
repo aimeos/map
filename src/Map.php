@@ -22,12 +22,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	/**
 	 * @var array<string,\Closure>
 	 */
-	protected static $methods = [];
+	protected static array $methods = [];
 
 	/**
 	 * @var non-empty-string
 	 */
-	protected static $delim = '/';
+	protected static string $delim = '/';
 
 	/**
 	 * @var array<int|string,mixed>|\Closure|iterable|mixed
@@ -37,7 +37,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	/**
 	 * @var non-empty-string
 	 */
-	protected $sep = '/';
+	protected string $sep = '/';
 
 
 	/**
