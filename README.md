@@ -534,7 +534,7 @@ will return:
 Tests if the variable is a map object
 
 ```php
-function is_map( $var ) : bool
+function is_map( mixed $var ) : bool
 ```
 
 * @param **mixed** `$var` Variable to test
@@ -555,11 +555,11 @@ is_map( [] );
 Returns a new map for the passed elements.
 
 ```php
-function map( $elements = [] ) : \Aimeos\Map
+function map( mixed $items = [] ) : \Aimeos\Map
 ```
 
-* @param **mixed** `$elements` List of elements or single value
-* @return **\Aimeos\Map** Map instance
+* @param **mixed** `$items` List of elements or single value
+* @return **\Aimeos\Map&#60;int&#124;string,mixed&#62;** Map instance
 
 **Examples:**
 
@@ -599,7 +599,7 @@ map( function() {
 Creates a new map object.
 
 ```php
-public function __construct( $elements = [] )
+public function __construct( mixed $elements = [] )
 ```
 
 * @param **mixed** `$elements` Single element, list of elements, Map object, iterable objects or iterators, everything else
@@ -637,7 +637,7 @@ new Map( function() {
 Handles dynamic calls to custom methods for the class.
 
 ```php
-public function __call( string $name, array $params )
+public function __call( string $name, array $params ) : mixed
 ```
 
 * @param **string** `$name` Method name
@@ -645,13 +645,13 @@ public function __call( string $name, array $params )
 * @return **mixed** Result from called function or new map with results from the element methods
 
 Calls a custom method added by [Map::method()](#method). The called method
-has access to the internal array by using `$this->items`.
+has access to the internal array by using `$this->list()`.
 
 **Examples:**
 
 ```php
 Map::method( 'case', function( $case = CASE_LOWER ) {
-    return new self( array_change_key_case( $this->items, $case ) );
+    return new static( array_change_key_case( $this->list(), $case ) );
 } );
 
 Map::from( ['a' => 'bar'] )->case( CASE_UPPER );
@@ -661,11 +661,11 @@ Map::from( ['a' => 'bar'] )->case( CASE_UPPER );
 This does also allow calling object methods if the items are objects:
 
 ```php
-$item = new MyClass(); // with method setStatus() (returning $this) and getCode() implemented
-Map::from( [$item, $item] )->setStatus( 1 )->getCode()->toArray();
+$item = new MyClass(); // with method setId() (returning $this) and getCode() implemented
+Map::from( [$item, $item] )->setId( null )->getCode()->toArray();
 ```
 
-This will call the `setStatus()` method of each element in the map and
+This will call the `setId()` method of each element in the map and
 use their return values to create a new map. On the new map, the `getCode()`
 method is called for every element and its return values are also stored in a new
 map. This last map is then returned and the map keys from the original map are
@@ -686,7 +686,7 @@ types and one of them doesn't implement the called method, an error will be thro
 Handles static calls to custom methods for the class.
 
 ```php
-public static function __callStatic( string $name, array $params )
+public static function __callStatic( string $name, array $params ) : mixed
 ```
 
 * @param **string** `$name` Method name
@@ -715,7 +715,7 @@ Map::foo( $arg1, $arg2 );
 Returns the elements after the given one.
 
 ```php
-public function after( $value ) : self
+public function after( \Closure|int|string $value ) : self
 ```
 
 * @param **\Closure&#124;int&#124;string** `$value` Value or function with (item, key) parameters
@@ -779,8 +779,8 @@ Tests if at least one element satisfies the callback function.
 public function any( \Closure $callback ) : bool
 ```
 
-* @param \Closure $callback Anonymous function with (item, key) parameter
-* @return bool TRUE if at least one element satisfies the callback function, FALSE if not
+* @param **\Closure** `$callback` Anonymous function with (item, key) parameter
+* @return **bool** TRUE if at least one element satisfies the callback function, FALSE if not
 
 **Examples:**
 
@@ -975,11 +975,11 @@ Map::from( [0 => 'C', 1 => 'b'] )->asorted( SORT_STRING|SORT_FLAG_CASE );
 Returns the value at the given position.
 
 ```php
-public function at( int $pos )
+public function at( int $pos ) : mixed
 ```
 
 * @param **int** `$pos` Position of the value in the map
-* @return **mixed&#134;null** Value at the given position or NULL if no value is available
+* @return **mixed** Value at the given position or NULL if no value is available
 
 The position starts from zero and a position of "0" returns the first element
 of the map, "1" the second and so on. If the position is negative, the sequence
@@ -1012,7 +1012,7 @@ Map::from( [1, 3, 5] )->at( 3 );
 Returns the average of all integer and float values in the map.
 
 ```php
-public function avg( $col = null ) : float
+public function avg( \Closure|string|null $col = null ) : float
 ```
 
 * @param **\Closure&#124;string&#124;null** `$col` Closure, key or path to the values in the nested array or object to compute the average for
@@ -1064,7 +1064,7 @@ Map::from( [['p' => 30], ['p' => 50], ['p' => 10]] )->avg( fn( $val, $key ) => $
 Returns the elements before the given one.
 
 ```php
-public function before( $value ) : self
+public function before( \Closure|int|string $value ) : self
 ```
 
 * @param **\Closure&#124;int&#124;string** `$value` Value or function with (item, key) parameters
@@ -1100,11 +1100,11 @@ Map::from( ['a', 'c', 'b'] )->before( function( $item, $key ) {
 Returns an element by key and casts it to boolean if possible.
 
 ```php
-public function bool( $key, $default = false ) : bool
+public function bool( int|string $key, \Closure|\Throwable|bool $default = false ) : bool
 ```
 
 * @param **int&#124;string** `$key` Key or path to the requested item
-* @param **mixed** `$default` Default value if key isn't found (will be casted to bool)
+* @param **\Closure&#124;\Throwable&#124;bool** `$default` Default value if key isn't found
 * @return **bool** Value from map or default value
 
 This does also work to map values from multi-dimensional arrays by passing the keys
@@ -1133,7 +1133,7 @@ Map::from( ['a' => 'abc'] )->bool( 'a' );
 Map::from( ['a' => ['b' => ['c' => true]]] )->bool( 'a/b/c' );
 // true
 
-Map::from( [] )->bool( 'c', function() { return rand( 1, 2 ); } );
+Map::from( [] )->bool( 'c', function( $val ) { return rand( 1, 2 ); } );
 // true (value returned by closure is casted to boolean)
 
 Map::from( [] )->bool( 'a', true );
@@ -1151,7 +1151,7 @@ Map::from( ['b' => null] )->bool( 'b' );
 Map::from( ['b' => [true]] )->bool( 'b' );
 // false (arrays are not scalar)
 
-Map::from( ['b' => '#resource'] )->bool( 'b' );
+Map::from( ['b' => resource] )->bool( 'b' );
 // false (resources are not scalar)
 
 Map::from( ['b' => new \stdClass] )->bool( 'b' );
@@ -1336,10 +1336,10 @@ Map::from( [new \stdClass, new \stdClass] )->clone();
 
 ### col()
 
-Returns the values of a single column/property from an array of arrays or list of elements in a new map.
+Returns the values of a single column/property from an array of arrays or objects in a new map.
 
 ```php
-public function col( string $valuecol = null, string $indexcol = null ) : self
+public function col( ?string $valuecol = null, ?string $indexcol = null ) : self
 ```
 
 * @param **string&#124;null** `$valuecol` Name or path of the value property
@@ -1392,7 +1392,7 @@ Map::from( [['foo' => ['baz' => 'two']]] )->col( 'foo/baz', 'foo/bar' );
 Collapses all sub-array elements recursively to a new map.
 
 ```php
-public function collapse( int $depth = null ) : self
+public function collapse( ?int $depth = null ) : self
 ```
 
 * @param **int&#124;null** `$depth` Number of levels to collapse for multi-dimensional arrays or NULL for all
@@ -1455,7 +1455,7 @@ Map::from( ['name', 'age'] )->combine( ['Tom', 29] );
 
 ### concat()
 
-Pushs all of the given elements onto the map without creating a new map.
+Pushs all of the given elements onto the map with new keys without creating a new map.
 
 ```php
 public function concat( iterable $elements ) : self
@@ -1487,13 +1487,13 @@ Map::from( ['foo'] )->concat( new Map( ['bar' => 'baz'] ) );
 Determines if an item exists in the map.
 
 ```php
-public function contains( $key, string $operator = null, $value = null ) : bool
+public function contains( \Closure|iterable|string|int $key, ?string $operator = null, mixed $value = null ) : bool
 ```
 
 This method combines the power of the `where()` method with `some()` to check
 if the map contains at least one of the passed values or conditions.
 
-* @param **\Closure&#124;iterable&#124;mixed** `$key` Anonymous function with (item, key) parameter, element or list of elements to test against
+* @param **\Closure&#124;iterable&#124;string&#124;int** `$key` Anonymous function with (item, key) parameter, element or list of elements to test against
 * @param **string&#124;null** `$operator` Operator used for comparison
 * @param **mixed** `$value` Value used for comparison
 * @return **bool** TRUE if at least one element is available in map, FALSE if the map contains none of them
@@ -1517,8 +1517,8 @@ Map::from( ['a', 'b'] )->contains( function( $item, $key ) {
 Map::from( [['type' => 'name']] )->contains( 'type', 'name' );
 // true
 
-Map::from( [['type' => 'name']] )->contains( 'type', '!=', 'name' );
-// false
+Map::from( [['type' => 'name']] )->contains( 'type', '==', 'name' );
+// true
 ```
 
 **See also:**
@@ -1557,7 +1557,7 @@ $m2 = $m->copy();
 
 ### count()
 
-Counts the number of elements in the map.
+Counts the total number of elements in the map.
 
 ```php
 public function count() : int
@@ -1587,7 +1587,7 @@ Map::from( ['foo', 'bar'] )->count();
 Counts how often the same values are in the map.
 
 ```php
-public function countBy( $col = null ) : self
+public function countBy( \Closure|string|null $col = null ) : self
 ```
 
 * @param **\Closure&#124;string&#124;null** `$col` Key as "key1/key2/key3" or closure with (value, key) parameters returning the values for counting
@@ -1631,7 +1631,7 @@ Map::from( ['a@gmail.com', 'b@yahoo.com', 'c@gmail.com'] )->countBy( function( $
 Dumps the map content and terminates the script.
 
 ```php
-public function dd( callable $callback = null ) : void
+public function dd( ?callable $callback = null ) : void
 ```
 
 * @param **callable&#124;null** `$callback` Function receiving the map elements as parameter (optional)
@@ -1691,7 +1691,7 @@ Map::from( ['foo' => ['bar' => 'baz']] )->get( 'foo.bar' );
 Returns the keys/values in the map whose values are not present in the passed elements in a new map.
 
 ```php
-public function diff( iterable $elements, callable $callback = null ) : self
+public function diff( iterable $elements, ?callable $callback = null ) : self
 ```
 
 * @param **iterable&#60;int&#124;string,mixed&#62;** `$elements` List of elements
@@ -1739,7 +1739,7 @@ The keys are preserved using this method.
 Returns the keys/values in the map whose keys AND values are not present in the passed elements in a new map.
 
 ```php
-public function diffAssoc( iterable $elements, callable $callback = null ) : self
+public function diffAssoc( iterable $elements, ?callable $callback = null ) : self
 ```
 
 * @param **iterable&#60;int&#124;string,mixed&#62;** `$elements` List of elements
@@ -1789,7 +1789,7 @@ a new map
 Returns the key/value pairs from the map whose keys are not present in the passed elements in a new map.
 
 ```php
-public function diffKeys( iterable $elements, callable $callback = null ) : self
+public function diffKeys( iterable $elements, ?callable $callback = null ) : self
 ```
 
 * @param **iterable&#60;int&#124;string,mixed&#62;** `$elements` List of elements
@@ -1838,7 +1838,7 @@ The keys are preserved using this method.
 Dumps the map content using the given function (print_r by default).
 
 ```php
-public function dump( callable $callback = null ) : self
+public function dump( ?callable $callback = null ) : self
 ```
 
 * @param **callable&#124;null** `$callback` Function receiving the map elements as parameter (optional)
@@ -1873,7 +1873,7 @@ array(1) {
 Returns the duplicate values from the map.
 
 ```php
-public function duplicates( $col = null ) : self
+public function duplicates( \Closure|string|null $col = null ) : self
 ```
 
 * @param **\Closure&#124;string&#124;null** `$col` Key, path of the nested array or anonymous function with ($item, $key) parameters returning the value for comparison
@@ -1901,7 +1901,7 @@ Map::from( [['p' => '1'], ['p' => 1], ['p' => 2]] )->duplicates( 'p' )
 Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( 'i/p' )
 // [1 => ['i' => ['p' => 1]]]
 
-Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->unique( fn( $item, $key ) => $item['i']['p'] );
+Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( fn( $item, $key ) => $item['i']['p'] );
 // [1 => ['i' => ['p' => 1]]]
 ```
 
@@ -2037,7 +2037,7 @@ Map::from( [0 => 'a', 1 => 100] )->every( function( $value, $key ) {
 Returns a new map without the passed element keys.
 
 ```php
-public function except( $keys ) : self
+public function except( iterable|string|int $keys ) : self
 ```
 
 * @param **iterable&#60;int&#124;string&#62;&#124;array&#60;int&#124;string&#62;&#124;string&#124;int** `$keys` List of keys to remove
@@ -2068,7 +2068,7 @@ Map::from( [1 => 'a', 2 => 'b', 3 => 'c'] )->except( [1, 3] );
 Creates a new map with the string splitted by the delimiter.
 
 ```php
-public static function explode( string $delimiter , string $string , int $limit = PHP_INT_MAX ) : self
+public static function explode( string $delimiter, string $string, int $limit = PHP_INT_MAX ) : self
 ```
 
 * @param **string** `$delimiter` Delimiter character, string or empty string
@@ -2113,7 +2113,7 @@ Map::explode( '', 'string', -3 );
 Creates a new map filled with given value.
 
 ```php
-public static function fill( int $num, $value, int $start = 0 ) : self
+public static function fill( int $num, mixed $value, int $start = 0 ) : self
 ```
 
 * @param **int** `$num` Number of elements to create
@@ -2138,10 +2138,10 @@ Map::fill( 3, 'a', -2 );
 
 ### filter()
 
-Runs a filter over each element of the map and returns a new map.
+Applies a filter to all elements of the map and returns a new map.
 
 ```php
-public function filter( callable $callback = null ) : self
+public function filter( ?callable $callback = null ) : self
 ```
 
 * @param **callable&#124;null** `$callback` Function with (item, key) parameters and returns TRUE/FALSE
@@ -2175,16 +2175,16 @@ Map::from( [2 => 'a', 6 => 'b', 13 => 'm', 30 => 'z'] )->filter( function( $valu
 
 ### find()
 
-Returns the first matching element where the callback returns TRUE.
+Returns the first/last matching element where the callback returns TRUE.
 
 ```php
-public function find( \Closure $callback, $default = null, bool $reverse = false )
+public function find( \Closure $callback, mixed $default = null, bool $reverse = false ) : mixed
 ```
 
 * @param **\Closure** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
 * @param **mixed** `$default` Default value, closure or exception if the callback only returns FALSE
 * @param **bool** `$reverse` TRUE to test elements from back to front, FALSE for front to back (default)
-* @return **mixed&#124;null** First matching value, passed default value or an exception
+* @return **mixed** First matching value, passed default value or an exception
 
 **Examples:**
 
@@ -2225,13 +2225,13 @@ Map::from( [] )->find( function( $value, $key ) {
 Returns the first matching key where the callback returns TRUE.
 
 ```php
-public function findKey( \Closure $callback, $default = null, bool $reverse = false )
+public function findKey( \Closure $callback, mixed $default = null, bool $reverse = false ) : mixed
 ```
 
 * @param **\Closure** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
 * @param **mixed** `$default` Default value, closure or exception if the callback only returns FALSE
 * @param **bool** `$reverse` TRUE to test elements from back to front, FALSE for front to back (default)
-* @return **mixed&#124;null** First matching value, passed default value or an exception
+* @return **mixed** First matching value, passed default value or an exception
 
 **Examples:**
 
@@ -2259,7 +2259,7 @@ Map::from( [] )->findKey( function( $value, $key ) {
 
 **See also:**
 
-* [find()](#find) - Returns the first matching element where the callback returns TRUE
+* [find()](#find) - Returns the first/last matching element where the callback returns TRUE
 
 
 ### first()
@@ -2267,7 +2267,7 @@ Map::from( [] )->findKey( function( $value, $key ) {
 Returns the first element from the map.
 
 ```php
-public function first( $default = null )
+public function first( mixed $default = null ) : mixed
 ```
 
 * @param **mixed** `$default` Default value, closure or exception if the map contains no elements
@@ -2303,7 +2303,7 @@ Map::from( [] )->first( function() { return rand(); } );
 Returns the key of the first element from the map.
 
 ```php
-public function firstKey( $default = null )
+public function firstKey( mixed $default = null ) : mixed
 ```
 
 * @param **mixed** `$default` Default value, closure or exception if the map contains no elements
@@ -2339,7 +2339,7 @@ Map::from( [] )->firstKey( function() { return rand(); } );
 Creates a new map with all sub-array elements added recursively.
 
 ```php
-public function flat( int $depth = null ) : self
+public function flat( ?int $depth = null ) : self
 ```
 
 * @param **int&#124;null** `$depth` Number of levels to flatten multi-dimensional arrays
@@ -2430,11 +2430,11 @@ Map::from( ['a' => 'X', 'b' => 'Y'] )->flip();
 Returns an element by key and casts it to float if possible.
 
 ```php
-public function float( $key, $default = 0.0 ) : float
+public function float( int|string $key, \Closure|\Throwable|float $default = 0.0 ) : float
 ```
 
 * @param **int&#124;string** `$key` Key or path to the requested item
-* @param **mixed** `$default` Default value if key isn't found (will be casted to float)
+* @param **\Closure&#124;\Throwable&#124;float** `$default` Default value if key isn't found
 * @return **float** Value from map or default value
 
 This does also work to map values from multi-dimensional arrays by passing the keys
@@ -2460,10 +2460,10 @@ Map::from( ['a' => '10'] )->float( 'a' );
 Map::from( ['a' => ['b' => ['c' => 1.1]]] )->float( 'a/b/c' );
 // 1.1
 
-Map::from( [] )->float( 'c', function() { return 1.1; } );
+Map::from( [] )->float( 'c', function( $val ) { return 1.1; } );
 // 1.1
 
-Map::from( [] )->float( 'a', 1 );
+Map::from( [] )->float( 'a', 1.1 );
 // 1.0 (default value used)
 
 Map::from( [] )->float( 'a' );
@@ -2472,7 +2472,7 @@ Map::from( [] )->float( 'a' );
 Map::from( ['b' => ''] )->float( 'b' );
 // 0.0 (casted to float)
 
-Map::from( ['a' => 'abc'] )->float( 'a' );
+Map::from( ['b' => 'abc'] )->float( 'b' );
 // 0.0 (casted to float)
 
 Map::from( ['b' => null] )->float( 'b' );
@@ -2481,7 +2481,7 @@ Map::from( ['b' => null] )->float( 'b' );
 Map::from( ['b' => [true]] )->float( 'b' );
 // 0.0 (arrays are not scalar)
 
-Map::from( ['b' => '#resource'] )->float( 'b' );
+Map::from( ['b' => #resource] )->float( 'b' );
 // 0.0 (resources are not scalar)
 
 Map::from( ['b' => new \stdClass] )->float( 'b' );
@@ -2505,7 +2505,7 @@ Map::from( [] )->float( 'c', new \Exception( 'error' ) );
 Creates a new map instance if the value isn't one already.
 
 ```php
-public static function from( $elements = [] ) : self
+public static function from( mixed $elements = [] ) : self
 ```
 
 * @param **mixed** `$elements` List of elements or single value
@@ -2551,6 +2551,7 @@ Creates a new map instance from a JSON string.
 public static function fromJson( string $json, int $options = JSON_BIGINT_AS_STRING ) : self
 ```
 
+* @param **string** `$json` JSON encoded string
 * @param **int** `$options` Combination of JSON_* constants
 * @return **self&#60;int&#124;string,mixed&#62;** New map from decoded JSON string
 * @throws **\RuntimeException** If the passed JSON string is invalid
@@ -2591,7 +2592,7 @@ Map::fromJson( '""' );
 Returns an element from the map by key.
 
 ```php
-public function get( $key, $default = null )
+public function get( int|string $key, mixed $default = null ) : mixed
 ```
 
 * @param **int&#124;string** `$key` Key or path to the requested item
@@ -2640,7 +2641,7 @@ Returns an iterator for the elements.
 public function getIterator() : \ArrayIterator
 ```
 
-* @return **\Iterator** Over map elements
+* @return **\ArrayIterator&#60;int&#124;string,mixed&#62;** Over map elements
 
 This method will be used by e.g. `foreach()` to loop over all entries.
 
@@ -2685,7 +2686,7 @@ Map::from( [1.5, 0, 1.0, 'a'] )->grep( '/^(\d+)?\.\d+$/' );
 
 **See also:**
 
-* [filter()](#filter) - Runs a filter over each element of the map and returns a new map
+* [filter()](#filter) - Applies a filter to all elements of the map and returns a new map
 * [where()](#where) - Filters the list of elements by a given condition
 
 
@@ -2694,7 +2695,7 @@ Map::from( [1.5, 0, 1.0, 'a'] )->grep( '/^(\d+)?\.\d+$/' );
 Groups associative array elements or objects by the passed key or closure.
 
 ```php
-public function groupBy( $key ) : self
+public function groupBy( \Closure|string|int $key ) : self
 ```
 
 * @param **\Closure&#124;string&#124;int** `$key` Closure function with (item, idx) parameters returning the key or the key itself to group by
@@ -2779,10 +2780,10 @@ Map::from( $list )->groupBy( 'xid' );
 Determines if a key or several keys exists in the map.
 
 ```php
-public function has( $key ) : bool
+public function has( array|int|string $key ) : bool
 ```
 
-* @param **array&#60;int&#124;string&#60;&#124;int&#124;string** `$key` Key or path to the requested item
+* @param **array&#60;int&#124;string&#62;&#124;int&#124;string** `$key` Key or path to the requested item
 * @return **bool** TRUE if key is available in map, FALSE if not
 
 If several keys are passed as array, all keys must exist in the map to
@@ -2821,11 +2822,11 @@ Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'X' );
 Executes callbacks depending on the condition.
 
 ```php
-public function if( $condition, \Closure $then, \Closure $else = null ) : self
+public function if( \Closure|bool $condition, ?\Closure $then = null, ?\Closure $else = null ) : self
 ```
 
 * @param **\Closure&#124;bool** `$condition` Boolean or function with (map) parameter returning a boolean
-* @param **\Closure** `$then` Function with (map) parameter
+* @param **\Closure&#124;null** `$then` Function with (map) parameter
 * @param **\Closure&#124;null** `$else` Function with (map) parameter (optional)
 * @return **self&#60;int&#124;string,mixed&#62;** New map for fluid interface
 
@@ -2885,12 +2886,12 @@ a void return type and must/will always return something. Details about
 * Executes callbacks depending if the map contains elements or not.
 
 ```php
-public function ifAny( \Closure $then = null, \Closure $else = null ) : self
+public function ifAny( ?\Closure $then = null, ?\Closure $else = null ) : self
 ```
 
 * @param **\Closure&#124;null** `$then` Function with (map, condition) parameter (optional)
 * @param **\Closure&#124;null** `$else` Function with (map, condition) parameter (optional)
-* @return **self<int&#124;string,mixed>** New map for fluid interface
+* @return **self&#60;int&#124;string,mixed&#62;** New map for fluid interface
 
 If callbacks for "then" and/or "else" are passed, these callbacks will be
 executed and their returned value is passed back within a Map object. In
@@ -2933,12 +2934,12 @@ a void return type and must/will always return something. Details about
 * Executes callbacks depending if the map is empty or not.
 
 ```php
-public function ifEmpty( \Closure $then = null, \Closure $else = null ) : self
+public function ifEmpty( ?\Closure $then = null, ?\Closure $else = null ) : self
 ```
 
 * @param **\Closure&#124;null** `$then` Function with (map, condition) parameter (optional)
 * @param **\Closure&#124;null** `$else` Function with (map, condition) parameter (optional)
-* @return **self<int&#124;string,mixed>** New map for fluid interface
+* @return **self&#60;int&#124;string,mixed&#62;** New map for fluid interface
 
 If callbacks for "then" and/or "else" are passed, these callbacks will be
 executed and their returned value is passed back within a Map object. In
@@ -2980,7 +2981,7 @@ public function implements( string $interface, bool $throw = false ) : bool
 ```
 
 * @param **string** `$interface` Name of the interface that must be implemented
-* @param **bool** `$throw` Passing TRUE will throw the exception instead of returning FALSE
+* @param **bool** `$throw` Passing TRUE will throw an exception instead of returning FALSE
 * @return **bool** TRUE if all entries implement the interface or FALSE if at least one doesn't
 * @throws **\UnexpectedValueException** If one entry doesn't implement the interface and `$throw` is TRUE
 
@@ -3006,10 +3007,10 @@ Map::from( [new Map(), 123] )->implements( '\Countable', true );
 Tests if the passed element or elements are part of the map.
 
 ```php
-public function in( $element, bool $strict = false ) : bool
+public function in( mixed $element, bool $strict = false ) : bool
 ```
 
-* @param **mixed&#124;array** `$element` Element or elements to search for in the map
+* @param **mixed** `$element` Element or elements to search for in the map
 * @param **bool** `$strict` TRUE to check the type too, using FALSE '1' and 1 will be the same
 * @return **bool** TRUE if all elements are available in map, FALSE if not
 
@@ -3045,10 +3046,10 @@ Map::from( ['1', '2'] )->in( 2, true );
 Tests if the passed element or elements are part of the map (alias).
 
 ```php
-public function includes( $element, bool $strict = false ) : bool
+public function includes( mixed $element, bool $strict = false ) : bool
 ```
 
-* @param **mixed&#124;array** `$element` Element or elements to search for in the map
+* @param **mixed** `$element` Element or elements to search for in the map
 * @param **bool** `$strict` TRUE to check the type too, using FALSE '1' and 1 will be the same
 * @return **bool** TRUE if all elements are available in map, FALSE if not
 
@@ -3068,7 +3069,7 @@ because it uses one method call less than `includes()`.
 Returns the numerical index of the given key.
 
 ```php
-public function index( $value ) : ?int
+public function index( \Closure|string|int $value ) : ?int
 ```
 
 * @param **\Closure&#124;string&#124;int** `$value` Key to search for or function with (key) parameters return TRUE if key is found
@@ -3100,7 +3101,7 @@ and the returned index is zero based so the first item has the index "0".
 Inserts the value or values after the given element.
 
 ```php
-public function insertAfter( $element, $value ) : self
+public function insertAfter( mixed $element, mixed $value ) : self
 ```
 
 * @param **mixed** `$element` Element after the value is inserted
@@ -3133,12 +3134,12 @@ Map::from( ['foo', 'bar'] )->insertAfter( null, 'baz' );
 Inserts the item at the given position in the map.
 
 ```php
-public function insertAt( int $pos, $value, $key = null ) : self
+public function insertAt( int $pos, mixed $value, string|int|null $key = null ) : self
 ```
 
 * @param **int** `$pos` Position the value should be inserted at
 * @param **mixed** `$value` Value to be inserted
-* @param **mixed&#124;null** `$key` Value key or NULL to assign an integer key automatically
+* @param **string&#124;int&#124;null** `$key` Value key or NULL to assign an integer key automatically
 * @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 **Examples:**
@@ -3168,7 +3169,7 @@ Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( -1, 'baz', 'c' );
 Inserts the value or values before the given element.
 
 ```php
-public function insertBefore( $element, $value ) : self
+public function insertBefore( mixed $element, mixed $value ) : self
 ```
 
 * @param **mixed** `$element` Element before the value is inserted
@@ -3203,7 +3204,7 @@ Tests if the passed value or value are part of the strings in the map.
 This method is deprecated in favor of the multi-byte aware [strContains()](#strcontains) method.
 
 ```php
-public function inString( $value, bool $case = true ) : bool
+public function inString( array|string $value, bool $case = true ) : bool
 ```
 
 * @param **array&#124;string** `$value` Value or values to compare the map elements, will be casted to string type
@@ -3273,11 +3274,11 @@ Map::from( [false] )->inString( 0 );
 Returns an element by key and casts it to integer if possible.
 
 ```php
-public function int( $key, $default = 0 ) : int
+public function int( int|string $key, \Closure|\Throwable|int $default = 0 ) : int
 ```
 
 * @param **int&#124;string** `$key` Key or path to the requested item
-* @param **mixed** `$default` Default value if key isn't found (will be casted to int)
+* @param **\Closure&#124;\Throwable&#124;int** `$default` Default value if key isn't found
 * @return **int** Value from map or default value
 
 This does also work to map values from multi-dimensional arrays by passing the keys
@@ -3303,7 +3304,7 @@ Map::from( ['a' => '10'] )->int( 'a' );
 Map::from( ['a' => ['b' => ['c' => 1]]] )->int( 'a/b/c' );
 // 1
 
-Map::from( [] )->int( 'c', function() { return rand( 1, 1 ); } );
+Map::from( [] )->int( 'c', function( $val ) { return rand( 1, 1 ); } );
 // 1
 
 Map::from( [] )->int( 'a', 1 );
@@ -3324,7 +3325,7 @@ Map::from( ['b' => null] )->int( 'b' );
 Map::from( ['b' => [true]] )->int( 'b' );
 // 0 (arrays are not scalar)
 
-Map::from( ['b' => '#resource'] )->int( 'b' );
+Map::from( ['b' => #resource] )->int( 'b' );
 // 0 (resources are not scalar)
 
 Map::from( ['b' => new \stdClass] )->int( 'b' );
@@ -3348,7 +3349,7 @@ Map::from( [] )->int( 'c', new \Exception( 'error' ) );
 Returns all values in a new map that are available in both, the map and the given elements.
 
 ```php
-public function intersect( iterable $elements, callable $callback = null ) : self
+public function intersect( iterable $elements, ?callable $callback = null ) : self
 ```
 
 * @param **iterable&#60;int&#124;string,mixed&#62;** `$elements` List of elements
@@ -3393,7 +3394,7 @@ Map::from( ['b' => 'a'] )->intersect( ['c' => 'A'], function( $valA, $valB ) {
 Returns all values in a new map that are available in both, the map and the given elements while comparing the keys too.
 
 ```php
-public function intersectAssoc( iterable $elements, callable $callback = null ) : self
+public function intersectAssoc( iterable $elements, ?callable $callback = null ) : self
 ```
 
 * @param **iterable&#60;int&#124;string,mixed&#62;** `$elements` List of elements
@@ -3438,7 +3439,7 @@ Map::from( ['b' => 'a'] )->intersectAssoc( ['c' => 'A'], function( $valA, $valB 
 Returns all values in a new map that are available in both, the map and the given elements by comparing the keys only.
 
 ```php
-public function intersectKeys( iterable $elements, callable $callback = null ) : self
+public function intersectKeys( iterable $elements, ?callable $callback = null ) : self
 ```
 
 * @param **iterable&#60;int&#124;string,mixed&#62;** `$elements` List of elements
@@ -3543,7 +3544,7 @@ Checks if the map contains a list of subsequentially numbered keys.
 public function isList() : bool
 ```
 
-* @return bool TRUE if the map is a list, FALSE if not
+* @return **bool** TRUE if the map is a list, FALSE if not
 
 **Examples:**
 
@@ -3736,10 +3737,10 @@ Map::from( [[1]] )->isScalar();
 Tests for the matching item, but is true only if exactly one item is matching.
 
 ```php
-public function isSole( $value = null, $key = null ) : bool
+public function isSole( mixed $value = null, string|int|null $key = null ) : bool
 ```
 
-* @param **\Closure&#124;mixed** `$value` Closure with (item, key) parameter or element to test against
+* @param **mixed** `$value` Closure with (item, key) parameter or element to test against
 * @param **string&#124;int&#124;null** `$key` Key to compare the value to if `$value` is not a closure
 * @return **bool** TRUE if exactly one item matches, FALSE if no or more than one item matches
 
@@ -3824,7 +3825,7 @@ Map::from( [[1]] )->isString();
 Concatenates the string representation of all elements.
 
 ```php
-public function join( $glue = '' ) : string
+public function join( string $glue = '' ) : string
 ```
 
 * @param **string** `$glue` Character or string added between elements
@@ -3850,10 +3851,10 @@ Map::from( ['a', 'b', null, false] )->join( '-' );
 Specifies the data which should be serialized to JSON by json_encode().
 
 ```php
-public function jsonSerialize()
+public function jsonSerialize() : mixed
 ```
 
-* @return **array&#60;int&#124;string,mixed&#62;** Data to serialize to JSON
+* @return **mixed** Data to serialize to JSON
 
 **Examples:**
 
@@ -4028,7 +4029,7 @@ Map::from( [1 => 'a', 0 => 'b'] )->ksorted();
 Returns the last element from the map.
 
 ```php
-public function last( $default = null )
+public function last( mixed $default = null ) : mixed
 ```
 
 * @param **mixed** `$default` Default value, closure or exception if the map contains no elements
@@ -4064,7 +4065,7 @@ Map::from( [] )->last( function() { return rand(); } );
 Returns the key of the last element from the map.
 
 ```php
-public function lastKey( $default = null )
+public function lastKey( mixed $default = null ) : mixed
 ```
 
 * @param **mixed** `$default` Default value, closure or exception if the map contains no elements
@@ -4147,7 +4148,7 @@ Map::from( ['a' => 2, 'b' => 4] )->map( function( $value, $key ) {
 
 **See also:**
 
-* [col()](#col) - Returns the values of a single column/property from an array of arrays or list of elements in a new map
+* [col()](#col) - Returns the values of a single column/property from an array of arrays or objects in a new map
 * [pluck()](#pluck) - Creates a key/value mapping (alias)
 * [rekey()](#pluck) - Changes the keys according to the passed function
 
@@ -4157,7 +4158,7 @@ Map::from( ['a' => 2, 'b' => 4] )->map( function( $value, $key ) {
 Returns the maximum value of all elements.
 
 ```php
-public function max( $col = null )
+public function max( \Closure|string|null $col = null ) : mixed
 ```
 
 * @param **\Closure&#124;string&#124;null** `$col` Closure, key in the nested array or object to check for
@@ -4250,7 +4251,7 @@ Map::from( ['a' => 1, 'b' => 2] )->merge( ['b' => 4, 'c' => 6], true );
 Registers a custom method or returns the existing one.
 
 ```php
-public static function method( string $method, \Closure $fcn = null ) : ?\Closure
+public static function method( string $method, ?\Closure $fcn = null ) : ?\Closure
 ```
 
 * @param **string** `$method` Method name
@@ -4263,7 +4264,7 @@ The registed method has access to the class properties if called non-static.
 
 ```php
 Map::method( 'foo', function( $arg1, $arg2 ) {
-    return array_merge( $this->elements, [$arg1, $arg2] );
+    return array_merge( $this->list(), [$arg1, $arg2] );
 } );
 
 Map::method( 'foo' );
@@ -4278,10 +4279,10 @@ Map::from( ['bar'] )->foo( 'foo', 'baz' );
 
 
 Map::foo( 'foo', 'baz' );
-// error because `$this->elements` isn't available
+// error because `$this->list()` isn't available
 ```
 
-Static calls can't access `$this->elements` but can operate on the parameter values:
+Static calls can't access `$this->list()` but can operate on the parameter values:
 
 ```php
 Map::method( 'bar', function( $arg1, $arg2 ) {
@@ -4298,7 +4299,7 @@ Map::foo( 'foo', 'baz' );
 Returns the minimum value of all elements.
 
 ```php
-public function min( $col = null )
+public function min( \Closure|string|null $col = null ) : mixed
 ```
 
 * @param **\Closure&#124;string&#124;null** `$col` Closure, key in the nested array or object to check for
@@ -4351,10 +4352,10 @@ Map::from( [10, 50, 30] )->min( fn( $val, $key ) => $key > 0 ? $val : null )
 Tests if none of the elements are part of the map.
 
 ```php
-public function none( $element, bool $strict = false ) : bool
+public function none( mixed $element, bool $strict = false ) : bool
 ```
 
-* @param **mixed&#124;array** `$element` Element or elements to search for in the map
+* @param **mixed** `$element` Element or elements to search for in the map
 * @param **bool** `$strict` TRUE to check the type too, using FALSE '1' and 1 will be the same
 * @return **bool** TRUE if none of the elements is part of the map, FALSE if at least one is
 
@@ -4412,10 +4413,10 @@ Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] )->nth( 2, 1 );
 Determines if an element exists at an offset.
 
 ```php
-public function offsetExists( $key )
+public function offsetExists( mixed $key ) : bool
 ```
 
-* @param **int&#124;string** `$key` Key to check for
+* @param **mixed** `$key` Key to check for
 * @return **bool** TRUE if key exists, FALSE if not
 
 **Examples:**
@@ -4445,10 +4446,10 @@ isset( $map['d'] );
 Returns an element at a given offset.
 
 ```php
-public function offsetGet( $key )
+public function offsetGet( mixed $key ) : mixed
 ```
 
-* @param **int&#124;string** `$key` Key to return the element for
+* @param **mixed** `$key` Key to return the element for
 * @return **mixed** Value associated to the given key
 
 **Examples:**
@@ -4472,10 +4473,10 @@ $map['b'];
 Sets the element at a given offset.
 
 ```php
-public function offsetSet( $key, $value )
+public function offsetSet( mixed $key, mixed $value ) : void
 ```
 
-* @param **int&#124;string&#124;null** `$key` Key to set the element for or NULL to append value
+* @param **mixed** `$key` Key to set the element for or NULL to append value
 * @param **mixed** `$value` New value set for the key
 
 **Examples:**
@@ -4502,10 +4503,10 @@ $map[0] = 4;
 Unsets the element at a given offset.
 
 ```php
-public function offsetUnset( $key )
+public function offsetUnset( mixed $key ) : void
 ```
 
-* @param **int&#124;string** `$key` Key for unsetting the item
+* @param **mixed** `$key` Key for unsetting the item
 
 **Examples:**
 
@@ -4528,7 +4529,7 @@ unset( $map['a'] );
 Returns a new map with only those elements specified by the given keys.
 
 ```php
-public function only( $keys ) : self
+public function only( iterable|string|int $keys ) : self
 ```
 
 * @param **iterable&#60;mixed&#62;&#124;array&#60;mixed&#62;&#124;string&#124;int** `$keys` Keys of the elements that should be returned
@@ -4586,7 +4587,7 @@ Map::from( ['a' => 1, 1 => 'c', 0 => 'b'] )->order( [0, 1] );
 Fill up to the specified length with the given value
 
 ```php
-public function pad( int $size, $value = null ) : self
+public function pad( int $size, mixed $value = null ) : self
 ```
 
 * @param **int** `$size` Total number of elements that should be in the list
@@ -4629,7 +4630,7 @@ Map::from( ['a' => 1, 'b' => 2] )->pad( 3, 3 );
 Breaks the list of elements into the given number of groups.
 
 ```php
-public function partition( $num ) : self
+public function partition( \Closure|int $number ) : self
 ```
 
 * @param **\Closure&#124;int** `$number` Function with (value, index) as arguments returning the bucket key or number of groups
@@ -4702,7 +4703,7 @@ Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val < 50, -1 );
 Passes the map to the given callback and return the result.
 
 ```php
-public function pipe( \Closure $callback )
+public function pipe( \Closure $callback ) : mixed
 ```
 
 * @param **\Closure** `$callback` Function with map as parameter which returns arbitrary result
@@ -4720,10 +4721,10 @@ Map::from( ['a', 'b'] )->pipe( function( $map ) {
 
 ### pluck()
 
-Returns the values of a single column/property from an array of arrays or list of elements in a new map (alias).
+Returns the values of a single column/property from an array of arrays or objects in a new map (alias).
 
 ```php
-public function pluck( string $valuecol = null, string $indexcol = null ) : self
+public function pluck( ?string $valuecol = null, ?string $indexcol = null ) : self
 ```
 
 * @param **string&#124;null** `$valuecol` Name or path of the value property
@@ -4735,7 +4736,7 @@ be preferred because it uses one method call less than `pluck()`.
 
 **See also:**
 
-* [col()](#col) - Returns the values of a single column/property from an array of arrays or list of elements in a new map
+* [col()](#col) - Returns the values of a single column/property from an array of arrays or objects in a new map
 * [map()](#map) - Applies a callback to each element and returns the results
 * [pluck()](#pluck) - Creates a key/value mapping (alias)
 * [rekey()](#pluck) - Changes the keys according to the passed function
@@ -4746,7 +4747,7 @@ be preferred because it uses one method call less than `pluck()`.
 Returns and removes the last element from the map.
 
 ```php
-public function pop()
+public function pop() : mixed
 ```
 
 * @return **mixed** Last element of the map or null if empty
@@ -4768,10 +4769,10 @@ Map::from( ['a', 'b'] )->pop();
 Returns the numerical index of the value.
 
 ```php
-public function pos( $value ) : ?int
+public function pos( mixed $value ) : ?int
 ```
 
-* @param **\Closure&#124;mixed** `$value` Value to search for or function with (item, key) parameters return TRUE if value is found
+* @param **mixed** `$value` Value to search for or function with (item, key) parameters return TRUE if value is found
 * @return **int&#124;null** Position of the found value (zero based) or NULL if not found
 
 **Examples:**
@@ -4800,7 +4801,7 @@ and the returned index is zero based so the first item has the index "0".
 Adds a prefix in front of each map entry.
 
 ```php
-public function prefix( $prefix, int $depth = null ) : self
+public function prefix( \Closure|string $prefix, ?int $depth = null ) : self
 ```
 
 * @param **\Closure&#124;string** `$prefix` Function with map as parameter which returns arbitrary result
@@ -4838,7 +4839,7 @@ Map::from( ['a', 'b'] )->prefix( function( $item, $key ) {
 Pushes an element onto the beginning of the map without returning a new map (alias).
 
 ```php
-public function prepend( $value, $key = null ) : self
+public function prepend( mixed $value, int|string|null $key = null ) : self
 ```
 
 * @param **mixed** `$value` Item to add at the beginning
@@ -4858,7 +4859,7 @@ be preferred because it uses one method call less than `prepend()`.
 Returns and removes an element from the map by its key.
 
 ```php
-public function pull( $key, $default = null )
+public function pull( int|string $key, mixed $default = null ) : mixed
 ```
 
 * @param **int&#124;string** `$key` Key to retrieve the value for
@@ -4885,7 +4886,7 @@ Map::from( ['a', 'b', 'c'] )->pull( 'x', 'none' );
 Adds an element onto the end of the map without returning a new map.
 
 ```php
-public function push( $value ) : self
+public function push( mixed $value ) : self
 ```
 
 * @param **mixed** `$value` Value to add to the end
@@ -4908,7 +4909,7 @@ Map::from( ['a', 'b'] )->push( 'aa' );
 Sets the given key and value in the map without returning a new map (alias).
 
 ```php
-public function put( $key, $value ) : self
+public function put( int|string $key, mixed $value ) : self
 ```
 
 * @param **int&#124;string** `$key` Key to set the new value for
@@ -4959,7 +4960,7 @@ Map::from( [2, 4, 8, 16] )->random( 5 );
 Iteratively reduces the array to a single value using a callback function.
 
 ```php
-public function reduce( callable $callback, $initial = null )
+public function reduce( callable $callback, mixed $initial = null ) : mixed
 ```
 
 * @param **callable** `$callback` Function with (result, value) parameters and returns result
@@ -4983,10 +4984,10 @@ Map::from( [2, 8] )->reduce( function( $result, $value ) {
 Removes all matched elements and returns a new map.
 
 ```php
-public function reject( $callback = true ) : self
+public function reject( mixed $callback = true ) : self
 ```
 
-* @param **Closure&#124;mixed** `$callback` Function with (item) parameter which returns TRUE/FALSE or value to compare with
+* @param **mixed** `$callback` Function with (item) parameter which returns TRUE/FALSE or value to compare with
 * @return **self&#60;int&#124;string,mixed&#62;** New map
 
 This method is the inverse of the [filter()](#filter) and should return TRUE
@@ -5049,7 +5050,7 @@ Map::from( ['a' => 2, 'b' => 4] )->rekey( function( $value, $key ) {
 Removes one or more elements from the map by its keys without returning a new map.
 
 ```php
-public function remove( $keys ) : self
+public function remove( iterable|string|int $keys ) : self
 ```
 
 * @param **iterable&#60;int&#124;string&#62;&#124;array&#60;int&#124;string&#62;&#124;string&#124;int** `$keys` List of keys
@@ -5106,10 +5107,10 @@ Map::from( ['a' => 1, 'b' => ['c' => 3, 'd' => 4]] )->replace( ['b' => ['c' => 9
 Returns only the items matching the value (and key) from the map.
 
 ```php
-public function restrict( $value = null, $key = null ) : self
+public function restrict( mixed $value = null, string|int|null $key = null ) : self
 ```
 
-* @param **\Closure&#124;mixed** `$value` Closure with (item, key) parameter or element to test against
+* @param **mixed** `$value` Closure with (item, key) parameter or element to test against
 * @param **string&#124;int&#124;null** `$key` Key to compare the value to if `$value` is not a closure
 * @return **self&#60;int&#124;string,mixed&#62;** New map with matching items only
 
@@ -5309,7 +5310,7 @@ Map::from( ["a b c", "cbxa"] )->rtrim( 'abc' );
 Searches the map for a given value and return the corresponding key if successful.
 
 ```php
-public function search( $value, $strict = true )
+public function search( mixed $value, bool $strict = true ) : int|string|null
 ```
 
 * @param **mixed** `$value` Item to search for
@@ -5332,7 +5333,7 @@ Map::from( [1, 2, 3] )->search( '2', true );
 Sets the seperator for paths to values in multi-dimensional arrays or objects.
 
 ```php
-public static function sep( string $char ) : self
+public function sep( string $char ) : self
 ```
 
 * @param **string** `$char` Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
@@ -5359,7 +5360,7 @@ Map::from( ['foo' => ['bar' => 'baz']] )->sep( '.' )->get( 'foo.bar' );
 Sets an element in the map by key without returning a new map.
 
 ```php
-public function set( $key, $value ) : self
+public function set( int|string $key, mixed $value ) : self
 ```
 
 * @param **int&#124;string** `$key` Key to set the new value for
@@ -5387,10 +5388,10 @@ Map::from( ['a'] )->set( 0, 'b' );
 Returns and removes the first element from the map.
 
 ```php
-public function shift()
+public function shift() : mixed
 ```
 
-* @return **mixed&#124;null** Value from map or null if not found
+* @return **mixed** Value from map or null if not found
 
 **Examples:**
 
@@ -5481,7 +5482,7 @@ Map::from( [2 => 'a', 4 => 'b'] )->shuffled( true );
 Returns a new map with the given number of items skipped.
 
 ```php
-public function skip( $offset ) : self
+public function skip( \Closure|int $offset ) : self
 ```
 
 * @param **\Closure&#124;int** `$offset` Number of items to skip or function($item, $key) returning true for skipped items
@@ -5507,7 +5508,7 @@ Map::from( [1, 2, 3, 4] )->skip( function( $item, $key ) {
 Returns a map with the slice from the original map.
 
 ```php
-public function slice( int $offset, int $length = null ) : self
+public function slice( int $offset, ?int $length = null ) : self
 ```
 
 * @param **int** `$offset` Number of elements to start from
@@ -5552,8 +5553,8 @@ Returns a new map containing sliding windows of the original map.
 public function sliding( int $size = 2, int $step = 1 ) : self
 ```
 
-* @param **int** $size Size of each window
-* @param **int** $step Step size to move the window
+* @param **int** `$size` Size of each window
+* @param **int** `$step` Step size to move the window
 * @return **self&#60;int,array&#60;int&#124;string,mixed&#62;&#62;** New map containing arrays for each window
 
 **Examples:**
@@ -5579,10 +5580,10 @@ Map::from( [1, 2, 3, 4] )->sliding( 3, 2 );
 Returns the matching item, but only if one matching item exists.
 
 ```php
-public function sole( $value = null, $key = null )
+public function sole( mixed $value = null, string|int|null $key = null ) : mixed
 ```
 
-* @param **\Closure&#124;mixed** `$value` Closure with (item, key) parameter or element to test against
+* @param **mixed** `$value` Closure with (item, key) parameter or element to test against
 * @param **string&#124;int&#124;null** `$key` Key to compare the value to if `$value` is not a closure
 * @return **mixed** Value from map if exactly one matching item exists
 * @throws **\LengthException** If no items or more than one item is found
@@ -5622,10 +5623,10 @@ Map::from( [['name' => 'test'], ['name' => 'user'], ['name' => 'test']] )->restr
 Tests if at least one element passes the test or is part of the map.
 
 ```php
-public function some( $values, bool $strict = false ) : bool
+public function some( mixed $values, bool $strict = false ) : bool
 ```
 
-* @param **\Closure&#124;iterable&#124;mixed** `$values` Anonymous function with (item, key) parameter, element or list of elements to test against
+* @param **mixed** `$values` Anonymous function with (item, key) parameter, element or list of elements to test against
 * @param **bool** `$strict` TRUE to check the type too, using FALSE '1' and 1 will be the same
 * @return **bool** TRUE if at least one element is available in map, FALSE if the map contains none of them
 
@@ -5735,7 +5736,7 @@ Map::from( [0 => 'b', 1 => 'a'] )->sorted();
 Removes a portion of the map and replace it with the given replacement, then return the updated map.
 
 ```php
-public function splice( int $offset, int $length = null, $replacement = [] ) : self
+public function splice( int $offset, ?int $length = null, mixed $replacement = [] ) : self
 ```
 
 * @param **int** `$offset` Number of elements to start from
@@ -5916,7 +5917,7 @@ Map::from( [new \stdClass(), 'bar'] )->strCompare( 'foo' );
 Tests if at least one of the passed strings is part of at least one entry.
 
 ```php
-public function strContains( $value, string $encoding = 'UTF-8' ) : bool
+public function strContains( array|string $value, string $encoding = 'UTF-8' ) : bool
 ```
 
 * @param **array&#124;string** `$value` The string or list of strings to search for in each entry
@@ -5988,7 +5989,7 @@ Map::from( ['abc'] )->strContains( 'cb', 'ASCII' );
 Tests if all of the entries contains one of the passed strings.
 
 ```php
-public function strContainsAll( $value, string $encoding = 'UTF-8' ) : bool
+public function strContainsAll( array|string $value, string $encoding = 'UTF-8' ) : bool
 ```
 
 * @param **array&#124;string** `$value` The string or list of strings to search for in each entry
@@ -6054,7 +6055,7 @@ Map::from( ['abc', 'bca'] )->strContainsAll( 'cb', 'ASCII' );
 Tests if at least one of the entries ends with one of the passed strings.
 
 ```php
-public function strEnds( $value, string $encoding = 'UTF-8' ) : bool
+public function strEnds( array|string $value, string $encoding = 'UTF-8' ) : bool
 ```
 
 * @param **array&#124;string** `$value` The string or list of strings to search for in each entry
@@ -6102,7 +6103,7 @@ Map::from( ['abc'] )->strEnds( 'cb', 'ASCII' );
 Tests if all of the entries ends with at least one of the passed strings.
 
 ```php
-public function strEndsAll( $value, string $encoding = 'UTF-8' ) : bool
+public function strEndsAll( array|string $value, string $encoding = 'UTF-8' ) : bool
 ```
 
 * @param **array&#124;string** `$value` The string or list of strings to search for in each entry
@@ -6150,11 +6151,11 @@ Map::from( ['abc', 'bca'] )->strEndsAll( 'ca', 'ASCII' );
 Returns an element by key and casts it to string if possible.
 
 ```php
-public function string( $key, $default = '' ) : string
+public function string( int|string $key, \Closure|\Throwable|string $default = '' ) : string
 ```
 
 * @param **int&#124;string** `$key` Key or path to the requested item
-* @param **string** `$default` Default value if key isn't found
+* @param **\Closure&#124;\Throwable&#124;string** `$default` Default value if key isn't found
 * @return **string** Value from map or default value
 
 This does also work to map values from multi-dimensional arrays by passing the keys
@@ -6180,7 +6181,7 @@ Map::from( ['a' => 'abc'] )->string( 'a' );
 Map::from( ['a' => ['b' => ['c' => 'yes']]] )->string( 'a/b/c' );
 // 'yes'
 
-Map::from( [] )->string( 'c', function() { return 'no'; } );
+Map::from( [] )->string( 'a', function( $val ) { return 'no'; } );
 // 'no'
 
 Map::from( [] )->string( 'b' );
@@ -6195,7 +6196,7 @@ Map::from( ['b' => null] )->string( 'b' );
 Map::from( ['b' => [true]] )->string( 'b' );
 // ''
 
-Map::from( ['b' => '#resource'] )->string( 'b' );
+Map::from( ['b' => resource] )->string( 'b' );
 // '' (resources are not scalar)
 
 Map::from( ['b' => new \stdClass] )->string( 'b' );
@@ -6248,7 +6249,7 @@ Map::from( ['Äpfel', 'Birnen'] )->strLower( 'ISO-8859-1' );
 Replaces all occurrences of the search string with the replacement string.
 
 ```php
-public function strReplace( $search, $replace, bool $case = false ) : self
+public function strReplace( array|string $search, array|string $replace, bool $case = false ) : self
 ```
 
 * @param **array&#124;string** `$search` String or list of strings to search for
@@ -6303,7 +6304,7 @@ Map::from( ['GOOGLE.COM', 'AIMEOS.COM'] )->strReplace( '.com', '.de', true );
 Tests if at least one of the entries starts with at least one of the passed strings.
 
 ```php
-public function strStarts( $value, string $encoding = 'UTF-8' ) : bool
+public function strStarts( array|string $value, string $encoding = 'UTF-8' ) : bool
 ```
 
 * @param **array&#124;string** `$value` The string or list of strings to search for in each entry
@@ -6351,7 +6352,7 @@ Map::from( ['abc'] )->strStarts( 'bc', 'ASCII' );
 Tests if all of the entries starts with one of the passed strings.
 
 ```php
-public function strStartsAll( $value, string $encoding = 'UTF-8' ) : bool
+public function strStartsAll( array|string $value, string $encoding = 'UTF-8' ) : bool
 ```
 
 * @param **array&#124;string** `$value` The string or list of strings to search for in each entry
@@ -6399,7 +6400,7 @@ Map::from( ['abc', 'cab'] )->strStartsAll( 'ab', 'ASCII' );
 Converts all alphabetic characters in strings to upper case.
 
 ```php
-public function strUpper( string $encoding = 'UTF-8' ) :self
+public function strUpper( string $encoding = 'UTF-8' ) : self
 ```
 
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
@@ -6428,7 +6429,7 @@ Map::from( ['äpfel', 'birnen'] )->strUpper( 'ISO-8859-1' );
 Adds a suffix at the end of each map entry.
 
 ```php
-public function suffix( $suffix, int $depth = null ) : self
+public function suffix( \Closure|string $suffix, ?int $depth = null ) : self
 ```
 
 * @param **\Closure&#124;string** `$suffix` Function with map as parameter which returns arbitrary result
@@ -6466,7 +6467,7 @@ Map::from( ['a', 'b'] )->suffix( function( $item, $key ) {
 Returns the sum of all integer and float values in the map.
 
 ```php
-public function sum( $col = null ) : float
+public function sum( \Closure|string|null $col = null ) : float
 ```
 
 * @param **\Closure&#124;string&#124;null** `$col` Closure, key in the nested array or object to sum up
@@ -6515,7 +6516,7 @@ Map::from( [30, 50, 10] )->sum( fn( $val, $key ) => $val < 50 );
 Returns a new map with the given number of items.
 
 ```php
-public function take( int $size, $offset = 0 ) : self
+public function take( int $size, \Closure|int $offset = 0 ) : self
 ```
 
 * @param **int** `$size` Number of items to return
@@ -6845,7 +6846,7 @@ Map::from( [
 Traverses trees of nested items passing each item to the callback.
 
 ```php
-public function traverse( \Closure $callback = null, string $nestKey = 'children' ) : self
+public function traverse( ?\Closure $callback = null, string $nestKey = 'children' ) : self
 ```
 
 * @param **\Closure&#124;null** `$callback` Callback with (entry, key, level, $parent) arguments, returns the entry added to result
@@ -7221,7 +7222,7 @@ Map::from( ['a' => 1, 'b' => 2] )->union( ['c' => 1] );
 Returns only unique elements from the map in a new map.
 
 ```php
-public function unique( $col = null ) : self
+public function unique( \Closure|string|null $col = null ) : self
 ```
 
 * @param **\Closure&#124;string&#124;null** `$col` Key, path of the nested array or anonymous function with ($item, $key) parameters returning the value for comparison
@@ -7261,7 +7262,7 @@ Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->unique( fn( $item, $k
 Pushes an element onto the beginning of the map without returning a new map.
 
 ```php
-public function unshift( $value, $key = null ) : self
+public function unshift( mixed $value, int|string|null $key = null ) : self
 ```
 
 * @param **mixed** `$value` Item to add at the beginning
@@ -7395,7 +7396,7 @@ Map::from( ['x' => 'b', 2 => 'a', 'c'] )->values();
 Applies the given callback to all elements.
 
 ```php
-public function walk( callable $callback, $data = null, bool $recursive = true ) : self
+public function walk( callable $callback, mixed $data = null, bool $recursive = true ) : self
 ```
 
 * @param **callable** `$callback` Function with (item, key, data) parameters
@@ -7438,7 +7439,7 @@ Map::from( [1, 2, 3] )->walk( function( &$value, $key, $data ) {
 Filters the list of elements by a given condition.
 
 ```php
-public function where( string $key, string $op, $value ) : self
+public function where( string $key, string $op, mixed $value ) : self
 ```
 
 * @param **string** `$key` Key or path of the value of the array or object used for comparison
@@ -7518,7 +7519,7 @@ Map::from( [
 
 **See also:**
 
-* [filter()](#filter) - Runs a filter over each element of the map and returns a new map
+* [filter()](#filter) - Applies a filter to all elements of the map and returns a new map
 * [grep()](#grep) - Applies a regular expression to all elements
 
 
@@ -7527,7 +7528,7 @@ Map::from( [
 Returns a copy of the map with the element at the given index replaced with the given value.
 
 ```php
-public function with( $key, $value ) : self
+public function with( int|string $key, mixed $value ) : self
 ```
 
 * @param **int&#124;string** `$key` Array key to set or replace
@@ -7562,10 +7563,10 @@ $m->all();
 Merges the values of all arrays at the corresponding index.
 
 ```php
-public function zip( $array1, ... ) : self
+public function zip( ...$arrays ) : self
 ```
 
-* @param **array&#60;int&#124;string,mixed&#62;&#124;\Traversable&#60;int&#124;string,mixed&#62;&#124;\Iterator&#60;int&#124;string,mixed&#62;** `$array1` List of arrays to merge with at the same position
+* @param **array&#60;int&#124;string,mixed&#62;&#124;\Traversable&#60;int&#124;string,mixed&#62;&#124;\Iterator&#60;int&#124;string,mixed&#62;** `$arrays` List of arrays to merge with at the same position
 * @return **self&#60;int&#124;string,mixed&#62;** New map of arrays
 
 **Examples:**
@@ -7614,18 +7615,18 @@ can use `$this` to call all available methods:
 
 ```php
 Map::method( 'notInBoth', function( iterable $elements ) {
-    return new self( $this->diff( $elements ) + Map::from( $elements )->diff( $this->items ) );
+    return new self( $this->diff( $elements ) + Map::from( $elements )->diff( $this->list() ) );
 } );
 ```
 
-Your custom method has access to `$this->items` array which contains the map
+Your custom method has access to `$this->list()` which returns the map
 elements and can also use the internal `$this->getArray( iterable $list )` method to
 convert iterable parameters (arrays, generators and objects implementing \Traversable)
 to plain arrays:
 
 ```php
 Map::method( 'mycombine', function( iterable $keys ) {
-    return new self( array_combine( $this->getArray( $keys ), $this-items ) );
+    return new self( array_combine( $this->getArray( $keys ), $this->list() ) );
 } );
 ```
 
@@ -7731,6 +7732,16 @@ $map->push( 'z' )->push( 'y' )->push( 'x' )->reverse(); // use push() for adding
 ## Upgrade guide
 
 ### 3.x -> 4.x
+
+#### Strict parameter typing
+
+The parameters in all methods are now strictly typed so now, you will get a
+**TypeError** when passing an unexpected value to the methods. Previously, these
+methods have thrown an **InvalidArgumentException**:
+
+* partition()
+* skip()
+* take()
 
 #### No custom exception in implements()
 

@@ -9,7 +9,7 @@ if( !function_exists( 'is_map' ) )
 	 * @param mixed $var Variable to check for
 	 * @return bool TRUE if the variable is a Map object, FALSE if not
 	 */
-	function is_map( $var ) : bool
+	function is_map( mixed $var ) : bool
 	{
 		return $var instanceof \Aimeos\Map;
 	}
@@ -24,7 +24,7 @@ if( !function_exists( 'map' ) )
 	 * @param mixed $items Variable to wrap into a Map object
 	 * @return \Aimeos\Map<int|string,mixed> Map object
 	 */
-	function map( $items = [] ) : \Aimeos\Map
+	function map( mixed $items = [] ) : \Aimeos\Map
 	{
 		if( $items instanceof \Aimeos\Map ) {
 			return $items;

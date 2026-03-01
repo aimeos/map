@@ -15,6 +15,7 @@ namespace Aimeos;
  *
  * @template-implements \ArrayAccess<int|string,mixed>
  * @template-implements \IteratorAggregate<int|string,mixed>
+ * @phpstan-consistent-constructor
  */
 class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializable
 {
@@ -24,7 +25,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	protected static $methods = [];
 
 	/**
-	 * @var string
+	 * @var non-empty-string
 	 */
 	protected static $delim = '/';
 
@@ -34,7 +35,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	protected $list;
 
 	/**
-	 * @var string
+	 * @var non-empty-string
 	 */
 	protected $sep = '/';
 
@@ -47,7 +48,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param mixed $elements List of elements or single value
 	 */
-	public function __construct( $elements = [] )
+	public function __construct( mixed $elements = [] )
 	{
 		$this->sep = self::$delim;
 		$this->list = $elements;
@@ -69,7 +70,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @return mixed Result from called function or new map with results from the element methods
 	 * @throws \BadMethodCallException
 	 */
-	public static function __callStatic( string $name, array $params )
+	public static function __callStatic( string $name, array $params ) : mixed
 	{
 		if( !isset( static::$methods[$name] ) ) {
 			throw new \BadMethodCallException( sprintf( 'Method %s::%s does not exist.', static::class, $name ) );
@@ -108,7 +109,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param array<mixed> $params List of parameters
 	 * @return mixed|self Result from called function or new map with results from the element methods
 	 */
-	public function __call( string $name, array $params )
+	public function __call( string $name, array $params ) : mixed
 	{
 		if( isset( static::$methods[$name] ) ) {
 			return call_user_func_array( static::$methods[$name]->bindTo( $this, static::class ), $params );
@@ -243,7 +244,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param int $start Start index for the elements
 	 * @return self<int|string,mixed> New map with filled elements
 	 */
-	public static function fill( int $num, $value, int $start = 0 ) : self
+	public static function fill( int $num, mixed $value, int $start = 0 ) : self
 	{
 		return new static( array_fill( $start, $num, $value ) );
 	}
@@ -267,7 +268,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $elements List of elements or single element
 	 * @return self<int|string,mixed> New map object
 	 */
-	public static function from( $elements = [] ) : self
+	public static function from( mixed $elements = [] ) : self
 	{
 		if( $elements instanceof self ) {
 			return $elements;
@@ -408,7 +409,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|int|string $value Value or function with (item, key) parameters
 	 * @return self<int|string,mixed> New map with the elements after the given one
 	 */
-	public function after( $value ) : self
+	public function after( \Closure|int|string $value ) : self
 	{
 		if( ( $pos = $this->pos( $value ) ) === null ) {
 			return new static();
@@ -621,7 +622,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param int $pos Position of the value in the map
 	 * @return mixed|null Value at the given position or NULL if no value is available
 	 */
-	public function at( int $pos )
+	public function at( int $pos ) : mixed
 	{
 		$pair = array_slice( $this->list(), $pos, 1 );
 		return !empty( $pair ) ? current( $pair ) : null;
@@ -651,10 +652,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
 	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
-	 * @param Closure|string|null $col Closure, key or path to the values in the nested array or object to compute the average for
+	 * @param \Closure|string|null $col Closure, key or path to the values in the nested array or object to compute the average for
 	 * @return float Average of all elements or 0 if there are no elements in the map
 	 */
-	public function avg( $col = null ) : float
+	public function avg( \Closure|string|null $col = null ) : float
 	{
 		$list = $this->list();
 		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list, 'is_numeric' );
@@ -685,7 +686,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|int|string $value Value or function with (item, key) parameters
 	 * @return self<int|string,mixed> New map with the elements before the given one
 	 */
-	public function before( $value ) : self
+	public function before( \Closure|int|string $value ) : self
 	{
 		return new static( array_slice( $this->list(), 0, $this->pos( $value ), true ) );
 	}
@@ -701,7 +702,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['a' => '10'] )->bool( 'a' );
 	 *  Map::from( ['a' => 'abc'] )->bool( 'a' );
 	 *  Map::from( ['a' => ['b' => ['c' => true]]] )->bool( 'a/b/c' );
-	 *  Map::from( [] )->bool( 'c', function() { return rand( 1, 2 ); } );
+	 *  Map::from( [] )->bool( 'c', function( $val ) { return rand( 1, 2 ); } );
 	 *  Map::from( [] )->bool( 'a', true );
 	 *
 	 *  Map::from( [] )->bool( 'b' );
@@ -723,12 +724,24 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
 	 * @param int|string $key Key or path to the requested item
-	 * @param mixed $default Default value if key isn't found (will be casted to bool)
+	 * @param \Closure|\Throwable|bool $default Default value if key isn't found
 	 * @return bool Value from map or default value
 	 */
-	public function bool( $key, $default = false ) : bool
+	public function bool( int|string $key, \Closure|\Throwable|bool $default = false ) : bool
 	{
-		return (bool) ( is_scalar( $val = $this->get( $key, $default ) ) ? $val : $default );
+		if( is_scalar( $val = $this->get( $key, $default ) ) ) {
+			return (bool) $val;
+		}
+
+		if( $default instanceof \Closure ) {
+			$default = $default( $val );
+		}
+
+		if( $default instanceof \Throwable ) {
+			throw $default;
+		}
+
+		return (bool) $default;
 	}
 
 
@@ -1068,15 +1081,19 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * Check the where() method for available operators.
 	 *
-	 * @param \Closure|iterable|mixed $values Anonymous function with (item, key) parameter, element or list of elements to test against
-	 * @param string|null $op Operator used for comparison
+	 * @param \Closure|iterable<mixed>|string|int $key Anonymous function with (item, key) parameter, element or list of elements to test against
+	 * @param string|null $operator Operator used for comparison
 	 * @param mixed $value Value used for comparison
 	 * @return bool TRUE if at least one element is available in map, FALSE if the map contains none of them
 	 */
-	public function contains( $key, ?string $operator = null, $value = null ) : bool
+	public function contains( \Closure|iterable|string|int $key, ?string $operator = null, mixed $value = null ) : bool
 	{
 		if( $operator === null ) {
 			return $this->some( $key );
+		}
+
+		if( !is_string( $key ) ) {
+			throw new \InvalidArgumentException( 'Key must be a string' );
 		}
 
 		if( $value === null ) {
@@ -1142,7 +1159,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|string|null $col Key as "key1/key2/key3" or function with (value, key) parameters returning the values for counting
 	 * @return self<int|string,mixed> New map with values as keys and their count as value
 	 */
-	public function countBy( $col = null ) : self
+	public function countBy( \Closure|string|null $col = null ) : self
 	{
 		if( !( $col instanceof \Closure ) )
 		{
@@ -1363,7 +1380,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|string|null $col Key, path of the nested array or anonymous function with ($item, $key) parameters returning the value for comparison
 	 * @return self<int|string,mixed> New map
 	 */
-	public function duplicates( $col = null ) : self
+	public function duplicates( \Closure|string|null $col = null ) : self
 	{
 		$list = $map = $this->list();
 
@@ -1500,7 +1517,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param iterable<string|int>|array<string|int>|string|int $keys List of keys to remove
 	 * @return self<int|string,mixed> New map
 	 */
-	public function except( $keys ) : self
+	public function except( iterable|string|int $keys ) : self
 	{
 		return ( clone $this )->remove( $keys );
 	}
@@ -1565,7 +1582,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param bool $reverse TRUE to test elements from back to front, FALSE for front to back (default)
 	 * @return mixed First matching value, passed default value or an exception
 	 */
-	public function find( \Closure $callback, $default = null, bool $reverse = false )
+	public function find( \Closure $callback, mixed $default = null, bool $reverse = false ) : mixed
 	{
 		$list = $this->list();
 
@@ -1582,6 +1599,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 						return $value;
 					}
 				}
+				// @phpstan-ignore-next-line notIdentical.alwaysTrue
 				while( ( $value = prev( $list ) ) !== false && ( $key = key( $list ) ) !== null );
 
 				reset( $list );
@@ -1638,7 +1656,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param bool $reverse TRUE to test elements from back to front, FALSE for front to back (default)
 	 * @return mixed Key of first matching element, passed default value or an exception
 	 */
-	public function findKey( \Closure $callback, $default = null, bool $reverse = false )
+	public function findKey( \Closure $callback, mixed $default = null, bool $reverse = false ) : mixed
 	{
 		$list = $this->list();
 
@@ -1655,6 +1673,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 						return $key;
 					}
 				}
+				// @phpstan-ignore-next-line notIdentical.alwaysTrue
 				while( ( $value = prev( $list ) ) !== false && ( $key = key( $list ) ) !== null );
 
 				reset( $list );
@@ -1702,7 +1721,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $default Default value, closure or exception if the map contains no elements
 	 * @return mixed First value of map, (generated) default value or an exception
 	 */
-	public function first( $default = null )
+	public function first( mixed $default = null ) : mixed
 	{
 		if( !empty( $this->list() ) ) {
 			return current( array_slice( $this->list(), 0, 1 ) );
@@ -1738,7 +1757,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $default Default value, closure or exception if the map contains no elements
 	 * @return mixed First key of map, (generated) default value or an exception
 	 */
-	public function firstKey( $default = null )
+	public function firstKey( mixed $default = null ) : mixed
 	{
 		$list = $this->list();
 
@@ -1820,7 +1839,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * To create the original multi-dimensional array again, use the unflatten() method.
 	 *
 	 * @param int|null $depth Number of levels to flatten multi-dimensional arrays or NULL for all
-	 * @return self<string,mixed> New map with keys joined recursively, up to the specified depth
+	 * @return self New map with keys joined recursively, up to the specified depth
 	 * @throws \InvalidArgumentException If depth must be greater or equal than 0 or NULL
 	 */
 	public function flatten( ?int $depth = null ) : self
@@ -1831,6 +1850,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		$result = [];
 		$this->rflatten( $this->list(), $result, $depth ?? 0x7fffffff );
+
 		return new static( $result );
 	}
 
@@ -1861,7 +1881,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['a' => '1.1'] )->float( 'a' );
 	 *  Map::from( ['a' => '10'] )->float( 'a' );
 	 *  Map::from( ['a' => ['b' => ['c' => 1.1]]] )->float( 'a/b/c' );
-	 *  Map::from( [] )->float( 'c', function() { return 1.1; } );
+	 *  Map::from( [] )->float( 'c', function( $val ) { return 1.1; } );
 	 *  Map::from( [] )->float( 'a', 1.1 );
 	 *
 	 *  Map::from( [] )->float( 'b' );
@@ -1884,12 +1904,24 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
 	 * @param int|string $key Key or path to the requested item
-	 * @param mixed $default Default value if key isn't found (will be casted to float)
+	 * @param \Closure|\Throwable|float $default Default value if key isn't found
 	 * @return float Value from map or default value
 	 */
-	public function float( $key, $default = 0.0 ) : float
+	public function float( int|string $key, \Closure|\Throwable|float $default = 0.0 ) : float
 	{
-		return (float) ( is_scalar( $val = $this->get( $key, $default ) ) ? $val : $default );
+		if( is_scalar( $val = $this->get( $key, $default ) ) ) {
+			return (float) $val;
+		}
+
+		if( $default instanceof \Closure ) {
+			return (float) $default( $val );
+		}
+
+		if( $default instanceof \Throwable ) {
+			throw $default;
+		}
+
+		return (float) $default;
 	}
 
 
@@ -1918,7 +1950,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $default Default value if no element matches
 	 * @return mixed Value from map or default value
 	 */
-	public function get( $key, $default = null )
+	public function get( int|string $key, mixed $default = null ) : mixed
 	{
 		$list = $this->list();
 
@@ -2048,7 +2080,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param  \Closure|string|int $key Closure function with (item, idx) parameters returning the key or the key itself to group by
 	 * @return self<int|string,mixed> New map with elements grouped by the given key
 	 */
-	public function groupBy( $key ) : self
+	public function groupBy( \Closure|string|int $key ) : self
 	{
 		$result = [];
 
@@ -2100,7 +2132,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param array<int|string>|int|string $key Key of the requested item or list of keys
 	 * @return bool TRUE if key or keys are available in map, FALSE if not
 	 */
-	public function has( $key ) : bool
+	public function has( array|int|string $key ) : bool
 	{
 		$list = $this->list();
 
@@ -2168,7 +2200,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|null $else Function with (map, condition) parameter (optional)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function if( $condition, ?\Closure $then = null, ?\Closure $else = null ) : self
+	public function if( \Closure|bool $condition, ?\Closure $then = null, ?\Closure $else = null ) : self
 	{
 		if( $condition instanceof \Closure ) {
 			$condition = $condition( $this );
@@ -2316,11 +2348,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 * The first and second example will return TRUE while the other ones will return FALSE
 	 *
-	 * @param mixed|array $element Element or elements to search for in the map
+	 * @param array|mixed $element Element or elements to search for in the map
 	 * @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
 	 * @return bool TRUE if all elements are available in map, FALSE if not
 	 */
-	public function in( $element, bool $strict = false ) : bool
+	public function in( mixed $element, bool $strict = false ) : bool
 	{
 		if( !is_array( $element ) ) {
 			return in_array( $element, $this->list(), $strict );
@@ -2348,7 +2380,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @return bool TRUE if all elements are available in map, FALSE if not
 	 * @see in() - Underlying method with same parameters and return value but better performance
 	 */
-	public function includes( $element, bool $strict = false ) : bool
+	public function includes( mixed $element, bool $strict = false ) : bool
 	{
 		return $this->in( $element, $strict );
 	}
@@ -2370,7 +2402,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|string|int $value Key to search for or function with (key) parameters return TRUE if key is found
 	 * @return int|null Position of the found value (zero based) or NULL if not found
 	 */
-	public function index( $value ) : ?int
+	public function index( \Closure|string|int $value ) : ?int
 	{
 		if( $value instanceof \Closure )
 		{
@@ -2412,7 +2444,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $value Element or list of elements to insert
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
-	public function insertAfter( $element, $value ) : self
+	public function insertAfter( mixed $element, mixed $value ) : self
 	{
 		$position = ( $element !== null && ( $pos = $this->pos( $element ) ) !== null ? $pos : count( $this->list() ) );
 		array_splice( $this->list(), $position + 1, 0, $this->array( $value ) );
@@ -2438,10 +2470,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param int $pos Position the value should be inserted at
 	 * @param mixed $value Value to be inserted
-	 * @param mixed|null $key Value key or NULL to assign an integer key automatically
+	 * @param string|int|null $key Value key or NULL to assign an integer key automatically
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
-	public function insertAt( int $pos, $value, $key = null ) : self
+	public function insertAt( int $pos, mixed $value, string|int|null $key = null ) : self
 	{
 		if( $key !== null )
 		{
@@ -2481,7 +2513,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $value Element or list of elements to insert
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
-	public function insertBefore( $element, $value ) : self
+	public function insertBefore( mixed $element, mixed $value ) : self
 	{
 		$position = ( $element !== null && ( $pos = $this->pos( $element ) ) !== null ? $pos : count( $this->list() ) );
 		array_splice( $this->list(), $position, 0, $this->array( $value ) );
@@ -2516,12 +2548,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * All scalar values (bool, float, int and string) are casted to string values before
 	 * comparing to the given value. Non-scalar values in the map are ignored.
 	 *
-	 * @param array|string $value Value or values to compare the map elements, will be casted to string type
+	 * @param array<string>|string $value Value or values to compare the map elements, will be casted to string type
 	 * @param bool $case TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
 	 * @return bool TRUE If at least one element matches, FALSE if value is not in any string of the map
 	 * @deprecated Use multi-byte aware strContains() instead
 	 */
-	public function inString( $value, bool $case = true ) : bool
+	public function inString( array|string $value, bool $case = true ) : bool
 	{
 		$fcn = $case ? 'strpos' : 'stripos';
 
@@ -2552,7 +2584,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['a' => 1.1] )->int( 'a' );
 	 *  Map::from( ['a' => '10'] )->int( 'a' );
 	 *  Map::from( ['a' => ['b' => ['c' => 1]]] )->int( 'a/b/c' );
-	 *  Map::from( [] )->int( 'c', function() { return rand( 1, 1 ); } );
+	 *  Map::from( [] )->int( 'c', function( $val ) { return rand( 1, 1 ); } );
 	 *  Map::from( [] )->int( 'a', 1 );
 	 *
 	 *  Map::from( [] )->int( 'b' );
@@ -2575,12 +2607,24 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
 	 * @param int|string $key Key or path to the requested item
-	 * @param mixed $default Default value if key isn't found (will be casted to integer)
+	 * @param \Closure|\Throwable|int $default Default value if key isn't found
 	 * @return int Value from map or default value
 	 */
-	public function int( $key, $default = 0 ) : int
+	public function int( int|string $key, \Closure|\Throwable|int $default = 0 ) : int
 	{
-		return (int) ( is_scalar( $val = $this->get( $key, $default ) ) ? $val : $default );
+		if( is_scalar( $val = $this->get( $key, $default ) ) ) {
+			return (int) $val;
+		}
+
+		if( $default instanceof \Closure ) {
+			$default = $default( $val );
+		}
+
+		if( $default instanceof \Throwable ) {
+			throw $default;
+		}
+
+		return (int) $default;
 	}
 
 
@@ -2902,11 +2946,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 * The first three examples will return TRUE while all others will return FALSE.
 	 *
-	 * @param \Closure|mixed $values Closure with (item, key) parameter or element to test against
+	 * @param \Closure|mixed $value Closure with (item, key) parameter or element to test against
 	 * @param string|int|null $key Key to compare the value for if $values is not a closure
 	 * @return bool TRUE if exactly one item matches, FALSE if no or more than one item matches
 	 */
-	public function isSole( $value = null, $key = null ) : bool
+	public function isSole( mixed $value = null, string|int|null $key = null ) : bool
 	{
 		return $this->restrict( $value, $key )->count() === 1;
 	}
@@ -2980,8 +3024,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @return array<int|string,mixed> Data to serialize to JSON
 	 */
-	#[\ReturnTypeWillChange]
-	public function jsonSerialize()
+	public function jsonSerialize() : mixed
 	{
 		return $this->list = $this->array( $this->list );
 	}
@@ -3148,7 +3191,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $default Default value or exception if the map contains no elements
 	 * @return mixed Last value of map, (generated) default value or an exception
 	 */
-	public function last( $default = null )
+	public function last( mixed $default = null ) : mixed
 	{
 		if( !empty( $this->list() ) ) {
 			return current( array_slice( $this->list(), -1, 1 ) );
@@ -3184,7 +3227,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $default Default value, closure or exception if the map contains no elements
 	 * @return mixed Last key of map, (generated) default value or an exception
 	 */
-	public function lastKey( $default = null )
+	public function lastKey( mixed $default = null ) : mixed
 	{
 		$list = $this->list();
 
@@ -3292,10 +3335,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * unpredictable results due to the PHP comparison rules:
 	 * {@link https://www.php.net/manual/en/language.operators.comparison.php}
 	 *
-	 * @param Closure|string|null $col Closure, key or path to the value of the nested array or object
+	 * @param \Closure|string|null $col Closure, key or path to the value of the nested array or object
 	 * @return mixed Maximum value or NULL if there are no elements in the map
 	 */
-	public function max( $col = null )
+	public function max( \Closure|string|null $col = null ) : mixed
 	{
 		$list = $this->list();
 		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list );
@@ -3369,10 +3412,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * unpredictable results due to the PHP comparison rules:
 	 * {@link https://www.php.net/manual/en/language.operators.comparison.php}
 	 *
-	 * @param Closure|string|null $key Closure, key or path to the value of the nested array or object
+	 * @param \Closure|string|null $col Closure, key or path to the value of the nested array or object
 	 * @return mixed Minimum value or NULL if there are no elements in the map
 	 */
-	public function min( $col = null )
+	public function min( \Closure|string|null $col = null ) : mixed
 	{
 		$list = $this->list();
 		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list );
@@ -3399,7 +3442,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
 	 * @return bool TRUE if none of the elements is part of the map, FALSE if at least one is
 	 */
-	public function none( $element, bool $strict = false ) : bool
+	public function none( mixed $element, bool $strict = false ) : bool
 	{
 		$list = $this->list();
 
@@ -3471,7 +3514,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param int|string $key Key to check for
 	 * @return bool TRUE if key exists, FALSE if not
 	 */
-	public function offsetExists( $key ) : bool
+	public function offsetExists( mixed $key ) : bool
 	{
 		return isset( $this->list()[$key] );
 	}
@@ -3490,8 +3533,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param int|string $key Key to return the element for
 	 * @return mixed Value associated to the given key
 	 */
-	#[\ReturnTypeWillChange]
-	public function offsetGet( $key )
+	public function offsetGet( mixed $key ) : mixed
 	{
 		return $this->list()[$key] ?? null;
 	}
@@ -3511,7 +3553,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param int|string|null $key Key to set the element for or NULL to append value
 	 * @param mixed $value New value set for the key
 	 */
-	public function offsetSet( $key, $value ) : void
+	public function offsetSet( mixed $key, mixed $value ) : void
 	{
 		if( $key !== null ) {
 			$this->list()[$key] = $value;
@@ -3533,7 +3575,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param int|string $key Key for unsetting the item
 	 */
-	public function offsetUnset( $key ) : void
+	public function offsetUnset( mixed $key ) : void
 	{
 		unset( $this->list()[$key] );
 	}
@@ -3555,7 +3597,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param iterable<mixed>|array<mixed>|string|int $keys Keys of the elements that should be returned
 	 * @return self<int|string,mixed> New map with only the elements specified by the keys
 	 */
-	public function only( $keys ) : self
+	public function only( iterable|string|int $keys ) : self
 	{
 		return $this->intersectKeys( array_flip( $this->array( $keys ) ) );
 	}
@@ -3628,7 +3670,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $value Value to fill up with if the map length is smaller than the given size
 	 * @return self<int|string,mixed> New map
 	 */
-	public function pad( int $size, $value = null ) : self
+	public function pad( int $size, mixed $value = null ) : self
 	{
 		return new static( array_pad( $this->list(), $size, $value ) );
 	}
@@ -3652,7 +3694,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|int $number Function with (value, index) as arguments returning the bucket key or number of groups
 	 * @return self<int|string,mixed> New map
 	 */
-	public function partition( $number ) : self
+	public function partition( \Closure|int $number ) : self
 	{
 		$list = $this->list();
 
@@ -3671,21 +3713,16 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return new static( $result );
 		}
 
-		if( is_int( $number ) )
+		$start = 0;
+		$size = (int) ceil( count( $list ) / $number );
+
+		for( $i = 0; $i < $number; $i++ )
 		{
-			$start = 0;
-			$size = (int) ceil( count( $list ) / $number );
-
-			for( $i = 0; $i < $number; $i++ )
-			{
-				$result[] = array_slice( $list, $start, $size, true );
-				$start += $size;
-			}
-
-			return new static( $result );
+			$result[] = array_slice( $list, $start, $size, true );
+			$start += $size;
 		}
 
-		throw new \InvalidArgumentException( 'Parameter is no closure or integer' );
+		return new static( $result );
 	}
 
 
@@ -3704,7 +3741,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The first line will return "66.67", the second and third one "0.0", the forth
 	 * one "33.333", the fifth one "33.0" and the last one "70.0" (66 rounded up).
 	 *
-	 * @param Closure $fcn Closure to filter the values in the nested array or object to compute the percentage
+	 * @param \Closure $fcn Closure to filter the values in the nested array or object to compute the percentage
 	 * @param int $precision Number of decimal digits use by the result value
 	 * @return float Percentage of all elements passing the test in the map
 	 */
@@ -3731,7 +3768,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure $callback Function with map as parameter which returns arbitrary result
 	 * @return mixed Result returned by the callback
 	 */
-	public function pipe( \Closure $callback )
+	public function pipe( \Closure $callback ) : mixed
 	{
 		return $callback( $this );
 	}
@@ -3765,7 +3802,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @return mixed Last element of the map or null if empty
 	 */
-	public function pop()
+	public function pop() : mixed
 	{
 		return array_pop( $this->list() );
 	}
@@ -3787,7 +3824,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|mixed $value Value to search for or function with (item, key) parameters return TRUE if value is found
 	 * @return int|null Position of the found value (zero based) or NULL if not found
 	 */
-	public function pos( $value ) : ?int
+	public function pos( mixed $value ) : ?int
 	{
 		$pos = 0;
 		$list = $this->list();
@@ -3841,7 +3878,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param int|null $depth Maximum depth to dive into multi-dimensional arrays starting from "1"
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
-	public function prefix( $prefix, ?int $depth = null ) : self
+	public function prefix( \Closure|string $prefix, ?int $depth = null ) : self
 	{
 		$fcn = function( array $list, $prefix, int $depth ) use ( &$fcn ) {
 
@@ -3872,7 +3909,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 * @see unshift() - Underlying method with same parameters and return value but better performance
 	 */
-	public function prepend( $value, $key = null ) : self
+	public function prepend( mixed $value, int|string|null $key = null ) : self
 	{
 		return $this->unshift( $value, $key );
 	}
@@ -3898,7 +3935,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $default Default value if key isn't available
 	 * @return mixed Value from map or default value
 	 */
-	public function pull( $key, $default = null )
+	public function pull( int|string $key, mixed $default = null ) : mixed
 	{
 		$value = $this->get( $key, $default );
 		unset( $this->list()[$key] );
@@ -3919,7 +3956,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $value Value to add to the end
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
-	public function push( $value ) : self
+	public function push( mixed $value ) : self
 	{
 		$this->list()[] = $value;
 		return $this;
@@ -3937,7 +3974,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 * @see set() - Underlying method with same parameters and return value but better performance
 	 */
-	public function put( $key, $value ) : self
+	public function put( int|string $key, mixed $value ) : self
 	{
 		return $this->set( $key, $value );
 	}
@@ -4002,7 +4039,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $initial Initial value when computing the result
 	 * @return mixed Value computed by the callback function
 	 */
-	public function reduce( callable $callback, $initial = null )
+	public function reduce( callable $callback, mixed $initial = null ) : mixed
 	{
 		return array_reduce( $this->list(), $callback, $initial );
 	}
@@ -4032,7 +4069,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param Closure|mixed $callback Function with (item, key) parameter which returns TRUE/FALSE
 	 * @return self<int|string,mixed> New map
 	 */
-	public function reject( $callback = true ) : self
+	public function reject( mixed $callback = true ) : self
 	{
 		$result = [];
 
@@ -4098,7 +4135,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param iterable<string|int>|array<string|int>|string|int $keys List of keys to remove
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
-	public function remove( $keys ) : self
+	public function remove( iterable|string|int $keys ) : self
 	{
 		foreach( $this->array( $keys ) as $key ) {
 			unset( $this->list()[$key] );
@@ -4161,7 +4198,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param string|int|null $key Key to compare the value to if $value is not a closure
 	 * @return self<int|string,mixed> New map with matching items only
 	 */
-	public function restrict( $value = null, $key = null ) : self
+	public function restrict( mixed $value = null, string|int|null $key = null ) : self
 	{
 		$filter = $value;
 
@@ -4333,7 +4370,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param bool $strict TRUE if type of the element should be checked too
 	 * @return int|string|null Key associated to the value or null if not found
 	 */
-	public function search( $value, $strict = true )
+	public function search( mixed $value, bool $strict = true ) : int|string|null
 	{
 		if( ( $result = array_search( $value, $this->list(), $strict ) ) !== false ) {
 			return $result;
@@ -4356,7 +4393,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 *  'baz'
 	 *
-	 * @param string $char Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
+	 * @param non-empty-string $char Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
 	 * @return self<int|string,mixed> Same map for fluid interface
 	 */
 	public function sep( string $char ) : self
@@ -4381,7 +4418,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $value New element that should be set
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
-	public function set( $key, $value ) : self
+	public function set( int|string $key, mixed $value ) : self
 	{
 		$this->list()[(string) $key] = $value;
 		return $this;
@@ -4411,7 +4448,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @return mixed|null Value from map or null if not found
 	 */
-	public function shift()
+	public function shift() : mixed
 	{
 		return array_shift( $this->list() );
 	}
@@ -4497,17 +4534,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|int $offset Number of items to skip or function($item, $key) returning true for skipped items
 	 * @return self<int|string,mixed> New map
 	 */
-	public function skip( $offset ) : self
+	public function skip( \Closure|int $offset ) : self
 	{
-		if( is_numeric( $offset ) ) {
-			return new static( array_slice( $this->list(), (int) $offset, null, true ) );
-		}
-
 		if( $offset instanceof \Closure ) {
 			return new static( array_slice( $this->list(), $this->until( $this->list(), $offset ), null, true ) );
 		}
 
-		throw new \InvalidArgumentException( 'Only an integer or a closure is allowed as first argument for skip()' );
+		return new static( array_slice( $this->list(), (int) $offset, null, true ) );
 	}
 
 
@@ -4559,7 +4592,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param int $size Size of each window
 	 * @param int $step Step size to move the window
-	 * @return self<int,array<int|string,mixed>> New map containing arrays for each window
+	 * @return self New map containing arrays for each window
 	 */
 	public function sliding( int $size = 2, int $step = 1 ) : self
 	{
@@ -4589,12 +4622,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The first two examples will return "a" while the third one will return [1 => ['name' => 'user']].
 	 * All other examples throw a LengthException because more than one item matches the test.
 	 *
-	 * @param \Closure|mixed $values Closure with (item, key) parameter or element to test against
-	 * @param string|int|null $key Key to compare the value for if $values is not a closure
+	 * @param \Closure|mixed $value Closure with (item, key) parameter or element to test against
+	 * @param string|int|null $key Key to compare the value for if $value is not a closure
 	 * @return mixed Value from map if exactly one matching item exists
 	 * @throws \LengthException If no items or more than one item is found
 	 */
-	public function sole( $value = null, $key = null )
+	public function sole( mixed $value = null, string|int|null $key = null ) : mixed
 	{
 		$items = $this->restrict( $value, $key );
 
@@ -4625,7 +4658,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
 	 * @return bool TRUE if at least one element is available in map, FALSE if the map contains none of them
 	 */
-	public function some( $values, bool $strict = false ) : bool
+	public function some( mixed $values, bool $strict = false ) : bool
 	{
 		$list = $this->list();
 
@@ -4749,7 +4782,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $replacement List of elements to insert
 	 * @return self<int|string,mixed> New map
 	 */
-	public function splice( int $offset, ?int $length = null, $replacement = [] ) : self
+	public function splice( int $offset, ?int $length = null, mixed $replacement = [] ) : self
 	{
 		// PHP 7.x doesn't allow to pass NULL as replacement
 		if( $length === null ) {
@@ -4934,12 +4967,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 * The first eleven examples will return TRUE while the last six will return FALSE.
 	 *
-	 * @param array|string $value The string or list of strings to search for in each entry
+	 * @param array<string>|string $value The string or list of strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if one of the entries contains one of the strings, FALSE if not
 	 * @todo 4.0 Add $case parameter at second position
 	 */
-	public function strContains( $value, string $encoding = 'UTF-8' ) : bool
+	public function strContains( array|string $value, string $encoding = 'UTF-8' ) : bool
 	{
 		foreach( $this->list() as $entry )
 		{
@@ -4983,12 +5016,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 * The first nine examples will return TRUE while the last six will return FALSE.
 	 *
-	 * @param array|string $value The string or list of strings to search for in each entry
+	 * @param array<string>|string $value The string or list of strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if all of the entries contains at least one of the strings, FALSE if not
 	 * @todo 4.0 Add $case parameter at second position
 	 */
-	public function strContainsAll( $value, string $encoding = 'UTF-8' ) : bool
+	public function strContainsAll( array|string $value, string $encoding = 'UTF-8' ) : bool
 	{
 		$list = [];
 
@@ -5028,12 +5061,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 * The first five examples will return TRUE while the last four will return FALSE.
 	 *
-	 * @param array|string $value The string or strings to search for in each entry
+	 * @param array<string>|string $value The string or strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if one of the entries ends with one of the strings, FALSE if not
 	 * @todo 4.0 Add $case parameter at second position
 	 */
-	public function strEnds( $value, string $encoding = 'UTF-8' ) : bool
+	public function strEnds( array|string $value, string $encoding = 'UTF-8' ) : bool
 	{
 		foreach( $this->list() as $entry )
 		{
@@ -5070,12 +5103,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 * The first five examples will return TRUE while the last four will return FALSE.
 	 *
-	 * @param array|string $value The string or strings to search for in each entry
+	 * @param array<string>|string $value The string or strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if all of the entries ends with at least one of the strings, FALSE if not
 	 * @todo 4.0 Add $case parameter at second position
 	 */
-	public function strEndsAll( $value, string $encoding = 'UTF-8' ) : bool
+	public function strEndsAll( array|string $value, string $encoding = 'UTF-8' ) : bool
 	{
 		$list = [];
 
@@ -5107,7 +5140,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['a' => 1.1] )->string( 'a' );
 	 *  Map::from( ['a' => 'abc'] )->string( 'a' );
 	 *  Map::from( ['a' => ['b' => ['c' => 'yes']]] )->string( 'a/b/c' );
-	 *  Map::from( [] )->string( 'a', function() { return 'no'; } );
+	 *  Map::from( [] )->string( 'a', function( $val ) { return 'no'; } );
 	 *
 	 *  Map::from( [] )->string( 'b' );
 	 *  Map::from( ['b' => ''] )->string( 'b' );
@@ -5128,12 +5161,24 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
 	 * @param int|string $key Key or path to the requested item
-	 * @param mixed $default Default value if key isn't found (will be casted to bool)
+	 * @param \Closure|\Throwable|string $default Default value if key isn't found
 	 * @return string Value from map or default value
 	 */
-	public function string( $key, $default = '' ) : string
+	public function string( int|string $key, \Closure|\Throwable|string $default = '' ) : string
 	{
-		return (string) ( is_scalar( $val = $this->get( $key, $default ) ) ? $val : $default );
+		if( is_scalar( $val = $this->get( $key, $default ) ) ) {
+			return (string) $val;
+		}
+
+		if( $default instanceof \Closure ) {
+			return (string) $default( $val );
+		}
+
+		if( $default instanceof \Throwable ) {
+			throw $default;
+		}
+
+		return (string) $default;
 	}
 
 
@@ -5204,12 +5249,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * inserted value when doing multiple replacements. Entries which are non-string
 	 * values are left untouched.
 	 *
-	 * @param array|string $search String or list of strings to search for
-	 * @param array|string $replace String or list of strings of replacement strings
+	 * @param array<string>|string $search String or list of strings to search for
+	 * @param array<string>|string $replace String or list of strings of replacement strings
 	 * @param bool $case TRUE if replacements should be case insensitive, FALSE if case-sensitive
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
-	public function strReplace( $search, $replace, bool $case = false ) : self
+	public function strReplace( array|string $search, array|string $replace, bool $case = false ) : self
 	{
 		$fcn = $case ? 'str_ireplace' : 'str_replace';
 
@@ -5241,12 +5286,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 * The first five examples will return TRUE while the last four will return FALSE.
 	 *
-	 * @param array|string $value The string or strings to search for in each entry
+	 * @param array<string>|string $value The string or strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if all of the entries ends with at least one of the strings, FALSE if not
 	 * @todo 4.0 Add $case parameter at second position
 	 */
-	public function strStarts( $value, string $encoding = 'UTF-8' ) : bool
+	public function strStarts( array|string $value, string $encoding = 'UTF-8' ) : bool
 	{
 		foreach( $this->list() as $entry )
 		{
@@ -5281,12 +5326,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 * The first five examples will return TRUE while the last four will return FALSE.
 	 *
-	 * @param array|string $value The string or strings to search for in each entry
+	 * @param array<string>|string $value The string or strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if one of the entries starts with one of the strings, FALSE if not
 	 * @todo 4.0 Add $case parameter at second position
 	 */
-	public function strStartsAll( $value, string $encoding = 'UTF-8' ) : bool
+	public function strStartsAll( array|string $value, string $encoding = 'UTF-8' ) : bool
 	{
 		$list = [];
 
@@ -5362,7 +5407,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param int|null $depth Maximum depth to dive into multi-dimensional arrays starting from "1"
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
-	public function suffix( $suffix, ?int $depth = null ) : self
+	public function suffix( \Closure|string $suffix, ?int $depth = null ) : self
 	{
 		$fcn = function( $list, $suffix, $depth ) use ( &$fcn ) {
 
@@ -5405,10 +5450,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
 	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
-	 * @param Closure|string|null $col Closure, key or path to the values in the nested array or object to sum up
+	 * @param \Closure|string|null $col Closure, key or path to the values in the nested array or object to sum up
 	 * @return float Sum of all elements or 0 if there are no elements in the map
 	 */
-	public function sum( $col = null ) : float
+	public function sum( \Closure|string|null $col = null ) : float
 	{
 		$list = $this->list();
 		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list, 'is_numeric' );
@@ -5442,19 +5487,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|int $offset Number of items to skip or function($item, $key) returning true for skipped items
 	 * @return self<int|string,mixed> New map
 	 */
-	public function take( int $size, $offset = 0 ) : self
+	public function take( int $size, \Closure|int $offset = 0 ) : self
 	{
 		$list = $this->list();
-
-		if( is_numeric( $offset ) ) {
-			return new static( array_slice( $list, (int) $offset, $size, true ) );
-		}
 
 		if( $offset instanceof \Closure ) {
 			return new static( array_slice( $list, $this->until( $list, $offset ), $size, true ) );
 		}
 
-		throw new \InvalidArgumentException( 'Only an integer or a closure is allowed as second argument for take()' );
+		return new static( array_slice( $list, (int) $offset, $size, true ) );
 	}
 
 
@@ -5978,7 +6019,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		foreach( $this->list() as $key => $value )
 		{
 			$nested = &$result;
-			$parts = explode( $this->sep, $key );
+			$parts = explode( $this->sep, (string) $key );
 
 			while( count( $parts ) > 1 ) {
 				$nested = &$nested[array_shift( $parts )] ?? [];
@@ -6040,7 +6081,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|string|null $col Key, path of the nested array or anonymous function with ($item, $key) parameters returning the value for comparison
 	 * @return self<int|string,mixed> New map
 	 */
-	public function unique( $col = null ) : self
+	public function unique( \Closure|string|null $col = null ) : self
 	{
 		if( $col === null ) {
 			return new static( array_unique( $this->list() ) );
@@ -6080,7 +6121,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param int|string|null $key Key for the item or NULL to reindex all numerical keys
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
-	public function unshift( $value, $key = null ) : self
+	public function unshift( mixed $value, int|string|null $key = null ) : self
 	{
 		if( $key === null ) {
 			array_unshift( $this->list(), $value );
@@ -6203,7 +6244,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param bool $recursive TRUE to traverse sub-arrays recursively (default), FALSE to iterate Map elements only
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
-	public function walk( callable $callback, $data = null, bool $recursive = true ) : self
+	public function walk( callable $callback, mixed $data = null, bool $recursive = true ) : self
 	{
 		if( $recursive ) {
 			array_walk_recursive( $this->list(), $callback, $data );
@@ -6275,7 +6316,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $value Value used for comparison
 	 * @return self<int|string,mixed> New map for fluid interface
 	 */
-	public function where( string $key, string $op, $value ) : self
+	public function where( string $key, string $op, mixed $value ) : self
 	{
 		return $this->filter( function( $item ) use ( $key, $op, $value ) {
 
@@ -6322,7 +6363,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $value New value for the given key
 	 * @return self<int|string,mixed> New map
 	 */
-	public function with( $key, $value ) : self
+	public function with( int|string $key, mixed $value ) : self
 	{
 		return ( clone $this )->set( $key, $value );
 	}
@@ -6362,7 +6403,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param mixed $elements List of elements or single value
 	 * @return array<int|string,mixed> Plain array
 	 */
-	protected function array( $elements ) : array
+	protected function array( mixed $elements ) : array
 	{
 		if( is_array( $elements ) ) {
 			return $elements;
@@ -6407,7 +6448,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	/**
 	 * Returns a reference to the array of elements
 	 *
-	 * @return array Reference to the array of elements
+	 * @return array<int|string,mixed> Reference to the array of elements
 	 */
 	protected function &list() : array
 	{
@@ -6425,7 +6466,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param \Closure|string|null $key Closure or key (e.g. "key1/key2/key3") to retrieve the value for
 	 * @return \Closure Closure that retrieves the value for the passed key
 	 */
-	protected function mapper( $key = null ) : \Closure
+	protected function mapper( \Closure|string|null $key = null ) : \Closure
 	{
 		if( $key instanceof \Closure ) {
 			return $key;
@@ -6511,7 +6552,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param array<string> $parts Path parts to look for inside the array or object
 	 * @return mixed Found value or null if no value is available
 	 */
-	protected function val( $entry, array $parts )
+	protected function val( mixed $entry, array $parts ) : mixed
 	{
 		foreach( $parts as $part )
 		{
@@ -6538,7 +6579,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param string $nestKey Key to the children of each entry
 	 * @param array<mixed>|object|null $parent Parent entry
 	 */
-	protected function visit( iterable $entries, array &$result, int $level, ?\Closure $callback, string $nestKey, $parent = null ) : void
+	protected function visit( iterable $entries, array &$result, int $level, ?\Closure $callback, string $nestKey, array|object|null $parent = null ) : void
 	{
 		foreach( $entries as $key => $entry )
 		{

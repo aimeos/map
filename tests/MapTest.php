@@ -2553,7 +2553,7 @@ Array
 
 	public function testPartitionInvalid()
 	{
-		$this->expectException( \InvalidArgumentException::class );
+		$this->expectException( \TypeError::class );
 		Map::from( [1] )->partition( [] );
 	}
 
@@ -3103,7 +3103,7 @@ Array
 
 	public function testSkipException()
 	{
-		$this->expectException( \InvalidArgumentException::class );
+		$this->expectException( \TypeError::class );
 		Map::from( [] )->skip( [] );
 	}
 
@@ -3591,7 +3591,7 @@ Array
 
 	public function testTakeException()
 	{
-		$this->expectException( \InvalidArgumentException::class );
+		$this->expectException( \TypeError::class );
 		Map::from( [] )->take( 0, [] );
 	}
 
