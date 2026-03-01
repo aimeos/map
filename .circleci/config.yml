@@ -1,0 +1,103 @@
+# PHP CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-php/ for more details
+#
+version: 2
+
+jobs:
+  "php-8.1":
+    docker:
+      - image: aimeos/ci-php:8.1
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - php81-{{ checksum "composer.json" }}
+      - run: composer update -n --prefer-dist
+      - save_cache:
+          key: php81-{{ checksum "composer.json" }}
+          paths: [./vendor]
+      - run: ./vendor/bin/phpunit
+
+  "php-8.2":
+    docker:
+      - image: aimeos/ci-php:8.2
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - php82-{{ checksum "composer.json" }}
+      - run: composer update -n --prefer-dist
+      - save_cache:
+          key: php82-{{ checksum "composer.json" }}
+          paths: [./vendor]
+      - run: ./vendor/bin/phpunit
+
+  "php-8.3":
+    docker:
+      - image: aimeos/ci-php:8.3
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - php83-{{ checksum "composer.json" }}
+      - run: composer update -n --prefer-dist
+      - save_cache:
+          key: php83-{{ checksum "composer.json" }}
+          paths: [./vendor]
+      - run: ./vendor/bin/phpunit
+
+  "php-8.4":
+    docker:
+      - image: aimeos/ci-php:8.4
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - php84-{{ checksum "composer.json" }}
+      - run: composer update -n --prefer-dist
+      - save_cache:
+          key: php84-{{ checksum "composer.json" }}
+          paths: [./vendor]
+      - run: ./vendor/bin/phpunit --coverage-clover coverage.xml
+      - run: ./vendor/bin/php-coveralls -vvv -o coverage.json -x coverage.xml
+
+  "php-8.5":
+    docker:
+      - image: aimeos/ci-php:8.5
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - php85-{{ checksum "composer.json" }}
+      - run: composer update -n --prefer-dist
+      - save_cache:
+          key: php85-{{ checksum "composer.json" }}
+          paths: [./vendor]
+      - run: ./vendor/bin/phpunit
+
+  "check":
+    docker:
+      - image: aimeos/ci-php:8.5
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - php85-{{ checksum "composer.json" }}
+      - run: composer update -n --prefer-dist
+      - save_cache:
+          key: php85-{{ checksum "composer.json" }}
+          paths: [./vendor]
+      - run: ./vendor/bin/phpstan
+      - run: ./vendor/bin/phpcs --standard=PSR1 src/
+
+workflows:
+  version: 2
+  unittest:
+    jobs:
+      - "php-8.1"
+      - "php-8.2"
+      - "php-8.3"
+      - "php-8.4"
+      - "php-8.5"
+      - "check"
