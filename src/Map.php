@@ -1764,13 +1764,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function firstKey( mixed $default = null ) : mixed
 	{
 		$list = $this->list();
-
-		// PHP 7.x compatibility
-		if( function_exists( 'array_key_first' ) ) {
-			$key = array_key_first( $list );
-		} else {
-			$key = key( array_slice( $list, 0, 1, true ) );
-		}
+		$key = array_key_first( $list );
 
 		if( $key !== null ) {
 			return $key;
@@ -3234,13 +3228,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function lastKey( mixed $default = null ) : mixed
 	{
 		$list = $this->list();
-
-		// PHP 7.x compatibility
-		if( function_exists( 'array_key_last' ) ) {
-			$key = array_key_last( $list );
-		} else {
-			$key = key( array_slice( $list, -1, 1, true ) );
-		}
+		$key = array_key_last( $list );
 
 		if( $key !== null ) {
 			return $key;
@@ -4791,11 +4779,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function splice( int $offset, ?int $length = null, mixed $replacement = [] ) : self
 	{
-		// PHP 7.x doesn't allow to pass NULL as replacement
-		if( $length === null ) {
-			$length = count( $this->list() );
-		}
-
 		return new static( array_splice( $this->list(), $offset, $length, (array) $replacement ) );
 	}
 
