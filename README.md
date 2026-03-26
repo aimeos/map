@@ -471,7 +471,7 @@ will return:
 * [strEnds()](#strends) : Tests if at least one of the entries ends with one of the passed strings
 * [strEndsAll()](#strendsall) : Tests if all of the entries ends with at least one of the passed strings
 * [strStarts()](#strstarts) : Tests if at least one of the entries starts with at least one of the passed strings
-* [strStartsAll()](#strstartsall) : Tests if all of the entries starts with one of the passed strings
+* [strStartsAll()](#strstartsall) : Tests if all of the entries start with one of the passed strings
 
 ### Mutate
 
@@ -515,7 +515,7 @@ will return:
 
 ### Misc
 
-* [delimiter()](#delimiter) : Sets or returns the seperator for paths to multi-dimensional arrays
+* [delimiter()](#delimiter) : Sets or returns the separator for paths to multi-dimensional arrays
 * [getIterator()](#getiterator) : Returns an iterator for the elements
 * [jsonSerialize()](#jsonserialize) : Specifies the data which should be serialized to JSON
 * [method()](#method) : Registers a custom method
@@ -523,7 +523,7 @@ will return:
 * [offsetGet()](#offsetget) : Returns an element by key
 * [offsetSet()](#offsetset) : Overwrites an element
 * [offsetUnset()](#offsetunset) : Removes an element by key
-* [sep()](#sep) : Sets the seperator for paths to multi-dimensional arrays in the current map
+* [sep()](#sep) : Sets the separator for paths to multi-dimensional arrays in the current map
 
 
 
@@ -1590,7 +1590,7 @@ Counts how often the same values are in the map.
 public function countBy( \Closure|string|null $col = null ) : self
 ```
 
-* @param **\Closure&#124;string&#124;null** `$col` Key as "key1/key2/key3" or closure with (value, key) parameters returning the values for counting
+* @param **\Closure&#124;string&#124;null** `$col` Key as "key1/key2/key3" or closure with (value) parameter returning the values for counting
 * @return **self&#60;int&#124;string,mixed&#62;** New map with values as keys and their count as value
 
 This does also work for multi-dimensional arrays by passing the keys
@@ -1658,7 +1658,7 @@ The `first()` method isn't executed at all.
 
 ### delimiter()
 
-Sets or returns the seperator for paths to values in multi-dimensional arrays or objects.
+Sets or returns the separator for paths to values in multi-dimensional arrays or objects.
 
 ```php
 public static function delimiter( ?string $char = null ) : string
@@ -1683,7 +1683,7 @@ Map::from( ['foo' => ['bar' => 'baz']] )->get( 'foo.bar' );
 
 **See also:**
 
-* [sep()](#sep) - Sets the seperator for paths to values in multi-dimensional arrays or objects
+* [sep()](#sep) - Sets the separator for paths to values in multi-dimensional arrays or objects
 
 
 ### diff()
@@ -2870,7 +2870,7 @@ Map::from( ['a', 'b'] )->if( false, null, function( $map ) {
 ```
 
 Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
-(a short form for anonymous closures) as parameters. The automatically have access
+(a short form for anonymous closures) as parameters. They automatically have access
 to previously defined variables but can not modify them. Also, they can not have
 a void return type and must/will always return something. Details about
 [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
@@ -2918,7 +2918,7 @@ Map::from( ['a'] )->ifAny( function( $map ) {
 ```
 
 Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
-(a short form for anonymous closures) as parameters. The automatically have access
+(a short form for anonymous closures) as parameters. They automatically have access
 to previously defined variables but can not modify them. Also, they can not have
 a void return type and must/will always return something. Details about
 [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
@@ -2961,7 +2961,7 @@ Map::from( ['a'] )->ifEmpty( null, function( $map ) {
 ```
 
 Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
-(a short form for anonymous closures) as parameters. The automatically have access
+(a short form for anonymous closures) as parameters. They automatically have access
 to previously defined variables but can not modify them. Also, they can not have
 a void return type and must/will always return something. Details about
 [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
@@ -4258,7 +4258,7 @@ public static function method( string $method, ?\Closure $fcn = null ) : ?\Closu
 * @param **\Closure&#124;null** `$fcn` Anonymous function or NULL to return the closure if available
 * @return **\Closure&#124;null** Registered anonymous function or NULL if none has been registered
 
-The registed method has access to the class properties if called non-static.
+The registered method has access to the class properties if called non-static.
 
 **Examples:**
 
@@ -4808,7 +4808,7 @@ public function prefix( \Closure|string $prefix, ?int $depth = null ) : self
 * @param **int&#124;null** `$depth` Maximum depth to dive into multi-dimensional arrays starting from "1"
 * @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
-By default, nested arrays are walked recusively so all entries at all levels are prefixed.
+By default, nested arrays are walked recursively so all entries at all levels are prefixed.
 The keys of the original map are preserved in the returned map.
 
 **Examples:**
@@ -5330,7 +5330,7 @@ Map::from( [1, 2, 3] )->search( '2', true );
 
 ### sep()
 
-Sets the seperator for paths to values in multi-dimensional arrays or objects.
+Sets the separator for paths to values in multi-dimensional arrays or objects.
 
 ```php
 public function sep( string $char ) : self
@@ -5352,7 +5352,7 @@ Map::from( ['foo' => ['bar' => 'baz']] )->sep( '.' )->get( 'foo.bar' );
 
 **See also:**
 
-* [delimiter()](#delimiter) - Sets or returns the seperator for paths to values in multi-dimensional arrays or objects
+* [delimiter()](#delimiter) - Sets or returns the separator for paths to values in multi-dimensional arrays or objects
 
 
 ### set()
@@ -6309,7 +6309,7 @@ public function strStarts( array|string $value, string $encoding = 'UTF-8' ) : b
 
 * @param **array&#124;string** `$value` The string or list of strings to search for in each entry
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
-* @return **bool** TRUE if one of the entries starts with one of the strings, FALSE if not
+* @return **bool** TRUE if at least one of the entries starts with one of the strings, FALSE if not
 
 **Examples:**
 
@@ -6344,12 +6344,12 @@ Map::from( ['abc'] )->strStarts( 'bc', 'ASCII' );
 
 **See also:**
 
-* [strStartsAll()](#strstartsall) - Tests if all of the entries starts with one of the passed strings
+* [strStartsAll()](#strstartsall) - Tests if all of the entries start with one of the passed strings
 
 
 ### strStartsAll()
 
-Tests if all of the entries starts with one of the passed strings.
+Tests if all of the entries start with one of the passed strings.
 
 ```php
 public function strStartsAll( array|string $value, string $encoding = 'UTF-8' ) : bool
@@ -6357,7 +6357,7 @@ public function strStartsAll( array|string $value, string $encoding = 'UTF-8' ) 
 
 * @param **array&#124;string** `$value` The string or list of strings to search for in each entry
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
-* @return **bool** TRUE if one of the entries starts with one of the strings, FALSE if not
+* @return **bool** TRUE if all of the entries start with at least one of the strings, FALSE if not
 
 **Examples:**
 
@@ -6392,7 +6392,7 @@ Map::from( ['abc', 'cab'] )->strStartsAll( 'ab', 'ASCII' );
 
 **See also:**
 
-* [strStarts()](#strstarts) - Tests if at least one of the entries starts with at least one of the passed strings
+* [strStarts()](#strstarts) - Tests if at least one of the entries starts with one of the passed strings
 
 
 ### strUpper()
@@ -6436,7 +6436,7 @@ public function suffix( \Closure|string $suffix, ?int $depth = null ) : self
 * @param **int&#124;null** `$depth` Maximum depth to dive into multi-dimensional arrays starting from "1"
 * @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
-By defaul, nested arrays are walked recusively so all entries at all levels are suffixed.
+By default, nested arrays are walked recursively so all entries at all levels are suffixed.
 The keys are preserved using this method.
 
 **Examples:**
@@ -7665,7 +7665,7 @@ be called instead of adding the new element to the array directly. This applies
 to the `$map->push( 'a' )` method too.
 
 When creating arrays in loops, you should populate the array first and then
-create a Map object from the the array:
+create a Map object from the array:
 
 ```php
 $list = [];
