@@ -3197,78 +3197,6 @@ Map::from( ['foo', 'bar'] )->insertBefore( null, 'baz' );
 * [insertAt()](#insertat) - Inserts the item at the given position in the map
 
 
-### inString()
-
-Tests if the passed value or value are part of the strings in the map.
-
-This method is deprecated in favor of the multi-byte aware [strContains()](#strcontains) method.
-
-```php
-public function inString( array|string $value, bool $case = true ) : bool
-```
-
-* @param **array&#124;string** `$value` Value or values to compare the map elements, will be casted to string type
-* @param **bool** `$case` TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
-* @return **bool** TRUE If at least one element matches, FALSE if value is not in any string of the map
-
-All scalar values (bool, float, int and string) are casted to string values before
-comparing to the given value. Non-scalar values in the map are ignored.
-
-**Examples:**
-
-```php
-Map::from( ['abc'] )->inString( 'c' );
-// true ('abc' contains 'c')
-
-Map::from( ['abc'] )->inString( 'bc' );
-// true ('abc' contains 'bc')
-
-Map::from( [12345] )->inString( '23' );
-// true ('12345' contains '23')
-
-Map::from( [123.4] )->inString( 23.4 );
-// true ('123.4' contains '23.4')
-
-Map::from( [12345] )->inString( false );
-// true ('12345' contains '')
-
-Map::from( [12345] )->inString( true );
-// true ('12345' contains '1')
-
-Map::from( [false] )->inString( false );
-// true  ('' contains '')
-
-Map::from( ['abc'] )->inString( '' );
-// true ('abc' contains '')
-
-Map::from( [''] )->inString( false );
-// true ('' contains '')
-
-Map::from( ['abc'] )->inString( 'BC', false );
-// true ('abc' contains 'BC' when case-insentive)
-
-Map::from( ['abc', 'def'] )->inString( ['de', 'xy'] );
-// true ('def' contains 'de')
-
-Map::from( ['abc', 'def'] )->inString( ['E', 'x'] );
-// false (doesn't contain "E" when case sensitive)
-
-Map::from( ['abc', 'def'] )->inString( 'E' );
-// false (doesn't contain "E" when case sensitive)
-
-Map::from( [23456] )->inString( true );
-// false ('23456' doesn't contain '1')
-
-Map::from( [false] )->inString( 0 );
-// false ('' doesn't contain '0')
-```
-
-**See also:**
-
-* [strContains()](#strcontains) - Tests if at least one of the passed strings is part of at least one entry
-* [strContainsAll()](#strcontainsall) - Tests if all of the entries contains one of the passed strings
-
-
 ### int()
 
 Returns an element by key and casts it to integer if possible.
@@ -7732,6 +7660,16 @@ $map->push( 'z' )->push( 'y' )->push( 'x' )->reverse(); // use push() for adding
 ## Upgrade guide
 
 ### 3.x -> 4.x
+
+#### Use strContains() instead of inString()
+
+The `inString()` method has been removed. Use the multi-byte aware `strContains()` method instead:
+
+```php
+Map::from( ['abc'] )->inString( 'c' );
+// change to:
+Map::from( ['abc'] )->strContains( 'c' );
+```
 
 #### Strict parameter typing
 
