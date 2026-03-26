@@ -207,7 +207,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		}
 
 		$limit = $limit ?: 1;
-		$parts = mb_str_split( $string );
+		$parts = mb_str_split( $string, 1, 'UTF-8' );
 
 		if( $limit < 1 ) {
 			return new static( array_slice( $parts, 0, $limit ) );
@@ -3067,7 +3067,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function krsorted( int $options = SORT_REGULAR ) : self
 	{
-		return ( clone $this )->krsort();
+		return ( clone $this )->krsort( $options );
 	}
 
 
@@ -3128,7 +3128,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function ksorted( int $options = SORT_REGULAR ) : self
 	{
-		return ( clone $this )->ksort();
+		return ( clone $this )->ksort( $options );
 	}
 
 
@@ -4798,7 +4798,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function strAfter( string $value, bool $case = false, string $encoding = 'UTF-8' ) : self
 	{
 		$list = [];
-		$len = mb_strlen( $value );
+		$len = mb_strlen( $value, $encoding );
 		$fcn = $case ? 'mb_stripos' : 'mb_strpos';
 
 		foreach( $this->list() as $key => $entry )
@@ -5045,7 +5045,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 			foreach( (array) $value as $str )
 			{
-				$len = mb_strlen( (string) $str );
+				$len = mb_strlen( (string) $str, $encoding );
 
 				if( ( $str === '' || mb_strpos( $entry, (string) $str, -$len, $encoding ) !== false ) ) {
 					return true;
@@ -5090,7 +5090,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 			foreach( (array) $value as $str )
 			{
-				$len = mb_strlen( (string) $str );
+				$len = mb_strlen( (string) $str, $encoding );
 
 				if( (int) ( $str === '' || mb_strpos( $entry, (string) $str, -$len, $encoding ) !== false ) ) {
 					$list[$entry] = 1; break;
