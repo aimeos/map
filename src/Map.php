@@ -690,7 +690,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function before( $value ) : self
 	{
-		return new static( array_slice( $this->list(), 0, $this->pos( $value ), true ) );
+		if( ( $pos = $this->pos( $value ) ) === null ) {
+			return new static();
+		}
+
+		return new static( array_slice( $this->list(), 0, $pos, true ) );
 	}
 
 
@@ -3302,7 +3306,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function max( $col = null )
 	{
 		$list = $this->list();
-		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list );
+		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list, fn( $v ) => $v !== null );
 
 		return !empty( $vals ) ? max( $vals ) : null;
 	}
@@ -3379,7 +3383,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function min( $col = null )
 	{
 		$list = $this->list();
-		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list );
+		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list, fn( $v ) => $v !== null );
 
 		return !empty( $vals ) ? min( $vals ) : null;
 	}
@@ -3810,10 +3814,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return null;
 		}
 
-		if( ( $key = array_search( $value, $list, true ) ) !== false
-			&& ( $pos = array_search( $key, array_keys( $list ), true ) ) !== false
-		) {
-			return $pos;
+		foreach( $list as $key => $item )
+		{
+			if( $item === $value ) {
+				return $pos;
+			}
+
+			++$pos;
 		}
 
 		return null;
@@ -6291,7 +6298,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 				{
 					case '-':
 						$list = (array) $value;
-						return $val >= current( $list ) && $val <= end( $list );
+						return !empty( $list ) && $val >= reset( $list ) && $val <= end( $list );
 					case 'in': return in_array( $val, (array) $value );
 					case '<': return $val < $value;
 					case '>': return $val > $value;
