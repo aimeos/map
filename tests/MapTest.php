@@ -2968,13 +2968,15 @@ Array
 	{
 		$m = new Map( [false, 0, 1, [], ''] );
 
-		$this->assertNull( $m->search( 'false' ) );
-		$this->assertNull( $m->search( '1' ) );
-		$this->assertSame( 0, $m->search( false ) );
-		$this->assertSame( 1, $m->search( 0 ) );
-		$this->assertSame( 2, $m->search( 1 ) );
-		$this->assertSame( 3, $m->search( [] ) );
-		$this->assertSame( 4, $m->search( '' ) );
+		$this->assertNull( $m->search( 'false', true ) );
+		$this->assertNull( $m->search( '1', true ) );
+		$this->assertSame( 0, $m->search( false, true ) );
+		$this->assertSame( 1, $m->search( 0, true ) );
+		$this->assertSame( 2, $m->search( 1, true ) );
+		$this->assertSame( 3, $m->search( [], true ) );
+		$this->assertSame( 4, $m->search( '', true ) );
+		$this->assertSame( 0, $m->search( '0' ) );
+		$this->assertSame( 2, $m->search( '1' ) );
 	}
 
 
@@ -3303,6 +3305,8 @@ Array
 		$this->assertEquals( [''], Map::from( ['abc'] )->strAfter( 'c' )->toArray() );
 		$this->assertEquals( [], Map::from( ['abc'] )->strAfter( 'x' )->toArray() );
 		$this->assertEquals( [], Map::from( [''] )->strAfter( '' )->toArray() );
+		$this->assertEquals( [], Map::from( ['abc'] )->strAfter( 'B' )->toArray() );
+		$this->assertEquals( ['c'], Map::from( ['abc'] )->strAfter( 'B', false )->toArray() );
 	}
 
 
@@ -3316,6 +3320,8 @@ Array
 		$this->assertEquals( [''], Map::from( ['abc'] )->strBefore( 'a' )->toArray() );
 		$this->assertEquals( [], Map::from( ['abc'] )->strBefore( 'x' )->toArray() );
 		$this->assertEquals( [], Map::from( [''] )->strBefore( '' )->toArray() );
+		$this->assertEquals( [], Map::from( ['abc'] )->strBefore( 'B' )->toArray() );
+		$this->assertEquals( ['a'], Map::from( ['abc'] )->strBefore( 'B', false )->toArray() );
 	}
 
 

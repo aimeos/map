@@ -5238,7 +5238,7 @@ Map::from( ["a b c", "cbxa"] )->rtrim( 'abc' );
 Searches the map for a given value and return the corresponding key if successful.
 
 ```php
-public function search( mixed $value, bool $strict = true ) : int|string|null
+public function search( mixed $value, bool $strict = false ) : int|string|null
 ```
 
 * @param **mixed** `$value` Item to search for
@@ -5250,6 +5250,9 @@ public function search( mixed $value, bool $strict = true ) : int|string|null
 ```php
 Map::from( ['a', 'b', 'c'] )->search( 'b' );
 // 1
+
+Map::from( [1, 2, 3] )->search( '2' );
+// 1 (loose comparison)
 
 Map::from( [1, 2, 3] )->search( '2', true );
 // null because the types doesn't match (int vs. string)
@@ -5700,11 +5703,11 @@ Map::from( ['a', 'b', 'c'] )->splice( 1, 1, ['x', 'y'] );
 Returns the strings after the passed value.
 
 ```php
-public function strAfter( string $value, bool $case = false, string $encoding = 'UTF-8' ) : self
+public function strAfter( string $value, bool $case = true, string $encoding = 'UTF-8' ) : self
 ```
 
 * @param **string** `$value` Character or string to search for
-* @param **bool** `$case` TRUE if search should be case insensitive, FALSE if case-sensitive
+* @param **bool** `$case` TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 * @return **self&#60;int&#124;string,mixed&#62;** New map
 
@@ -5737,6 +5740,12 @@ Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strAfter( '' );
 
 Map::from( [0, 0.0, false, []] )->strAfter( '' );
 // ['0', '0']
+
+Map::from( ['abc'] )->strAfter( 'B' );
+// [] (case-sensitive, no match)
+
+Map::from( ['abc'] )->strAfter( 'B', false );
+// ['c'] (case-insensitive)
 ```
 
 **See also:**
@@ -5749,11 +5758,11 @@ Map::from( [0, 0.0, false, []] )->strAfter( '' );
 Returns the strings before the passed value.
 
 ```php
-public function strBefore( string $value, bool $case = false, string $encoding = 'UTF-8' ) : self
+public function strBefore( string $value, bool $case = true, string $encoding = 'UTF-8' ) : self
 ```
 
 * @param **string** `$value` Character or string to search for
-* @param **bool** `$case` TRUE if search should be case insensitive, FALSE if case-sensitive
+* @param **bool** `$case` TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 * @return **self&#60;int&#124;string,mixed&#62;** New map
 
@@ -5786,6 +5795,12 @@ Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strBefore( '' );
 
 Map::from( [0, 0.0, false, []] )->strBefore( '' );
 // ['0', '0']
+
+Map::from( ['abc'] )->strBefore( 'B' );
+// [] (case-sensitive, no match)
+
+Map::from( ['abc'] )->strBefore( 'B', false );
+// ['a'] (case-insensitive)
 ```
 
 **See also:**
@@ -7660,6 +7675,38 @@ $map->push( 'z' )->push( 'y' )->push( 'x' )->reverse(); // use push() for adding
 ## Upgrade guide
 
 ### 3.x -> 4.x
+
+#### Changed $strict default in search()
+
+The `$strict` parameter in `search()` now defaults to `false` instead of `true`,
+matching the behavior of `in()`, `includes()`, `none()` and `some()`.
+
+```php
+// before (strict comparison by default):
+Map::from( [1, 2, 3] )->search( '2' );
+// null (type mismatch)
+
+// after (loose comparison by default):
+Map::from( [1, 2, 3] )->search( '2' );
+// 1
+
+// to keep strict behavior, pass true explicitly:
+Map::from( [1, 2, 3] )->search( '2', true );
+// null
+```
+
+#### Changed $case parameter in strAfter() and strBefore()
+
+The `$case` parameter in `strAfter()` and `strBefore()` now defaults to `true` (case-sensitive)
+and its meaning has been reversed to match `compare()` and `strCompare()`:
+`true` means case-sensitive, `false` means case-insensitive.
+
+```php
+// before (case-insensitive search):
+Map::from( ['abc'] )->strAfter( 'B', true );
+// after:
+Map::from( ['abc'] )->strAfter( 'B', false );
+```
 
 #### Use strContains() instead of inString()
 

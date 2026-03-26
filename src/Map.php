@@ -4302,17 +4302,19 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'b', 'c'] )->search( 'b' );
+	 *  Map::from( [1, 2, 3] )->search( '2' );
 	 *  Map::from( [1, 2, 3] )->search( '2', true );
 	 *
 	 * Results:
-	 * The first example will return 1 (array index) while the second one will
-	 * return NULL because the types doesn't match (int vs. string)
+	 * The first example will return 1 (array index), the second will also return 1
+	 * (loose comparison) while the third one will return NULL because the types
+	 * doesn't match (int vs. string)
 	 *
 	 * @param mixed $value Item to search for
 	 * @param bool $strict TRUE if type of the element should be checked too
 	 * @return int|string|null Key associated to the value or null if not found
 	 */
-	public function search( mixed $value, bool $strict = true ) : int|string|null
+	public function search( mixed $value, bool $strict = false ) : int|string|null
 	{
 		if( ( $result = array_search( $value, $this->list(), $strict ) ) !== false ) {
 			return $result;
@@ -4742,6 +4744,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( [''] )->strAfter( '' );
 	 *  Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strAfter( '' );
 	 *  Map::from( [0, 0.0, false, []] )->strAfter( '' );
+	 *  Map::from( ['abc'] )->strAfter( 'B' );
+	 *  Map::from( ['abc'] )->strAfter( 'B', false );
 	 *
 	 * Results:
 	 *  ['üß']
@@ -4752,20 +4756,22 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  []
 	 *  ['1', '1', '1']
 	 *  ['0', '0']
+	 *  []
+	 *  ['c']
 	 *
 	 * All scalar values (bool, int, float, string) will be converted to strings.
 	 * Non-scalar values as well as empty strings will be skipped and are not part of the result.
 	 *
 	 * @param string $value Character or string to search for
-	 * @param bool $case TRUE if search should be case insensitive, FALSE if case-sensitive
+	 * @param bool $case TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return self<int|string,mixed> New map
 	 */
-	public function strAfter( string $value, bool $case = false, string $encoding = 'UTF-8' ) : self
+	public function strAfter( string $value, bool $case = true, string $encoding = 'UTF-8' ) : self
 	{
 		$list = [];
 		$len = mb_strlen( $value, $encoding );
-		$fcn = $case ? 'mb_stripos' : 'mb_strpos';
+		$fcn = $case ? 'mb_strpos' : 'mb_stripos';
 
 		foreach( $this->list() as $key => $entry )
 		{
@@ -4798,6 +4804,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( [''] )->strBefore( '' );
 	 *  Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strBefore( '' );
 	 *  Map::from( [0, 0.0, false, []] )->strBefore( '' );
+	 *  Map::from( ['abc'] )->strBefore( 'B' );
+	 *  Map::from( ['abc'] )->strBefore( 'B', false );
 	 *
 	 * Results:
 	 *  ['äö']
@@ -4808,19 +4816,21 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  []
 	 *  ['1', '1', '1']
 	 *  ['0', '0']
+	 *  []
+	 *  ['a']
 	 *
 	 * All scalar values (bool, int, float, string) will be converted to strings.
 	 * Non-scalar values as well as empty strings will be skipped and are not part of the result.
 	 *
 	 * @param string $value Character or string to search for
-	 * @param bool $case TRUE if search should be case insensitive, FALSE if case-sensitive
+	 * @param bool $case TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return self<int|string,mixed> New map
 	 */
-	public function strBefore( string $value, bool $case = false, string $encoding = 'UTF-8' ) : self
+	public function strBefore( string $value, bool $case = true, string $encoding = 'UTF-8' ) : self
 	{
 		$list = [];
-		$fcn = $case ? 'mb_strripos' : 'mb_strrpos';
+		$fcn = $case ? 'mb_strrpos' : 'mb_strripos';
 
 		foreach( $this->list() as $key => $entry )
 		{
