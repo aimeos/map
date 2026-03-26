@@ -139,7 +139,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Sets or returns the seperator for paths to values in multi-dimensional arrays or objects.
+	 * Sets or returns the separator for paths to values in multi-dimensional arrays or objects.
 	 *
 	 * The static method only changes the separator for new maps created afterwards.
 	 * Already existing maps will continue to use the previous separator. To change
@@ -228,7 +228,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	/**
 	 * Creates a new map filled with given value.
 	 *
-	 * Exapmles:
+	 * Examples:
 	 *  Map::fill( 3, 'a' );
 	 *  Map::fill( 3, 'a', 2 );
 	 *  Map::fill( 3, 'a', -2 );
@@ -301,6 +301,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 *  JSON_BIGINT_AS_STRING|JSON_INVALID_UTF8_IGNORE
 	 *
+	 * @param string $json JSON string to decode
 	 * @param int $options Combination of JSON_* constants
 	 * @return self<int|string,mixed> New map from decoded JSON string
 	 * @throws \RuntimeException If the passed JSON string is invalid
@@ -318,7 +319,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	/**
 	 * Registers a custom method or returns the existing one.
 	 *
-	 * The registed method has access to the class properties if called non-static.
+	 * The registered method has access to the class properties if called non-static.
 	 *
 	 * Examples:
 	 *  Map::method( 'foo', function( $arg1, $arg2 ) {
@@ -524,7 +525,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The keys are preserved using this method and a new map is created.
 	 *
 	 * @param int $options Sort options for arsort()
-	 * @return self<int|string,mixed> Updated map for fluid interface
+	 * @return self<int|string,mixed> New map with sorted elements
 	 */
 	public function arsorted( int $options = SORT_REGULAR ) : self
 	{
@@ -593,7 +594,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The keys are preserved using this method and a new map is created.
 	 *
 	 * @param int $options Sort options for asort()
-	 * @return self<int|string,mixed> Updated map for fluid interface
+	 * @return self<int|string,mixed> New map with sorted elements
 	 */
 	public function asorted( int $options = SORT_REGULAR ) : self
 	{
@@ -1141,7 +1142,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
 	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
-	 * @param \Closure|string|null $col Key as "key1/key2/key3" or function with (value, key) parameters returning the values for counting
+	 * @param \Closure|string|null $col Key as "key1/key2/key3" or function with (value) parameter returning the values for counting
 	 * @return self<int|string,mixed> New map with values as keys and their count as value
 	 */
 	public function countBy( $col = null ) : self
@@ -1532,7 +1533,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function filter( ?callable $callback = null ) : self
 	{
-		// PHP 7.x compatibility
 		if( $callback ) {
 			return new static( array_filter( $this->list(), $callback, ARRAY_FILTER_USE_BOTH ) );
 		}
@@ -2160,7 +2160,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * fifth one will return 'b', which is turned into a map of ['b'] again.
 	 *
 	 * Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
-	 * (a short form for anonymous closures) as parameters. The automatically have access
+	 * (a short form for anonymous closures) as parameters. They automatically have access
 	 * to previously defined variables but can not modify them. Also, they can not have
 	 * a void return type and must/will always return something. Details about
 	 * [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
@@ -2208,13 +2208,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  } );
 	 *
 	 * Results:
-	 * The first example returns a Map containing ['a', 'b'] because the the initial
-	 * Map is not empty. The second one returns  a Map with ['b'] because the initial
+	 * The first example returns a Map containing ['a', 'b'] because the initial
+	 * Map is not empty. The second one returns a Map with ['b'] because the initial
 	 * Map is empty and the "else" closure is used. The last example returns ['c']
 	 * as new map content.
 	 *
 	 * Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
-	 * (a short form for anonymous closures) as parameters. The automatically have access
+	 * (a short form for anonymous closures) as parameters. They automatically have access
 	 * to previously defined variables but can not modify them. Also, they can not have
 	 * a void return type and must/will always return something. Details about
 	 * [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
@@ -2247,12 +2247,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  } );
 	 *
 	 * Results:
-	 * The first example returns a Map containing ['a'] because the the initial Map
-	 * is empty. The second one returns  a Map with ['a', 'b'] because the initial
+	 * The first example returns a Map containing ['a'] because the initial Map
+	 * is empty. The second one returns a Map with ['a', 'b'] because the initial
 	 * Map is not empty and the "else" closure is used.
 	 *
 	 * Since PHP 7.4, you can also pass arrow function like `fn($map) => $map->has('c')`
-	 * (a short form for anonymous closures) as parameters. The automatically have access
+	 * (a short form for anonymous closures) as parameters. They automatically have access
 	 * to previously defined variables but can not modify them. Also, they can not have
 	 * a void return type and must/will always return something. Details about
 	 * [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
@@ -3063,7 +3063,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The keys are preserved using this method and a new map is created.
 	 *
 	 * @param int $options Sort options for krsort()
-	 * @return self<int|string,mixed> Updated map for fluid interface
+	 * @return self<int|string,mixed> New map with sorted elements
 	 */
 	public function krsorted( int $options = SORT_REGULAR ) : self
 	{
@@ -3121,10 +3121,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * - SORT_NATURAL : compare elements as strings using "natural ordering" like natsort()
 	 * - SORT_FLAG_CASE : use SORT_STRING|SORT_FLAG_CASE and SORT_NATURALSORT_FLAG_CASE to sort strings case-insensitively
 	 *
-	 * The keys are preserved using this method and no new map is created.
+	 * The keys are preserved using this method and a new map is created.
 	 *
 	 * @param int $options Sort options for ksort()
-	 * @return self<int|string,mixed> Updated map for fluid interface
+	 * @return self<int|string,mixed> New map with sorted elements
 	 */
 	public function ksorted( int $options = SORT_REGULAR ) : self
 	{
@@ -3281,7 +3281,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( [50, 10, 30] )->max( fn( $val, $key ) => $key > 0 ? $val : null )
 	 *
 	 * Results:
-	 * The first line will return "5", the second one "foo" and the third to fitfh
+	 * The first line will return "5", the second one "foo" and the third to fifth
 	 * one return 50 while the last one will return 30.
 	 *
 	 * NULL values are removed before the comparison. If there are no values or all
@@ -3823,7 +3823,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	/**
 	 * Adds a prefix in front of each map entry.
 	 *
-	 * By defaul, nested arrays are walked recusively so all entries at all levels are prefixed.
+	 * By default, nested arrays are walked recursively so all entries at all levels are prefixed.
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'b'] )->prefix( '1-' );
@@ -4288,7 +4288,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The keys aren't preserved, elements get a new index and a new map is created.
 	 *
 	 * @param int $options Sort options for rsort()
-	 * @return self<int|string,mixed> Updated map for fluid interface
+	 * @return self<int|string,mixed> New map with sorted elements
 	 */
 	public function rsorted( int $options = SORT_REGULAR ) : self
 	{
@@ -4348,7 +4348,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Sets the seperator for paths to values in multi-dimensional arrays or objects.
+	 * Sets the separator for paths to values in multi-dimensional arrays or objects.
 	 *
 	 * This method only changes the separator for the current map instance. To
 	 * change the separator for all maps created afterwards, use the static
@@ -4830,8 +4830,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['abc'] )->strBefore( 'a' );
 	 *  Map::from( ['abc'] )->strBefore( 'x' );
 	 *  Map::from( [''] )->strBefore( '' );
-	 *  Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strAfter( '' );
-	 *  Map::from( [0, 0.0, false, []] )->strAfter( '' );
+	 *  Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strBefore( '' );
+	 *  Map::from( [0, 0.0, false, []] )->strBefore( '' );
 	 *
 	 * Results:
 	 *  ['äö']
@@ -5247,7 +5247,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param array|string $value The string or strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
-	 * @return bool TRUE if all of the entries ends with at least one of the strings, FALSE if not
+	 * @return bool TRUE if at least one of the entries starts with one of the strings, FALSE if not
 	 * @todo 4.0 Add $case parameter at second position
 	 */
 	public function strStarts( $value, string $encoding = 'UTF-8' ) : bool
@@ -5287,7 +5287,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param array|string $value The string or strings to search for in each entry
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
-	 * @return bool TRUE if one of the entries starts with one of the strings, FALSE if not
+	 * @return bool TRUE if all of the entries start with at least one of the strings, FALSE if not
 	 * @todo 4.0 Add $case parameter at second position
 	 */
 	public function strStartsAll( $value, string $encoding = 'UTF-8' ) : bool
@@ -5344,7 +5344,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	/**
 	 * Adds a suffix at the end of each map entry.
 	 *
-	 * By defaul, nested arrays are walked recusively so all entries at all levels are suffixed.
+	 * By default, nested arrays are walked recursively so all entries at all levels are suffixed.
 	 *
 	 * Examples:
 	 *  Map::from( ['a', 'b'] )->suffix( '-1' );
@@ -5896,7 +5896,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The keys are preserved using this method and a new map is created.
 	 *
 	 * @param callable $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
-	 * @return self<int|string,mixed> Updated map for fluid interface
+	 * @return self<int|string,mixed> New map with sorted elements
 	 */
 	public function uasorted( callable $callback ) : self
 	{
@@ -5955,7 +5955,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The keys are preserved using this method and a new map is created.
 	 *
 	 * @param callable $callback Function with (keyA, keyB) parameters and returns -1 (<), 0 (=) and 1 (>)
-	 * @return self<int|string,mixed> Updated map for fluid interface
+	 * @return self<int|string,mixed> New map with sorted elements
 	 */
 	public function uksorted( callable $callback ) : self
 	{
@@ -6149,7 +6149,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The keys aren't preserved, elements get a new index and a new map is created.
 	 *
 	 * @param callable $callback Function with (itemA, itemB) parameters and returns -1 (<), 0 (=) and 1 (>)
-	 * @return self<int|string,mixed> Updated map for fluid interface
+	 * @return self<int|string,mixed> New map with sorted elements
 	 */
 	public function usorted( callable $callback ) : self
 	{
