@@ -16,8 +16,8 @@ composer req aimeos/map
 
 Supported PHP versions:
 
-* PHP 7.1+
-* PHP 8+
+* PHP 8+ (4.x)
+* PHP 7.1+ (3.x)
 
 **Table of contents**
 
