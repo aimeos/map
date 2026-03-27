@@ -4481,7 +4481,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function skip( \Closure|int $offset ) : self
 	{
 		if( $offset instanceof \Closure ) {
-			return new static( array_slice( $this->list(), $this->until( $this->list(), $offset ), null, true ) );
+			$list = $this->list();
+			return new static( array_slice( $list, $this->until( $list, $offset ), null, true ) );
 		}
 
 		return new static( array_slice( $this->list(), (int) $offset, null, true ) );
@@ -4541,10 +4542,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function sliding( int $size = 2, int $step = 1 ) : self
 	{
 		$result = [];
-		$chunks = floor( ( $this->count() - $size ) / $step ) + 1;
+		$list = $this->list();
+		$chunks = floor( ( count( $list ) - $size ) / $step ) + 1;
 
 		for( $i = 0; $i < $chunks; $i++ ) {
-			$result[] = array_slice( $this->list(), $i * $step, $size, true );
+			$result[] = array_slice( $list, $i * $step, $size, true );
 		}
 
 		return new static( $result );
@@ -4876,11 +4878,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function strCompare( string $value, bool $case = true, string $encoding = 'UTF-8' ) : bool
 	{
+		$val = $case ? $value : mb_strtolower( $value, $encoding );
+
 		foreach( $this->list() as $item )
 		{
 			if( is_scalar( $item ) )
 			{
-				if( $case ? (string) $item === $value : mb_strtolower( (string) $item, $encoding ) === mb_strtolower( $value, $encoding ) ) {
+				if( ( $case ? (string) $item : mb_strtolower( (string) $item, $encoding ) ) === $val ) {
 					return true;
 				}
 			}
@@ -5027,18 +5031,24 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function strEnds( array|string $value, bool $case = true, string $encoding = 'UTF-8' ) : bool
 	{
 		$fcn = $case ? 'mb_strpos' : 'mb_stripos';
+		$lengths = [];
+
+		foreach( (array) $value as $str ) {
+			$lengths[] = mb_strlen( (string) $str, $encoding );
+		}
 
 		foreach( $this->list() as $entry )
 		{
 			$entry = (string) $entry;
+			$i = 0;
 
 			foreach( (array) $value as $str )
 			{
-				$len = mb_strlen( (string) $str, $encoding );
-
-				if( ( $str === '' || $fcn( $entry, (string) $str, -$len, $encoding ) !== false ) ) {
+				if( ( $str === '' || $fcn( $entry, (string) $str, -$lengths[$i], $encoding ) !== false ) ) {
 					return true;
 				}
+
+				$i++;
 			}
 		}
 
@@ -5073,20 +5083,26 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function strEndsAll( array|string $value, bool $case = true, string $encoding = 'UTF-8' ) : bool
 	{
 		$fcn = $case ? 'mb_strpos' : 'mb_stripos';
+		$lengths = [];
 		$list = [];
+
+		foreach( (array) $value as $str ) {
+			$lengths[] = mb_strlen( (string) $str, $encoding );
+		}
 
 		foreach( $this->list() as $entry )
 		{
 			$entry = (string) $entry;
 			$list[$entry] = 0;
+			$i = 0;
 
 			foreach( (array) $value as $str )
 			{
-				$len = mb_strlen( (string) $str, $encoding );
-
-				if( (int) ( $str === '' || $fcn( $entry, (string) $str, -$len, $encoding ) !== false ) ) {
+				if( (int) ( $str === '' || $fcn( $entry, (string) $str, -$lengths[$i], $encoding ) !== false ) ) {
 					$list[$entry] = 1; break;
 				}
+
+				$i++;
 			}
 		}
 
@@ -5669,9 +5685,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function transpose() : self
 	{
 		$result = [];
+		$list = $this->list();
 
 		foreach( (array) $this->first( [] ) as $key => $col ) {
-			$result[$key] = array_column( $this->list(), $key );
+			$result[$key] = array_column( $list, $key );
 		}
 
 		return new static( $result );
