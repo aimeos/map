@@ -3306,7 +3306,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function max( $col = null )
 	{
 		$list = $this->list();
-		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list, fn( $v ) => $v !== null );
+		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list, function( $v ) { return $v !== null; } );
 
 		return !empty( $vals ) ? max( $vals ) : null;
 	}
@@ -3383,7 +3383,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function min( $col = null )
 	{
 		$list = $this->list();
-		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list, fn( $v ) => $v !== null );
+		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list, function( $v ) { return $v !== null; } );
 
 		return !empty( $vals ) ? min( $vals ) : null;
 	}
