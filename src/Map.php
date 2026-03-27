@@ -5215,10 +5215,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param array<string>|string $search String or list of strings to search for
 	 * @param array<string>|string $replace String or list of strings of replacement strings
 	 * @param bool $case TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
-	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
-	public function strReplace( array|string $search, array|string $replace, bool $case = true, string $encoding = 'UTF-8' ) : self
+	public function strReplace( array|string $search, array|string $replace, bool $case = true ) : self
 	{
 		$fcn = $case ? 'str_replace' : 'str_ireplace';
 

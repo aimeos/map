@@ -6221,13 +6221,12 @@ Map::from( ['Äpfel', 'Birnen'] )->strLower( 'ISO-8859-1' );
 Replaces all occurrences of the search string with the replacement string.
 
 ```php
-public function strReplace( array|string $search, array|string $replace, bool $case = true, string $encoding = 'UTF-8' ) : self
+public function strReplace( array|string $search, array|string $replace, bool $case = true ) : self
 ```
 
 * @param **array&#124;string** `$search` String or list of strings to search for
 * @param **array&#124;string** `$replace` String or list of strings of replacement strings
 * @param **bool** `$case` TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
-* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 * @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 If you use an array of strings for search or search/replacement, the order of
@@ -7760,12 +7759,11 @@ Map::from( ['abc'] )->strAfter( 'B', false );
 Map::from( ['GOOGLE.COM'] )->strReplace( '.com', '.de', false );
 ```
 
-**strCompare(), strReplace():**
+**strCompare():**
 A new `$encoding` parameter has been added:
 
 ```php
 Map::from( ['foo'] )->strCompare( 'foo', true, 'ASCII' );
-Map::from( ['foo'] )->strReplace( 'foo', 'bar', true, 'ASCII' );
 ```
 
 #### Changed $strict default in search()
