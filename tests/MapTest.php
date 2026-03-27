@@ -1344,6 +1344,7 @@ Array
 
 		$class = new \ReflectionClass( $map );
 		$method = $class->getMethod( 'array' );
+		$method->setAccessible( true );
 		$items = new \ArrayIterator( ['foo' => 'bar'] );
 		$array = $method->invokeArgs( $map, [$items] );
 		$this->assertSame( ['foo' => 'bar'], $array );
