@@ -1,4 +1,4 @@
-<a class="badge" href="https://github.com/aimeos/map/actions"><img src="https://github.com/aimeos/map/actions/workflows/php.yml/badge.svg" alt="Build Status" height="20"></a>
+<a class="badge" href="https://app.circleci.com/projects/github/aimeos/map"><img src="https://dl.circleci.com/status-badge/img/gh/aimeos/map/tree/4.x.svg?style=shield" alt="Build Status" height="20"></a>
 <a class="badge" href="https://coveralls.io/github/aimeos/map"><img src="https://coveralls.io/repos/github/aimeos/map/badge.svg" alt="Coverage Status" height="20"></a>
 <a class="badge" href="https://packagist.org/packages/aimeos/map"><img src="https://poser.pugx.org/aimeos/map/license.svg" alt="License" height="20"></a>
 <a class="badge" href="https://packagist.org/packages/aimeos/map"><img src="https://poser.pugx.org/aimeos/map/v/stable" alt="Latest Stable Version" height="20"></a>
