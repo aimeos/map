@@ -5813,11 +5813,12 @@ Map::from( ['abc'] )->strBefore( 'B', false );
 Compares the value against all map elements.
 
 ```php
-public function strCompare( string $value, bool $case = true ) : bool
+public function strCompare( string $value, bool $case = true, string $encoding = 'UTF-8' ) : bool
 ```
 
 * @param **string** `$value` Value to compare map elements to
 * @param **bool** `$case` TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 * @return **bool** TRUE If at least one element matches, FALSE if value is not in map
 
 All scalar values (bool, float, int and string) are casted to string values before
@@ -5860,10 +5861,11 @@ Map::from( [new \stdClass(), 'bar'] )->strCompare( 'foo' );
 Tests if at least one of the passed strings is part of at least one entry.
 
 ```php
-public function strContains( array|string $value, string $encoding = 'UTF-8' ) : bool
+public function strContains( array|string $value, bool $case = true, string $encoding = 'UTF-8' ) : bool
 ```
 
 * @param **array&#124;string** `$value` The string or list of strings to search for in each entry
+* @param **bool** `$case` TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 * @return **bool** TRUE if one of the entries contains one of the strings, FALSE if not
 
@@ -5900,8 +5902,11 @@ Map::from( [''] )->strContains( false );
 Map::from( ['abc'] )->strContains( ['b', 'd'] );
 // true
 
-Map::from( ['abc'] )->strContains( 'c', 'ASCII' );
+Map::from( ['abc'] )->strContains( 'c', true, 'ASCII' );
 // true
+
+Map::from( ['abc'] )->strContains( 'B', false );
+// true (case-insensitive)
 
 Map::from( ['abc'] )->strContains( 'd' );
 // false
@@ -5918,8 +5923,11 @@ Map::from( [false] )->strContains( 0 );
 Map::from( ['abc'] )->strContains( ['d', 'e'] );
 // false
 
-Map::from( ['abc'] )->strContains( 'cb', 'ASCII' );
+Map::from( ['abc'] )->strContains( 'cb', true, 'ASCII' );
 // false
+
+Map::from( ['abc'] )->strContains( 'B' );
+// false (case-sensitive)
 ```
 
 **See also:**
@@ -5932,10 +5940,11 @@ Map::from( ['abc'] )->strContains( 'cb', 'ASCII' );
 Tests if all of the entries contains one of the passed strings.
 
 ```php
-public function strContainsAll( array|string $value, string $encoding = 'UTF-8' ) : bool
+public function strContainsAll( array|string $value, bool $case = true, string $encoding = 'UTF-8' ) : bool
 ```
 
 * @param **array&#124;string** `$value` The string or list of strings to search for in each entry
+* @param **bool** `$case` TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 * @return **bool** TRUE if all of the entries contains at least one of the strings, FALSE if not
 
@@ -5966,8 +5975,11 @@ Map::from( ['', false] )->strContainsAll( false );
 Map::from( ['abc', 'def'] )->strContainsAll( ['b', 'd'] );
 // true
 
-Map::from( ['abc', 'ecf'] )->strContainsAll( 'c', 'ASCII' );
+Map::from( ['abc', 'ecf'] )->strContainsAll( 'c', true, 'ASCII' );
 // true
+
+Map::from( ['abc', 'Abc'] )->strContainsAll( 'A', false );
+// true (case-insensitive)
 
 Map::from( ['abc', 'def'] )->strContainsAll( 'd' );
 // false
@@ -5984,8 +5996,11 @@ Map::from( [false, '000'] )->strContains( 0 );
 Map::from( ['abc', 'acf'] )->strContainsAll( ['d', 'e'] );
 // false
 
-Map::from( ['abc', 'bca'] )->strContainsAll( 'cb', 'ASCII' );
+Map::from( ['abc', 'bca'] )->strContainsAll( 'cb', true, 'ASCII' );
 // false
+
+Map::from( ['abc', 'def'] )->strContainsAll( 'A' );
+// false (case-sensitive)
 ```
 
 **See also:**
@@ -5998,10 +6013,11 @@ Map::from( ['abc', 'bca'] )->strContainsAll( 'cb', 'ASCII' );
 Tests if at least one of the entries ends with one of the passed strings.
 
 ```php
-public function strEnds( array|string $value, string $encoding = 'UTF-8' ) : bool
+public function strEnds( array|string $value, bool $case = true, string $encoding = 'UTF-8' ) : bool
 ```
 
 * @param **array&#124;string** `$value` The string or list of strings to search for in each entry
+* @param **bool** `$case` TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 * @return **bool** TRUE if one of the entries ends with the string, FALSE if not
 
@@ -6020,8 +6036,11 @@ Map::from( ['abc'] )->strEnds( 'bc' );
 Map::from( ['abc'] )->strEnds( ['b', 'c'] );
 // true
 
-Map::from( ['abc'] )->strEnds( 'c', 'ASCII' );
+Map::from( ['abc'] )->strEnds( 'c', true, 'ASCII' );
 // true
+
+Map::from( ['abc'] )->strEnds( 'C', false );
+// true (case-insensitive)
 
 Map::from( ['abc'] )->strEnds( 'a' );
 // false
@@ -6032,8 +6051,11 @@ Map::from( ['abc'] )->strEnds( 'cb' );
 Map::from( ['abc'] )->strEnds( ['d', 'b'] );
 // false
 
-Map::from( ['abc'] )->strEnds( 'cb', 'ASCII' );
+Map::from( ['abc'] )->strEnds( 'cb', true, 'ASCII' );
 // false
+
+Map::from( ['abc'] )->strEnds( 'C' );
+// false (case-sensitive)
 ```
 
 **See also:**
@@ -6046,10 +6068,11 @@ Map::from( ['abc'] )->strEnds( 'cb', 'ASCII' );
 Tests if all of the entries ends with at least one of the passed strings.
 
 ```php
-public function strEndsAll( array|string $value, string $encoding = 'UTF-8' ) : bool
+public function strEndsAll( array|string $value, bool $case = true, string $encoding = 'UTF-8' ) : bool
 ```
 
 * @param **array&#124;string** `$value` The string or list of strings to search for in each entry
+* @param **bool** `$case` TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 * @return **bool** TRUE if all of the entries ends with at least one of the strings, FALSE if not
 
@@ -6068,8 +6091,11 @@ Map::from( ['abc', 'cbc'] )->strEndsAll( 'bc' );
 Map::from( ['abc', 'def'] )->strEndsAll( ['c', 'f'] );
 // true
 
-Map::from( ['abc', 'efc'] )->strEndsAll( 'c', 'ASCII' );
+Map::from( ['abc', 'efc'] )->strEndsAll( 'c', true, 'ASCII' );
 // true
+
+Map::from( ['abc', 'deC'] )->strEndsAll( 'c', false );
+// true (case-insensitive)
 
 Map::from( ['abc', 'fed'] )->strEndsAll( 'd' );
 // false
@@ -6080,8 +6106,11 @@ Map::from( ['abc', 'bca'] )->strEndsAll( 'ca' );
 Map::from( ['abc', 'acf'] )->strEndsAll( ['a', 'c'] );
 // false
 
-Map::from( ['abc', 'bca'] )->strEndsAll( 'ca', 'ASCII' );
+Map::from( ['abc', 'bca'] )->strEndsAll( 'ca', true, 'ASCII' );
 // false
+
+Map::from( ['abc', 'deC'] )->strEndsAll( 'c' );
+// false (case-sensitive)
 ```
 
 **See also:**
@@ -6192,12 +6221,13 @@ Map::from( ['Äpfel', 'Birnen'] )->strLower( 'ISO-8859-1' );
 Replaces all occurrences of the search string with the replacement string.
 
 ```php
-public function strReplace( array|string $search, array|string $replace, bool $case = false ) : self
+public function strReplace( array|string $search, array|string $replace, bool $case = true, string $encoding = 'UTF-8' ) : self
 ```
 
 * @param **array&#124;string** `$search` String or list of strings to search for
 * @param **array&#124;string** `$replace` String or list of strings of replacement strings
-* @param **bool** `$case` TRUE if replacements should be case insensitive, FALSE if case-sensitive
+* @param **bool** `$case` TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
+* @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 * @return **self&#60;int&#124;string,mixed&#62;** Updated map for fluid interface
 
 If you use an array of strings for search or search/replacement, the order of
@@ -6237,8 +6267,8 @@ Map::from( ['google.com', 'aimeos.com'] )->strReplace( ['.com', '.co'], ['.co', 
 Map::from( ['google.com', 'aimeos.com', 123] )->strReplace( '.com', '.de' );
 // ['google.de', 'aimeos.de', 123]
 
-Map::from( ['GOOGLE.COM', 'AIMEOS.COM'] )->strReplace( '.com', '.de', true );
-// ['GOOGLE.de', 'AIMEOS.de']
+Map::from( ['GOOGLE.COM', 'AIMEOS.COM'] )->strReplace( '.com', '.de', false );
+// ['GOOGLE.de', 'AIMEOS.de'] (case-insensitive)
 ```
 
 
@@ -6247,10 +6277,11 @@ Map::from( ['GOOGLE.COM', 'AIMEOS.COM'] )->strReplace( '.com', '.de', true );
 Tests if at least one of the entries starts with at least one of the passed strings.
 
 ```php
-public function strStarts( array|string $value, string $encoding = 'UTF-8' ) : bool
+public function strStarts( array|string $value, bool $case = true, string $encoding = 'UTF-8' ) : bool
 ```
 
 * @param **array&#124;string** `$value` The string or list of strings to search for in each entry
+* @param **bool** `$case` TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 * @return **bool** TRUE if at least one of the entries starts with one of the strings, FALSE if not
 
@@ -6269,8 +6300,11 @@ Map::from( ['abc'] )->strStarts( 'ab' );
 Map::from( ['abc'] )->strStarts( ['a', 'b'] );
 // true
 
-Map::from( ['abc'] )->strStarts( 'ab', 'ASCII' );
+Map::from( ['abc'] )->strStarts( 'ab', true, 'ASCII' );
 // true
+
+Map::from( ['abc'] )->strStarts( 'A', false );
+// true (case-insensitive)
 
 Map::from( ['abc'] )->strStarts( 'b' );
 // false
@@ -6281,8 +6315,11 @@ Map::from( ['abc'] )->strStarts( 'bc' );
 Map::from( ['abc'] )->strStarts( ['b', 'c'] );
 // false
 
-Map::from( ['abc'] )->strStarts( 'bc', 'ASCII' );
+Map::from( ['abc'] )->strStarts( 'bc', true, 'ASCII' );
 // false
+
+Map::from( ['abc'] )->strStarts( 'A' );
+// false (case-sensitive)
 ```
 
 **See also:**
@@ -6295,10 +6332,11 @@ Map::from( ['abc'] )->strStarts( 'bc', 'ASCII' );
 Tests if all of the entries start with one of the passed strings.
 
 ```php
-public function strStartsAll( array|string $value, string $encoding = 'UTF-8' ) : bool
+public function strStartsAll( array|string $value, bool $case = true, string $encoding = 'UTF-8' ) : bool
 ```
 
 * @param **array&#124;string** `$value` The string or list of strings to search for in each entry
+* @param **bool** `$case` TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
 * @param **string** `$encoding` Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 * @return **bool** TRUE if all of the entries start with at least one of the strings, FALSE if not
 
@@ -6317,8 +6355,11 @@ Map::from( ['abc', 'aba'] )->strStartsAll( 'ab' );
 Map::from( ['abc', 'def'] )->strStartsAll( ['a', 'd'] );
 // true
 
-Map::from( ['abc', 'acf'] )->strStartsAll( 'a', 'ASCII' );
+Map::from( ['abc', 'acf'] )->strStartsAll( 'a', true, 'ASCII' );
 // true
+
+Map::from( ['abc', 'Acf'] )->strStartsAll( 'a', false );
+// true (case-insensitive)
 
 Map::from( ['abc', 'def'] )->strStartsAll( 'd' );
 // false
@@ -6329,8 +6370,11 @@ Map::from( ['abc', 'bca'] )->strStartsAll( 'ab' );
 Map::from( ['abc', 'bac'] )->strStartsAll( ['a', 'c'] );
 // false
 
-Map::from( ['abc', 'cab'] )->strStartsAll( 'ab', 'ASCII' );
+Map::from( ['abc', 'cab'] )->strStartsAll( 'ab', true, 'ASCII' );
 // false
+
+Map::from( ['abc', 'Acf'] )->strStartsAll( 'a' );
+// false (case-sensitive)
 ```
 
 **See also:**
@@ -7676,41 +7720,9 @@ $map->push( 'z' )->push( 'y' )->push( 'x' )->reverse(); // use push() for adding
 
 ### 3.x -> 4.x
 
-#### Changed $strict default in search()
+#### Removed inString()
 
-The `$strict` parameter in `search()` now defaults to `false` instead of `true`,
-matching the behavior of `in()`, `includes()`, `none()` and `some()`.
-
-```php
-// before (strict comparison by default):
-Map::from( [1, 2, 3] )->search( '2' );
-// null (type mismatch)
-
-// after (loose comparison by default):
-Map::from( [1, 2, 3] )->search( '2' );
-// 1
-
-// to keep strict behavior, pass true explicitly:
-Map::from( [1, 2, 3] )->search( '2', true );
-// null
-```
-
-#### Changed $case parameter in strAfter() and strBefore()
-
-The `$case` parameter in `strAfter()` and `strBefore()` now defaults to `true` (case-sensitive)
-and its meaning has been reversed to match `compare()` and `strCompare()`:
-`true` means case-sensitive, `false` means case-insensitive.
-
-```php
-// before (case-insensitive search):
-Map::from( ['abc'] )->strAfter( 'B', true );
-// after:
-Map::from( ['abc'] )->strAfter( 'B', false );
-```
-
-#### Use strContains() instead of inString()
-
-The `inString()` method has been removed. Use the multi-byte aware `strContains()` method instead:
+The `inString()` method has been removed. Use the multi-byte aware `strContains()` instead:
 
 ```php
 Map::from( ['abc'] )->inString( 'c' );
@@ -7718,11 +7730,68 @@ Map::from( ['abc'] )->inString( 'c' );
 Map::from( ['abc'] )->strContains( 'c' );
 ```
 
+#### Consistent string method parameters
+
+All string methods now accept both `$case` and `$encoding` parameters. The `$case`
+parameter uses the same semantics everywhere: `true` (default) for case-sensitive,
+`false` for case-insensitive.
+
+**strContains(), strContainsAll(), strEnds(), strEndsAll(), strStarts(), strStartsAll():**
+A new `$case` parameter has been added at the second position and `$encoding` moved to third:
+
+```php
+// before:
+Map::from( ['abc'] )->strContains( 'c', 'ASCII' );
+// after:
+Map::from( ['abc'] )->strContains( 'c', true, 'ASCII' );
+```
+
+**strAfter(), strBefore(), strReplace():**
+The `$case` parameter meaning has been reversed and now defaults to `true` (case-sensitive)
+to be consistent with `strCompare()` and all other string methods:
+
+```php
+// before (case-insensitive):
+Map::from( ['abc'] )->strAfter( 'B', true );
+Map::from( ['GOOGLE.COM'] )->strReplace( '.com', '.de', true );
+
+// after (case-insensitive):
+Map::from( ['abc'] )->strAfter( 'B', false );
+Map::from( ['GOOGLE.COM'] )->strReplace( '.com', '.de', false );
+```
+
+**strCompare(), strReplace():**
+A new `$encoding` parameter has been added:
+
+```php
+Map::from( ['foo'] )->strCompare( 'foo', true, 'ASCII' );
+Map::from( ['foo'] )->strReplace( 'foo', 'bar', true, 'ASCII' );
+```
+
+#### Changed $strict default in search()
+
+The `$strict` parameter in `search()` now defaults to `false` instead of `true`,
+matching the behavior of `in()`, `includes()`, `none()` and `some()`:
+
+```php
+// before (strict by default):
+Map::from( [1, 2, 3] )->search( '2' );
+// null
+
+// after (loose by default):
+Map::from( [1, 2, 3] )->search( '2' );
+// 1
+
+// for strict comparison, pass true:
+Map::from( [1, 2, 3] )->search( '2', true );
+// null
+```
+
 #### Strict parameter typing
 
-The parameters in all methods are now strictly typed so now, you will get a
-**TypeError** when passing an unexpected value to the methods. Previously, these
-methods have thrown an **InvalidArgumentException**:
+The parameters in all methods are now strictly typed so you will get a
+**TypeError** when passing an unexpected value. Previously, these methods
+threw an **InvalidArgumentException**:
 
 * partition()
 * skip()
@@ -7731,9 +7800,9 @@ methods have thrown an **InvalidArgumentException**:
 #### No custom exception in implements()
 
 It's not possible to pass a custom exception name as second argument to
-implements() any more because it only accepts a boolean value now. In case an
+`implements()` any more because it only accepts a boolean value now. In case an
 entry doesn't implement the passed interface, an **UnexpectedValueException**
-will be always thrown instead.
+will always be thrown instead:
 
 ```php
 $map->implements( '\Countable', '\RuntimeException' );

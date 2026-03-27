@@ -3349,14 +3349,16 @@ Array
 		$this->assertTrue( Map::from( [12345] )->strContains( true ) );
 		$this->assertTrue( Map::from( [false] )->strContains( false ) );
 		$this->assertTrue( Map::from( [''] )->strContains( false ) );
-		$this->assertTrue( Map::from( ['abc'] )->strContains( 'c', 'ASCII' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strContains( 'c', true, 'ASCII' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strContains( 'B', false ) );
 
 		$this->assertFalse( Map::from( ['abc'] )->strContains( 'd' ) );
 		$this->assertFalse( Map::from( ['abc'] )->strContains( 'cb' ) );
 		$this->assertFalse( Map::from( [23456] )->strContains( true ) );
 		$this->assertFalse( Map::from( [false] )->strContains( 0 ) );
 		$this->assertFalse( Map::from( ['abc'] )->strContains( ['d', 'e'] ) );
-		$this->assertFalse( Map::from( ['abc'] )->strContains( 'cb', 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strContains( 'cb', true, 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strContains( 'B' ) );
 	}
 
 
@@ -3370,14 +3372,16 @@ Array
 		$this->assertTrue( Map::from( [12345, '234'] )->strContainsAll( [true, false] ) );
 		$this->assertTrue( Map::from( ['', false] )->strContainsAll( false ) );
 		$this->assertTrue( Map::from( ['abc', 'def'] )->strContainsAll( ['b', 'd'] ) );
-		$this->assertTrue( Map::from( ['abc', 'ecf'] )->strContainsAll( 'c', 'ASCII' ) );
+		$this->assertTrue( Map::from( ['abc', 'ecf'] )->strContainsAll( 'c', true, 'ASCII' ) );
+		$this->assertTrue( Map::from( ['abc', 'Abc'] )->strContainsAll( 'A', false ) );
 
 		$this->assertFalse( Map::from( ['abc', 'def'] )->strContainsAll( 'd' ) );
 		$this->assertFalse( Map::from( ['abc', 'cab'] )->strContainsAll( 'cb' ) );
 		$this->assertFalse( Map::from( [23456, '123'] )->strContainsAll( true ) );
 		$this->assertFalse( Map::from( [false, '000'] )->strContainsAll( 0 ) );
 		$this->assertFalse( Map::from( ['abc', 'acf'] )->strContainsAll( ['d', 'e'] ) );
-		$this->assertFalse( Map::from( ['abc', 'bca'] )->strContainsAll( 'cb', 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc', 'bca'] )->strContainsAll( 'cb', true, 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc', 'def'] )->strContainsAll( 'A' ) );
 	}
 
 
@@ -3387,11 +3391,13 @@ Array
 		$this->assertTrue( Map::from( ['abc'] )->strEnds( 'c' ) );
 		$this->assertTrue( Map::from( ['abc'] )->strEnds( 'bc' ) );
 		$this->assertTrue( Map::from( ['abc'] )->strEnds( ['b', 'c'] ) );
-		$this->assertTrue( Map::from( ['abc'] )->strEnds( 'c', 'ASCII' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strEnds( 'c', true, 'ASCII' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strEnds( 'C', false ) );
 		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'a' ) );
 		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'cb' ) );
 		$this->assertFalse( Map::from( ['abc'] )->strEnds( ['d', 'b'] ) );
-		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'cb', 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'cb', true, 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strEnds( 'C' ) );
 	}
 
 
@@ -3401,11 +3407,13 @@ Array
 		$this->assertTrue( Map::from( ['abc', 'bac'] )->strEndsAll( 'c' ) );
 		$this->assertTrue( Map::from( ['abc', 'cbc'] )->strEndsAll( 'bc' ) );
 		$this->assertTrue( Map::from( ['abc', 'def'] )->strEndsAll( ['c', 'f'] ) );
-		$this->assertTrue( Map::from( ['abc', 'efc'] )->strEndsAll( 'c', 'ASCII' ) );
+		$this->assertTrue( Map::from( ['abc', 'efc'] )->strEndsAll( 'c', true, 'ASCII' ) );
+		$this->assertTrue( Map::from( ['abc', 'deC'] )->strEndsAll( 'c', false ) );
 		$this->assertFalse( Map::from( ['abc', 'fed'] )->strEndsAll( 'd' ) );
 		$this->assertFalse( Map::from( ['abc', 'bca'] )->strEndsAll( 'ca' ) );
 		$this->assertFalse( Map::from( ['abc', 'acf'] )->strEndsAll( ['a', 'c'] ) );
-		$this->assertFalse( Map::from( ['abc', 'bca'] )->strEndsAll( 'ca', 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc', 'bca'] )->strEndsAll( 'ca', true, 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc', 'deC'] )->strEndsAll( 'c' ) );
 	}
 
 
@@ -3475,7 +3483,7 @@ Array
 		$this->assertEquals( ['google.fr', 'aimeos.de'], Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.fr', '.de'] )->toArray() );
 		$this->assertEquals( ['google.de', 'aimeos.de'], Map::from( ['google.com', 'aimeos.com'] )->strReplace( ['.com', '.co'], ['.co', '.de', '.fr'] )->toArray() );
 		$this->assertEquals( ['google.de', 'aimeos.de', 123], Map::from( ['google.com', 'aimeos.com', 123] )->strReplace( '.com', '.de' )->toArray() );
-		$this->assertEquals( ['GOOGLE.de', 'AIMEOS.de'], Map::from( ['GOOGLE.COM', 'AIMEOS.COM'] )->strReplace( '.com', '.de', true )->toArray() );
+		$this->assertEquals( ['GOOGLE.de', 'AIMEOS.de'], Map::from( ['GOOGLE.COM', 'AIMEOS.COM'] )->strReplace( '.com', '.de', false )->toArray() );
    }
 
 
@@ -3485,11 +3493,13 @@ Array
 		$this->assertTrue( Map::from( ['abc'] )->strStarts( 'a' ) );
 		$this->assertTrue( Map::from( ['abc'] )->strStarts( 'ab' ) );
 		$this->assertTrue( Map::from( ['abc'] )->strStarts( ['a', 'b'] ) );
-		$this->assertTrue( Map::from( ['abc'] )->strStarts( 'ab', 'ASCII' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strStarts( 'ab', true, 'ASCII' ) );
+		$this->assertTrue( Map::from( ['abc'] )->strStarts( 'A', false ) );
 		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'b' ) );
 		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'bc' ) );
 		$this->assertFalse( Map::from( ['abc'] )->strStarts( ['b', 'c'] ) );
-		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'bc', 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'bc', true, 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc'] )->strStarts( 'A' ) );
 	}
 
 
@@ -3499,11 +3509,13 @@ Array
 		$this->assertTrue( Map::from( ['abc', 'acb'] )->strStartsAll( 'a' ) );
 		$this->assertTrue( Map::from( ['abc', 'aba'] )->strStartsAll( 'ab' ) );
 		$this->assertTrue( Map::from( ['abc', 'def'] )->strStartsAll( ['a', 'd'] ) );
-		$this->assertTrue( Map::from( ['abc', 'acf'] )->strStartsAll( 'a', 'ASCII' ) );
+		$this->assertTrue( Map::from( ['abc', 'acf'] )->strStartsAll( 'a', true, 'ASCII' ) );
+		$this->assertTrue( Map::from( ['abc', 'Acf'] )->strStartsAll( 'a', false ) );
 		$this->assertFalse( Map::from( ['abc', 'def'] )->strStartsAll( 'd' ) );
 		$this->assertFalse( Map::from( ['abc', 'bca'] )->strStartsAll( 'ab' ) );
 		$this->assertFalse( Map::from( ['abc', 'bac'] )->strStartsAll( ['a', 'c'] ) );
-		$this->assertFalse( Map::from( ['abc', 'cab'] )->strStartsAll( 'ab', 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc', 'cab'] )->strStartsAll( 'ab', true, 'ASCII' ) );
+		$this->assertFalse( Map::from( ['abc', 'Acf'] )->strStartsAll( 'a' ) );
 	}
 
 

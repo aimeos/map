@@ -4856,12 +4856,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * Examples:
 	 *  Map::from( ['foo', 'bar'] )->compare( 'foo' );
-	 *  Map::from( ['foo', 'bar'] )->compare( 'Foo', false );
-	 *  Map::from( [123, 12.3] )->compare( '12.3' );
-	 *  Map::from( [false, true] )->compare( '1' );
-	 *  Map::from( ['foo', 'bar'] )->compare( 'Foo' );
-	 *  Map::from( ['foo', 'bar'] )->compare( 'baz' );
-	 *  Map::from( [new \stdClass(), 'bar'] )->compare( 'foo' );
+	 *  Map::from( ['foo', 'bar'] )->strCompare( 'Foo', false );
+	 *  Map::from( [123, 12.3] )->strCompare( '12.3' );
+	 *  Map::from( [false, true] )->strCompare( '1' );
+	 *  Map::from( ['foo', 'bar'] )->strCompare( 'Foo' );
+	 *  Map::from( ['foo', 'bar'] )->strCompare( 'baz' );
+	 *  Map::from( [new \stdClass(), 'bar'] )->strCompare( 'foo' );
 	 *
 	 * Results:
 	 * The first four examples return TRUE, the last three examples will return FALSE.
@@ -4871,16 +4871,18 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param string $value Value to compare map elements to
 	 * @param bool $case TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
+	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE If at least one element matches, FALSE if value is not in map
 	 */
-	public function strCompare( string $value, bool $case = true ) : bool
+	public function strCompare( string $value, bool $case = true, string $encoding = 'UTF-8' ) : bool
 	{
-		$fcn = $case ? 'strcmp' : 'strcasecmp';
-
 		foreach( $this->list() as $item )
 		{
-			if( is_scalar( $item ) && !$fcn( (string) $item, $value ) ) {
-				return true;
+			if( is_scalar( $item ) )
+			{
+				if( $case ? (string) $item === $value : mb_strtolower( (string) $item, $encoding ) === mb_strtolower( $value, $encoding ) ) {
+					return true;
+				}
 			}
 		}
 
@@ -4902,25 +4904,29 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( [false] )->strContains( false );
 	 *  Map::from( [''] )->strContains( false );
 	 *  Map::from( ['abc'] )->strContains( ['b', 'd'] );
-	 *  Map::from( ['abc'] )->strContains( 'c', 'ASCII' );
+	 *  Map::from( ['abc'] )->strContains( 'c', true, 'ASCII' );
+	 *  Map::from( ['abc'] )->strContains( 'B', false );
 	 *
 	 *  Map::from( ['abc'] )->strContains( 'd' );
 	 *  Map::from( ['abc'] )->strContains( 'cb' );
 	 *  Map::from( [23456] )->strContains( true );
 	 *  Map::from( [false] )->strContains( 0 );
 	 *  Map::from( ['abc'] )->strContains( ['d', 'e'] );
-	 *  Map::from( ['abc'] )->strContains( 'cb', 'ASCII' );
+	 *  Map::from( ['abc'] )->strContains( 'cb', true, 'ASCII' );
+	 *  Map::from( ['abc'] )->strContains( 'B' );
 	 *
 	 * Results:
-	 * The first eleven examples will return TRUE while the last six will return FALSE.
+	 * The first twelve examples will return TRUE while the last seven will return FALSE.
 	 *
 	 * @param array<string>|string $value The string or list of strings to search for in each entry
+	 * @param bool $case TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if one of the entries contains one of the strings, FALSE if not
-	 * @todo 4.0 Add $case parameter at second position
 	 */
-	public function strContains( array|string $value, string $encoding = 'UTF-8' ) : bool
+	public function strContains( array|string $value, bool $case = true, string $encoding = 'UTF-8' ) : bool
 	{
+		$fcn = $case ? 'mb_strpos' : 'mb_stripos';
+
 		foreach( $this->list() as $entry )
 		{
 			$entry = (string) $entry;
@@ -4929,7 +4935,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			{
 				$str = (string) $str;
 
-				if( ( $str === '' || mb_strpos( $entry, (string) $str, 0, $encoding ) !== false ) ) {
+				if( ( $str === '' || $fcn( $entry, (string) $str, 0, $encoding ) !== false ) ) {
 					return true;
 				}
 			}
@@ -4951,25 +4957,28 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( [12345, '234'] )->strContainsAll( [true, false] );
 	 *  Map::from( ['', false] )->strContainsAll( false );
 	 *  Map::from( ['abc', 'def'] )->strContainsAll( ['b', 'd'] );
-	 *  Map::from( ['abc', 'ecf'] )->strContainsAll( 'c', 'ASCII' );
+	 *  Map::from( ['abc', 'ecf'] )->strContainsAll( 'c', true, 'ASCII' );
+	 *  Map::from( ['abc', 'Abc'] )->strContainsAll( 'A', false );
 	 *
 	 *  Map::from( ['abc', 'def'] )->strContainsAll( 'd' );
 	 *  Map::from( ['abc', 'cab'] )->strContainsAll( 'cb' );
 	 *  Map::from( [23456, '123'] )->strContainsAll( true );
 	 *  Map::from( [false, '000'] )->strContainsAll( 0 );
 	 *  Map::from( ['abc', 'acf'] )->strContainsAll( ['d', 'e'] );
-	 *  Map::from( ['abc', 'bca'] )->strContainsAll( 'cb', 'ASCII' );
+	 *  Map::from( ['abc', 'bca'] )->strContainsAll( 'cb', true, 'ASCII' );
+	 *  Map::from( ['abc', 'def'] )->strContainsAll( 'A' );
 	 *
 	 * Results:
-	 * The first nine examples will return TRUE while the last six will return FALSE.
+	 * The first ten examples will return TRUE while the last seven will return FALSE.
 	 *
 	 * @param array<string>|string $value The string or list of strings to search for in each entry
+	 * @param bool $case TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if all of the entries contains at least one of the strings, FALSE if not
-	 * @todo 4.0 Add $case parameter at second position
 	 */
-	public function strContainsAll( array|string $value, string $encoding = 'UTF-8' ) : bool
+	public function strContainsAll( array|string $value, bool $case = true, string $encoding = 'UTF-8' ) : bool
 	{
+		$fcn = $case ? 'mb_strpos' : 'mb_stripos';
 		$list = [];
 
 		foreach( $this->list() as $entry )
@@ -4981,7 +4990,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			{
 				$str = (string) $str;
 
-				if( (int) ( $str === '' || mb_strpos( $entry, (string) $str, 0, $encoding ) !== false ) ) {
+				if( (int) ( $str === '' || $fcn( $entry, (string) $str, 0, $encoding ) !== false ) ) {
 					$list[$entry] = 1; break;
 				}
 			}
@@ -4999,22 +5008,26 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['abc'] )->strEnds( 'c' );
 	 *  Map::from( ['abc'] )->strEnds( 'bc' );
 	 *  Map::from( ['abc'] )->strEnds( ['b', 'c'] );
-	 *  Map::from( ['abc'] )->strEnds( 'c', 'ASCII' );
+	 *  Map::from( ['abc'] )->strEnds( 'c', true, 'ASCII' );
+	 *  Map::from( ['abc'] )->strEnds( 'C', false );
 	 *  Map::from( ['abc'] )->strEnds( 'a' );
 	 *  Map::from( ['abc'] )->strEnds( 'cb' );
 	 *  Map::from( ['abc'] )->strEnds( ['d', 'b'] );
-	 *  Map::from( ['abc'] )->strEnds( 'cb', 'ASCII' );
+	 *  Map::from( ['abc'] )->strEnds( 'cb', true, 'ASCII' );
+	 *  Map::from( ['abc'] )->strEnds( 'C' );
 	 *
 	 * Results:
-	 * The first five examples will return TRUE while the last four will return FALSE.
+	 * The first six examples will return TRUE while the last five will return FALSE.
 	 *
 	 * @param array<string>|string $value The string or strings to search for in each entry
+	 * @param bool $case TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if one of the entries ends with one of the strings, FALSE if not
-	 * @todo 4.0 Add $case parameter at second position
 	 */
-	public function strEnds( array|string $value, string $encoding = 'UTF-8' ) : bool
+	public function strEnds( array|string $value, bool $case = true, string $encoding = 'UTF-8' ) : bool
 	{
+		$fcn = $case ? 'mb_strpos' : 'mb_stripos';
+
 		foreach( $this->list() as $entry )
 		{
 			$entry = (string) $entry;
@@ -5023,7 +5036,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			{
 				$len = mb_strlen( (string) $str, $encoding );
 
-				if( ( $str === '' || mb_strpos( $entry, (string) $str, -$len, $encoding ) !== false ) ) {
+				if( ( $str === '' || $fcn( $entry, (string) $str, -$len, $encoding ) !== false ) ) {
 					return true;
 				}
 			}
@@ -5041,22 +5054,25 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['abc', 'bac'] )->strEndsAll( 'c' );
 	 *  Map::from( ['abc', 'cbc'] )->strEndsAll( 'bc' );
 	 *  Map::from( ['abc', 'def'] )->strEndsAll( ['c', 'f'] );
-	 *  Map::from( ['abc', 'efc'] )->strEndsAll( 'c', 'ASCII' );
+	 *  Map::from( ['abc', 'efc'] )->strEndsAll( 'c', true, 'ASCII' );
+	 *  Map::from( ['abc', 'deC'] )->strEndsAll( 'c', false );
 	 *  Map::from( ['abc', 'fed'] )->strEndsAll( 'd' );
 	 *  Map::from( ['abc', 'bca'] )->strEndsAll( 'ca' );
 	 *  Map::from( ['abc', 'acf'] )->strEndsAll( ['a', 'c'] );
-	 *  Map::from( ['abc', 'bca'] )->strEndsAll( 'ca', 'ASCII' );
+	 *  Map::from( ['abc', 'bca'] )->strEndsAll( 'ca', true, 'ASCII' );
+	 *  Map::from( ['abc', 'deC'] )->strEndsAll( 'c' );
 	 *
 	 * Results:
-	 * The first five examples will return TRUE while the last four will return FALSE.
+	 * The first six examples will return TRUE while the last five will return FALSE.
 	 *
 	 * @param array<string>|string $value The string or strings to search for in each entry
+	 * @param bool $case TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if all of the entries ends with at least one of the strings, FALSE if not
-	 * @todo 4.0 Add $case parameter at second position
 	 */
-	public function strEndsAll( array|string $value, string $encoding = 'UTF-8' ) : bool
+	public function strEndsAll( array|string $value, bool $case = true, string $encoding = 'UTF-8' ) : bool
 	{
+		$fcn = $case ? 'mb_strpos' : 'mb_stripos';
 		$list = [];
 
 		foreach( $this->list() as $entry )
@@ -5068,7 +5084,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			{
 				$len = mb_strlen( (string) $str, $encoding );
 
-				if( (int) ( $str === '' || mb_strpos( $entry, (string) $str, -$len, $encoding ) !== false ) ) {
+				if( (int) ( $str === '' || $fcn( $entry, (string) $str, -$len, $encoding ) !== false ) ) {
 					$list[$entry] = 1; break;
 				}
 			}
@@ -5169,7 +5185,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Map::from( ['google.com', 'aimeos.org'] )->strReplace( ['.com', '.org'], ['.fr', '.de'] );
 	 * Map::from( ['google.com', 'aimeos.com'] )->strReplace( ['.com', '.co'], ['.co', '.de', '.fr'] );
 	 * Map::from( ['google.com', 'aimeos.com', 123] )->strReplace( '.com', '.de' );
-	 * Map::from( ['GOOGLE.COM', 'AIMEOS.COM'] )->strReplace( '.com', '.de', true );
+	 * Map::from( ['GOOGLE.COM', 'AIMEOS.COM'] )->strReplace( '.com', '.de', false );
 	 *
 	 * Restults:
 	 * ['google.de', 'aimeos.de']
@@ -5198,12 +5214,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param array<string>|string $search String or list of strings to search for
 	 * @param array<string>|string $replace String or list of strings of replacement strings
-	 * @param bool $case TRUE if replacements should be case insensitive, FALSE if case-sensitive
+	 * @param bool $case TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
+	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return self<int|string,mixed> Updated map for fluid interface
 	 */
-	public function strReplace( array|string $search, array|string $replace, bool $case = false ) : self
+	public function strReplace( array|string $search, array|string $replace, bool $case = true, string $encoding = 'UTF-8' ) : self
 	{
-		$fcn = $case ? 'str_ireplace' : 'str_replace';
+		$fcn = $case ? 'str_replace' : 'str_ireplace';
 
 		foreach( $this->list() as &$entry )
 		{
@@ -5224,29 +5241,33 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['abc'] )->strStarts( 'a' );
 	 *  Map::from( ['abc'] )->strStarts( 'ab' );
 	 *  Map::from( ['abc'] )->strStarts( ['a', 'b'] );
-	 *  Map::from( ['abc'] )->strStarts( 'ab', 'ASCII' );
+	 *  Map::from( ['abc'] )->strStarts( 'ab', true, 'ASCII' );
+	 *  Map::from( ['abc'] )->strStarts( 'A', false );
 	 *  Map::from( ['abc'] )->strStarts( 'b' );
 	 *  Map::from( ['abc'] )->strStarts( 'bc' );
 	 *  Map::from( ['abc'] )->strStarts( ['b', 'c'] );
-	 *  Map::from( ['abc'] )->strStarts( 'bc', 'ASCII' );
+	 *  Map::from( ['abc'] )->strStarts( 'bc', true, 'ASCII' );
+	 *  Map::from( ['abc'] )->strStarts( 'A' );
 	 *
 	 * Results:
-	 * The first five examples will return TRUE while the last four will return FALSE.
+	 * The first six examples will return TRUE while the last five will return FALSE.
 	 *
 	 * @param array<string>|string $value The string or strings to search for in each entry
+	 * @param bool $case TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if at least one of the entries starts with one of the strings, FALSE if not
-	 * @todo 4.0 Add $case parameter at second position
 	 */
-	public function strStarts( array|string $value, string $encoding = 'UTF-8' ) : bool
+	public function strStarts( array|string $value, bool $case = true, string $encoding = 'UTF-8' ) : bool
 	{
+		$fcn = $case ? 'mb_strpos' : 'mb_stripos';
+
 		foreach( $this->list() as $entry )
 		{
 			$entry = (string) $entry;
 
 			foreach( (array) $value as $str )
 			{
-				if( ( $str === '' || mb_strpos( $entry, (string) $str, 0, $encoding ) === 0 ) ) {
+				if( ( $str === '' || $fcn( $entry, (string) $str, 0, $encoding ) === 0 ) ) {
 					return true;
 				}
 			}
@@ -5264,22 +5285,25 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  Map::from( ['abc', 'acb'] )->strStartsAll( 'a' );
 	 *  Map::from( ['abc', 'aba'] )->strStartsAll( 'ab' );
 	 *  Map::from( ['abc', 'def'] )->strStartsAll( ['a', 'd'] );
-	 *  Map::from( ['abc', 'acf'] )->strStartsAll( 'a', 'ASCII' );
+	 *  Map::from( ['abc', 'acf'] )->strStartsAll( 'a', true, 'ASCII' );
+	 *  Map::from( ['abc', 'Acf'] )->strStartsAll( 'a', false );
 	 *  Map::from( ['abc', 'def'] )->strStartsAll( 'd' );
 	 *  Map::from( ['abc', 'bca'] )->strStartsAll( 'ab' );
 	 *  Map::from( ['abc', 'bac'] )->strStartsAll( ['a', 'c'] );
-	 *  Map::from( ['abc', 'cab'] )->strStartsAll( 'ab', 'ASCII' );
+	 *  Map::from( ['abc', 'cab'] )->strStartsAll( 'ab', true, 'ASCII' );
+	 *  Map::from( ['abc', 'Acf'] )->strStartsAll( 'a' );
 	 *
 	 * Results:
-	 * The first five examples will return TRUE while the last four will return FALSE.
+	 * The first six examples will return TRUE while the last five will return FALSE.
 	 *
 	 * @param array<string>|string $value The string or strings to search for in each entry
+	 * @param bool $case TRUE if comparison is case sensitive, FALSE to ignore upper/lower case
 	 * @param string $encoding Character encoding of the strings, e.g. "UTF-8" (default), "ASCII", "ISO-8859-1", etc.
 	 * @return bool TRUE if all of the entries start with at least one of the strings, FALSE if not
-	 * @todo 4.0 Add $case parameter at second position
 	 */
-	public function strStartsAll( array|string $value, string $encoding = 'UTF-8' ) : bool
+	public function strStartsAll( array|string $value, bool $case = true, string $encoding = 'UTF-8' ) : bool
 	{
+		$fcn = $case ? 'mb_strpos' : 'mb_stripos';
 		$list = [];
 
 		foreach( $this->list() as $entry )
@@ -5289,7 +5313,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 			foreach( (array) $value as $str )
 			{
-				if( (int) ( $str === '' || mb_strpos( $entry, (string) $str, 0, $encoding ) === 0 ) ) {
+				if( (int) ( $str === '' || $fcn( $entry, (string) $str, 0, $encoding ) === 0 ) ) {
 					$list[$entry] = 1; break;
 				}
 			}
