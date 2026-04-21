@@ -1928,8 +1928,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	{
 		$list = $this->list();
 
-		if( array_key_exists( $key, $list ) ) {
-			return $list[$key];
+		if( array_key_exists( $key ?? '', $list ) ) {
+			return $list[$key ?? ''];
 		}
 
 		if( ( $v = $this->val( $list, explode( $this->sep, (string) $key ) ) ) !== null ) {
@@ -3911,8 +3911,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function pull( $key, $default = null )
 	{
-		$value = $this->get( $key, $default );
-		unset( $this->list()[$key] );
+		$value = $this->get( $key ?? '', $default );
+		unset( $this->list()[$key ?? ''] );
 
 		return $value;
 	}
