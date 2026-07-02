@@ -1049,6 +1049,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			}
 		}
 
+		$keys = array_map( static function( $key ) : int|string {
+			return is_int( $key ) || is_string( $key ) ? $key : (string) $key;
+		}, $keys );
+
 		return new static( array_combine( $keys, $values ) );
 	}
 
