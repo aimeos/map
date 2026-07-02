@@ -463,6 +463,20 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testCombineScalarAndStringableKeys()
+	{
+		$key = new class {
+			public function __toString() : string
+			{
+				return 'code';
+			}
+		};
+
+		$r = Map::from( [true, 1.5, null, $key] )->combine( ['yes', 'float', 'null', 'object'] );
+		$this->assertSame( [1 => 'yes', '1.5' => 'float', '' => 'null', 'code' => 'object'], $r->toArray() );
+	}
+
+
 	public function testCombineCountException()
 	{
 		$this->expectException( \InvalidArgumentException::class );
