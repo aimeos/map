@@ -278,6 +278,12 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testCastString()
+	{
+		$this->assertSame( ['', '', 'a'], Map::from( [new \stdClass, [1], 'a'] )->cast()->toArray() );
+	}
+
+
 	public function testChunk()
 	{
 		$m = new Map( [0, 1, 2, 3, 4] );
@@ -335,6 +341,16 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( ['one' => 'two'], $r->toArray() );
+	}
+
+
+	public function testColIndexObject()
+	{
+		$map = new Map( [['foo' => new \stdClass, 'bar' => 'two']] );
+		$r = $map->col( 'bar', 'foo' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [0 => 'two'], $r->toArray() );
 	}
 
 
@@ -444,6 +460,20 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	{
 		$r = Map::from( ['name', 'age'] )->combine( ['Tom', 29] );
 		$this->assertSame( ['name' => 'Tom', 'age' => 29], $r->toArray() );
+	}
+
+
+	public function testCombineCountException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['name'] )->combine( ['Tom', 29] );
+	}
+
+
+	public function testCombineKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [new \stdClass] )->combine( ['Tom'] );
 	}
 
 
@@ -568,6 +598,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testCountByObject()
+	{
+		$r = Map::from( [['p' => new \stdClass], ['p' => 'x']] )->countBy( 'p' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['' => 1, 'x' => 1], $r->toArray() );
+	}
+
+
 	public function testCountByPath()
 	{
 		$r = Map::from( [['i' => ['p' => 1.11]], ['i' => ['p' => 3.33]], ['i' => ['p' => 3.33]]] )->countBy( 'i/p' );
@@ -613,6 +652,24 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( ['id' => 1], $r->toArray() );
+	}
+
+
+	public function testDiffObject()
+	{
+		$r = Map::from( [new \stdClass, 'a'] )->diff( ['a'] );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertEquals( [new \stdClass], $r->toArray() );
+	}
+
+
+	public function testDiffAssocObject()
+	{
+		$r = Map::from( [new \stdClass, 'a'] )->diffAssoc( [new \stdClass, 'a'] );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [], $r->toArray() );
 	}
 
 
@@ -725,6 +782,16 @@ Array
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( [2 => '1'], $r->toArray() );
+	}
+
+
+	public function testDuplicatesObject()
+	{
+		$obj = new \stdClass;
+		$r = Map::from( [$obj, $obj, new \stdClass, 'a', 'a'] )->duplicates();
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [1 => $obj, 4 => 'a'], $r->toArray() );
 	}
 
 
@@ -948,6 +1015,13 @@ Array
 
 		$this->assertInstanceOf( Map::class, $m );
 		$this->assertSame( ['test', 'test', 'test'], $m->toArray() );
+	}
+
+
+	public function testFillNegative()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::fill( -1, 'test' );
 	}
 
 
@@ -1422,6 +1496,20 @@ Array
 	}
 
 
+	public function testGrepObject()
+	{
+		$r = Map::from( [new \stdClass, 'ab', 1.5] )->grep( '/^(ab|1)/' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [1 => 'ab', 2 => 1.5], $r->toArray() );
+
+		$r = Map::from( [new \stdClass, 'ab'] )->grep( '/x/', PREG_GREP_INVERT );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [1 => 'ab'], $r->toArray() );
+	}
+
+
 	public function testGrepInvert()
 	{
 		$r = Map::from( ['ab', 'bc', 'cd'] )->grep( '/a/', PREG_GREP_INVERT );
@@ -1872,6 +1960,15 @@ Array
 	}
 
 
+	public function testIntersectObject()
+	{
+		$r = Map::from( [new \stdClass, 'a'] )->intersect( ['a'] );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [1 => 'a'], $r->toArray() );
+	}
+
+
 	public function testIntersectCallback()
 	{
 		$m = new Map( ['id' => 1, 'first_word' => 'Hello', 'last_word' => 'World'] );
@@ -1891,6 +1988,15 @@ Array
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( ['name' => 'Mateus'], $r->toArray() );
+	}
+
+
+	public function testIntersectAssocObject()
+	{
+		$r = Map::from( ['x' => new \stdClass, 'y' => 'a'] )->intersectAssoc( ['y' => 'a'] );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['y' => 'a'], $r->toArray() );
 	}
 
 
@@ -2057,6 +2163,13 @@ Array
 		$m = new Map( ['a', 'b', null, false] );
 		$this->assertSame( 'ab', $m->join() );
 		$this->assertSame( 'a-b--', $m->join( '-' ) );
+	}
+
+
+	public function testJoinObject()
+	{
+		$m = new Map( ['a', new \stdClass, [1], 'b'] );
+		$this->assertSame( 'a-b', $m->join( '-' ) );
 	}
 
 
@@ -2492,6 +2605,13 @@ Array
 	}
 
 
+	public function testOrderException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a' => 1] )->order( [['a']] );
+	}
+
+
 	public function testPad()
 	{
 		$this->assertSame( [1, 2, 3, null, null], Map::from( [1, 2, 3] )->pad( 5 )->toArray() );
@@ -2875,6 +2995,15 @@ Array
 	}
 
 
+	public function testRestrictKeyObject()
+	{
+		$r = Map::from( [new \stdClass, ['name' => 'test']] )->restrict( 'test', 'name' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [1 => ['name' => 'test']], $r->toArray() );
+	}
+
+
 	public function testRestrictClosure()
 	{
 		$r = Map::from( [['name' => 'test'], ['name' => 'user']] )->restrict( function( $v, $k ) {
@@ -3153,6 +3282,20 @@ Array
 	{
 		$expected = [[0 => 1, 1 => 2, 2 => 3], [2 => 3, 3 => 4, 4 => 5]];
 		$this->assertSame( $expected, Map::from( [1, 2, 3, 4, 5] )->sliding( 3, 2 )->toArray() );
+	}
+
+
+	public function testSlidingSizeInvalid()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [1, 2, 3] )->sliding( 0 );
+	}
+
+
+	public function testSlidingStepInvalid()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [1, 2, 3] )->sliding( 2, 0 );
 	}
 
 
@@ -3900,6 +4043,27 @@ Array
 	}
 
 
+	public function testTreeNodeException()
+	{
+		$this->expectException( \UnexpectedValueException::class );
+		Map::from( ['test'] )->tree( 'id', 'pid' );
+	}
+
+
+	public function testTreeIdException()
+	{
+		$this->expectException( \UnexpectedValueException::class );
+		Map::from( [['id' => [1], 'pid' => null]] )->tree( 'id', 'pid' );
+	}
+
+
+	public function testTreeParentException()
+	{
+		$this->expectException( \UnexpectedValueException::class );
+		Map::from( [['id' => 1, 'pid' => 1]] )->tree( 'id', 'pid' );
+	}
+
+
 	public function testTrim()
 	{
 		$this->assertEquals( ["abc", "cde"], Map::from( [" abc\n", "\tcde\r\n"] )->trim()->toArray() );
@@ -4019,6 +4183,16 @@ Array
 	}
 
 
+	public function testUniqueObject()
+	{
+		$obj = new \stdClass;
+		$r = Map::from( [$obj, $obj, 'a', 'a'] )->unique();
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [0 => $obj, 2 => 'a'], $r->toArray() );
+	}
+
+
 	public function testUniqueKey()
 	{
 		$m = new Map( [['p' => '1'], ['p' => 1], ['p' => 2]] );
@@ -4086,6 +4260,30 @@ Array
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( ['A', 'B', ['C', 'D'], 'E'], $r->toArray() );
+	}
+
+
+	public function testWalkDeep()
+	{
+		$value = 'x';
+
+		for( $i = 0; $i < 100000; $i++ ) {
+			$value = [$value];
+		}
+
+		$r = Map::from( [$value] )->walk( function( &$val ) {
+			$val = strtoupper( $val );
+		} );
+
+		$this->assertInstanceOf( Map::class, $r );
+
+		$val = $r->first();
+
+		while( is_array( $val ) ) {
+			$val = current( $val );
+		}
+
+		$this->assertSame( 'X', $val );
 	}
 
 
