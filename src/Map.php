@@ -752,15 +752,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return (bool) $val;
 		}
 
-		if( $default instanceof \Closure ) {
-			$default = isset( $val ) ? $default( $val ) : $default();
-		}
-
-		if( $default instanceof \Throwable ) {
-			throw $default;
-		}
-
-		return (bool) $default;
+		return (bool) $this->fallback( $default, isset( $val ), $val ?? null );
 	}
 
 
@@ -1668,15 +1660,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			}
 		}
 
-		if( $default instanceof \Closure ) {
-			return $default();
-		}
-
-		if( $default instanceof \Throwable ) {
-			throw $default;
-		}
-
-		return $default;
+		return $this->fallback( $default );
 	}
 
 
@@ -1723,15 +1707,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			}
 		}
 
-		if( $default instanceof \Closure ) {
-			return $default();
-		}
-
-		if( $default instanceof \Throwable ) {
-			throw $default;
-		}
-
-		return $default;
+		return $this->fallback( $default );
 	}
 
 
@@ -1767,15 +1743,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return $list[$key];
 		}
 
-		if( $default instanceof \Closure ) {
-			return $default();
-		}
-
-		if( $default instanceof \Throwable ) {
-			throw $default;
-		}
-
-		return $default;
+		return $this->fallback( $default );
 	}
 
 
@@ -1809,15 +1777,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return $key;
 		}
 
-		if( $default instanceof \Closure ) {
-			return $default();
-		}
-
-		if( $default instanceof \Throwable ) {
-			throw $default;
-		}
-
-		return $default;
+		return $this->fallback( $default );
 	}
 
 
@@ -1950,15 +1910,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return (float) $val;
 		}
 
-		if( $default instanceof \Closure ) {
-			return (float) ( isset( $val ) ? $default( $val ) : $default() );
-		}
-
-		if( $default instanceof \Throwable ) {
-			throw $default;
-		}
-
-		return (float) $default;
+		return (float) $this->fallback( $default, isset( $val ), $val ?? null );
 	}
 
 
@@ -1996,15 +1948,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return $v;
 		}
 
-		if( $default instanceof \Closure ) {
-			return $default();
-		}
-
-		if( $default instanceof \Throwable ) {
-			throw $default;
-		}
-
-		return $default;
+		return $this->fallback( $default );
 	}
 
 
@@ -2605,15 +2549,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return (int) $val;
 		}
 
-		if( $default instanceof \Closure ) {
-			$default = isset( $val ) ? $default( $val ) : $default();
-		}
-
-		if( $default instanceof \Throwable ) {
-			throw $default;
-		}
-
-		return (int) $default;
+		return (int) $this->fallback( $default, isset( $val ), $val ?? null );
 	}
 
 
@@ -3208,15 +3144,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return $list[$key];
 		}
 
-		if( $default instanceof \Closure ) {
-			return $default();
-		}
-
-		if( $default instanceof \Throwable ) {
-			throw $default;
-		}
-
-		return $default;
+		return $this->fallback( $default );
 	}
 
 
@@ -3250,15 +3178,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return $key;
 		}
 
-		if( $default instanceof \Closure ) {
-			return $default();
-		}
-
-		if( $default instanceof \Throwable ) {
-			throw $default;
-		}
-
-		return $default;
+		return $this->fallback( $default );
 	}
 
 
@@ -5345,15 +5265,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return (string) $val;
 		}
 
-		if( $default instanceof \Closure ) {
-			return (string) ( isset( $val ) ? $default( $val ) : $default() );
-		}
-
-		if( $default instanceof \Throwable ) {
-			throw $default;
-		}
-
-		return (string) $default;
+		return (string) $this->fallback( $default, isset( $val ), $val ?? null );
 	}
 
 
@@ -7001,6 +6913,28 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		}
 
 		return $idx;
+	}
+
+
+	/**
+	 * Resolves default values used by accessors.
+	 *
+	 * @param mixed $default Default value, closure or throwable
+	 * @param bool $pass TRUE to pass the optional value to closure defaults
+	 * @param mixed $value Optional value passed to closure defaults
+	 * @return mixed Resolved default value
+	 */
+	protected function fallback( mixed $default, bool $pass = false, mixed $value = null ) : mixed
+	{
+		if( $default instanceof \Closure ) {
+			return $pass ? $default( $value ) : $default();
+		}
+
+		if( $default instanceof \Throwable ) {
+			throw $default;
+		}
+
+		return $default;
 	}
 
 
