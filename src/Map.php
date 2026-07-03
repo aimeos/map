@@ -2122,8 +2122,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * to get "val" from ['key1' => ['key2' => ['key3' => 'val']]]. The same applies to
 	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
-	 * @param array<int|string>|int|string $key Key of the requested item or list of keys
+	 * @param array<mixed>|int|string $key Key of the requested item or list of keys
 	 * @return bool TRUE if key or keys are available in map, FALSE if not
+	 * @throws \InvalidArgumentException If one of the keys can't be used as key
 	 */
 	public function has( array|int|string $key ) : bool
 	{
@@ -2131,6 +2132,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		foreach( (array) $key as $entry )
 		{
+			$entry = $this->arrayKey( $entry );
+
 			if( array_key_exists( $entry, $list ) === false
 				&& !$this->value( $list, explode( $this->sep, (string) $entry ), $value )
 			) {

@@ -1851,6 +1851,13 @@ Array
 	}
 
 
+	public function testHasKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a' => 1] )->has( [[]] );
+	}
+
+
 	public function testKeyExists()
 	{
 		$m = new Map( ['a' => null, 'b' => ['c' => 1], 'b/c' => 2] );
