@@ -7134,6 +7134,8 @@ public function unflatten() : self
 ```
 
 This is the inverse method for [flatten()](#flatten).
+If a scalar value and a nested path target the same key, later entries
+overwrite earlier entries.
 
 * @return **self&#60;string,mixed&#62;** New map with multi-dimensional arrays
 

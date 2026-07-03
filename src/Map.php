@@ -6174,6 +6174,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * ['a' => ['b' => ['c' => 1, 'd' => 2]], 'b' => ['e' => 3]]
 	 *
 	 * This is the inverse method for flatten().
+	 * If a scalar value and a nested path target the same key, later entries
+	 * overwrite earlier entries.
 	 *
 	 * @return self<int|string,mixed> New map with multi-dimensional arrays
 	 */
@@ -6186,11 +6188,19 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			$nested = &$result;
 			$parts = explode( $this->sep, (string) $key );
 
-			while( count( $parts ) > 1 ) {
-				$nested = &$nested[array_shift( $parts )] ?? [];
+			while( count( $parts ) > 1 )
+			{
+				$part = (string) array_shift( $parts );
+
+				if( !isset( $nested[$part] ) || !is_array( $nested[$part] ) ) {
+					$nested[$part] = [];
+				}
+
+				$nested = &$nested[$part];
 			}
 
-			$nested[array_shift( $parts )] = $value;
+			$nested[(string) array_shift( $parts )] = $value;
+			unset( $nested );
 		}
 
 		return new static( $result );

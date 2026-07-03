@@ -4403,6 +4403,18 @@ Array
 	}
 
 
+	public function testUnflattenNestedPathOverwritesScalar()
+	{
+		$this->assertSame( ['a' => ['b' => 2]], Map::from( ['a' => 1, 'a/b' => 2] )->unflatten()->toArray() );
+	}
+
+
+	public function testUnflattenScalarOverwritesNestedPath()
+	{
+		$this->assertSame( ['a' => 1], Map::from( ['a/b' => 2, 'a' => 1] )->unflatten()->toArray() );
+	}
+
+
 	public function testUnionArray()
 	{
 		$m = new Map( ['name' => 'Hello'] );
