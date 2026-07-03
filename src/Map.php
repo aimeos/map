@@ -2374,17 +2374,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 * The first and second example will return TRUE while the other ones will return FALSE
 	 *
-	 * @param array|mixed $element Element or elements to search for in the map
+	 * @param iterable<mixed>|mixed $element Element or elements to search for in the map
 	 * @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
 	 * @return bool TRUE if all elements are available in map, FALSE if not
 	 */
 	public function in( mixed $element, bool $strict = false ) : bool
 	{
-		if( !is_array( $element ) ) {
+		if( !is_iterable( $element ) ) {
 			return in_array( $element, $this->list(), $strict );
 		};
 
-		foreach( $element as $entry )
+		foreach( $this->array( $element ) as $entry )
 		{
 			if( in_array( $entry, $this->list(), $strict ) === false ) {
 				return false;
@@ -3409,7 +3409,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 * The first three examples will return TRUE while the other ones will return FALSE
 	 *
-	 * @param mixed|array $element Element or elements to search for in the map
+	 * @param iterable<mixed>|mixed $element Element or elements to search for in the map
 	 * @param bool $strict TRUE to check the type too, using FALSE '1' and 1 will be the same
 	 * @return bool TRUE if none of the elements is part of the map, FALSE if at least one is
 	 */
@@ -3417,11 +3417,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	{
 		$list = $this->list();
 
-		if( !is_array( $element ) ) {
+		if( !is_iterable( $element ) ) {
 			return !in_array( $element, $list, $strict );
 		};
 
-		foreach( $element as $entry )
+		foreach( $this->array( $element ) as $entry )
 		{
 			if( in_array( $entry, $list, $strict ) === true ) {
 				return false;

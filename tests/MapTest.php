@@ -2048,6 +2048,11 @@ Array
 	{
 		$this->assertTrue( Map::from( ['a', 'b'] )->in( 'a' ) );
 		$this->assertTrue( Map::from( ['a', 'b'] )->in( ['a', 'b'] ) );
+		$this->assertTrue( Map::from( ['a', 'b'] )->in( Map::from( ['a', 'b'] ) ) );
+		$this->assertTrue( Map::from( ['a', 'b'] )->in( ( function() {
+			yield 'a';
+			yield 'b';
+		} )() ) );
 		$this->assertFalse( Map::from( ['a', 'b'] )->in( 'x' ) );
 		$this->assertFalse( Map::from( ['a', 'b'] )->in( ['a', 'x'] ) );
 		$this->assertFalse( Map::from( ['1', '2'] )->in( 2, true ) );
@@ -2788,9 +2793,14 @@ Array
 		$this->assertFalse( Map::from( ['a', 'b'] )->none( 'a' ) );
 		$this->assertFalse( Map::from( ['a', 'b'] )->none( ['a', 'b'] ) );
 		$this->assertFalse( Map::from( ['a', 'b'] )->none( ['a', 'x'] ) );
+		$this->assertFalse( Map::from( ['a', 'b'] )->none( Map::from( ['a', 'x'] ) ) );
 		$this->assertTrue( Map::from( ['a', 'b'] )->none( 'x' ) );
 		$this->assertTrue( Map::from( ['1', '2'] )->none( 2, true ) );
 		$this->assertTrue( Map::from( ['a', 'b'] )->none( ['x', 'y'] ) );
+		$this->assertTrue( Map::from( ['a', 'b'] )->none( ( function() {
+			yield 'x';
+			yield 'y';
+		} )() ) );
 	}
 
 
