@@ -702,6 +702,29 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testCountByCallbackKeys()
+	{
+		$key = new class {
+			public function __toString() : string
+			{
+				return 'stringable';
+			}
+		};
+
+		$r = Map::from( [true, false, null, $key] )->countBy( fn( $value ) => $value );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [1 => 1, '' => 2, 'stringable' => 1], $r->toArray() );
+	}
+
+
+	public function testCountByCallbackKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a'] )->countBy( fn() => [] );
+	}
+
+
 	public function testCountByFloat()
 	{
 		$r = Map::from( [1.11, 3.33, 3.33, 9.99] )->countBy();
@@ -2842,6 +2865,13 @@ Array
 		$this->assertSame( $expected, Map::from( [1, 2, 3, 4, 5] )->partition( function( $val, $idx ) {
 			return $idx % 3;
 		} )->toArray() );
+	}
+
+
+	public function testPartitionClosureKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [1] )->partition( fn() => [] );
 	}
 
 

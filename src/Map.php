@@ -1178,10 +1178,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  ['1.11' => 1, '3.33' => 2]
 	 *  ['gmail.com' => 2, 'yahoo.com' => 1]
 	 *
-	 * Counting values does only work for integers and strings because these are
-	 * the only types allowed as array keys. All elements are casted to strings
-	 * if no callback is passed. Custom callbacks need to make sure that only
-	 * string or integer values are returned!
+	 * Counting values does only work for values that can be converted to array
+	 * keys. All elements are casted to strings if no callback is passed. Custom
+	 * callback results are normalized to array keys, too.
 	 *
 	 * This does also work for multi-dimensional arrays by passing the keys
 	 * of the arrays separated by the delimiter ("/" by default), e.g. "key1/key2/key3"
@@ -1190,6 +1189,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param \Closure|string|null $col Key as "key1/key2/key3" or function with (value) parameter returning the values for counting
 	 * @return self<int|string,mixed> New map with values as keys and their count as value
+	 * @throws \InvalidArgumentException If one of the returned values can't be used as key
 	 */
 	public function countBy( \Closure|string|null $col = null ) : self
 	{
@@ -1203,7 +1203,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			};
 		}
 
-		return new static( array_count_values( array_map( $col, $this->list() ) ) );
+		$result = [];
+
+		foreach( $this->list() as $item )
+		{
+			$key = $this->arrayKey( $col( $item ) );
+			$result[$key] = ( $result[$key] ?? 0 ) + 1;
+		}
+
+		return new static( $result );
 	}
 
 
@@ -3666,7 +3674,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param \Closure|int $number Function with (value, index) as arguments returning the bucket key or number of groups
 	 * @return self<int|string,mixed> New map
-	 * @throws \InvalidArgumentException If the number of groups is less than 1
+	 * @throws \InvalidArgumentException If the number of groups is less than 1 or a bucket key can't be used as key
 	 */
 	public function partition( \Closure|int $number ) : self
 	{
@@ -3685,7 +3693,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		if( $number instanceof \Closure )
 		{
 			foreach( $list as $idx => $item ) {
-				$result[$number( $item, $idx )][$idx] = $item;
+				$result[$this->arrayKey( $number( $item, $idx ) )][$idx] = $item;
 			}
 
 			return new static( $result );
