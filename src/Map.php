@@ -3433,13 +3433,18 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  ['b', 'd', 'f']
 	 *
 	 * @param int $step Step width
-	 * @param int $offset Number of element to start from (0-based)
+	 * @param int $offset Non-negative number of element to start from (0-based)
 	 * @return self<int|string,mixed> New map
+	 * @throws \InvalidArgumentException If the step is less than 1 or the offset is negative
 	 */
 	public function nth( int $step, int $offset = 0 ) : self
 	{
 		if( $step < 1 ) {
 			throw new \InvalidArgumentException( 'Step width must be greater than zero' );
+		}
+
+		if( $offset < 0 ) {
+			throw new \InvalidArgumentException( 'Offset must be greater than or equal to zero' );
 		}
 
 		if( $step === 1 ) {
@@ -4571,14 +4576,19 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * The keys of the items returned in the new map are the same as in the original one.
 	 *
-	 * @param \Closure|int $offset Number of items to skip or function($item, $key) returning true for skipped items
+	 * @param \Closure|int $offset Non-negative number of items to skip or function($item, $key) returning true for skipped items
 	 * @return self<int|string,mixed> New map
+	 * @throws \InvalidArgumentException If the offset is negative
 	 */
 	public function skip( \Closure|int $offset ) : self
 	{
 		if( $offset instanceof \Closure ) {
 			$list = $this->list();
 			return new static( array_slice( $list, $this->until( $list, $offset ), null, true ) );
+		}
+
+		if( $offset < 0 ) {
+			throw new \InvalidArgumentException( 'Offset must be greater than or equal to zero' );
 		}
 
 		return new static( array_slice( $this->list(), (int) $offset, null, true ) );
@@ -5644,7 +5654,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Examples:
 	 *  Map::from( [1, 2, 3, 4] )->take( 2 );
 	 *  Map::from( [1, 2, 3, 4] )->take( 2, 1 );
-	 *  Map::from( [1, 2, 3, 4] )->take( 2, -2 );
+	 *  Map::from( [1, 2, 3, 4] )->take( 2, 2 );
 	 *  Map::from( [1, 2, 3, 4] )->take( 2, function( $item, $key ) {
 	 *      return $item < 2;
 	 *  } );
@@ -5657,16 +5667,25 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * The keys of the items returned in the new map are the same as in the original one.
 	 *
-	 * @param int $size Number of items to return
-	 * @param \Closure|int $offset Number of items to skip or function($item, $key) returning true for skipped items
+	 * @param int $size Non-negative number of items to return
+	 * @param \Closure|int $offset Non-negative number of items to skip or function($item, $key) returning true for skipped items
 	 * @return self<int|string,mixed> New map
+	 * @throws \InvalidArgumentException If the size or offset is negative
 	 */
 	public function take( int $size, \Closure|int $offset = 0 ) : self
 	{
+		if( $size < 0 ) {
+			throw new \InvalidArgumentException( 'Size must be greater than or equal to zero' );
+		}
+
 		$list = $this->list();
 
 		if( $offset instanceof \Closure ) {
 			return new static( array_slice( $list, $this->until( $list, $offset ), $size, true ) );
+		}
+
+		if( $offset < 0 ) {
+			throw new \InvalidArgumentException( 'Offset must be greater than or equal to zero' );
 		}
 
 		return new static( array_slice( $list, (int) $offset, $size, true ) );

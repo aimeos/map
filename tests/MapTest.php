@@ -2706,6 +2706,13 @@ Array
 	}
 
 
+	public function testNthOffsetException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] )->nth( 1, -1 );
+	}
+
+
 	public function testNthSame()
 	{
 		$m = Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] );
@@ -3506,6 +3513,13 @@ Array
 	}
 
 
+	public function testSkipNegativeException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [1, 2, 3, 4] )->skip( -1 );
+	}
+
+
 	public function testSliceOffset()
 	{
 		$map = ( new Map( [1, 2, 3, 4, 5, 6, 7, 8] ) )->slice( 3 );
@@ -4009,9 +4023,10 @@ Array
 	}
 
 
-	public function testTakeNegativeOffset()
+	public function testTakeNegativeOffsetException()
 	{
-		$this->assertSame( [2 => 3, 3 => 4], Map::from( [1, 2, 3, 4] )->take( 2, -2 )->toArray() );
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [1, 2, 3, 4] )->take( 2, -2 );
 	}
 
 
@@ -4029,6 +4044,13 @@ Array
 	{
 		$this->expectException( \TypeError::class );
 		Map::from( [] )->take( 0, [] );
+	}
+
+
+	public function testTakeNegativeSizeException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [1, 2, 3, 4] )->take( -1 );
 	}
 
 
