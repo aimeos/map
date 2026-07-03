@@ -956,7 +956,15 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			&& ( $indexcol === null || count( $iparts ) === 1 )
 		) {
 			try {
-				return new static( array_column( $this->list(), $valuecol, $indexcol ) );
+				$list = array_map( function( $item ) {
+					if( $item instanceof \Aimeos\Map ) {
+						return $item->toArray();
+					}
+
+					return $item instanceof \Traversable ? iterator_to_array( $item, true ) : $item;
+				}, $this->list() );
+
+				return new static( array_column( $list, $valuecol, $indexcol ) );
 			} catch( \TypeError $e ) {
 				; // use the loop below if the index values can't be used as keys
 			}

@@ -404,6 +404,26 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testColIndexMap()
+	{
+		$map = new Map( [Map::from( ['foo' => 'one', 'bar' => 'two'] )] );
+		$r = $map->col( 'bar', 'foo' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['one' => 'two'], $r->toArray() );
+	}
+
+
+	public function testColIndexTraversable()
+	{
+		$map = new Map( [new \ArrayObject( ['foo' => 'one', 'bar' => 'two'] )] );
+		$r = $map->col( 'bar', 'foo' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['one' => 'two'], $r->toArray() );
+	}
+
+
 	public function testColIndexDuplicate()
 	{
 		$map = new Map( [['id' => 'ix', 'val' => 'v1'], ['id' => 'ix', 'val' => 'v2']] );
