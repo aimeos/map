@@ -3180,7 +3180,7 @@ Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 1, 'baz', 'c' );
 // ['a' => 'foo', 'c' => 'baz', 'b' => 'bar']
 
 Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 5, 'baz' );
-// ['a' => 'foo', 'b' => 'bar', 'c' => 'baz']
+// ['a' => 'foo', 'b' => 'bar', 0 => 'baz']
 
 Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( -1, 'baz', 'c' );
 // ['a' => 'foo', 'c' => 'baz', 'b' => 'bar']

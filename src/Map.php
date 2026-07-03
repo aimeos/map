@@ -2491,7 +2491,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 *  [0 => 'baz', 'a' => 'foo', 'b' => 'bar']
 	 *  ['a' => 'foo', 'c' => 'baz', 'b' => 'bar']
-	 *  ['a' => 'foo', 'b' => 'bar', 'c' => 'baz']
+	 *  ['a' => 'foo', 'b' => 'bar', 0 => 'baz']
 	 *  ['a' => 'foo', 'c' => 'baz', 'b' => 'bar']
 	 *
 	 * @param int $pos Position the value should be inserted at
