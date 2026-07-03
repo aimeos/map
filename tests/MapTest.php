@@ -4223,6 +4223,49 @@ Array
 	}
 
 
+	public function testTreeUnordered()
+	{
+		$expected = [
+			1 => [
+				'id' => 1, 'pid' => null, 'name' => 'Root', 'children' => [
+					2 => ['id' => 2, 'pid' => 1, 'name' => '1/2', 'children' => [
+						3 => ['id' => 3, 'pid' => 2, 'name' => '1/2/3', 'children' => []],
+					]],
+				]
+			]
+		];
+
+		$data = [
+			['id' => 3, 'pid' => 2, 'name' => '1/2/3'],
+			['id' => 2, 'pid' => 1, 'name' => '1/2'],
+			['id' => 1, 'pid' => null, 'name' => 'Root'],
+		];
+
+		$this->assertSame( $expected, Map::from( $data )->tree( 'id', 'pid' )->toArray() );
+	}
+
+
+	public function testTreeDuplicateIdException()
+	{
+		$this->expectException( \UnexpectedValueException::class );
+		Map::from( [['id' => 1, 'pid' => null], ['id' => 1, 'pid' => null]] )->tree( 'id', 'pid' );
+	}
+
+
+	public function testTreeMissingParentException()
+	{
+		$this->expectException( \UnexpectedValueException::class );
+		Map::from( [['id' => 2, 'pid' => 1]] )->tree( 'id', 'pid' );
+	}
+
+
+	public function testTreeCycleException()
+	{
+		$this->expectException( \UnexpectedValueException::class );
+		Map::from( [['id' => 1, 'pid' => 2], ['id' => 2, 'pid' => 1]] )->tree( 'id', 'pid' );
+	}
+
+
 	public function testTreeNodeException()
 	{
 		$this->expectException( \UnexpectedValueException::class );

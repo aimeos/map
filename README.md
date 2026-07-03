@@ -6917,6 +6917,7 @@ public function tree( string $idKey, string $parentKey, string $nestKey = 'child
 * @param **string** `$parentKey` Name of the key with the ID of the parent node
 * @param **string** `$nestKey` Name of the key with will contain the children of the node
 * @return **self&#60;int&#124;string,mixed&#62;** New map with one or more root tree nodes
+* @throws **\UnexpectedValueException** If a node isn't an array, an ID isn't a scalar value, an ID is used twice, a parent is missing or nodes reference themselves as parent
 
 Use this method to rebuild trees e.g. from database records. To traverse
 trees, use the [traverse()](#traverse) method.
@@ -6929,7 +6930,7 @@ Map::from( [
   ['id' => 2, 'pid' => 1, 'lvl' => 1, 'name' => 'n2'],
   ['id' => 3, 'pid' => 2, 'lvl' => 2, 'name' => 'n3'],
   ['id' => 4, 'pid' => 1, 'lvl' => 1, 'name' => 'n4'],
-  ['id' => 5, 'pid' => 3, 'lvl' => 2, 'name' => 'n5'],
+  ['id' => 5, 'pid' => 4, 'lvl' => 2, 'name' => 'n5'],
   ['id' => 6, 'pid' => 1, 'lvl' => 1, 'name' => 'n6'],
 ] )->tree( 'id', 'pid' );
 /*
@@ -6947,29 +6948,7 @@ Map::from( [
 */
 ```
 
-To build the tree correctly, the items must be in order or at least the
-nodes of the lower levels must come first. For a tree like this:
-
-```
-n1
-|- n2
-|  |- n3
-|- n4
-|  |- n5
-|- n6
-```
-
-Accepted item order:
-- in order: n1, n2, n3, n4, n5, n6
-- lower levels first: n1, n2, n4, n6, n3, n5
-
-If your items are unordered, apply [usort()](#usort) first to the map entries, e.g.
-
-```php
-Map::from( [['id' => 3, 'lvl' => 2], ...] )->usort( function( $item1, $item2 ) {
-  return $item1['lvl'] <=> $item2['lvl'];
-} );
-```
+Items can be in any order as long as all parent nodes are part of the map.
 
 **See also:**
 

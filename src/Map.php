@@ -5920,7 +5920,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *    ['id' => 2, 'pid' => 1, 'lvl' => 1, 'name' => 'n2'],
 	 *    ['id' => 3, 'pid' => 2, 'lvl' => 2, 'name' => 'n3'],
 	 *    ['id' => 4, 'pid' => 1, 'lvl' => 1, 'name' => 'n4'],
-	 *    ['id' => 5, 'pid' => 3, 'lvl' => 2, 'name' => 'n5'],
+	 *    ['id' => 5, 'pid' => 4, 'lvl' => 2, 'name' => 'n5'],
 	 *    ['id' => 6, 'pid' => 1, 'lvl' => 1, 'name' => 'n6'],
 	 *  ] )->tree( 'id', 'pid' );
 	 *
@@ -5937,34 +5937,18 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *     ]
 	 *   ]]
 	 *
-	 * To build the tree correctly, the items must be in order or at least the
-	 * nodes of the lower levels must come first. For a tree like this:
-	 * n1
-	 * |- n2
-	 * |  |- n3
-	 * |- n4
-	 * |  |- n5
-	 * |- n6
-	 *
-	 * Accepted item order:
-	 * - in order: n1, n2, n3, n4, n5, n6
-	 * - lower levels first: n1, n2, n4, n6, n3, n5
-	 *
-	 * If your items are unordered, apply usort() first to the map entries, e.g.
-	 *   Map::from( [['id' => 3, 'lvl' => 2], ...] )->usort( function( $item1, $item2 ) {
-	 *     return $item1['lvl'] <=> $item2['lvl'];
-	 *   } );
+	 * Items can be in any order as long as all parent nodes are part of the map.
 	 *
 	 * @param string $idKey Name of the key with the unique ID of the node
 	 * @param string $parentKey Name of the key with the ID of the parent node
 	 * @param string $nestKey Name of the key with will contain the children of the node
 	 * @return self<int|string,mixed> New map with one or more root tree nodes
-	 * @throws \UnexpectedValueException If a node isn't an array, an ID isn't a scalar value or a node references itself as parent
+	 * @throws \UnexpectedValueException If a node isn't an array, an ID isn't a scalar value, an ID is used twice, a parent is missing or nodes reference themselves as parent
 	 */
 	public function tree( string $idKey, string $parentKey, string $nestKey = 'children' ) : self
 	{
 		$this->list();
-		$trees = $refs = [];
+		$trees = $refs = $parents = [];
 
 		foreach( $this->list as &$node )
 		{
@@ -5979,20 +5963,51 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 				throw new \UnexpectedValueException( 'Node IDs and parent IDs must be scalar values or NULL' );
 			}
 
-			$id = is_int( $id ) || is_string( $id ) ? $id : ( $id === null ? '' : (int) $id );
-			$parent = is_int( $parent ) || is_string( $parent ) ? $parent : ( $parent === null ? '' : (int) $parent );
+			$id = $this->treeId( $id );
+			$parent = $this->treeId( $parent );
 
 			if( $parent && (string) $parent === (string) $id ) {
 				throw new \UnexpectedValueException( 'Node with ID "' . $id . '" references itself as parent' );
 			}
 
+			if( array_key_exists( $id, $refs ) ) {
+				throw new \UnexpectedValueException( 'Node with ID "' . $id . '" is used more than once' );
+			}
+
 			$node[$nestKey] = [];
 			$refs[$id] = &$node;
+			$parents[$id] = $parent;
+		}
+		unset( $node );
 
+		foreach( $parents as $id => $parent )
+		{
+			if( $parent && !array_key_exists( $parent, $refs ) ) {
+				throw new \UnexpectedValueException( 'Parent node with ID "' . $parent . '" for node "' . $id . '" is missing' );
+			}
+		}
+
+		foreach( $parents as $id => $parent )
+		{
+			$seen = [$id => true];
+
+			while( $parent )
+			{
+				if( isset( $seen[$parent] ) ) {
+					throw new \UnexpectedValueException( 'Node with ID "' . $id . '" has a cyclic parent reference' );
+				}
+
+				$seen[$parent] = true;
+				$parent = $parents[$parent];
+			}
+		}
+
+		foreach( $parents as $id => $parent )
+		{
 			if( $parent ) {
-				$refs[$parent][$nestKey][$id] = &$node;
+				$refs[$parent][$nestKey][$id] = &$refs[$id];
 			} else {
-				$trees[$id] = &$node;
+				$trees[$id] = &$refs[$id];
 			}
 		}
 
@@ -6935,6 +6950,18 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		}
 
 		return $default;
+	}
+
+
+	/**
+	 * Normalizes tree IDs to PHP array keys.
+	 *
+	 * @param mixed $id ID or parent ID from a tree node
+	 * @return int|string Normalized key
+	 */
+	protected function treeId( mixed $id ) : int|string
+	{
+		return is_int( $id ) || is_string( $id ) ? $id : ( $id === null ? '' : (int) $id );
 	}
 
 
