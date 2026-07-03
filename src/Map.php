@@ -31,6 +31,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	protected static string $delim = '/';
 
+	protected const RECURSION_LIMIT = 512;
+
 	/**
 	 * @var array<int|string,mixed>|\Closure|iterable|mixed
 	 */
@@ -639,7 +641,19 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function at( int $pos ) : mixed
 	{
-		$pair = array_slice( $this->list(), $pos, 1 );
+		$list = $this->list();
+
+		if( $pos === 0 ) {
+			$key = array_key_first( $list );
+			return $key !== null ? $list[$key] : null;
+		}
+
+		if( $pos === -1 ) {
+			$key = array_key_last( $list );
+			return $key !== null ? $list[$key] : null;
+		}
+
+		$pair = array_slice( $list, $pos, 1 );
 		return !empty( $pair ) ? current( $pair ) : null;
 	}
 
@@ -672,10 +686,43 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function avg( \Closure|string|null $col = null ) : float
 	{
-		$list = $this->list();
-		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list, 'is_numeric' );
+		$sum = 0;
+		$cnt = 0;
 
-		return !empty( $vals ) ? array_sum( $vals ) / count( $vals ) : 0;
+		if( $col instanceof \Closure )
+		{
+			foreach( $this->list() as $key => $item )
+			{
+				if( is_numeric( $val = $col( $item, $key ) ) )
+				{
+					$sum += $val;
+					$cnt++;
+				}
+			}
+		}
+		else
+		{
+			$parts = $col ? explode( $this->sep, (string) $col ) : [];
+
+			foreach( $this->list() as $item )
+			{
+				if( $parts === [] ) {
+					$val = $item;
+				} elseif( is_array( $item ) ) {
+					$val = $this->arrayVal( $item, $parts );
+				} else {
+					$val = $this->val( $item, $parts );
+				}
+
+				if( is_numeric( $val ) )
+				{
+					$sum += $val;
+					$cnt++;
+				}
+			}
+		}
+
+		return $cnt > 0 ? $sum / $cnt : 0;
 	}
 
 
@@ -956,13 +1003,16 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			&& ( $indexcol === null || count( $iparts ) === 1 )
 		) {
 			try {
-				$list = array_map( function( $item ) {
-					if( $item instanceof \Aimeos\Map ) {
-						return $item->toArray();
-					}
+				$list = $this->list();
 
-					return $item instanceof \Traversable ? iterator_to_array( $item, true ) : $item;
-				}, $this->list() );
+				foreach( $list as $key => $item )
+				{
+					if( $item instanceof \Aimeos\Map ) {
+						$list[$key] = $item->toArray();
+					} elseif( $item instanceof \Traversable ) {
+						$list[$key] = iterator_to_array( $item, true );
+					}
+				}
 
 				return new static( array_column( $list, $valuecol, $indexcol ) );
 			} catch( \TypeError $e ) {
@@ -974,9 +1024,24 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		foreach( $this->list() as $key => $item )
 		{
-			$v = $valuecol ? $this->val( $item, $vparts ) : $item;
+			if( $valuecol )
+			{
+				if( is_array( $item ) ) {
+					$v = $this->arrayVal( $item, $vparts );
+				} else {
+					$v = $this->val( $item, $vparts );
+				}
+			}
+			else
+			{
+				$v = $item;
+			}
+
 			$idx = null;
-			$hasIndex = $indexcol && $this->value( $item, $iparts, $idx );
+			$hasIndex = $indexcol && ( is_array( $item )
+				? $this->arrayPath( $item, $iparts, $idx )
+				: $this->value( $item, $iparts, $idx )
+			);
 
 			if( $hasIndex && ( is_scalar( $idx ) || $idx instanceof \Stringable ) ) {
 				$list[$this->arrayKey( $idx )] = $v;
@@ -1051,9 +1116,16 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			throw new \InvalidArgumentException( 'Number of keys and values must be the same' );
 		}
 
-		$keys = array_map( $this->arrayKey(...), $keys );
+		$result = [];
+		$value = reset( $values );
 
-		return new static( array_combine( $keys, $values ) );
+		foreach( $keys as $key )
+		{
+			$result[$this->arrayKey( $key )] = $value;
+			$value = next( $values );
+		}
+
+		return new static( $result );
 	}
 
 
@@ -1137,10 +1209,19 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		}
 
 		if( func_num_args() < 3 ) {
-			return !$this->where( $key, '==', $operator )->isEmpty();
+			$filter = $this->whereFilter( $key, '==', $operator );
+		} else {
+			$filter = $this->whereFilter( $key, $operator, $value );
 		}
 
-		return !$this->where( $key, $operator, $value )->isEmpty();
+		foreach( $this->list() as $item )
+		{
+			if( $filter( $item ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 
@@ -1201,21 +1282,38 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function countBy( \Closure|string|null $col = null ) : self
 	{
-		if( !( $col instanceof \Closure ) )
-		{
-			$parts = $col ? explode( $this->sep, (string) $col ) : [];
+		$result = [];
 
-			$col = function( $item ) use ( $parts ) {
-				$val = $this->val( $item, $parts );
-				return is_scalar( $val ) || $val instanceof \Stringable ? (string) $val : '';
-			};
+		if( $col instanceof \Closure )
+		{
+			foreach( $this->list() as $item )
+			{
+				$key = $this->arrayKey( $col( $item ) );
+				$result[$key] = ( $result[$key] ?? 0 ) + 1;
+			}
+
+			return new static( $result );
 		}
 
-		$result = [];
+		$parts = $col ? explode( $this->sep, (string) $col ) : [];
+		$part = count( $parts ) === 1 ? current( $parts ) : null;
 
 		foreach( $this->list() as $item )
 		{
-			$key = $this->arrayKey( $col( $item ) );
+			if( $part !== null && is_array( $item ) ) {
+				$key = $this->groupKey( $item[$part] ?? null );
+			} elseif( $parts !== [] ) {
+				if( is_array( $item ) ) {
+					$val = $this->arrayVal( $item, $parts );
+				} else {
+					$val = $this->val( $item, $parts );
+				}
+
+				$key = $this->groupKey( $val );
+			} else {
+				$key = $this->groupKey( $item );
+			}
+
 			$result[$key] = ( $result[$key] ?? 0 ) + 1;
 		}
 
@@ -1289,7 +1387,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		return new static( (array) $this->native(
 			static fn() => array_diff( $list, $elements ),
-			fn() => array_filter( $list, fn( $value ) => !$this->containsValue( $elements, $value, $this->comparator() ) )
+			fn() => $this->filterByValues( $list, $elements, false )
 		) );
 	}
 
@@ -1443,13 +1541,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function duplicates( \Closure|string|null $col = null ) : self
 	{
-		$list = $map = $this->list();
+		$list = $this->list();
 
-		if( $col !== null ) {
-			$map = array_map( $this->mapper( $col ), array_values( $list ), array_keys( $list ) );
+		if( $col === null ) {
+			return new static( array_diff_key( $list, $this->dedup( $list ) ) );
 		}
 
-		return new static( array_diff_key( $list, $this->dedup( $map ) ) );
+		return new static( array_diff_key( $list, $this->dedupMappedKeys( $list, $col ) ) );
 	}
 
 
@@ -1533,8 +1631,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		return (bool) $this->native(
 			static fn() => array_diff( $list, $elements ) === [] && array_diff( $elements, $list ) === [],
 			function() use ( $list, $elements ) {
-				$fcn = $this->comparator();
-				return array_udiff( $list, $elements, $fcn ) === [] && array_udiff( $elements, $list, $fcn ) === [];
+				return $this->filterByValues( $list, $elements, false ) === []
+					&& $this->filterByValues( $elements, $list, false ) === [];
 			}
 		);
 	}
@@ -1620,8 +1718,18 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function filter( ?callable $callback = null ) : self
 	{
-		if( $callback ) {
-			return new static( array_filter( $this->list(), $callback, ARRAY_FILTER_USE_BOTH ) );
+		if( $callback )
+		{
+			$result = [];
+
+			foreach( $this->list() as $key => $value )
+			{
+				if( $callback( $value, $key ) ) {
+					$result[$key] = $value;
+				}
+			}
+
+			return new static( $result );
 		}
 
 		return new static( array_filter( $this->list() ) );
@@ -2095,11 +2203,25 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		else
 		{
 			$parts = explode( $this->sep, (string) $key );
+			$part = count( $parts ) === 1 ? current( $parts ) : null;
 
 			foreach( $this->list() as $idx => $item )
 			{
-				$val = $this->val( $item, $parts );
-				$keyval = is_scalar( $val ) || $val instanceof \Stringable ? (string) $val : '';
+				if( $part !== null && is_array( $item ) )
+				{
+					$keyval = $this->groupKey( $item[$part] ?? null );
+				}
+				else
+				{
+					if( is_array( $item ) ) {
+						$val = $this->arrayVal( $item, $parts );
+					} else {
+						$val = $this->val( $item, $parts );
+					}
+
+					$keyval = $this->groupKey( $val );
+				}
+
 				$result[$keyval][$idx] = $item;
 			}
 		}
@@ -2142,8 +2264,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		{
 			$entry = $this->arrayKey( $entry );
 
-			if( array_key_exists( $entry, $list ) === false
-				&& !$this->value( $list, explode( $this->sep, (string) $entry ), $value )
+			if( array_key_exists( $entry, $list ) ) {
+				continue;
+			}
+
+			if( !str_contains( (string) $entry, $this->sep )
+				|| !$this->value( $list, explode( $this->sep, (string) $entry ), $value )
 			) {
 				return false;
 			}
@@ -2380,13 +2506,31 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function in( mixed $element, bool $strict = false ) : bool
 	{
+		$list = $this->list();
+
 		if( !is_iterable( $element ) ) {
-			return in_array( $element, $this->list(), $strict );
+			return in_array( $element, $list, $strict );
 		};
 
-		foreach( $this->array( $element ) as $entry )
+		$elements = $this->array( $element );
+
+		if( $strict && count( $elements ) > 128 && ( $keys = $this->lookupKeys( $elements ) ) !== null )
 		{
-			if( in_array( $entry, $this->list(), $strict ) === false ) {
+			$lookup = $this->lookupSet( $list );
+
+			foreach( $keys as $key )
+			{
+				if( !isset( $lookup[$key] ) ) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		foreach( $elements as $entry )
+		{
+			if( in_array( $entry, $list, $strict ) === false ) {
 				return false;
 			}
 		}
@@ -2446,7 +2590,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return null;
 		}
 
-		$pos = array_search( $value, array_keys( $this->list() ) );
+		$list = $this->list();
+
+		if( is_string( $value ) && !is_numeric( $value ) && !array_key_exists( $value, $list ) ) {
+			return null;
+		}
+
+		$pos = array_search( $value, array_keys( $list ) );
 		return $pos !== false ? $pos : null;
 	}
 
@@ -2633,7 +2783,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		return new static( (array) $this->native(
 			static fn() => array_intersect( $list, $elements ),
-			fn() => array_filter( $list, fn( $value ) => $this->containsValue( $elements, $value, $this->comparator() ) )
+			fn() => $this->filterByValues( $list, $elements, true )
 		) );
 	}
 
@@ -2924,7 +3074,16 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function isSole( mixed $value = null, string|int|null $key = null ) : bool
 	{
-		return $this->restrict( $value, $key )->count() === 1;
+		$cnt = 0;
+
+		foreach( $this->list() as $mapkey => $item )
+		{
+			if( $this->matches( $item, $mapkey, $value, $key ) && ++$cnt > 1 ) {
+				return false;
+			}
+		}
+
+		return $cnt === 1;
 	}
 
 
@@ -3271,11 +3430,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function map( callable $callback ) : self
 	{
-		$list = $this->list();
-		$keys = array_keys( $list );
-		$map = array_map( $callback, array_values( $list ), $keys );
+		$result = [];
 
-		return new static( array_combine( $keys, $map ) );
+		foreach( $this->list() as $key => $value ) {
+			$result[$key] = $callback( $value, $key );
+		}
+
+		return new static( $result );
 	}
 
 
@@ -3311,10 +3472,43 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function max( \Closure|string|null $col = null ) : mixed
 	{
-		$list = $this->list();
-		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list, fn( $v ) => $v !== null );
+		$found = false;
+		$max = null;
 
-		return !empty( $vals ) ? max( $vals ) : null;
+		if( $col instanceof \Closure )
+		{
+			foreach( $this->list() as $key => $item )
+			{
+				if( ( $val = $col( $item, $key ) ) !== null && ( !$found || $val > $max ) )
+				{
+					$max = $val;
+					$found = true;
+				}
+			}
+		}
+		else
+		{
+			$parts = $col ? explode( $this->sep, (string) $col ) : [];
+
+			foreach( $this->list() as $item )
+			{
+				if( $parts === [] ) {
+					$val = $item;
+				} elseif( is_array( $item ) ) {
+					$val = $this->arrayVal( $item, $parts );
+				} else {
+					$val = $this->val( $item, $parts );
+				}
+
+				if( $val !== null && ( !$found || $val > $max ) )
+				{
+					$max = $val;
+					$found = true;
+				}
+			}
+		}
+
+		return $found ? $max : null;
 	}
 
 
@@ -3388,10 +3582,43 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function min( \Closure|string|null $col = null ) : mixed
 	{
-		$list = $this->list();
-		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list, fn( $v ) => $v !== null );
+		$found = false;
+		$min = null;
 
-		return !empty( $vals ) ? min( $vals ) : null;
+		if( $col instanceof \Closure )
+		{
+			foreach( $this->list() as $key => $item )
+			{
+				if( ( $val = $col( $item, $key ) ) !== null && ( !$found || $val < $min ) )
+				{
+					$min = $val;
+					$found = true;
+				}
+			}
+		}
+		else
+		{
+			$parts = $col ? explode( $this->sep, (string) $col ) : [];
+
+			foreach( $this->list() as $item )
+			{
+				if( $parts === [] ) {
+					$val = $item;
+				} elseif( is_array( $item ) ) {
+					$val = $this->arrayVal( $item, $parts );
+				} else {
+					$val = $this->val( $item, $parts );
+				}
+
+				if( $val !== null && ( !$found || $val < $min ) )
+				{
+					$min = $val;
+					$found = true;
+				}
+			}
+		}
+
+		return $found ? $min : null;
 	}
 
 
@@ -3421,7 +3648,23 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return !in_array( $element, $list, $strict );
 		};
 
-		foreach( $this->array( $element ) as $entry )
+		$elements = $this->array( $element );
+
+		if( $strict && count( $elements ) > 128 && ( $keys = $this->lookupKeys( $elements ) ) !== null )
+		{
+			$lookup = $this->lookupSet( $list );
+
+			foreach( $keys as $key )
+			{
+				if( isset( $lookup[$key] ) ) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		foreach( $elements as $entry )
 		{
 			if( in_array( $entry, $list, $strict ) === true ) {
 				return false;
@@ -3589,7 +3832,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			$list[$this->arrayKey( $key )] = true;
 		}
 
-		return $this->intersectKeys( $list );
+		return new static( array_intersect_key( $this->list(), $list ) );
 	}
 
 
@@ -3745,10 +3988,19 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function percentage( callable $fcn, int $precision = 2 ) : float
 	{
-		$vals = array_filter( $this->list(), $fcn, ARRAY_FILTER_USE_BOTH );
+		$total = 0;
+		$match = 0;
 
-		$cnt = count( $this->list() );
-		return $cnt > 0 ? round( count( $vals ) * 100 / $cnt, $precision ) : 0;
+		foreach( $this->list() as $key => $value )
+		{
+			$total++;
+
+			if( $fcn( $value, $key ) ) {
+				$match++;
+			}
+		}
+
+		return $total > 0 ? round( $match * 100 / $total, $precision ) : 0;
 	}
 
 
@@ -3882,30 +4134,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function prefix( \Closure|string $prefix, ?int $depth = null ) : self
 	{
 		$list = &$this->list();
-
-		$stack = [];
-		$stack[] = ['list' => &$list, 'depth' => $depth ?? 0x7fffffff];
-
-		while( !empty( $stack ) )
-		{
-			$frame = array_pop( $stack );
-
-			foreach( $frame['list'] as $key => &$item )
-			{
-				if( is_array( $item ) )
-				{
-					if( $frame['depth'] > 1 ) {
-						$stack[] = ['list' => &$item, 'depth' => $frame['depth'] - 1];
-					}
-				}
-				else
-				{
-					$item = ( $prefix instanceof \Closure ? $prefix( $item, $key ) : $prefix ) . $item;
-				}
-			}
-			unset( $item );
-		}
-
+		$this->prefixRecursive( $list, $prefix, $depth ?? 0x7fffffff );
 		return $this;
 	}
 
@@ -4172,8 +4401,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function remove( iterable|string|int $keys ) : self
 	{
+		$list = &$this->list();
+
 		foreach( $this->array( $keys ) as $key ) {
-			unset( $this->list()[$this->arrayKey( $key )] );
+			unset( $list[$this->arrayKey( $key )] );
 		}
 
 		return $this;
@@ -4235,25 +4466,16 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function restrict( mixed $value = null, string|int|null $key = null ) : self
 	{
-		$filter = $value;
+		$result = [];
 
-		if( !( $value instanceof \Closure ) )
+		foreach( $this->list() as $mapkey => $item )
 		{
-			if( $key === null )
-			{
-				$filter = function( $v ) use ( $value ) {
-					return $v === $value;
-				};
-			}
-			else
-			{
-				$filter = function( $v, $k ) use ( $key, $value ) {
-					return $this->value( $v, [$key], $found ) && $found === $value;
-				};
+			if( $this->matches( $item, $mapkey, $value, $key ) ) {
+				$result[$mapkey] = $item;
 			}
 		}
 
-		return $this->filter( $filter );
+		return new static( $result );
 	}
 
 
@@ -4697,13 +4919,27 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function sole( mixed $value = null, string|int|null $key = null ) : mixed
 	{
-		$items = $this->restrict( $value, $key );
+		$found = false;
+		$result = null;
 
-		if( $items->count() > 1 ) {
-			throw new \LengthException( 'Multiple items found' );
+		foreach( $this->list() as $mapkey => $item )
+		{
+			if( $this->matches( $item, $mapkey, $value, $key ) )
+			{
+				if( $found ) {
+					throw new \LengthException( 'Multiple items found' );
+				}
+
+				$found = true;
+				$result = $item;
+			}
 		}
 
-		return $items->first( new \LengthException( 'No items found' ) );
+		if( !$found ) {
+			throw new \LengthException( 'No items found' );
+		}
+
+		return $result;
 	}
 
 
@@ -4732,6 +4968,25 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		if( is_iterable( $values ) )
 		{
+			if( $strict && ( is_array( $values ) || $values instanceof \Aimeos\Map ) )
+			{
+				$values = $this->array( $values );
+
+				if( count( $values ) > 128 && ( $keys = $this->lookupKeys( $values ) ) !== null )
+				{
+					$lookup = $this->lookupSet( $list );
+
+					foreach( $keys as $key )
+					{
+						if( isset( $lookup[$key] ) ) {
+							return true;
+						}
+					}
+
+					return false;
+				}
+			}
+
 			foreach( $values as $entry )
 			{
 				if( in_array( $entry, $list, $strict ) === true ) {
@@ -4896,6 +5151,29 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function strAfter( string $value, bool $case = true, string $encoding = 'UTF-8' ) : self
 	{
 		$list = [];
+
+		if( $case && $encoding === 'UTF-8' )
+		{
+			$len = strlen( $value );
+
+			foreach( $this->list() as $key => $entry )
+			{
+				if( is_scalar( $entry ) )
+				{
+					$pos = null;
+					$str = (string) $entry;
+
+					if( $str !== '' && $value !== '' && ( $pos = strpos( $str, $value ) ) !== false ) {
+						$list[$key] = substr( $str, $pos + $len );
+					} elseif( $str !== '' && $pos !== false ) {
+						$list[$key] = $str;
+					}
+				}
+			}
+
+			return new static( $list );
+		}
+
 		$len = mb_strlen( $value, $encoding );
 		$fcn = $case ? 'mb_strpos' : 'mb_stripos';
 
@@ -4956,6 +5234,27 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function strBefore( string $value, bool $case = true, string $encoding = 'UTF-8' ) : self
 	{
 		$list = [];
+
+		if( $case && $encoding === 'UTF-8' )
+		{
+			foreach( $this->list() as $key => $entry )
+			{
+				if( is_scalar( $entry ) )
+				{
+					$pos = null;
+					$str = (string) $entry;
+
+					if( $str !== '' && $value !== '' && ( $pos = strrpos( $str, $value ) ) !== false ) {
+						$list[$key] = substr( $str, 0, $pos );
+					} elseif( $str !== '' && $pos !== false ) {
+						$list[$key] = $str;
+					}
+				}
+			}
+
+			return new static( $list );
+		}
+
 		$fcn = $case ? 'mb_strrpos' : 'mb_strripos';
 
 		foreach( $this->list() as $key => $entry )
@@ -5117,31 +5416,33 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		$native = $case && $encoding === 'UTF-8';
 		$fcn = $case ? 'mb_strpos' : 'mb_stripos';
 		$needles = [];
-		$list = [];
 
 		foreach( (array) $value as $str ) {
 			$needles[] = (string) $str;
 		}
 
-		foreach( $this->list() as $key => $entry )
+		foreach( $this->list() as $entry )
 		{
-			$list[$key] = 0;
-
 			if( !is_scalar( $entry ) && !$entry instanceof \Stringable ) {
-				continue;
+				return false;
 			}
 
 			$entry = (string) $entry;
+			$match = false;
 
 			foreach( $needles as $str )
 			{
 				if( $native ? str_contains( $entry, $str ) : ( $str === '' || $fcn( $entry, $str, 0, $encoding ) !== false ) ) {
-					$list[$key] = 1; break;
+					$match = true; break;
 				}
+			}
+
+			if( !$match ) {
+				return false;
 			}
 		}
 
-		return array_sum( $list ) === count( $list );
+		return true;
 	}
 
 
@@ -5247,7 +5548,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		$native = $case && $encoding === 'UTF-8';
 		$fcn = $case ? 'mb_strpos' : 'mb_stripos';
 		$needles = $lengths = [];
-		$list = [];
 
 		foreach( (array) $value as $str )
 		{
@@ -5255,23 +5555,26 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			$lengths[] = $native ? 0 : mb_strlen( $str, $encoding );
 		}
 
-		foreach( $this->list() as $key => $entry )
+		foreach( $this->list() as $entry )
 		{
-			$list[$key] = 0;
-
 			if( !is_scalar( $entry ) && !$entry instanceof \Stringable ) {
-				continue;
+				return false;
 			}
 
 			$entry = (string) $entry;
+			$match = false;
 
 			if( $native )
 			{
 				foreach( $needles as $str )
 				{
 					if( str_ends_with( $entry, $str ) ) {
-						$list[$key] = 1; break;
+						$match = true; break;
 					}
+				}
+
+				if( !$match ) {
+					return false;
 				}
 
 				continue;
@@ -5283,14 +5586,18 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			foreach( $needles as $str )
 			{
 				if( $str === '' || ( $lengths[$i] <= $len && $fcn( $entry, $str, -$lengths[$i], $encoding ) !== false ) ) {
-					$list[$key] = 1; break;
+					$match = true; break;
 				}
 
 				$i++;
 			}
+
+			if( !$match ) {
+				return false;
+			}
 		}
 
-		return array_sum( $list ) === count( $list );
+		return true;
 	}
 
 
@@ -5507,31 +5814,33 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		$native = $case && $encoding === 'UTF-8';
 		$fcn = $case ? 'mb_strpos' : 'mb_stripos';
 		$needles = [];
-		$list = [];
 
 		foreach( (array) $value as $str ) {
 			$needles[] = (string) $str;
 		}
 
-		foreach( $this->list() as $key => $entry )
+		foreach( $this->list() as $entry )
 		{
-			$list[$key] = 0;
-
 			if( !is_scalar( $entry ) && !$entry instanceof \Stringable ) {
-				continue;
+				return false;
 			}
 
 			$entry = (string) $entry;
+			$match = false;
 
 			foreach( $needles as $str )
 			{
 				if( $native ? str_starts_with( $entry, $str ) : ( $str === '' || $fcn( $entry, $str, 0, $encoding ) === 0 ) ) {
-					$list[$key] = 1; break;
+					$match = true; break;
 				}
+			}
+
+			if( !$match ) {
+				return false;
 			}
 		}
 
-		return array_sum( $list ) === count( $list );
+		return true;
 	}
 
 
@@ -5593,30 +5902,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function suffix( \Closure|string $suffix, ?int $depth = null ) : self
 	{
 		$list = &$this->list();
-
-		$stack = [];
-		$stack[] = ['list' => &$list, 'depth' => $depth ?? 0x7fffffff];
-
-		while( !empty( $stack ) )
-		{
-			$frame = array_pop( $stack );
-
-			foreach( $frame['list'] as $key => &$item )
-			{
-				if( is_array( $item ) )
-				{
-					if( $frame['depth'] > 1 ) {
-						$stack[] = ['list' => &$item, 'depth' => $frame['depth'] - 1];
-					}
-				}
-				else
-				{
-					$item = $item . ( $suffix instanceof \Closure ? $suffix( $item, $key ) : $suffix );
-				}
-			}
-			unset( $item );
-		}
-
+		$this->suffixRecursive( $list, $suffix, $depth ?? 0x7fffffff );
 		return $this;
 	}
 
@@ -5648,10 +5934,38 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function sum( \Closure|string|null $col = null ) : float
 	{
-		$list = $this->list();
-		$vals = array_filter( $col ? array_map( $this->mapper( $col ), $list, array_keys( $list ) ) : $list, 'is_numeric' );
+		$sum = 0;
 
-		return array_sum( $vals );
+		if( $col instanceof \Closure )
+		{
+			foreach( $this->list() as $key => $item )
+			{
+				if( is_numeric( $val = $col( $item, $key ) ) ) {
+					$sum += $val;
+				}
+			}
+		}
+		else
+		{
+			$parts = $col ? explode( $this->sep, (string) $col ) : [];
+
+			foreach( $this->list() as $item )
+			{
+				if( $parts === [] ) {
+					$val = $item;
+				} elseif( is_array( $item ) ) {
+					$val = $this->arrayVal( $item, $parts );
+				} else {
+					$val = $this->val( $item, $parts );
+				}
+
+				if( is_numeric( $val ) ) {
+					$sum += $val;
+				}
+			}
+		}
+
+		return $sum;
 	}
 
 
@@ -5905,38 +6219,19 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	public function transpose() : self
 	{
 		$result = [];
-		$list = $this->list();
-		$keys = [];
-		$rows = [];
 
-		foreach( $list as $row )
+		foreach( $this->list() as $row )
 		{
 			if( $row instanceof \Aimeos\Map ) {
 				$row = $row->toArray();
-			} elseif( is_array( $row ) ) {
-				$row = $row;
 			} elseif( $row instanceof \Traversable ) {
 				$row = iterator_to_array( $row, true );
-			} elseif( is_object( $row ) ) {
-				$row = get_object_vars( $row );
-			} else {
-				$row = (array) $row;
+			} elseif( !is_array( $row ) ) {
+				$row = is_object( $row ) ? get_object_vars( $row ) : (array) $row;
 			}
-
-			$rows[] = $row;
 
 			foreach( $row as $key => $col ) {
-				$keys[$key] = true;
-			}
-		}
-
-		foreach( array_keys( $keys ) as $key )
-		{
-			foreach( $rows as $row )
-			{
-				if( array_key_exists( $key, $row ) ) {
-					$result[$key][] = $row[$key];
-				}
+				$result[$key][] = $col;
 			}
 		}
 
@@ -6096,9 +6391,16 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			}
 		}
 
+		$checked = [];
+
 		foreach( $parents as $id => $parent )
 		{
+			if( isset( $checked[$id] ) ) {
+				continue;
+			}
+
 			$seen = [$id => true];
+			$path = [$id];
 
 			while( $parent )
 			{
@@ -6106,8 +6408,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 					throw new \UnexpectedValueException( 'Node with ID "' . $id . '" has a cyclic parent reference' );
 				}
 
+				if( isset( $checked[$parent] ) ) {
+					break;
+				}
+
 				$seen[$parent] = true;
+				$path[] = $parent;
 				$parent = $parents[$parent];
+			}
+
+			foreach( $path as $nodeid ) {
+				$checked[$nodeid] = true;
 			}
 		}
 
@@ -6292,10 +6603,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		{
 			$nested = &$result;
 			$parts = explode( $this->sep, (string) $key );
+			$last = count( $parts ) - 1;
 
-			while( count( $parts ) > 1 )
+			for( $i = 0; $i < $last; $i++ )
 			{
-				$part = (string) array_shift( $parts );
+				$part = (string) $parts[$i];
 
 				if( !isset( $nested[$part] ) || !is_array( $nested[$part] ) ) {
 					$nested[$part] = [];
@@ -6304,7 +6616,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 				$nested = &$nested[$part];
 			}
 
-			$nested[(string) array_shift( $parts )] = $value;
+			$nested[(string) $parts[$last]] = $value;
 			unset( $nested );
 		}
 
@@ -6371,9 +6683,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		}
 
 		$list = $this->list();
-		$map = array_map( $this->mapper( $col ), array_values( $list ), array_keys( $list ) );
 
-		return new static( array_intersect_key( $list, $this->dedup( $map ) ) );
+		return new static( array_intersect_key( $list, $this->dedupMappedKeys( $list, $col ) ) );
 	}
 
 
@@ -6533,45 +6844,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		if( $recursive )
 		{
 			$list = &$this->list();
-			$stack = [['list' => &$list, 'keys' => array_keys( $list ), 'pos' => 0]];
-			$last = 0;
-
-			while( $last >= 0 )
-			{
-				$frame = &$stack[$last];
-				$parent = &$frame['list'];
-				$keys = $frame['keys'];
-				$pos = $frame['pos'];
-				$cnt = count( $keys );
-				$descend = false;
-
-				while( $pos < $cnt )
-				{
-					$key = $keys[$pos++];
-					$item = &$parent[$key];
-
-					if( is_array( $item ) )
-					{
-						$frame['pos'] = $pos;
-						$stack[] = ['list' => &$item, 'keys' => array_keys( $item ), 'pos' => 0];
-						$last++;
-						$descend = true;
-						unset( $item );
-						break;
-					}
-
-					$callback( $item, $key, $data );
-					unset( $item );
-				}
-
-				unset( $parent, $frame );
-
-				if( !$descend )
-				{
-					array_pop( $stack );
-					$last--;
-				}
-			}
+			$this->walkRecursive( $list, $callback, $data );
 		}
 		else
 		{
@@ -6645,37 +6918,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function where( string $key, string $op, mixed $value ) : self
 	{
-		if( !isset( ['-' => true, 'in' => true, '<' => true, '>' => true, '<=' => true, '>=' => true,
-			'===' => true, '!==' => true, '!=' => true, '==' => true][$op] )
-		) {
-			throw new \InvalidArgumentException( 'Unsupported operator "' . $op . '"' );
-		}
-
-		$list = ( $op === '-' || $op === 'in' ) ? $this->array( $value ) : null;
-
-		return $this->filter( function( $item ) use ( $key, $op, $value, $list ) {
-
-			if( $this->value( $item, explode( $this->sep, $key ), $val ) )
-			{
-				switch( $op )
-				{
-					case '-':
-						$values = $list ?? [];
-						return !empty( $values ) && $val >= reset( $values ) && $val <= end( $values );
-					case 'in': return in_array( $val, $list ?? [] );
-					case '<': return $val < $value;
-					case '>': return $val > $value;
-					case '<=': return $val <= $value;
-					case '>=': return $val >= $value;
-					case '===': return $val === $value;
-					case '!==': return $val !== $value;
-					case '!=': return $val != $value;
-					case '==': return $val == $value;
-				}
-			}
-
-			return false;
-		} );
+		return $this->filter( $this->whereFilter( $key, $op, $value ) );
 	}
 
 
@@ -6761,6 +7004,76 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Returns a nested value from a plain PHP array.
+	 *
+	 * @param array<mixed> $entry Array to look at
+	 * @param array<int|string> $parts Path parts to look for
+	 * @return mixed Found value or NULL if the path doesn't exist
+	 */
+	protected function arrayVal( array $entry, array $parts ) : mixed
+	{
+		$current = $entry;
+
+		foreach( $parts as $part )
+		{
+			if( !is_array( $current ) ) {
+				return null;
+			}
+
+			if( isset( $current[$part] ) )
+			{
+				$current = $current[$part];
+				continue;
+			}
+
+			if( !array_key_exists( $part, $current ) ) {
+				return null;
+			}
+
+			$current = $current[$part];
+		}
+
+		return $current;
+	}
+
+
+	/**
+	 * Returns a nested value from a plain PHP array and tells if the path exists.
+	 *
+	 * @param array<mixed> $entry Array to look at
+	 * @param array<int|string> $parts Path parts to look for
+	 * @param mixed $value Found value
+	 * @return bool TRUE if the path exists, FALSE if not
+	 */
+	protected function arrayPath( array $entry, array $parts, mixed &$value ) : bool
+	{
+		$current = $entry;
+
+		foreach( $parts as $part )
+		{
+			if( !is_array( $current ) ) {
+				return false;
+			}
+
+			if( isset( $current[$part] ) )
+			{
+				$current = $current[$part];
+				continue;
+			}
+
+			if( !array_key_exists( $part, $current ) ) {
+				return false;
+			}
+
+			$current = $current[$part];
+		}
+
+		$value = $current;
+		return true;
+	}
+
+
+	/**
 	 * Normalizes a value to a PHP array key.
 	 *
 	 * @param mixed $key Key candidate
@@ -6774,6 +7087,18 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		}
 
 		return is_int( $key ) || is_string( $key ) ? $key : (string) $key;
+	}
+
+
+	/**
+	 * Normalizes a value to the grouping/counting key used by countBy() and groupBy().
+	 *
+	 * @param mixed $value Value to normalize
+	 * @return string Normalized grouping key
+	 */
+	protected function groupKey( mixed $value ) : string
+	{
+		return is_scalar( $value ) || $value instanceof \Stringable ? (string) $value : '';
 	}
 
 
@@ -6809,6 +7134,56 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Returns a canonical key for values that can be compared safely by lookup.
+	 *
+	 * @param mixed $value Value to normalize
+	 * @return string|null Canonical key or NULL if comparator fallback is required
+	 */
+	protected function comparisonKey( mixed $value ) : ?string
+	{
+		if( is_scalar( $value ) || $value === null || $value instanceof \Stringable ) {
+			return 's:' . (string) $value;
+		}
+
+		return is_array( $value ) ? $this->arrayComparisonKey( $value ) : null;
+	}
+
+
+	/**
+	 * Returns a canonical key for plain arrays where PHP loose comparison is safe to model.
+	 *
+	 * @param array<mixed> $value Array value to normalize
+	 * @return string|null Canonical key or NULL if comparator fallback is required
+	 */
+	protected function arrayComparisonKey( array $value ) : ?string
+	{
+		$entries = [];
+
+		foreach( $value as $key => $entry )
+		{
+			if( is_int( $entry ) ) {
+				$entry = 'i:' . $entry;
+			} elseif( is_string( $entry ) && !is_numeric( $entry ) ) {
+				$entry = 's:' . $entry;
+			} elseif( is_array( $entry ) ) {
+				$entry = $this->arrayComparisonKey( $entry );
+			} else {
+				return null;
+			}
+
+			if( $entry === null ) {
+				return null;
+			}
+
+			$entries[is_int( $key ) ? 'i:' . $key : 's:' . $key] = $entry;
+		}
+
+		ksort( $entries, SORT_STRING );
+		return 'a:' . serialize( $entries );
+	}
+
+
+	/**
 	 * Tests if the list contains the value using the comparison callback.
 	 *
 	 * @param array<int|string,mixed> $list List of values to check
@@ -6826,6 +7201,226 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		}
 
 		return false;
+	}
+
+
+	/**
+	 * Filters the list by values contained in the comparison list.
+	 *
+	 * @param array<int|string,mixed> $list List of values to filter
+	 * @param array<int|string,mixed> $values Values to compare against
+	 * @param bool $keepMatches TRUE to keep matching values, FALSE to keep non-matching values
+	 * @return array<int|string,mixed> Filtered values
+	 */
+	protected function filterByValues( array $list, array $values, bool $keepMatches ) : array
+	{
+		$lookup = $unsupported = [];
+
+		foreach( $values as $value )
+		{
+			if( ( $key = $this->comparisonKey( $value ) ) !== null ) {
+				$lookup[$key] = true;
+			} else {
+				$unsupported[] = $value;
+			}
+		}
+
+		$compare = !empty( $unsupported ) ? $this->comparator() : null;
+		$result = [];
+
+		foreach( $list as $key => $value )
+		{
+			$match = false;
+
+			if( ( $lookupKey = $this->comparisonKey( $value ) ) !== null )
+			{
+				$match = isset( $lookup[$lookupKey] )
+					|| ( $compare && $this->containsValue( $unsupported, $value, $compare ) );
+			}
+			else
+			{
+				$match = $this->containsValue( $values, $value, $compare ?? $this->comparator() );
+			}
+
+			if( $match === $keepMatches ) {
+				$result[$key] = $value;
+			}
+		}
+
+		return $result;
+	}
+
+
+	/**
+	 * Returns positional keys for first occurrences of mapped values.
+	 *
+	 * @param array<int|string,mixed> $list List of values to map and deduplicate
+	 * @param \Closure|string|null $col Key, path or callback used for mapping
+	 * @return array<int,bool> Positional keys of first occurrences
+	 */
+	protected function dedupMappedKeys( array $list, \Closure|string|null $col ) : array
+	{
+		$keys = $seen = $rest = [];
+		$pos = 0;
+
+		if( $col instanceof \Closure )
+		{
+			foreach( $list as $key => $value )
+			{
+				$this->dedupMappedValue( $col( $value, $key ), $keys, $seen, $rest, $pos );
+				$pos++;
+			}
+
+			return $keys;
+		}
+
+		$parts = $col ? explode( $this->sep, (string) $col ) : [];
+		$part = count( $parts ) === 1 ? current( $parts ) : null;
+
+		foreach( $list as $value )
+		{
+			if( $part !== null && is_array( $value ) ) {
+				$value = $value[$part] ?? null;
+			} elseif( is_array( $value ) ) {
+				$value = $this->arrayVal( $value, $parts );
+			} else {
+				$value = $this->val( $value, $parts );
+			}
+
+			$this->dedupMappedValue( $value, $keys, $seen, $rest, $pos );
+			$pos++;
+		}
+
+		return $keys;
+	}
+
+
+	/**
+	 * Stores the positional key if the mapped value hasn't been seen before.
+	 *
+	 * @param mixed $value Mapped value
+	 * @param array<int,bool> &$keys Positional keys of first occurrences
+	 * @param array<string,bool> &$seen Seen scalar/string values
+	 * @param array<int,mixed> &$rest Seen non-scalar values
+	 * @param int $pos Current position
+	 */
+	protected function dedupMappedValue( mixed $value, array &$keys, array &$seen, array &$rest, int $pos ) : void
+	{
+		if( is_scalar( $value ) || $value === null || $value instanceof \Stringable )
+		{
+			$str = (string) $value;
+
+			if( !isset( $seen[$str] ) )
+			{
+				$seen[$str] = true;
+				$keys[$pos] = true;
+			}
+		}
+		elseif( !in_array( $value, $rest, true ) )
+		{
+			$rest[] = $value;
+			$keys[$pos] = true;
+		}
+	}
+
+
+	/**
+	 * Tests if the item matches the value or callback used by restrict(), isSole() and sole().
+	 *
+	 * @param mixed $item List item to test
+	 * @param int|string $mapkey Key of the list item
+	 * @param mixed $value Value or callback to compare with
+	 * @param string|int|null $key Key to compare the value for if $value is not a callback
+	 * @return bool TRUE if the item matches, FALSE if not
+	 */
+	protected function matches( mixed $item, int|string $mapkey, mixed $value, string|int|null $key ) : bool
+	{
+		if( $value instanceof \Closure ) {
+			return (bool) $value( $item, $mapkey );
+		}
+
+		if( $key === null ) {
+			return $item === $value;
+		}
+
+		return $this->value( $item, [$key], $found ) && $found === $value;
+	}
+
+
+	/**
+	 * Returns lookup keys for values that can be compared by strict scalar identity.
+	 *
+	 * @param array<int|string,mixed> $list List of values to normalize
+	 * @return array<string>|null Lookup keys or NULL if a value can't be represented safely
+	 */
+	protected function lookupKeys( array $list ) : ?array
+	{
+		$keys = [];
+
+		foreach( $list as $value )
+		{
+			if( ( $key = $this->lookupKey( $value ) ) === null ) {
+				return null;
+			}
+
+			$keys[] = $key;
+		}
+
+		return $keys;
+	}
+
+
+	/**
+	 * Returns a lookup set for values that can be compared by strict scalar identity.
+	 *
+	 * @param array<int|string,mixed> $list List of values to index
+	 * @return array<string,bool> Lookup set
+	 */
+	protected function lookupSet( array $list ) : array
+	{
+		$lookup = [];
+
+		foreach( $list as $value )
+		{
+			if( ( $key = $this->lookupKey( $value ) ) !== null ) {
+				$lookup[$key] = true;
+			}
+		}
+
+		return $lookup;
+	}
+
+
+	/**
+	 * Returns a type-prefixed key for strict scalar comparisons.
+	 *
+	 * @param mixed $value Value to normalize
+	 * @return string|null Lookup key or NULL if the value can't be represented safely
+	 */
+	protected function lookupKey( mixed $value ) : ?string
+	{
+		if( is_int( $value ) ) {
+			return 'i:' . $value;
+		}
+
+		if( is_string( $value ) ) {
+			return 's:' . $value;
+		}
+
+		if( is_bool( $value ) ) {
+			return 'b:' . (int) $value;
+		}
+
+		if( is_float( $value ) )
+		{
+			if( \is_nan( $value ) ) {
+				return null;
+			}
+
+			return 'f:' . \serialize( $value == 0.0 ? 0.0 : $value );
+		}
+
+		return $value === null ? 'n:' : null;
 	}
 
 
@@ -6876,12 +7471,22 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param iterable<int|string,mixed> $entries Single of multi-level array, map or everything foreach can be used with
 	 * @param array<int|string,mixed> $result Will contain all elements from the multi-dimensional arrays afterwards
 	 * @param int $depth Number of levels to flatten in multi-dimensional arrays
+	 * @param int $level Current recursion depth
 	 */
-	protected function kflatten( iterable $entries, array &$result, int $depth ) : void
+	protected function kflatten( iterable $entries, array &$result, int $depth, int $level = 0 ) : void
 	{
-		$this->flattenWalk( $entries, $depth, true, function( $key, $entry ) use ( &$result ) {
-			$result[$key] = $entry;
-		} );
+		foreach( $entries as $key => $entry )
+		{
+			if( is_iterable( $entry ) && $depth > 0 && $level < self::RECURSION_LIMIT ) {
+				$this->kflatten( $entry, $result, $depth - 1, $level + 1 );
+			} elseif( is_iterable( $entry ) && $depth > 0 ) {
+				$this->flattenWalk( $entry, $depth - 1, true, function( $key, $entry ) use ( &$result ) {
+					$result[$key] = $entry;
+				} );
+			} else {
+				$result[$key] = $entry;
+			}
+		}
 	}
 
 
@@ -6956,12 +7561,22 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param iterable<int|string,mixed> $entries Single of multi-level array, map or everything foreach can be used with
 	 * @param array<mixed> &$result Will contain all elements from the multi-dimensional arrays afterwards
 	 * @param int $depth Number of levels to flatten in multi-dimensional arrays
+	 * @param int $level Current recursion depth
 	 */
-	protected function nflatten( iterable $entries, array &$result, int $depth ) : void
+	protected function nflatten( iterable $entries, array &$result, int $depth, int $level = 0 ) : void
 	{
-		$this->flattenWalk( $entries, $depth, false, function( $key, $entry ) use ( &$result ) {
-			$result[] = $entry;
-		} );
+		foreach( $entries as $entry )
+		{
+			if( is_iterable( $entry ) && $depth > 0 && $level < self::RECURSION_LIMIT ) {
+				$this->nflatten( $entry, $result, $depth - 1, $level + 1 );
+			} elseif( is_iterable( $entry ) && $depth > 0 ) {
+				$this->flattenWalk( $entry, $depth - 1, false, function( $key, $entry ) use ( &$result ) {
+					$result[] = $entry;
+				} );
+			} else {
+				$result[] = $entry;
+			}
+		}
 	}
 
 
@@ -7013,16 +7628,162 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param array<int|string,mixed> $result Will contain joined key/value pairs from the multi-dimensional arrays afterwards
 	 * @param int $depth Number of levels to flatten in multi-dimensional arrays
 	 * @param string $path Path prefix of the current key
+	 * @param int $level Current recursion depth
 	 */
-	protected function rflatten( iterable $entries, array &$result, int $depth, string $path = '' ) : void
+	protected function rflatten( iterable $entries, array &$result, int $depth, string $path = '', int $level = 0 ) : void
 	{
-		$pathfcn = function( string $path, int|string $key ) : string {
-			return $path . $key . $this->sep;
-		};
+		foreach( $entries as $key => $entry )
+		{
+			if( is_iterable( $entry ) && $depth > 0 && $level < self::RECURSION_LIMIT ) {
+				$this->rflatten( $entry, $result, $depth - 1, $path . $key . $this->sep, $level + 1 );
+			} elseif( is_iterable( $entry ) && $depth > 0 ) {
+				$pathfcn = function( string $path, int|string $key ) : string {
+					return $path . $key . $this->sep;
+				};
 
-		$this->flattenWalk( $entries, $depth, true, function( $key, $entry, $path ) use ( &$result ) {
-			$result[$path . $key] = $entry;
-		}, $pathfcn, $path );
+				$this->flattenWalk( $entry, $depth - 1, true, function( $key, $entry, $path ) use ( &$result ) {
+					$result[$path . $key] = $entry;
+				}, $pathfcn, $path . $key . $this->sep );
+			} else {
+				$result[$path . $key] = $entry;
+			}
+		}
+	}
+
+
+	/**
+	 * Adds a prefix to all leaf values in nested arrays recursively.
+	 *
+	 * @param array<int|string,mixed> $list List of elements to update
+	 * @param \Closure|string $prefix Prefix string or callback
+	 * @param int $depth Maximum depth to dive into nested arrays
+	 * @param int $level Current recursion depth
+	 */
+	protected function prefixRecursive( array &$list, \Closure|string $prefix, int $depth, int $level = 0 ) : void
+	{
+		if( $level >= self::RECURSION_LIMIT )
+		{
+			$this->prefixStack( $list, $prefix, $depth );
+			return;
+		}
+
+		foreach( $list as $key => &$item )
+		{
+			if( is_array( $item ) )
+			{
+				if( $depth > 1 ) {
+					$this->prefixRecursive( $item, $prefix, $depth - 1, $level + 1 );
+				}
+			}
+			else
+			{
+				$item = ( $prefix instanceof \Closure ? $prefix( $item, $key ) : $prefix ) . $item;
+			}
+		}
+
+		unset( $item );
+	}
+
+
+	/**
+	 * Adds a prefix to all leaf values in nested arrays iteratively.
+	 *
+	 * @param array<int|string,mixed> $list List of elements to update
+	 * @param \Closure|string $prefix Prefix string or callback
+	 * @param int $depth Maximum depth to dive into nested arrays
+	 */
+	protected function prefixStack( array &$list, \Closure|string $prefix, int $depth ) : void
+	{
+		$stack = [['list' => &$list, 'depth' => $depth]];
+
+		while( !empty( $stack ) )
+		{
+			$frame = array_pop( $stack );
+
+			foreach( $frame['list'] as $key => &$item )
+			{
+				if( is_array( $item ) )
+				{
+					if( $frame['depth'] > 1 ) {
+						$stack[] = ['list' => &$item, 'depth' => $frame['depth'] - 1];
+					}
+				}
+				else
+				{
+					$item = ( $prefix instanceof \Closure ? $prefix( $item, $key ) : $prefix ) . $item;
+				}
+			}
+
+			unset( $item );
+		}
+	}
+
+
+	/**
+	 * Adds a suffix to all leaf values in nested arrays recursively.
+	 *
+	 * @param array<int|string,mixed> $list List of elements to update
+	 * @param \Closure|string $suffix Suffix string or callback
+	 * @param int $depth Maximum depth to dive into nested arrays
+	 * @param int $level Current recursion depth
+	 */
+	protected function suffixRecursive( array &$list, \Closure|string $suffix, int $depth, int $level = 0 ) : void
+	{
+		if( $level >= self::RECURSION_LIMIT )
+		{
+			$this->suffixStack( $list, $suffix, $depth );
+			return;
+		}
+
+		foreach( $list as $key => &$item )
+		{
+			if( is_array( $item ) )
+			{
+				if( $depth > 1 ) {
+					$this->suffixRecursive( $item, $suffix, $depth - 1, $level + 1 );
+				}
+			}
+			else
+			{
+				$item = $item . ( $suffix instanceof \Closure ? $suffix( $item, $key ) : $suffix );
+			}
+		}
+
+		unset( $item );
+	}
+
+
+	/**
+	 * Adds a suffix to all leaf values in nested arrays iteratively.
+	 *
+	 * @param array<int|string,mixed> $list List of elements to update
+	 * @param \Closure|string $suffix Suffix string or callback
+	 * @param int $depth Maximum depth to dive into nested arrays
+	 */
+	protected function suffixStack( array &$list, \Closure|string $suffix, int $depth ) : void
+	{
+		$stack = [['list' => &$list, 'depth' => $depth]];
+
+		while( !empty( $stack ) )
+		{
+			$frame = array_pop( $stack );
+
+			foreach( $frame['list'] as $key => &$item )
+			{
+				if( is_array( $item ) )
+				{
+					if( $frame['depth'] > 1 ) {
+						$stack[] = ['list' => &$item, 'depth' => $frame['depth'] - 1];
+					}
+				}
+				else
+				{
+					$item = $item . ( $suffix instanceof \Closure ? $suffix( $item, $key ) : $suffix );
+				}
+			}
+
+			unset( $item );
+		}
 	}
 
 
@@ -7098,6 +7859,72 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
+	 * Returns a predicate for where() comparisons.
+	 *
+	 * @param string $key Key or path of the value in the array or object used for comparison
+	 * @param string $op Operator used for comparison
+	 * @param mixed $value Value used for comparison
+	 * @return \Closure Predicate with ($item) parameter returning TRUE if the item matches
+	 * @throws \InvalidArgumentException If the operator isn't supported
+	 */
+	protected function whereFilter( string $key, string $op, mixed $value ) : \Closure
+	{
+		$parts = explode( $this->sep, $key );
+		$list = in_array( $op, ['-', 'in'], true ) ? $this->array( $value ) : [];
+		$start = $end = null;
+
+		if( $op === '-' && $list !== [] ) {
+			$start = reset( $list );
+			$end = end( $list );
+		}
+
+		return match( $op ) {
+			'-' => function( $item ) use ( $parts, $list, $start, $end ) {
+				return ( is_array( $item ) ? $this->arrayPath( $item, $parts, $val ) : $this->value( $item, $parts, $val ) )
+					&& $list !== [] && $val >= $start && $val <= $end;
+			},
+			'in' => function( $item ) use ( $parts, $list ) {
+				return ( is_array( $item ) ? $this->arrayPath( $item, $parts, $val ) : $this->value( $item, $parts, $val ) )
+					&& in_array( $val, $list );
+			},
+			'<' => function( $item ) use ( $parts, $value ) {
+				return ( is_array( $item ) ? $this->arrayPath( $item, $parts, $val ) : $this->value( $item, $parts, $val ) )
+					&& $val < $value;
+			},
+			'>' => function( $item ) use ( $parts, $value ) {
+				return ( is_array( $item ) ? $this->arrayPath( $item, $parts, $val ) : $this->value( $item, $parts, $val ) )
+					&& $val > $value;
+			},
+			'<=' => function( $item ) use ( $parts, $value ) {
+				return ( is_array( $item ) ? $this->arrayPath( $item, $parts, $val ) : $this->value( $item, $parts, $val ) )
+					&& $val <= $value;
+			},
+			'>=' => function( $item ) use ( $parts, $value ) {
+				return ( is_array( $item ) ? $this->arrayPath( $item, $parts, $val ) : $this->value( $item, $parts, $val ) )
+					&& $val >= $value;
+			},
+			'===' => function( $item ) use ( $parts, $value ) {
+				return ( is_array( $item ) ? $this->arrayPath( $item, $parts, $val ) : $this->value( $item, $parts, $val ) )
+					&& $val === $value;
+			},
+			'!==' => function( $item ) use ( $parts, $value ) {
+				return ( is_array( $item ) ? $this->arrayPath( $item, $parts, $val ) : $this->value( $item, $parts, $val ) )
+					&& $val !== $value;
+			},
+			'!=' => function( $item ) use ( $parts, $value ) {
+				return ( is_array( $item ) ? $this->arrayPath( $item, $parts, $val ) : $this->value( $item, $parts, $val ) )
+					&& $val != $value;
+			},
+			'==' => function( $item ) use ( $parts, $value ) {
+				return ( is_array( $item ) ? $this->arrayPath( $item, $parts, $val ) : $this->value( $item, $parts, $val ) )
+					&& $val == $value;
+			},
+			default => throw new \InvalidArgumentException( 'Unsupported operator "' . $op . '"' ),
+		};
+	}
+
+
+	/**
 	 * Resolves default values used by accessors.
 	 *
 	 * @param mixed $default Default value, closure or throwable
@@ -7164,6 +7991,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		if( array_key_exists( $key, $list ) ) {
 			$value = $list[$key];
 			return true;
+		}
+
+		if( !str_contains( (string) $key, $this->sep ) ) {
+			return false;
 		}
 
 		return $this->value( $list, explode( $this->sep, (string) $key ), $value );
@@ -7319,6 +8150,43 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	protected function visit( iterable $entries, array &$result, int $level, ?callable $callback, string $nestKey, array|object|null $parent = null ) : void
 	{
+		if( $level >= self::RECURSION_LIMIT )
+		{
+			$this->visitStack( $entries, $result, $level, $callback, $nestKey, $parent );
+			return;
+		}
+
+		foreach( $entries as $key => $entry )
+		{
+			$result[] = $callback ? $callback( $entry, $key, $level, $parent ) : $entry;
+
+			if( ( is_array( $entry ) || $entry instanceof \ArrayAccess ) && isset( $entry[$nestKey] ) ) {
+				$children = $entry[$nestKey];
+			} elseif( is_object( $entry ) && isset( $entry->{$nestKey} ) ) {
+				$children = $entry->{$nestKey};
+			} else {
+				continue;
+			}
+
+			if( is_iterable( $children ) ) {
+				$this->visit( $children, $result, $level + 1, $callback, $nestKey, $entry );
+			}
+		}
+	}
+
+
+	/**
+	 * Visits each entry iteratively to avoid deep recursion.
+	 *
+	 * @param iterable<int|string,mixed> $entries List of entries with children (optional)
+	 * @param array<mixed> $result Numerically indexed list of all visited entries
+	 * @param int $level Current depth of the nodes in the tree
+	 * @param callable|null $callback Callback with ($entry, $key, $level) arguments, returns the entry added to result
+	 * @param string $nestKey Key to the children of each entry
+	 * @param array<mixed>|object|null $parent Parent entry
+	 */
+	protected function visitStack( iterable $entries, array &$result, int $level, ?callable $callback, string $nestKey, array|object|null $parent = null ) : void
+	{
 		$stack = [];
 
 		foreach( array_reverse( $this->array( $entries ), true ) as $key => $entry ) {
@@ -7344,6 +8212,86 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 				foreach( array_reverse( $this->array( $children ), true ) as $ckey => $child ) {
 					$stack[] = [$ckey, $child, $level + 1, $entry];
 				}
+			}
+		}
+	}
+
+
+	/**
+	 * Walks nested arrays recursively and applies the callback to leaf values.
+	 *
+	 * @param array<int|string,mixed> $list List of elements to walk
+	 * @param callable $callback Function with (item, key, data) parameters
+	 * @param mixed $data Arbitrary data that will be passed to the callback as third parameter
+	 * @param int $level Current recursion depth
+	 */
+	protected function walkRecursive( array &$list, callable $callback, mixed $data, int $level = 0 ) : void
+	{
+		if( $level >= self::RECURSION_LIMIT )
+		{
+			$this->walkStack( $list, $callback, $data );
+			return;
+		}
+
+		foreach( $list as $key => &$item )
+		{
+			if( is_array( $item ) ) {
+				$this->walkRecursive( $item, $callback, $data, $level + 1 );
+			} else {
+				$callback( $item, $key, $data );
+			}
+		}
+
+		unset( $item );
+	}
+
+
+	/**
+	 * Walks nested arrays iteratively to avoid deep recursion.
+	 *
+	 * @param array<int|string,mixed> $list List of elements to walk
+	 * @param callable $callback Function with (item, key, data) parameters
+	 * @param mixed $data Arbitrary data that will be passed to the callback as third parameter
+	 */
+	protected function walkStack( array &$list, callable $callback, mixed $data ) : void
+	{
+		$stack = [['list' => &$list, 'keys' => array_keys( $list ), 'pos' => 0]];
+		$last = 0;
+
+		while( $last >= 0 )
+		{
+			$frame = &$stack[$last];
+			$parent = &$frame['list'];
+			$keys = $frame['keys'];
+			$pos = $frame['pos'];
+			$cnt = count( $keys );
+			$descend = false;
+
+			while( $pos < $cnt )
+			{
+				$key = $keys[$pos++];
+				$item = &$parent[$key];
+
+				if( is_array( $item ) )
+				{
+					$frame['pos'] = $pos;
+					$stack[] = ['list' => &$item, 'keys' => array_keys( $item ), 'pos' => 0];
+					$last++;
+					$descend = true;
+					unset( $item );
+					break;
+				}
+
+				$callback( $item, $key, $data );
+				unset( $item );
+			}
+
+			unset( $parent, $frame );
+
+			if( !$descend )
+			{
+				array_pop( $stack );
+				$last--;
 			}
 		}
 	}
