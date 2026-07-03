@@ -1568,8 +1568,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * The keys in the result map are preserved.
 	 *
-	 * @param iterable<string|int>|array<string|int>|string|int $keys List of keys to remove
+	 * @param iterable<mixed>|array<mixed>|string|int $keys List of keys to remove
 	 * @return self<int|string,mixed> New map
+	 * @throws \InvalidArgumentException If one of the keys can't be used as key
 	 */
 	public function except( iterable|string|int $keys ) : self
 	{
@@ -3465,12 +3466,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 *  The first isset() will return TRUE while the second and third one will return FALSE
 	 *
-	 * @param int|string $key Key to check for
+	 * @param mixed $key Key to check for
 	 * @return bool TRUE if key exists, FALSE if not
+	 * @throws \InvalidArgumentException If the key can't be used as key
 	 */
 	public function offsetExists( mixed $key ) : bool
 	{
-		return isset( $this->list()[$key] );
+		return isset( $this->list()[$this->arrayKey( $key )] );
 	}
 
 
@@ -3484,12 +3486,13 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 *  $map['b'] will return 3
 	 *
-	 * @param int|string $key Key to return the element for
+	 * @param mixed $key Key to return the element for
 	 * @return mixed Value associated to the given key
+	 * @throws \InvalidArgumentException If the key can't be used as key
 	 */
 	public function offsetGet( mixed $key ) : mixed
 	{
-		return $this->list()[$key] ?? null;
+		return $this->list()[$this->arrayKey( $key )] ?? null;
 	}
 
 
@@ -3504,13 +3507,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 *  ['a' => 1, 'b' => 2, 0 => 4]
 	 *
-	 * @param int|string|null $key Key to set the element for or NULL to append value
+	 * @param mixed $key Key to set the element for or NULL to append value
 	 * @param mixed $value New value set for the key
+	 * @throws \InvalidArgumentException If the key can't be used as key
 	 */
 	public function offsetSet( mixed $key, mixed $value ) : void
 	{
 		if( $key !== null ) {
-			$this->list()[$key] = $value;
+			$this->list()[$this->arrayKey( $key )] = $value;
 		} else {
 			$this->list()[] = $value;
 		}
@@ -3527,11 +3531,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 *  The map will be empty
 	 *
-	 * @param int|string $key Key for unsetting the item
+	 * @param mixed $key Key for unsetting the item
+	 * @throws \InvalidArgumentException If the key can't be used as key
 	 */
 	public function offsetUnset( mixed $key ) : void
 	{
-		unset( $this->list()[$key] );
+		unset( $this->list()[$this->arrayKey( $key )] );
 	}
 
 
@@ -4141,13 +4146,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The first example will result in [2 => 'b'] while the second one resulting
 	 * in an empty list
 	 *
-	 * @param iterable<string|int>|array<string|int>|string|int $keys List of keys to remove
+	 * @param iterable<mixed>|array<mixed>|string|int $keys List of keys to remove
 	 * @return self<int|string,mixed> Updated map for fluid interface
+	 * @throws \InvalidArgumentException If one of the keys can't be used as key
 	 */
 	public function remove( iterable|string|int $keys ) : self
 	{
 		foreach( $this->array( $keys ) as $key ) {
-			unset( $this->list()[$key] );
+			unset( $this->list()[$this->arrayKey( $key )] );
 		}
 
 		return $this;

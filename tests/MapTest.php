@@ -1019,6 +1019,13 @@ Array
 	}
 
 
+	public function testExceptKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a' => 1] )->except( [[]] );
+	}
+
+
 	public function testExplode()
 	{
 		$map = Map::explode( ',', 'a,b,c' );
@@ -2712,6 +2719,13 @@ Array
 	}
 
 
+	public function testOffsetExistsKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a' => 1] )->offsetExists( [] );
+	}
+
+
 	public function testOffsetGet()
 	{
 		$m = new Map( ['foo', 'bar'] );
@@ -2721,12 +2735,26 @@ Array
 	}
 
 
+	public function testOffsetGetKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a' => 1] )->offsetGet( [] );
+	}
+
+
 	public function testOffsetSet()
 	{
 		$m = new Map( ['foo', 'foo'] );
 		$m->offsetSet( 1, 'bar' );
 
 		$this->assertSame( 'bar', $m[1] );
+	}
+
+
+	public function testOffsetSetKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a' => 1] )->offsetSet( [], 2 );
 	}
 
 
@@ -2745,6 +2773,13 @@ Array
 
 		$m->offsetUnset( 1 );
 		$this->assertFalse( isset( $m[1] ) );
+	}
+
+
+	public function testOffsetUnsetKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a' => 1] )->offsetUnset( [] );
 	}
 
 
@@ -3125,6 +3160,13 @@ Array
 		$this->assertFalse( isset( $m['foo'] ) );
 		$this->assertFalse( isset( $m['baz'] ) );
 		$this->assertTrue( isset( $m['name'] ) );
+	}
+
+
+	public function testRemoveKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a' => 1] )->remove( [[]] );
 	}
 
 
