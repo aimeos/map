@@ -653,6 +653,16 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testContainsCallbackFalse()
+	{
+		$fcn = function() {
+			return false;
+		};
+
+		$this->assertFalse( Map::from( [$fcn] )->contains( $fcn ) );
+	}
+
+
 	public function testContainsWhere()
 	{
 		$this->assertTrue( Map::from( [['type' => 'name']] )->contains( 'type', 'name' ) );
@@ -3708,6 +3718,16 @@ Array
 
 		$this->assertTrue( Map::from( ['a', 'b'] )->some( $fcn ) );
 		$this->assertFalse( Map::from( ['c', 'd'] )->some( $fcn ) );
+	}
+
+
+	public function testSomeCallbackFalse()
+	{
+		$fcn = function() {
+			return false;
+		};
+
+		$this->assertFalse( Map::from( [$fcn] )->some( $fcn ) );
 	}
 
 

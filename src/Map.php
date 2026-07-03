@@ -4742,6 +4742,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 					return true;
 				}
 			}
+
+			return false;
 		}
 
 		return in_array( $values, $list, $strict );
