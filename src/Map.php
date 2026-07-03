@@ -1658,27 +1658,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		if( !empty( $list ) )
 		{
-			if( $reverse )
+			foreach( $reverse ? array_reverse( $list, true ) : $list as $key => $value )
 			{
-				$value = end( $list );
-
-				// @phpstan-ignore-next-line notIdentical.alwaysTrue
-				while( ( $key = key( $list ) ) !== null )
-				{
-					if( $callback( $value, $key ) ) {
-						return $value;
-					}
-
-					$value = prev( $list );
-				}
-			}
-			else
-			{
-				foreach( $list as $key => $value )
-				{
-					if( $callback( $value, $key ) ) {
-						return $value;
-					}
+				if( $callback( $value, $key ) ) {
+					return $value;
 				}
 			}
 		}
@@ -1730,27 +1713,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		if( !empty( $list ) )
 		{
-			if( $reverse )
+			foreach( $reverse ? array_reverse( $list, true ) : $list as $key => $value )
 			{
-				$value = end( $list );
-
-				// @phpstan-ignore-next-line notIdentical.alwaysTrue
-				while( ( $key = key( $list ) ) !== null )
-				{
-					if( $callback( $value, $key ) ) {
-						return $key;
-					}
-
-					$value = prev( $list );
-				}
-			}
-			else
-			{
-				foreach( $list as $key => $value )
-				{
-					if( $callback( $value, $key ) ) {
-						return $key;
-					}
+				if( $callback( $value, $key ) ) {
+					return $key;
 				}
 			}
 		}

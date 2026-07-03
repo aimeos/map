@@ -1162,6 +1162,16 @@ Array
 	}
 
 
+	public function testFindLastPreservesKeys()
+	{
+		$m = new Map( ['foo' => 'bar', 'baz' => 'boo'] );
+		$result = $m->find( function( $value, $key ) {
+			return $key === 'baz';
+		}, null, true );
+		$this->assertSame( 'boo', $result );
+	}
+
+
 	public function testFindDefault()
 	{
 		$m = new Map( ['foo', 'bar', 'baz'] );
