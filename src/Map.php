@@ -6737,7 +6737,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		}
 
 		if( $elements instanceof \Closure ) {
-			return (array) $elements();
+			return $this->array( $elements() );
 		}
 
 		if( $elements instanceof \Aimeos\Map ) {

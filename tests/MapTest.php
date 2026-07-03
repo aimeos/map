@@ -1543,6 +1543,28 @@ Array
 	}
 
 
+	public function testFromClosureMap()
+	{
+		$map = Map::from( function() {
+			return Map::from( ['foo' => 'bar'] );
+		} );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertSame( ['foo' => 'bar'], $map->toArray() );
+	}
+
+
+	public function testFromClosureGenerator()
+	{
+		$map = Map::from( function() {
+			yield 'foo' => 'bar';
+		} );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertSame( ['foo' => 'bar'], $map->toArray() );
+	}
+
+
 	public function testFromArray()
 	{
 		$map = Map::from( ['foo' => 'bar'] );
