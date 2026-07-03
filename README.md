@@ -6657,6 +6657,7 @@ public function toJson( int $options = 0 ) : ?string
 
 * @param **int** `$options` Combination of JSON_* constants
 * @return **string&#124;null** Array encoded as JSON string or NULL on failure
+* @throws **\JsonException** If JSON_THROW_ON_ERROR is part of the passed options and the map contains unsupported values
 
 There are several options available to modify the JSON string which are described in
 the [PHP json_encode() manual](https://www.php.net/manual/en/function.json-encode.php).

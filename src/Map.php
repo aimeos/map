@@ -5779,6 +5779,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param int $options Combination of JSON_* constants
 	 * @return string|null Array encoded as JSON string or NULL on failure
+	 * @throws \JsonException If JSON_THROW_ON_ERROR is part of the passed options and the map contains unsupported values
 	 */
 	public function toJson( int $options = 0 ) : ?string
 	{

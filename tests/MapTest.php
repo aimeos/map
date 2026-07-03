@@ -3950,6 +3950,20 @@ Array
 	}
 
 
+	public function testToJsonException()
+	{
+		$resource = fopen( 'php://memory', 'r' );
+
+		$this->expectException( \JsonException::class );
+
+		try {
+			Map::from( [$resource] )->toJson( JSON_THROW_ON_ERROR );
+		} finally {
+			fclose( $resource );
+		}
+	}
+
+
 	public function testToReversed()
 	{
 		$m = new Map( ['hello', 'world'] );
