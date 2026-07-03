@@ -1613,7 +1613,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * The keys in the result map are preserved.
 	 *
-	 * @param  callable|null $callback Function with (item, key) parameters and returns TRUE/FALSE
+	 * @param callable|null $callback Function with (item, key) parameters and returns TRUE/FALSE
+	 * @phpstan-param (callable(TValue,TKey):bool)|null $callback
+	 * @phpstan-return self<TKey,TValue>
 	 * @return self<int|string,mixed> New map
 	 */
 	public function filter( ?callable $callback = null ) : self
@@ -1750,13 +1752,19 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * Using this method doesn't affect the internal array pointer.
 	 *
+	 * @template TDefault
 	 * @param mixed $default Default value, closure or exception if the map contains no elements
+	 * @phpstan-param TDefault|\Closure():TDefault|\Throwable $default
+	 * @phpstan-return TValue|TDefault
 	 * @return mixed First value of map, (generated) default value or an exception
 	 */
 	public function first( mixed $default = null ) : mixed
 	{
-		if( !empty( $this->list() ) ) {
-			return current( array_slice( $this->list(), 0, 1 ) );
+		$list = $this->list();
+		$key = array_key_first( $list );
+
+		if( $key !== null ) {
+			return $list[$key];
 		}
 
 		if( $default instanceof \Closure ) {
@@ -1786,7 +1794,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * Using this method doesn't affect the internal array pointer.
 	 *
+	 * @template TDefault
 	 * @param mixed $default Default value, closure or exception if the map contains no elements
+	 * @phpstan-param TDefault|\Closure():TDefault|\Throwable $default
+	 * @phpstan-return TKey|TDefault
 	 * @return mixed First key of map, (generated) default value or an exception
 	 */
 	public function firstKey( mixed $default = null ) : mixed
@@ -1973,7 +1984,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * public properties of objects or objects implementing __isset() and __get() methods.
 	 *
 	 * @param int|string $key Key or path to the requested item
+	 * @template TDefault
 	 * @param mixed $default Default value if no element matches
+	 * @phpstan-param TDefault|\Closure():TDefault|\Throwable $default
+	 * @phpstan-return TValue|TDefault
 	 * @return mixed Value from map or default value
 	 */
 	public function get( int|string $key, mixed $default = null ) : mixed
@@ -3011,11 +3025,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *   ["a", "b"]
 	 *   {"a":0,"b":1}
 	 *
+	 * @phpstan-return array<TKey,TValue>
 	 * @return array<int|string,mixed> Data to serialize to JSON
 	 */
 	public function jsonSerialize() : mixed
 	{
-		return $this->list = $this->array( $this->list );
+		return $this->list();
 	}
 
 
@@ -3030,6 +3045,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The first example returns a map containing [0, 1] while the second one will
 	 * return a map with ['a', 'b'].
 	 *
+	 * @phpstan-return self<int,TKey>
 	 * @return self<int|string,mixed> New map
 	 */
 	public function keys() : self
@@ -3177,13 +3193,19 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * Using this method doesn't affect the internal array pointer.
 	 *
+	 * @template TDefault
 	 * @param mixed $default Default value or exception if the map contains no elements
+	 * @phpstan-param TDefault|\Closure():TDefault|\Throwable $default
+	 * @phpstan-return TValue|TDefault
 	 * @return mixed Last value of map, (generated) default value or an exception
 	 */
 	public function last( mixed $default = null ) : mixed
 	{
-		if( !empty( $this->list() ) ) {
-			return current( array_slice( $this->list(), -1, 1 ) );
+		$list = $this->list();
+		$key = array_key_last( $list );
+
+		if( $key !== null ) {
+			return $list[$key];
 		}
 
 		if( $default instanceof \Closure ) {
@@ -3213,7 +3235,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * Using this method doesn't affect the internal array pointer.
 	 *
+	 * @template TDefault
 	 * @param mixed $default Default value, closure or exception if the map contains no elements
+	 * @phpstan-param TDefault|\Closure():TDefault|\Throwable $default
+	 * @phpstan-return TKey|TDefault
 	 * @return mixed Last key of map, (generated) default value or an exception
 	 */
 	public function lastKey( mixed $default = null ) : mixed
@@ -3276,7 +3301,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * The keys are preserved using this method.
 	 *
+	 * @template TNewValue
 	 * @param callable $callback Function with (value, key) parameters and returns computed result
+	 * @phpstan-param callable(TValue,TKey):TNewValue $callback
+	 * @phpstan-return self<TKey,TNewValue>
 	 * @return self<int|string,mixed> New map with the original keys and the computed values
 	 * @see rekey() - Changes the keys according to the passed function
 	 * @see transform() - Creates new key/value pairs using the passed function and returns a new map for the result
@@ -6410,6 +6438,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 * A new map with [0 => 'b', 1 => 'a', 2 => 'c'] as content
 	 *
+	 * @phpstan-return self<int,TValue>
 	 * @return self<int|string,mixed> New map of the values
 	 */
 	public function values() : self
@@ -6766,6 +6795,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	/**
 	 * Returns a reference to the array of elements
 	 *
+	 * @phpstan-return array<TKey,TValue>
 	 * @return array<int|string,mixed> Reference to the array of elements
 	 */
 	protected function &list() : array
