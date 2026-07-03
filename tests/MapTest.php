@@ -2894,6 +2894,33 @@ Array
 	}
 
 
+	public function testPullPath()
+	{
+		$m = new Map( ['a' => ['b' => 'c', 'd' => 'e']] );
+
+		$this->assertSame( 'c', $m->pull( 'a/b' ) );
+		$this->assertSame( ['a' => ['d' => 'e']], $m->toArray() );
+	}
+
+
+	public function testPullPathWithNull()
+	{
+		$m = new Map( ['a' => ['b' => null]] );
+
+		$this->assertNull( $m->pull( 'a/b', 'default' ) );
+		$this->assertSame( ['a' => []], $m->toArray() );
+	}
+
+
+	public function testPullPrefersTopLevelKey()
+	{
+		$m = new Map( ['a/b' => 'top', 'a' => ['b' => 'nested']] );
+
+		$this->assertSame( 'top', $m->pull( 'a/b' ) );
+		$this->assertSame( ['a' => ['b' => 'nested']], $m->toArray() );
+	}
+
+
 	public function testPullDefault()
 	{
 		$m = new Map( [] );

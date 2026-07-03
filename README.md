@@ -4789,7 +4789,7 @@ Returns and removes an element from the map by its key.
 public function pull( int|string $key, mixed $default = null ) : mixed
 ```
 
-* @param **int&#124;string** `$key` Key to retrieve the value for
+* @param **int&#124;string** `$key` Key or path to retrieve the value for
 * @param **mixed** `$default` Default value if key isn't available
 * @return **mixed** Value from map or default value
 
@@ -4798,6 +4798,9 @@ public function pull( int|string $key, mixed $default = null ) : mixed
 ```php
 Map::from( ['a', 'b', 'c'] )->pull( 1 );
 // 'b', map contains ['a', 'c']
+
+Map::from( ['a' => ['b' => 'c']] )->pull( 'a/b' );
+// 'c', map contains ['a' => []]
 
 Map::from( ['a', 'b', 'c'] )->pull( 'x', 'none' );
 // 'none', map contains ['a', 'b', 'c']
