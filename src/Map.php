@@ -156,12 +156,18 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param string|null $char Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
 	 * @return string Separator used up to now
+	 * @throws \InvalidArgumentException If the separator is empty
 	 */
 	public static function delimiter( ?string $char = null ) : string
 	{
 		$old = self::$delim;
 
-		if( $char ) {
+		if( $char !== null )
+		{
+			if( $char === '' ) {
+				throw new \InvalidArgumentException( 'Separator must not be empty' );
+			}
+
 			self::$delim = $char;
 		}
 
@@ -4454,11 +4460,16 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 *  'baz'
 	 *
-	 * @param non-empty-string $char Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
+	 * @param string $char Separator character, e.g. "." for "key.to.value" instead of "key/to/value"
 	 * @return self<int|string,mixed> Same map for fluid interface
+	 * @throws \InvalidArgumentException If the separator is empty
 	 */
 	public function sep( string $char ) : self
 	{
+		if( $char === '' ) {
+			throw new \InvalidArgumentException( 'Separator must not be empty' );
+		}
+
 		$this->sep = $char;
 		return $this;
 	}

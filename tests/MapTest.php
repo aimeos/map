@@ -659,6 +659,13 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testDelimiterException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::delimiter( '' );
+	}
+
+
 	public function testDiff()
 	{
 		$m = new Map( ['id' => 1, 'first_word' => 'Hello'] );
@@ -3169,6 +3176,13 @@ Array
 	public function testSep()
 	{
 		$this->assertSame( 'baz', Map::from( ['foo' => ['bar' => 'baz']] )->sep( '/' )->get( 'foo/bar' ) );
+	}
+
+
+	public function testSepException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [] )->sep( '' );
 	}
 
 
