@@ -199,6 +199,7 @@ will return:
 <a href="#isstring">isString</a>
 <a href="#join">join</a>
 <a href="#jsonserialize">jsonSerialize</a>
+<a href="#keyexists">keyExists</a>
 <a href="#keys">keys</a>
 <a href="#krsort">krsort</a>
 <a href="#krsorted">krsorted</a>
@@ -332,6 +333,7 @@ will return:
 * [first()](#first) : Returns the first element
 * [firstKey()](#firstkey) : Returns the first key
 * [get()](#get) : Returns an element by key
+* [keyExists()](#keyexists) : Tests if a top-level key exists
 * [index()](#index) : Returns the numerical index of the given key
 * [int()](#int) : Returns an element by key and casts it to integer
 * [float()](#float) : Returns an element by key and casts it to float
@@ -2813,6 +2815,32 @@ Map::from( ['a' => 'X', 'b' => 'Y'] )->has( ['a', 'c'] );
 // false
 
 Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'X' );
+// false
+```
+
+
+### keyExists()
+
+Determines if a top-level key exists in the map.
+
+```php
+public function keyExists( int|string $key ) : bool
+```
+
+* @param **int&#124;string** `$key` Top-level key to check for
+* @return **bool** TRUE if key is available in map, FALSE if not
+
+Unlike [offsetExists()](#offsetexists), this method returns TRUE for keys whose
+value is NULL. Unlike [has()](#has), this method doesn't check paths into nested
+arrays or objects.
+
+**Examples:**
+
+```php
+Map::from( ['a' => null] )->keyExists( 'a' );
+// true
+
+Map::from( ['a' => ['b' => 1]] )->keyExists( 'a/b' );
 // false
 ```
 
