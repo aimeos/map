@@ -6794,27 +6794,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	protected function kflatten( iterable $entries, array &$result, int $depth ) : void
 	{
-		$stack = [];
-
-		foreach( array_reverse( $this->array( $entries ), true ) as $key => $entry ) {
-			$stack[] = [$key, $entry, $depth];
-		}
-
-		while( !empty( $stack ) )
-		{
-			[$key, $entry, $depth] = array_pop( $stack );
-
-			if( is_iterable( $entry ) && $depth > 0 )
-			{
-				foreach( array_reverse( $this->array( $entry ), true ) as $ckey => $child ) {
-					$stack[] = [$ckey, $child, $depth - 1];
-				}
-			}
-			else
-			{
-				$result[$key] = $entry;
-			}
-		}
+		$this->flattenWalk( $entries, $depth, true, function( $key, $entry ) use ( &$result ) {
+			$result[$key] = $entry;
+		} );
 	}
 
 
@@ -6891,30 +6873,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	protected function nflatten( iterable $entries, array &$result, int $depth ) : void
 	{
-		$stack = [];
-		$entries = is_array( $entries ) ? $entries : iterator_to_array( $entries, false );
-
-		foreach( array_reverse( $entries ) as $entry ) {
-			$stack[] = [$entry, $depth];
-		}
-
-		while( !empty( $stack ) )
-		{
-			[$entry, $depth] = array_pop( $stack );
-
-			if( is_iterable( $entry ) && $depth > 0 )
-			{
-				$entry = is_array( $entry ) ? $entry : iterator_to_array( $entry, false );
-
-				foreach( array_reverse( $entry ) as $child ) {
-					$stack[] = [$child, $depth - 1];
-				}
-			}
-			else
-			{
-				$result[] = $entry;
-			}
-		}
+		$this->flattenWalk( $entries, $depth, false, function( $key, $entry ) use ( &$result ) {
+			$result[] = $entry;
+		} );
 	}
 
 
@@ -6969,9 +6930,39 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	protected function rflatten( iterable $entries, array &$result, int $depth, string $path = '' ) : void
 	{
-		$stack = [];
+		$pathfcn = function( string $path, int|string $key ) : string {
+			return $path . $key . $this->sep;
+		};
 
-		foreach( array_reverse( $this->array( $entries ), true ) as $key => $entry ) {
+		$this->flattenWalk( $entries, $depth, true, function( $key, $entry, $path ) use ( &$result ) {
+			$result[$path . $key] = $entry;
+		}, $pathfcn, $path );
+	}
+
+
+	/**
+	 * Iterates over nested entries and calls the leaf callback for every flattened entry.
+	 *
+	 * @param iterable<int|string,mixed> $entries Single of multi-level array, map or everything foreach can be used with
+	 * @param int $depth Number of levels to flatten in multi-dimensional arrays
+	 * @param bool $preserveKeys TRUE to preserve keys, FALSE to create numeric keys
+	 * @param \Closure $leaf Callback with ($key, $entry, $path) arguments for flattened entries
+	 * @param \Closure|null $pathfcn Callback with ($path, $key) arguments returning the child path
+	 * @param string $path Path prefix of the current key
+	 */
+	protected function flattenWalk(
+		iterable $entries,
+		int $depth,
+		bool $preserveKeys,
+		\Closure $leaf,
+		?\Closure $pathfcn = null,
+		string $path = ''
+	) : void
+	{
+		$stack = [];
+		$entries = $preserveKeys ? $this->array( $entries ) : ( is_array( $entries ) ? $entries : iterator_to_array( $entries, false ) );
+
+		foreach( array_reverse( $entries, $preserveKeys ) as $key => $entry ) {
 			$stack[] = [$key, $entry, $depth, $path];
 		}
 
@@ -6981,13 +6972,16 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 			if( is_iterable( $entry ) && $depth > 0 )
 			{
-				foreach( array_reverse( $this->array( $entry ), true ) as $ckey => $child ) {
-					$stack[] = [$ckey, $child, $depth - 1, $path . $key . $this->sep];
+				$entries = $preserveKeys ? $this->array( $entry ) : ( is_array( $entry ) ? $entry : iterator_to_array( $entry, false ) );
+				$childPath = $pathfcn ? $pathfcn( $path, $key ) : $path;
+
+				foreach( array_reverse( $entries, $preserveKeys ) as $ckey => $child ) {
+					$stack[] = [$ckey, $child, $depth - 1, $childPath];
 				}
 			}
 			else
 			{
-				$result[$path . $key] = $entry;
+				$leaf( $key, $entry, $path );
 			}
 		}
 	}
