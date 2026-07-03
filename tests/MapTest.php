@@ -830,7 +830,8 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		// allow for case insensitive difference
 		$this->assertInstanceOf( Map::class, $r2 );
-		$this->assertSame( ['b' => 'brown', 'c' => 'blue', 'red'], $r2->toArray() );
+		$this->assertSame( ['a' => 'green', 'b' => 'brown', 'c' => 'blue', 'red'], $r2->toArray() );
+		$this->assertSame( [], Map::from( [0 => 'a'] )->diffAssoc( [0 => 'A'], 'strcasecmp' )->toArray() );
 	}
 
 

@@ -1323,7 +1323,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		$elements = $this->array( $elements );
 
 		if( $callback ) {
-			return new static( array_diff_uassoc( $list, $elements, $callback ) );
+			return new static( array_udiff_assoc( $list, $elements, $callback ) );
 		}
 
 		return new static( (array) $this->native(
