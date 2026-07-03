@@ -2415,6 +2415,7 @@ public function flip() : self
 ```
 
 * @return **self&#60;int&#124;string,mixed&#62;** New map with keys as values and values as keys
+* @throws **\InvalidArgumentException** If one of the values can't be used as key
 
 **Examples:**
 
@@ -4461,6 +4462,7 @@ public function only( iterable|string|int $keys ) : self
 
 * @param **iterable&#60;mixed&#62;&#124;array&#60;mixed&#62;&#124;string&#124;int** `$keys` Keys of the elements that should be returned
 * @return **self&#60;int&#124;string,mixed&#62;** New map with only the elements specified by the keys
+* @throws **\InvalidArgumentException** If one of the keys can't be used as key
 
 The keys are preserved using this method.
 
@@ -4960,6 +4962,7 @@ public function rekey( callable $callback ) : self
 
 * @param **callable** `$callback` Function with (value, key) parameters and returns new key
 * @return **self&#60;int&#124;string,mixed&#62;** New map with new keys and original values
+* @throws **\InvalidArgumentException** If one of the returned keys can't be used as key
 
 **Examples:**
 

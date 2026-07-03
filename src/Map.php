@@ -1043,16 +1043,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			throw new \InvalidArgumentException( 'Number of keys and values must be the same' );
 		}
 
-		foreach( $keys as $key )
-		{
-			if( !is_scalar( $key ) && $key !== null && !$key instanceof \Stringable ) {
-				throw new \InvalidArgumentException( 'Keys must be scalar values or stringable objects but "' . get_debug_type( $key ) . '" given' );
-			}
-		}
-
-		$keys = array_map( static function( $key ) : int|string {
-			return is_int( $key ) || is_string( $key ) ? $key : (string) $key;
-		}, $keys );
+		$keys = array_map( $this->arrayKey(...), $keys );
 
 		return new static( array_combine( $keys, $values ) );
 	}
@@ -1862,10 +1853,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  ['X' => 'a', 'Y' => 'b']
 	 *
 	 * @return self<int|string,mixed> New map with keys as values and values as keys
+	 * @throws \InvalidArgumentException If one of the values can't be used as key
 	 */
 	public function flip() : self
 	{
-		return new static( array_flip( $this->list() ) );
+		$result = [];
+
+		foreach( $this->list() as $key => $value ) {
+			$result[$this->arrayKey( $value )] = $key;
+		}
+
+		return new static( $result );
 	}
 
 
@@ -3530,10 +3528,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param iterable<mixed>|array<mixed>|string|int $keys Keys of the elements that should be returned
 	 * @return self<int|string,mixed> New map with only the elements specified by the keys
+	 * @throws \InvalidArgumentException If one of the keys can't be used as key
 	 */
 	public function only( iterable|string|int $keys ) : self
 	{
-		return $this->intersectKeys( array_flip( $this->array( $keys ) ) );
+		$list = [];
+
+		foreach( $this->array( $keys ) as $key ) {
+			$list[$this->arrayKey( $key )] = true;
+		}
+
+		return $this->intersectKeys( $list );
 	}
 
 
@@ -4087,15 +4092,19 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param callable $callback Function with (value, key) parameters and returns new key
 	 * @return self<int|string,mixed> New map with new keys and original values
+	 * @throws \InvalidArgumentException If one of the returned keys can't be used as key
 	 * @see map() - Maps new values to the existing keys using the passed function and returns a new map for the result
 	 * @see transform() - Creates new key/value pairs using the passed function and returns a new map for the result
 	 */
 	public function rekey( callable $callback ) : self
 	{
-		$list = $this->list();
-		$newKeys = array_map( $callback, $list, array_keys( $list ) );
+		$result = [];
 
-		return new static( array_combine( $newKeys, array_values( $list ) ) );
+		foreach( $this->list() as $key => $value ) {
+			$result[$this->arrayKey( $callback( $value, $key ) )] = $value;
+		}
+
+		return new static( $result );
 	}
 
 
@@ -6643,6 +6652,23 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		}
 
 		return $elements !== null ? [$elements] : [];
+	}
+
+
+	/**
+	 * Normalizes a value to a PHP array key.
+	 *
+	 * @param mixed $key Key candidate
+	 * @return int|string Normalized key
+	 * @throws \InvalidArgumentException If the key isn't scalar, NULL or stringable
+	 */
+	protected function arrayKey( mixed $key ) : int|string
+	{
+		if( !is_scalar( $key ) && $key !== null && !$key instanceof \Stringable ) {
+			throw new \InvalidArgumentException( 'Keys must be scalar values or stringable objects but "' . get_debug_type( $key ) . '" given' );
+		}
+
+		return is_int( $key ) || is_string( $key ) ? $key : (string) $key;
 	}
 
 

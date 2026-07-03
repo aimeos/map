@@ -1401,6 +1401,13 @@ Array
 	}
 
 
+	public function testFlipKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [[1]] )->flip();
+	}
+
+
 	public function testFloat()
 	{
 		$this->assertSame( 1.0, Map::from( ['a' => true] )->float( 'a' ) );
@@ -2737,6 +2744,13 @@ Array
 	}
 
 
+	public function testOnlyKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a' => 1] )->only( [[]] );
+	}
+
+
 	public function testOrder()
 	{
 		$m = Map::from( ['a' => 1, 1 => 'c', 0 => 'b'] );
@@ -3049,6 +3063,13 @@ Array
 
 		$this->assertInstanceOf( Map::class, $m );
 		$this->assertSame( ['key-a' => 2, 'key-b' => 4], $m->toArray() );
+	}
+
+
+	public function testRekeyKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a' => 1] )->rekey( fn() => [] );
 	}
 
 
