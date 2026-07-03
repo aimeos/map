@@ -967,11 +967,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		foreach( $this->list() as $key => $item )
 		{
 			$v = $valuecol ? $this->val( $item, $vparts ) : $item;
-			$idx = $indexcol ? $this->val( $item, $iparts ) : null;
-			$k = is_scalar( $idx ) || $idx instanceof \Stringable ? (string) $idx : '';
+			$idx = null;
+			$hasIndex = $indexcol && $this->value( $item, $iparts, $idx );
 
-			if( $indexcol && $k ) {
-				$list[$k] = $v;
+			if( $hasIndex && ( is_scalar( $idx ) || $idx instanceof \Stringable ) ) {
+				$list[$this->arrayKey( $idx )] = $v;
 			} else {
 				$list[$key] = $v;
 			}

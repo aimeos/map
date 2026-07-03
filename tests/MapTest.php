@@ -444,6 +444,32 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testColRecursiveIndexZero()
+	{
+		$map = new Map( [
+			10 => ['foo' => ['bar' => 0, 'baz' => 'zero']],
+			20 => ['foo' => ['bar' => 1, 'baz' => 'one']],
+		] );
+		$r = $map->col( 'foo/baz', 'foo/bar' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [0 => 'zero', 1 => 'one'], $r->toArray() );
+	}
+
+
+	public function testColRecursiveIndexFalse()
+	{
+		$map = new Map( [
+			10 => ['foo' => ['bar' => false, 'baz' => 'false']],
+			20 => ['foo' => ['bar' => true, 'baz' => 'true']],
+		] );
+		$r = $map->col( 'foo/baz', 'foo/bar' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['' => 'false', 1 => 'true'], $r->toArray() );
+	}
+
+
 	public function testColRecursiveNull()
 	{
 		$map = new Map( [['foo' => ['bar' => 'one']]] );
