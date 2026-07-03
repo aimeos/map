@@ -1289,7 +1289,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		return new static( (array) $this->native(
 			static fn() => array_diff( $list, $elements ),
-			fn() => array_udiff( $list, $elements, $this->comparator() )
+			fn() => array_filter( $list, fn( $value ) => !$this->containsValue( $elements, $value, $this->comparator() ) )
 		) );
 	}
 
@@ -2633,7 +2633,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		return new static( (array) $this->native(
 			static fn() => array_intersect( $list, $elements ),
-			fn() => array_uintersect( $list, $elements, $this->comparator() )
+			fn() => array_filter( $list, fn( $value ) => $this->containsValue( $elements, $value, $this->comparator() ) )
 		) );
 	}
 
@@ -6805,6 +6805,27 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 			return $a <=> $b;
 		};
+	}
+
+
+	/**
+	 * Tests if the list contains the value using the comparison callback.
+	 *
+	 * @param array<int|string,mixed> $list List of values to check
+	 * @param mixed $value Value to search for
+	 * @param callable $compare Function with ($a, $b) parameters returning -1, 0 or 1
+	 * @return bool TRUE if the value is found, FALSE if not
+	 */
+	protected function containsValue( array $list, mixed $value, callable $compare ) : bool
+	{
+		foreach( $list as $entry )
+		{
+			if( $compare( $value, $entry ) === 0 ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 

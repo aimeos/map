@@ -816,6 +816,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testDiffArray()
+	{
+		$r = Map::from( [['a' => 1], ['b' => 2]] )->diff( [['a' => 1]] );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [1 => ['b' => 2]], $r->toArray() );
+	}
+
+
 	public function testDiffObject()
 	{
 		$r = Map::from( [new \stdClass, 'a'] )->diff( ['a'] );
@@ -2233,6 +2242,15 @@ Array
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( ['first_word' => 'Hello'], $r->toArray() );
+	}
+
+
+	public function testIntersectArray()
+	{
+		$r = Map::from( [['a' => 1], ['b' => 2]] )->intersect( [['a' => 1]] );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [['a' => 1]], $r->toArray() );
 	}
 
 
