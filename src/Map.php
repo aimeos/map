@@ -2009,7 +2009,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			return $list[$key];
 		}
 
-		if( ( $v = $this->val( $list, explode( $this->sep, (string) $key ) ) ) !== null ) {
+		if( $this->value( $list, explode( $this->sep, (string) $key ), $v ) ) {
 			return $v;
 		}
 
@@ -2198,7 +2198,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		foreach( (array) $key as $entry )
 		{
 			if( array_key_exists( $entry, $list ) === false
-				&& $this->val( $list, explode( $this->sep, (string) $entry ) ) === null
+				&& !$this->value( $list, explode( $this->sep, (string) $entry ), $value )
 			) {
 				return false;
 			}
@@ -4270,7 +4270,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			else
 			{
 				$filter = function( $v, $k ) use ( $key, $value ) {
-					return $this->val( $v, [$key] ) === $value;
+					return $this->value( $v, [$key], $found ) && $found === $value;
 				};
 			}
 		}
@@ -6596,7 +6596,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	{
 		return $this->filter( function( $item ) use ( $key, $op, $value ) {
 
-			if( ( $val = $this->val( $item, explode( $this->sep, $key ) ) ) !== null )
+			if( $this->value( $item, explode( $this->sep, $key ), $val ) )
 			{
 				switch( $op )
 				{
@@ -7014,18 +7014,54 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	protected function val( mixed $entry, array $parts ) : mixed
 	{
+		return $this->value( $entry, $parts, $value ) ? $value : null;
+	}
+
+
+	/**
+	 * Returns a configuration value from an array and tells if the path exists.
+	 *
+	 * @param mixed $entry The array or object to look at
+	 * @param array<int|string> $parts Path parts to look for inside the array or object
+	 * @param mixed $value Found value
+	 * @return bool TRUE if the path exists, FALSE if not
+	 */
+	protected function value( mixed $entry, array $parts, mixed &$value ) : bool
+	{
 		foreach( $parts as $part )
 		{
-			if( ( is_array( $entry ) || $entry instanceof \ArrayAccess ) && isset( $entry[$part] ) ) {
+			if( is_array( $entry ) )
+			{
+				if( !array_key_exists( $part, $entry ) ) {
+					return false;
+				}
+
 				$entry = $entry[$part];
-			} elseif( is_object( $entry ) && isset( $entry->{$part} ) ) {
-				$entry = $entry->{$part};
-			} else {
-				return null;
+			}
+			elseif( $entry instanceof \ArrayAccess )
+			{
+				if( !isset( $entry[$part] ) && !$entry->offsetExists( $part ) ) {
+					return false;
+				}
+
+				$entry = $entry[$part];
+			}
+			elseif( is_object( $entry ) )
+			{
+				if( array_key_exists( (string) $part, get_object_vars( $entry ) ) || isset( $entry->{$part} ) ) {
+					$entry = $entry->{$part};
+				} else {
+					return false;
+				}
+			}
+			else
+			{
+				return false;
 			}
 		}
 
-		return $entry;
+		$value = $entry;
+		return true;
 	}
 
 

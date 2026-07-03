@@ -1467,12 +1467,28 @@ Array
 	}
 
 
+	public function testGetPathWithNull()
+	{
+		$this->assertNull( Map::from( ['a' => ['b' => null]] )->get( 'a/b', 'default' ) );
+		$this->assertSame( 'default', Map::from( ['a' => ['b' => null]] )->get( 'a/c', 'default' ) );
+	}
+
+
 	public function testGetPathObject()
 	{
 		$obj = new \stdClass;
 		$obj->b = 'X';
 
 		$this->assertSame( 'X', Map::from( ['a' => $obj] )->get( 'a/b' ) );
+	}
+
+
+	public function testGetPathObjectWithNull()
+	{
+		$obj = new \stdClass;
+		$obj->b = null;
+
+		$this->assertNull( Map::from( ['a' => $obj] )->get( 'a/b', 'default' ) );
 	}
 
 
@@ -1664,6 +1680,15 @@ Array
 		$this->assertFalse( $m->has( 'a/b/c/d' ) );
 		$this->assertTrue( $m->has( ['a', 'a/b', 'a/b/c'] ) );
 		$this->assertFalse( $m->has( ['a', 'a/b', 'a/b/c', 'a/b/c/d'] ) );
+	}
+
+
+	public function testHasPathWithNull()
+	{
+		$m = new Map( ['a' => ['b' => null]] );
+
+		$this->assertTrue( $m->has( 'a/b' ) );
+		$this->assertFalse( $m->has( 'a/c' ) );
 	}
 
 
@@ -3009,6 +3034,15 @@ Array
 	}
 
 
+	public function testRestrictKeyWithNull()
+	{
+		$r = Map::from( [['name' => null], ['name' => 'user'], []] )->restrict( null, 'name' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [0 => ['name' => null]], $r->toArray() );
+	}
+
+
 	public function testRestrictKeyObject()
 	{
 		$r = Map::from( [new \stdClass, ['name' => 'test']] )->restrict( 'test', 'name' );
@@ -4338,6 +4372,15 @@ Array
 		$this->assertSame( [['p' => 10], ['p' => 20]], $m->where( 'p', '<', 30 )->toArray() );
 		$this->assertSame( [['p' => 10], ['p' => 20]], $m->where( 'p', '<=', 20 )->toArray() );
 		$this->assertSame( [1 => ['p' => 20], 2 => ['p' => 30]], $m->where( 'p', '>=', 20 )->toArray() );
+	}
+
+
+	public function testWhereWithNull()
+	{
+		$m = Map::from( [['p' => null], ['p' => 1], []] );
+
+		$this->assertSame( [['p' => null]], $m->where( 'p', '==', null )->toArray() );
+		$this->assertSame( [1 => ['p' => 1]], $m->where( 'p', '!=', null )->toArray() );
 	}
 
 
