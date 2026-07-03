@@ -3604,7 +3604,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param iterable<mixed> $keys Keys of the elements in the required order
 	 * @return self<int|string,mixed> New map with elements ordered by the passed keys
-	 * @throws \InvalidArgumentException If one of the keys isn't a scalar value
+	 * @throws \InvalidArgumentException If one of the keys can't be used as key
 	 */
 	public function order( iterable $keys ) : self
 	{
@@ -3613,11 +3613,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		foreach( $keys as $key )
 		{
-			if( !is_scalar( $key ) && $key !== null ) {
-				throw new \InvalidArgumentException( 'Keys must be scalar values but "' . get_debug_type( $key ) . '" given' );
-			}
-
-			$key = is_int( $key ) || is_string( $key ) ? $key : ( $key === null ? '' : (int) $key );
+			$key = $this->arrayKey( $key );
 			$result[$key] = $list[$key] ?? null;
 		}
 

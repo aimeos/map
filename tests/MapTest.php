@@ -2837,6 +2837,22 @@ Array
 	}
 
 
+	public function testOrderNormalizedKeys()
+	{
+		$key = new class {
+			public function __toString() : string
+			{
+				return 'code';
+			}
+		};
+
+		$m = Map::from( ['code' => 'object', '' => 'empty', '1.5' => 'float'] );
+
+		$this->assertSame( ['code' => 'object', '' => 'empty', '1.5' => 'float'], $m->order( [$key, false, 1.5] )->toArray() );
+		$this->assertSame( ['' => 'empty'], $m->order( [null] )->toArray() );
+	}
+
+
 	public function testOrderException()
 	{
 		$this->expectException( \InvalidArgumentException::class );
