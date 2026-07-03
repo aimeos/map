@@ -35,6 +35,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testMagicCallSkipsNonCallableObjects()
+	{
+		$m = new Map( ['a' => new TestMapMethodObject(), 'b' => new \stdClass()] );
+
+		$this->assertSame( ['a' => 'test'], $m->label()->toArray() );
+		$this->assertSame( [], $m->missing()->toArray() );
+	}
+
+
 	public function testMagicToArray()
 	{
 		$m = new Map( ['name' => 'Hello'] );
@@ -292,6 +301,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertSame( ['a' => 'p1', 'b' => 'p2'], $m->call( 'get', [1] )->toArray() );
 		$this->assertSame( ['a' => ['prop' => 'p3'], 'b' => ['prop' => 'p4']], $m->call( 'toArray' )->toArray() );
+	}
+
+
+	public function testCallSkipsNonCallableObjects()
+	{
+		$m = new Map( ['a' => new TestMapMethodObject(), 'b' => new \stdClass()] );
+
+		$this->assertSame( ['a' => 'test'], $m->call( 'label' )->toArray() );
+		$this->assertSame( [], $m->call( 'missing' )->toArray() );
 	}
 
 
@@ -4603,6 +4621,15 @@ class TestMapCallable
 	{
 		$key = $num * 2;
 		return $num * 5;
+	}
+}
+
+
+class TestMapMethodObject
+{
+	public function label() : string
+	{
+		return 'test';
 	}
 }
 

@@ -671,9 +671,8 @@ method is called for every element and its return values are also stored in a ne
 map. This last map is then returned and the map keys from the original map are
 preserved in the returned map.
 
-If the elements are not objects, they are skipped and if this applies to all
-elements, an empty map is returned. In case the map contains objects of mixed
-types and one of them doesn't implement the called method, an error will be thrown.
+If the elements are not objects or the method isn't callable, they are skipped
+and if this applies to all elements, an empty map is returned.
 
 **See also:**
 
@@ -1184,7 +1183,8 @@ public function call( string $name, array $params = [] ) : self
 
 This method can call methods on the map entries that are also implemented
 by the map object itself and are therefore not reachable when using the
-magic `__call()` method. If some entries are not objects, they will be skipped.
+magic `__call()` method. If some entries are not objects or the method isn't
+callable, they will be skipped.
 
 The keys from the original map are preserved in the returned in the new map.
 

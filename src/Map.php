@@ -104,8 +104,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * their return values to create a new map. On the new map, the getCode() method
 	 * is called for every element and its return values are also stored in a new map.
 	 * This last map is then returned.
-	 * If this applies to all elements, an empty map is returned. The map keys from the
-	 * original map are preserved in the returned map.
+	 * If the elements are not objects or the method isn't callable, they are
+	 * skipped. If this applies to all elements, an empty map is returned. The map
+	 * keys from the original map are preserved in the returned map.
 	 *
 	 * @param string $name Method name
 	 * @param array<mixed> $params List of parameters
@@ -121,7 +122,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		foreach( $this->list() as $key => $item )
 		{
-			if( is_object( $item ) ) {
+			if( is_object( $item ) && is_callable( [$item, $name] ) ) {
 				$result[$key] = $item->{$name}( ...$params );
 			}
 		}
@@ -778,8 +779,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 * The first example will return ['...', '...'] while the second one returns [[...], [...]].
 	 *
-	 * If some entries are not objects, they will be skipped. The map keys from the
-	 * original map are preserved in the returned map.
+	 * If some entries are not objects or the method isn't callable, they will be
+	 * skipped. The map keys from the original map are preserved in the returned map.
 	 *
 	 * @param string $name Method name
 	 * @param array<mixed> $params List of parameters
@@ -791,7 +792,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		foreach( $this->list() as $key => $item )
 		{
-			if( is_object( $item ) ) {
+			if( is_object( $item ) && is_callable( [$item, $name] ) ) {
 				$result[$key] = $item->{$name}( ...$params );
 			}
 		}
