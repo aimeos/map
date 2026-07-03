@@ -178,8 +178,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	/**
 	 * Creates a new map with the string splitted by the delimiter.
 	 *
-	 * This method creates a lazy Map and the string is split after calling
-	 * another method that operates on the Map contents.
+	 * The string is split immediately and the returned map contains the parts.
 	 *
 	 * Examples:
 	 *  Map::explode( ',', 'a,b,c' );
@@ -292,9 +291,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	/**
 	 * Creates a new map instance from a JSON string.
 	 *
-	 * This method creates a lazy Map and the string is decoded after calling
-	 * another method that operates on the Map contents. Thus, the exception in
-	 * case of an error isn't thrown immediately but after calling the next method.
+	 * The JSON string is decoded immediately and invalid JSON strings throw an
+	 * exception while the map is created.
 	 *
 	 * Examples:
 	 *  Map::fromJson( '["a", "b"]' );
@@ -363,9 +361,8 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	/**
 	 * Creates a new map by invoking the closure the given number of times.
 	 *
-	 * This method creates a lazy Map and the entries are generated after calling
-	 * another method that operates on the Map contents. Thus, the passed callback
-	 * is not called immediately!
+	 * The entries are generated immediately, so the passed callback is called
+	 * while the map is created.
 	 *
 	 * Examples:
 	 *  Map::times( 3, function( $num ) {

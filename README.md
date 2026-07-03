@@ -2079,8 +2079,7 @@ public static function explode( string $delimiter, string $string, int $limit = 
 A limit of "0" is treated the same as "1". If limit is negative, the rest of
 the string is dropped and not part of the returned map.
 
-This method creates a lazy Map and the string is split after calling
-another method that operates on the Map contents.
+The string is split immediately and the returned map contains the parts.
 
 **Examples:**
 
@@ -2561,9 +2560,8 @@ the [PHP json_decode() manual](https://www.php.net/manual/en/function.json-decod
 The parameter can be a single JSON_* constant or a bitmask of several constants combine
 by bitwise OR (&#124;), e.g.:
 
-This method creates a lazy Map and the string is decoded after calling
-another method that operates on the Map contents. Thus, the exception in
-case of an error isn't thrown immediately but after calling the next method.
+The JSON string is decoded immediately and invalid JSON strings throw an
+exception while the map is created.
 
 ```php
 JSON_BIGINT_AS_STRING|JSON_INVALID_UTF8_IGNORE
@@ -6576,9 +6574,8 @@ public static function times( int $num, \Closure $callback ) : self
 * @param **\Closure** `$callback` Function with (value, key) parameters and returns new value
 * @return **self&#60;int&#124;string,mixed&#62;** New map with the generated elements
 
-This method creates a lazy Map and the entries are generated after calling
-another method that operates on the Map contents. Thus, the passed callback
-is not called immediately!
+The entries are generated immediately, so the passed callback is called
+while the map is created.
 
 **Examples:**
 
