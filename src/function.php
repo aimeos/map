@@ -8,6 +8,7 @@ if( !function_exists( 'is_map' ) )
 	 *
 	 * @param mixed $var Variable to check for
 	 * @return bool TRUE if the variable is a Map object, FALSE if not
+	 * @phpstan-assert-if-true \Aimeos\Map<int|string,mixed> $var
 	 */
 	function is_map( mixed $var ) : bool
 	{

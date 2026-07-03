@@ -13,8 +13,10 @@ namespace Aimeos;
  * Handling and operating on a list of elements easily
  * Inspired by Laravel Collection class, PHP map data structure and Javascript
  *
- * @template-implements \ArrayAccess<int|string,mixed>
- * @template-implements \IteratorAggregate<int|string,mixed>
+ * @template TKey of int|string
+ * @template TValue
+ * @implements \ArrayAccess<TKey,TValue>
+ * @implements \IteratorAggregate<TKey,TValue>
  * @phpstan-consistent-constructor
  */
 class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializable
@@ -46,7 +48,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Returns a new map instance containing the list of elements. In case of
 	 * an empty array or null, the map object will contain an empty list.
 	 *
-	 * @param mixed $elements List of elements or single value
+	 * @param array<TKey,TValue>|\Closure|iterable<TKey,TValue>|TValue|null $elements List of elements or single value
 	 */
 	public function __construct( mixed $elements = [] )
 	{
@@ -1895,7 +1897,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * To create the original multi-dimensional array again, use the unflatten() method.
 	 *
 	 * @param int|null $depth Number of levels to flatten multi-dimensional arrays or NULL for all
-	 * @return self New map with keys joined recursively, up to the specified depth
+	 * @return self<int|string,mixed> New map with keys joined recursively, up to the specified depth
 	 * @throws \InvalidArgumentException If depth must be greater or equal than 0 or NULL
 	 */
 	public function flatten( ?int $depth = null ) : self
@@ -4672,7 +4674,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * @param int $size Size of each window
 	 * @param int $step Step size to move the window
-	 * @return self New map containing arrays for each window
+	 * @return self<int,array<int|string,mixed>> New map containing arrays for each window
 	 * @throws \InvalidArgumentException If size or step is smaller than 1
 	 */
 	public function sliding( int $size = 2, int $step = 1 ) : self
