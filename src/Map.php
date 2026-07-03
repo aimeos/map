@@ -314,7 +314,9 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public static function fromJson( string $json, int $options = JSON_BIGINT_AS_STRING ) : self
 	{
-		if( ( $result = json_decode( $json, true, 512, $options ) ) !== null ) {
+		$result = json_decode( $json, true, 512, $options );
+
+		if( json_last_error() === JSON_ERROR_NONE ) {
 			return new static( $result );
 		}
 

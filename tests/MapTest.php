@@ -1419,6 +1419,15 @@ Array
 	}
 
 
+	public function testFromJsonNull()
+	{
+		$map = Map::fromJson( 'null' );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertSame( [], $map->toArray() );
+	}
+
+
 	public function testFromJsonException()
 	{
 		$this->expectException( '\RuntimeException' );
