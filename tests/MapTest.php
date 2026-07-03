@@ -585,6 +585,17 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testContainsWhereNull()
+	{
+		$m = Map::from( [['type' => null], ['type' => 'name'], []] );
+
+		$this->assertTrue( $m->contains( 'type', '==', null ) );
+		$this->assertTrue( $m->contains( 'type', '!=', null ) );
+		$this->assertTrue( $m->contains( 'type', '===', null ) );
+		$this->assertTrue( $m->contains( 'type', '!==', null ) );
+	}
+
+
 	public function testCopy()
 	{
 		$m1 = new Map( ['foo', 'bar'] );

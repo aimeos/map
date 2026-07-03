@@ -1143,7 +1143,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			throw new \InvalidArgumentException( 'Key must be a string' );
 		}
 
-		if( $value === null ) {
+		if( func_num_args() < 3 ) {
 			return !$this->where( $key, '==', $operator )->isEmpty();
 		}
 
