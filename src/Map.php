@@ -6631,9 +6631,16 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param string $op Operator used for comparison
 	 * @param mixed $value Value used for comparison
 	 * @return self<int|string,mixed> New map for fluid interface
+	 * @throws \InvalidArgumentException If the operator isn't supported
 	 */
 	public function where( string $key, string $op, mixed $value ) : self
 	{
+		if( !isset( ['-' => true, 'in' => true, '<' => true, '>' => true, '<=' => true, '>=' => true,
+			'===' => true, '!==' => true, '!=' => true, '==' => true][$op] )
+		) {
+			throw new \InvalidArgumentException( 'Unsupported operator "' . $op . '"' );
+		}
+
 		$list = ( $op === '-' || $op === 'in' ) ? $this->array( $value ) : null;
 
 		return $this->filter( function( $item ) use ( $key, $op, $value, $list ) {
@@ -6653,7 +6660,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 					case '===': return $val === $value;
 					case '!==': return $val !== $value;
 					case '!=': return $val != $value;
-					default: return $val == $value;
+					case '==': return $val == $value;
 				}
 			}
 

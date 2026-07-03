@@ -4860,6 +4860,13 @@ Array
 	}
 
 
+	public function testWhereOperatorException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [['p' => 10]] )->where( 'p', 'equals', 10 );
+	}
+
+
 	public function testWhereWithNull()
 	{
 		$m = Map::from( [['p' => null], ['p' => 1], []] );
