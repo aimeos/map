@@ -317,6 +317,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param int $options Combination of JSON_* constants
 	 * @return self<int|string,mixed> New map from decoded JSON string
 	 * @throws \RuntimeException If the passed JSON string is invalid
+	 * @throws \JsonException If JSON_THROW_ON_ERROR is part of the passed options and the JSON string is invalid
 	 */
 	public static function fromJson( string $json, int $options = JSON_BIGINT_AS_STRING ) : self
 	{
