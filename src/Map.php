@@ -746,12 +746,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function bool( int|string $key, \Closure|\Throwable|bool $default = false ) : bool
 	{
-		if( is_scalar( $val = $this->get( $key, $default ) ) ) {
+		if( $this->item( $key, $val ) && ( is_scalar( $val ) || $val === null ) ) {
 			return (bool) $val;
 		}
 
 		if( $default instanceof \Closure ) {
-			$default = $default( $val );
+			$default = isset( $val ) ? $default( $val ) : $default();
 		}
 
 		if( $default instanceof \Throwable ) {
@@ -1967,12 +1967,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function float( int|string $key, \Closure|\Throwable|float $default = 0.0 ) : float
 	{
-		if( is_scalar( $val = $this->get( $key, $default ) ) ) {
+		if( $this->item( $key, $val ) && ( is_scalar( $val ) || $val === null ) ) {
 			return (float) $val;
 		}
 
 		if( $default instanceof \Closure ) {
-			return (float) $default( $val );
+			return (float) ( isset( $val ) ? $default( $val ) : $default() );
 		}
 
 		if( $default instanceof \Throwable ) {
@@ -2010,13 +2010,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function get( int|string $key, mixed $default = null ) : mixed
 	{
-		$list = $this->list();
-
-		if( array_key_exists( $key, $list ) ) {
-			return $list[$key];
-		}
-
-		if( $this->value( $list, explode( $this->sep, (string) $key ), $v ) ) {
+		if( $this->item( $key, $v ) ) {
 			return $v;
 		}
 
@@ -2625,12 +2619,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function int( int|string $key, \Closure|\Throwable|int $default = 0 ) : int
 	{
-		if( is_scalar( $val = $this->get( $key, $default ) ) ) {
+		if( $this->item( $key, $val ) && ( is_scalar( $val ) || $val === null ) ) {
 			return (int) $val;
 		}
 
 		if( $default instanceof \Closure ) {
-			$default = $default( $val );
+			$default = isset( $val ) ? $default( $val ) : $default();
 		}
 
 		if( $default instanceof \Throwable ) {
@@ -5351,12 +5345,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function string( int|string $key, \Closure|\Throwable|string $default = '' ) : string
 	{
-		if( is_scalar( $val = $this->get( $key, $default ) ) ) {
+		if( $this->item( $key, $val ) && ( is_scalar( $val ) || $val === null ) ) {
 			return (string) $val;
 		}
 
 		if( $default instanceof \Closure ) {
-			return (string) $default( $val );
+			return (string) ( isset( $val ) ? $default( $val ) : $default() );
 		}
 
 		if( $default instanceof \Throwable ) {
@@ -7008,6 +7002,26 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		}
 
 		return $idx;
+	}
+
+
+	/**
+	 * Returns an item by top-level key or path and tells if it exists.
+	 *
+	 * @param int|string $key Key or path to the requested item
+	 * @param mixed $value Found value
+	 * @return bool TRUE if the item exists, FALSE if not
+	 */
+	protected function item( int|string $key, mixed &$value ) : bool
+	{
+		$list = $this->list();
+
+		if( array_key_exists( $key, $list ) ) {
+			$value = $list[$key];
+			return true;
+		}
+
+		return $this->value( $list, explode( $this->sep, (string) $key ), $value );
 	}
 
 

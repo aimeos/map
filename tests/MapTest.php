@@ -245,6 +245,14 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testBoolNullWithDefault()
+	{
+		$this->assertFalse( Map::from( ['b' => null] )->bool( 'b', true ) );
+		$this->assertFalse( Map::from( ['a' => ['b' => null]] )->bool( 'a/b', true ) );
+		$this->assertTrue( Map::from( [] )->bool( 'b', true ) );
+	}
+
+
 	public function testBoolClosure()
 	{
 		$this->assertEquals( true, Map::from( [] )->bool( 'c', function() { return rand( 1, 2 ); } ) );
@@ -1359,6 +1367,14 @@ Array
 	}
 
 
+	public function testFloatNullWithDefault()
+	{
+		$this->assertSame( 0.0, Map::from( ['b' => null] )->float( 'b', 1.1 ) );
+		$this->assertSame( 0.0, Map::from( ['a' => ['b' => null]] )->float( 'a/b', 1.1 ) );
+		$this->assertSame( 1.1, Map::from( [] )->float( 'b', 1.1 ) );
+	}
+
+
 	public function testFloatClosure()
 	{
 		$this->assertSame( 1.1, Map::from( [] )->float( 'c', function() { return 1.1; } ) );
@@ -1999,6 +2015,14 @@ Array
 		$this->assertEquals( 0, Map::from( ['b' => null] )->int( 'b' ) );
 		$this->assertEquals( 0, Map::from( ['b' => [true]] )->int( 'b' ) );
 		$this->assertEquals( 0, Map::from( ['b' => new \stdClass] )->int( 'b' ) );
+	}
+
+
+	public function testIntNullWithDefault()
+	{
+		$this->assertSame( 0, Map::from( ['b' => null] )->int( 'b', 9 ) );
+		$this->assertSame( 0, Map::from( ['a' => ['b' => null]] )->int( 'a/b', 9 ) );
+		$this->assertSame( 9, Map::from( [] )->int( 'b', 9 ) );
 	}
 
 
@@ -3670,6 +3694,14 @@ Array
 		$this->assertSame( '', Map::from( ['b' => null] )->string( 'b' ) );
 		$this->assertSame( '', Map::from( ['b' => [true]] )->string( 'b' ) );
 		$this->assertSame( '', Map::from( ['b' => new \stdClass] )->string( 'b' ) );
+	}
+
+
+	public function testStringNullWithDefault()
+	{
+		$this->assertSame( '', Map::from( ['b' => null] )->string( 'b', 'no' ) );
+		$this->assertSame( '', Map::from( ['a' => ['b' => null]] )->string( 'a/b', 'no' ) );
+		$this->assertSame( 'no', Map::from( [] )->string( 'b', 'no' ) );
 	}
 
 
