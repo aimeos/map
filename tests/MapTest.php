@@ -3784,6 +3784,29 @@ Array
 	}
 
 
+	public function testSpliceMapReplacement()
+	{
+		$m = new Map( ['foo', 'baz'] );
+		$r = $m->splice( 1, 0, Map::from( ['bar', 'qux'] ) );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['foo', 'bar', 'qux', 'baz'], $m->toArray() );
+	}
+
+
+	public function testSpliceGeneratorReplacement()
+	{
+		$m = new Map( ['foo', 'baz'] );
+		$r = $m->splice( 1, 0, ( function() {
+			yield 'bar';
+			yield 'qux';
+		} )() );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['foo', 'bar', 'qux', 'baz'], $m->toArray() );
+	}
+
+
 	public function testStrAfter()
 	{
 		$this->assertEquals( ['1', '1', '1'], Map::from( [1, 1.0, true, ['x'], new \stdClass] )->strAfter( '' )->toArray() );
@@ -4253,6 +4276,28 @@ Array
 	}
 
 
+	public function testTransformMap()
+	{
+		$m = Map::from( ['a' => 2] )->transform( function( $value, $key ) {
+			return Map::from( [$key => $value * 2] );
+		} );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertSame( ['a' => 4], $m->toArray() );
+	}
+
+
+	public function testTransformGenerator()
+	{
+		$m = Map::from( ['a' => 2] )->transform( function( $value, $key ) {
+			yield $key => $value * 2;
+		} );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertSame( ['a' => 4], $m->toArray() );
+	}
+
+
 	public function testTranspose()
 	{
 		$m = Map::from( [
@@ -4303,6 +4348,38 @@ Array
 			'name' => ['A', 'B', 'C'],
 			2021 => [200],
 			2022 => [300],
+		];
+
+		$this->assertSame( $expected, $m->transpose()->toArray() );
+	}
+
+
+	public function testTransposeMapRows()
+	{
+		$m = Map::from( [
+			Map::from( ['name' => 'A'] ),
+			Map::from( ['name' => 'B', 2021 => 200] ),
+		] );
+
+		$expected = [
+			'name' => ['A', 'B'],
+			2021 => [200],
+		];
+
+		$this->assertSame( $expected, $m->transpose()->toArray() );
+	}
+
+
+	public function testTransposeTraversableRows()
+	{
+		$m = Map::from( [
+			new \ArrayObject( ['name' => 'A'] ),
+			new \ArrayObject( ['name' => 'B', 2021 => 200] ),
+		] );
+
+		$expected = [
+			'name' => ['A', 'B'],
+			2021 => [200],
 		];
 
 		$this->assertSame( $expected, $m->transpose()->toArray() );
@@ -4792,6 +4869,10 @@ Array
 		$this->assertSame( [['p' => 10], ['p' => 20]], $m->where( 'p', '-', [10, 20] )->toArray() );
 		$this->assertSame( [['p' => 10]], $m->where( 'p', '-', [10] )->toArray() );
 		$this->assertSame( [['p' => 10]], $m->where( 'p', '-', 10 )->toArray() );
+		$this->assertSame( [['p' => 10], ['p' => 20]], $m->where( 'p', '-', ( function() {
+			yield 10;
+			yield 20;
+		} )() )->toArray() );
 	}
 
 
@@ -4801,6 +4882,7 @@ Array
 
 		$this->assertSame( [['p' => 10], 2 => ['p' => 30]], $m->where( 'p', 'in', [10, 30] )->toArray() );
 		$this->assertSame( [['p' => 10]], $m->where( 'p', 'in', 10 )->toArray() );
+		$this->assertSame( [['p' => 10], 2 => ['p' => 30]], $m->where( 'p', 'in', Map::from( [10, 30] ) )->toArray() );
 	}
 
 

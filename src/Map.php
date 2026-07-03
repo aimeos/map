@@ -4841,7 +4841,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function splice( int $offset, ?int $length = null, mixed $replacement = [] ) : self
 	{
-		return new static( array_splice( $this->list(), $offset, $length, (array) $replacement ) );
+		return new static( array_splice( $this->list(), $offset, $length, $this->array( $replacement ) ) );
 	}
 
 
@@ -5844,7 +5844,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 		foreach( $this->list() as $key => $value )
 		{
-			foreach( (array) $callback( $value, $key ) as $newkey => $newval ) {
+			foreach( $this->array( $callback( $value, $key ) ) as $newkey => $newval ) {
 				$result[$newkey] = $newval;
 			}
 		}
@@ -5894,16 +5894,37 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 		$result = [];
 		$list = $this->list();
 		$keys = [];
+		$rows = [];
 
 		foreach( $list as $row )
 		{
-			foreach( (array) $row as $key => $col ) {
+			if( $row instanceof \Aimeos\Map ) {
+				$row = $row->toArray();
+			} elseif( is_array( $row ) ) {
+				$row = $row;
+			} elseif( $row instanceof \Traversable ) {
+				$row = iterator_to_array( $row, true );
+			} elseif( is_object( $row ) ) {
+				$row = get_object_vars( $row );
+			} else {
+				$row = (array) $row;
+			}
+
+			$rows[] = $row;
+
+			foreach( $row as $key => $col ) {
 				$keys[$key] = true;
 			}
 		}
 
-		foreach( array_keys( $keys ) as $key ) {
-			$result[$key] = array_column( $list, $key );
+		foreach( array_keys( $keys ) as $key )
+		{
+			foreach( $rows as $row )
+			{
+				if( array_key_exists( $key, $row ) ) {
+					$result[$key][] = $row[$key];
+				}
+			}
 		}
 
 		return new static( $result );
@@ -6610,16 +6631,18 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function where( string $key, string $op, mixed $value ) : self
 	{
-		return $this->filter( function( $item ) use ( $key, $op, $value ) {
+		$list = ( $op === '-' || $op === 'in' ) ? $this->array( $value ) : null;
+
+		return $this->filter( function( $item ) use ( $key, $op, $value, $list ) {
 
 			if( $this->value( $item, explode( $this->sep, $key ), $val ) )
 			{
 				switch( $op )
 				{
 					case '-':
-						$list = (array) $value;
-						return !empty( $list ) && $val >= reset( $list ) && $val <= end( $list );
-					case 'in': return in_array( $val, (array) $value );
+						$values = $list ?? [];
+						return !empty( $values ) && $val >= reset( $values ) && $val <= end( $values );
+					case 'in': return in_array( $val, $list ?? [] );
 					case '<': return $val < $value;
 					case '>': return $val > $value;
 					case '<=': return $val <= $value;
