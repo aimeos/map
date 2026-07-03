@@ -89,6 +89,26 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testCallableCallbacks()
+	{
+		$callback = new TestMapCallable();
+
+		$this->assertTrue( Map::from( ['a', 1] )->any( __NAMESPACE__ . '\test_map_is_string' ) );
+		$this->assertFalse( Map::from( ['a', 1] )->every( __NAMESPACE__ . '\test_map_is_string' ) );
+
+		$this->assertSame( 'a', Map::from( ['a', 1] )->find( [$callback, 'isString'] ) );
+		$this->assertSame( 0, Map::from( ['a', 1] )->findKey( [$callback, 'isString'] ) );
+
+		Map::from( ['a', 'b'] )->each( [$callback, 'collect'] );
+		$this->assertSame( ['a', 'b'], $callback->values );
+
+		$this->assertSame( [0 => 0, 2 => 5, 4 => 10], Map::times( 3, [$callback, 'times'] )->toArray() );
+		$this->assertSame( 50.0, Map::from( ['a', 1] )->percentage( [$callback, 'isString'] ) );
+		$this->assertSame( 'a-b', Map::from( ['a', 'b'] )->pipe( [$callback, 'join'] ) );
+		$this->assertSame( [2, 4], Map::from( [1, 2] )->transform( [$callback, 'double'] )->toArray() );
+	}
+
+
 	public function testArsortNummeric()
 	{
 		$m = ( new Map( [1 => -3, 2 => -2, 3 => -4, 4 => -1, 5 => 0, 6 => 4, 7 => 3, 8 => 1, 9 => 2] ) )->arsort();
@@ -4547,4 +4567,47 @@ class TestMapObject
 	{
 		return ['prop' => 'p' . self::$prop++];
 	}
+}
+
+
+class TestMapCallable
+{
+	public array $values = [];
+
+
+	public function collect( mixed $value, int|string $key ) : void
+	{
+		$this->values[$key] = $value;
+	}
+
+
+	public function double( mixed $value, int|string $key ) : array
+	{
+		return [$key => $value * 2];
+	}
+
+
+	public function isString( mixed $value, int|string $key ) : bool
+	{
+		return is_string( $value );
+	}
+
+
+	public function join( Map $map ) : string
+	{
+		return $map->join( '-' );
+	}
+
+
+	public function times( int $num, int &$key ) : int
+	{
+		$key = $num * 2;
+		return $num * 5;
+	}
+}
+
+
+function test_map_is_string( mixed $value, int|string $key ) : bool
+{
+	return is_string( $value );
 }

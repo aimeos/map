@@ -385,10 +385,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *  [0 => new \stdClass(), 1 => new \stdClass()]
 	 *
 	 * @param int $num Number of times the function is called
-	 * @param \Closure $callback Function with (value, key) parameters and returns new value
+	 * @param callable $callback Function with (value, key) parameters and returns new value
 	 * @return self<int|string,mixed> New map with the generated elements
 	 */
-	public static function times( int $num, \Closure $callback ) : self
+	public static function times( int $num, callable $callback ) : self
 	{
 		$list = [];
 
@@ -458,10 +458,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 * The first example will return TRUE while the last one will return FALSE
 	 *
-	 * @param \Closure $callback Anonymous function with (item, key) parameter
+	 * @param callable $callback Function with (item, key) parameter
 	 * @return bool TRUE if at least one element satisfies the callback function, FALSE if not
 	 */
-	public function any( \Closure $callback ) : bool
+	public function any( callable $callback ) : bool
 	{
 		if( function_exists( 'array_any' ) ) {
 			return array_any( $this->list(), $callback );
@@ -1466,10 +1466,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The $result array will contain [0 => 'A'] because FALSE is returned
 	 * after the first entry and all other entries are then skipped.
 	 *
-	 * @param \Closure $callback Function with (value, key) parameters and returns TRUE/FALSE
+	 * @param callable $callback Function with (value, key) parameters and returns TRUE/FALSE
 	 * @return self<int|string,mixed> Same map for fluid interface
 	 */
-	public function each( \Closure $callback ) : self
+	public function each( callable $callback ) : self
 	{
 		foreach( $this->list() as $key => $item )
 		{
@@ -1555,10 +1555,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The first example will return TRUE because all values are a string while
 	 * the second example will return FALSE.
 	 *
-	 * @param \Closure $callback Function with (value, key) parameters and returns TRUE/FALSE
+	 * @param callable $callback Function with (value, key) parameters and returns TRUE/FALSE
 	 * @return bool True if all elements pass the test, false if if fails for at least one element
 	 */
-	public function every( \Closure $callback ) : bool
+	public function every( callable $callback ) : bool
 	{
 		foreach( $this->list() as $key => $item )
 		{
@@ -1646,12 +1646,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The first example will return 'c' while the second will return 'e' (last element).
 	 * The third and forth one will return "none" and the last one will throw the exception.
 	 *
-	 * @param \Closure $callback Function with (value, key) parameters and returns TRUE/FALSE
+	 * @param callable $callback Function with (value, key) parameters and returns TRUE/FALSE
 	 * @param mixed $default Default value, closure or exception if the callback only returns FALSE
 	 * @param bool $reverse TRUE to test elements from back to front, FALSE for front to back (default)
 	 * @return mixed First matching value, passed default value or an exception
 	 */
-	public function find( \Closure $callback, mixed $default = null, bool $reverse = false ) : mixed
+	public function find( callable $callback, mixed $default = null, bool $reverse = false ) : mixed
 	{
 		$list = $this->list();
 
@@ -1718,12 +1718,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The first example will return '1' while the second will return '2' (last element).
 	 * The third and forth one will return "none" and the last one will throw the exception.
 	 *
-	 * @param \Closure $callback Function with (value, key) parameters and returns TRUE/FALSE
+	 * @param callable $callback Function with (value, key) parameters and returns TRUE/FALSE
 	 * @param mixed $default Default value, closure or exception if the callback only returns FALSE
 	 * @param bool $reverse TRUE to test elements from back to front, FALSE for front to back (default)
 	 * @return mixed Key of first matching element, passed default value or an exception
 	 */
-	public function findKey( \Closure $callback, mixed $default = null, bool $reverse = false ) : mixed
+	public function findKey( callable $callback, mixed $default = null, bool $reverse = false ) : mixed
 	{
 		$list = $this->list();
 
@@ -3772,11 +3772,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * The first line will return "66.67", the second and third one "0.0", the forth
 	 * one "33.333", the fifth one "33.0" and the last one "70.0" (66 rounded up).
 	 *
-	 * @param \Closure $fcn Closure to filter the values in the nested array or object to compute the percentage
+	 * @param callable $fcn Function to filter the values in the nested array or object to compute the percentage
 	 * @param int $precision Number of decimal digits use by the result value
 	 * @return float Percentage of all elements passing the test in the map
 	 */
-	public function percentage( \Closure $fcn, int $precision = 2 ) : float
+	public function percentage( callable $fcn, int $precision = 2 ) : float
 	{
 		$vals = array_filter( $this->list(), $fcn, ARRAY_FILTER_USE_BOTH );
 
@@ -3796,10 +3796,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * Results:
 	 *  "a-b" will be returned
 	 *
-	 * @param \Closure $callback Function with map as parameter which returns arbitrary result
+	 * @param callable $callback Function with map as parameter which returns arbitrary result
 	 * @return mixed Result returned by the callback
 	 */
-	public function pipe( \Closure $callback ) : mixed
+	public function pipe( callable $callback ) : mixed
 	{
 		return $callback( $this );
 	}
@@ -5861,12 +5861,12 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *
 	 * If a key is returned twice, the last value will overwrite previous values.
 	 *
-	 * @param \Closure $callback Function with (value, key) parameters and returns an array of new key/value pair(s)
+	 * @param callable $callback Function with (value, key) parameters and returns an array of new key/value pair(s)
 	 * @return self<int|string,mixed> New map with the new key/value pairs
 	 * @see map() - Maps new values to the existing keys using the passed function and returns a new map for the result
 	 * @see rekey() - Changes the keys according to the passed function
 	 */
-	public function transform( \Closure $callback ) : self
+	public function transform( callable $callback ) : self
 	{
 		$result = [];
 
@@ -5987,11 +5987,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *     ['id' => 2, 'pid' => 1, 'name' => 'n2', 'nodes' => []],
 	 *   ]
 	 *
-	 * @param \Closure|null $callback Callback with (entry, key, level, $parent) arguments, returns the entry added to result
+	 * @param callable|null $callback Callback with (entry, key, level, $parent) arguments, returns the entry added to result
 	 * @param string $nestKey Key to the children of each item
 	 * @return self<int|string,mixed> New map with all items as flat list
 	 */
-	public function traverse( ?\Closure $callback = null, string $nestKey = 'children' ) : self
+	public function traverse( ?callable $callback = null, string $nestKey = 'children' ) : self
 	{
 		$result = [];
 		$this->visit( $this->list(), $result, 0, $callback, $nestKey );
@@ -7092,11 +7092,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * @param iterable<int|string,mixed> $entries List of entries with children (optional)
 	 * @param array<mixed> $result Numerically indexed list of all visited entries
 	 * @param int $level Current depth of the nodes in the tree
-	 * @param \Closure|null $callback Callback with ($entry, $key, $level) arguments, returns the entry added to result
+	 * @param callable|null $callback Callback with ($entry, $key, $level) arguments, returns the entry added to result
 	 * @param string $nestKey Key to the children of each entry
 	 * @param array<mixed>|object|null $parent Parent entry
 	 */
-	protected function visit( iterable $entries, array &$result, int $level, ?\Closure $callback, string $nestKey, array|object|null $parent = null ) : void
+	protected function visit( iterable $entries, array &$result, int $level, ?callable $callback, string $nestKey, array|object|null $parent = null ) : void
 	{
 		$stack = [];
 

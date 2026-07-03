@@ -776,10 +776,10 @@ This method is for compatibility to Laravel Collections. Use [`to()`](#to) inste
 Tests if at least one element satisfies the callback function.
 
 ```php
-public function any( \Closure $callback ) : bool
+public function any( callable $callback ) : bool
 ```
 
-* @param **\Closure** `$callback` Anonymous function with (item, key) parameter
+* @param **callable** `$callback` Function with (item, key) parameter
 * @return **bool** TRUE if at least one element satisfies the callback function, FALSE if not
 
 **Examples:**
@@ -1916,10 +1916,10 @@ Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( fn( $item
 Executes a callback over each entry until FALSE is returned.
 
 ```php
-public function each( \Closure $callback ) : self
+public function each( callable $callback ) : self
 ```
 
-* @param **\Closure** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
+* @param **callable** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
 * @return **self&#60;int&#124;string,mixed&#62;** Same map for fluid interface
 
 **Examples:**
@@ -2006,10 +2006,10 @@ Map::from( ['a', 'b'] )->equals( ['b', 'a'] );
 Verifies that all elements pass the test of the given callback.
 
 ```php
-public function every( \Closure $callback ) : bool
+public function every( callable $callback ) : bool
 ```
 
-* @param **\Closure** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
+* @param **callable** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
 * @return **bool** True if all elements pass the test, false if if fails for at least one element
 
 **Examples:**
@@ -2177,10 +2177,10 @@ Map::from( [2 => 'a', 6 => 'b', 13 => 'm', 30 => 'z'] )->filter( function( $valu
 Returns the first/last matching element where the callback returns TRUE.
 
 ```php
-public function find( \Closure $callback, mixed $default = null, bool $reverse = false ) : mixed
+public function find( callable $callback, mixed $default = null, bool $reverse = false ) : mixed
 ```
 
-* @param **\Closure** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
+* @param **callable** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
 * @param **mixed** `$default` Default value, closure or exception if the callback only returns FALSE
 * @param **bool** `$reverse` TRUE to test elements from back to front, FALSE for front to back (default)
 * @return **mixed** First matching value, passed default value or an exception
@@ -2224,10 +2224,10 @@ Map::from( [] )->find( function( $value, $key ) {
 Returns the first matching key where the callback returns TRUE.
 
 ```php
-public function findKey( \Closure $callback, mixed $default = null, bool $reverse = false ) : mixed
+public function findKey( callable $callback, mixed $default = null, bool $reverse = false ) : mixed
 ```
 
-* @param **\Closure** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
+* @param **callable** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
 * @param **mixed** `$default` Default value, closure or exception if the callback only returns FALSE
 * @param **bool** `$reverse` TRUE to test elements from back to front, FALSE for front to back (default)
 * @return **mixed** First matching value, passed default value or an exception
@@ -4587,10 +4587,10 @@ Map::from( [1, 2, 3, 4, 5] )->partition( function( $val, $idx ) {
 Returns the percentage of all elements passing the test in the map.
 
 ```php
-public function percentage( \Closure $fcn, int $precision = 2 ) : float
+public function percentage( callable $fcn, int $precision = 2 ) : float
 ```
 
-* @param **\Closure** `$fcn` Closure to filter the values in the nested array or object to compute the percentage
+* @param **callable** `$fcn` Function to filter the values in the nested array or object to compute the percentage
 * @param **int** `$precision` Number of decimal digits use by the result value
 * @return **float** Percentage of all elements passing the test in the map
 
@@ -4630,10 +4630,10 @@ Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val < 50, -1 );
 Passes the map to the given callback and return the result.
 
 ```php
-public function pipe( \Closure $callback ) : mixed
+public function pipe( callable $callback ) : mixed
 ```
 
-* @param **\Closure** `$callback` Function with map as parameter which returns arbitrary result
+* @param **callable** `$callback` Function with map as parameter which returns arbitrary result
 * @return **mixed** Result returned by the callback
 
 **Examples:**
@@ -6568,11 +6568,11 @@ without the first one in the function passed to `tap()` and returns the first it
 Creates a new map by invoking the closure the given number of times.
 
 ```php
-public static function times( int $num, \Closure $callback ) : self
+public static function times( int $num, callable $callback ) : self
 ```
 
 * @param **int** `$num` Number of times the function is called
-* @param **\Closure** `$callback` Function with (value, key) parameters and returns new value
+* @param **callable** `$callback` Function with (value, key) parameters and returns new value
 * @return **self&#60;int&#124;string,mixed&#62;** New map with the generated elements
 
 The entries are generated immediately, so the passed callback is called
@@ -6745,10 +6745,10 @@ Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
 Creates new key/value pairs using the passed function and returns a new map for the result.
 
 ```php
-public function transform( \Closure $callback ) : self
+public function transform( callable $callback ) : self
 ```
 
-* @param **\Closure** `$callback` Function with (value, key) parameters and returns an array of new key/value pair(s)
+* @param **callable** `$callback` Function with (value, key) parameters and returns an array of new key/value pair(s)
 * @return **self&#60;int&#124;string,mixed&#62;** New map with the new key/value pairs
 
 If a key is returned twice, the last value will overwrite previous values.
@@ -6831,10 +6831,10 @@ Map::from( [
 Traverses trees of nested items passing each item to the callback.
 
 ```php
-public function traverse( ?\Closure $callback = null, string $nestKey = 'children' ) : self
+public function traverse( ?callable $callback = null, string $nestKey = 'children' ) : self
 ```
 
-* @param **\Closure&#124;null** `$callback` Callback with (entry, key, level, $parent) arguments, returns the entry added to result
+* @param **callable&#124;null** `$callback` Callback with (entry, key, level, $parent) arguments, returns the entry added to result
 * @param **string** `$nestKey` Key to the children of each item
 * @return **self&#60;int&#124;string,mixed&#62;** New map with all items as flat list
 
