@@ -5869,14 +5869,25 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 *    2022 => [50]
 	 *  ]
 	 *
+	 * Column keys are collected from all rows. If a row doesn't contain a
+	 * column, the value is skipped in the transposed result.
+	 *
 	 * @return self<int|string,mixed> New map
 	 */
 	public function transpose() : self
 	{
 		$result = [];
 		$list = $this->list();
+		$keys = [];
 
-		foreach( (array) $this->first( [] ) as $key => $col ) {
+		foreach( $list as $row )
+		{
+			foreach( (array) $row as $key => $col ) {
+				$keys[$key] = true;
+			}
+		}
+
+		foreach( array_keys( $keys ) as $key ) {
 			$result[$key] = array_column( $list, $key );
 		}
 

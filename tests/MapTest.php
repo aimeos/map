@@ -4226,6 +4226,24 @@ Array
 	}
 
 
+	public function testTransposeAdditionalColumns()
+	{
+		$m = Map::from( [
+			['name' => 'A'],
+			['name' => 'B', 2021 => 200],
+			['name' => 'C', 2022 => 300],
+		] );
+
+		$expected = [
+			'name' => ['A', 'B', 'C'],
+			2021 => [200],
+			2022 => [300],
+		];
+
+		$this->assertSame( $expected, $m->transpose()->toArray() );
+	}
+
+
 	public function testTraverse()
 	{
 		$expected = [
