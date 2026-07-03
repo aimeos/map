@@ -115,6 +115,10 @@ class MapTest extends \PHPUnit\Framework\TestCase
 		$this->assertSame( 50.0, Map::from( ['a', 1] )->percentage( [$callback, 'isString'] ) );
 		$this->assertSame( 'a-b', Map::from( ['a', 'b'] )->pipe( [$callback, 'join'] ) );
 		$this->assertSame( [2, 4], Map::from( [1, 2] )->transform( [$callback, 'double'] )->toArray() );
+
+		$this->assertSame( ['if'], Map::from( ['a'] )->if( 'count', [$callback, 'ifResult'] )->toArray() );
+		$this->assertSame( ['ifAny'], Map::from( ['a'] )->ifAny( [$callback, 'ifAnyResult'] )->toArray() );
+		$this->assertSame( ['ifEmpty'], Map::from( [] )->ifEmpty( [$callback, 'ifEmptyResult'] )->toArray() );
 	}
 
 
@@ -4620,6 +4624,24 @@ class TestMapCallable
 	public function collect( mixed $value, int|string $key ) : void
 	{
 		$this->values[$key] = $value;
+	}
+
+
+	public function ifAnyResult( Map $map, bool $condition ) : array
+	{
+		return ['ifAny'];
+	}
+
+
+	public function ifEmptyResult( Map $map, bool $condition ) : array
+	{
+		return ['ifEmpty'];
+	}
+
+
+	public function ifResult( Map $map, bool $condition ) : array
+	{
+		return ['if'];
 	}
 
 

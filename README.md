@@ -2821,18 +2821,18 @@ Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'X' );
 Executes callbacks depending on the condition.
 
 ```php
-public function if( \Closure|bool $condition, ?\Closure $then = null, ?\Closure $else = null ) : self
+public function if( callable|bool $condition, ?callable $then = null, ?callable $else = null ) : self
 ```
 
-* @param **\Closure&#124;bool** `$condition` Boolean or function with (map) parameter returning a boolean
-* @param **\Closure&#124;null** `$then` Function with (map) parameter
-* @param **\Closure&#124;null** `$else` Function with (map) parameter (optional)
+* @param **callable&#124;bool** `$condition` Boolean or function with (map) parameter returning a boolean
+* @param **callable&#124;null** `$then` Function with (map) parameter
+* @param **callable&#124;null** `$else` Function with (map) parameter (optional)
 * @return **self&#60;int&#124;string,mixed&#62;** New map for fluid interface
 
 If callbacks for "then" and/or "else" are passed, these callbacks will be
 executed and their returned value is passed back within a Map object. In
-case no "then" or "else" closure is given, the method will return the same
-map object if the condition is true or an empty map object if it's false.
+case no "then" or "else" callback is given, the method will return the same
+map object.
 
 **Examples:**
 
@@ -2885,11 +2885,11 @@ a void return type and must/will always return something. Details about
 * Executes callbacks depending if the map contains elements or not.
 
 ```php
-public function ifAny( ?\Closure $then = null, ?\Closure $else = null ) : self
+public function ifAny( ?callable $then = null, ?callable $else = null ) : self
 ```
 
-* @param **\Closure&#124;null** `$then` Function with (map, condition) parameter (optional)
-* @param **\Closure&#124;null** `$else` Function with (map, condition) parameter (optional)
+* @param **callable&#124;null** `$then` Function with (map, condition) parameter (optional)
+* @param **callable&#124;null** `$else` Function with (map, condition) parameter (optional)
 * @return **self&#60;int&#124;string,mixed&#62;** New map for fluid interface
 
 If callbacks for "then" and/or "else" are passed, these callbacks will be
@@ -2933,11 +2933,11 @@ a void return type and must/will always return something. Details about
 * Executes callbacks depending if the map is empty or not.
 
 ```php
-public function ifEmpty( ?\Closure $then = null, ?\Closure $else = null ) : self
+public function ifEmpty( ?callable $then = null, ?callable $else = null ) : self
 ```
 
-* @param **\Closure&#124;null** `$then` Function with (map, condition) parameter (optional)
-* @param **\Closure&#124;null** `$else` Function with (map, condition) parameter (optional)
+* @param **callable&#124;null** `$then` Function with (map, condition) parameter (optional)
+* @param **callable&#124;null** `$else` Function with (map, condition) parameter (optional)
 * @return **self&#60;int&#124;string,mixed&#62;** New map for fluid interface
 
 If callbacks for "then" and/or "else" are passed, these callbacks will be

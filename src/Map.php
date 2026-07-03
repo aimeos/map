@@ -2181,14 +2181,14 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * a void return type and must/will always return something. Details about
 	 * [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
 	 *
-	 * @param \Closure|bool $condition Boolean or function with (map) parameter returning a boolean
-	 * @param \Closure|null $then Function with (map, condition) parameter (optional)
-	 * @param \Closure|null $else Function with (map, condition) parameter (optional)
+	 * @param callable|bool $condition Boolean or function with (map) parameter returning a boolean
+	 * @param callable|null $then Function with (map, condition) parameter (optional)
+	 * @param callable|null $else Function with (map, condition) parameter (optional)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function if( \Closure|bool $condition, ?\Closure $then = null, ?\Closure $else = null ) : self
+	public function if( callable|bool $condition, ?callable $then = null, ?callable $else = null ) : self
 	{
-		if( $condition instanceof \Closure ) {
+		if( is_callable( $condition ) ) {
 			$condition = $condition( $this );
 		}
 
@@ -2235,11 +2235,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * a void return type and must/will always return something. Details about
 	 * [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
 	 *
-	 * @param \Closure|null $then Function with (map, condition) parameter (optional)
-	 * @param \Closure|null $else Function with (map, condition) parameter (optional)
+	 * @param callable|null $then Function with (map, condition) parameter (optional)
+	 * @param callable|null $else Function with (map, condition) parameter (optional)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function ifAny( ?\Closure $then = null, ?\Closure $else = null ) : self
+	public function ifAny( ?callable $then = null, ?callable $else = null ) : self
 	{
 		return $this->if( !empty( $this->list() ), $then, $else );
 	}
@@ -2273,11 +2273,11 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 * a void return type and must/will always return something. Details about
 	 * [PHP arrow functions](https://www.php.net/manual/en/functions.arrow.php)
 	 *
-	 * @param \Closure|null $then Function with (map, condition) parameter (optional)
-	 * @param \Closure|null $else Function with (map, condition) parameter (optional)
+	 * @param callable|null $then Function with (map, condition) parameter (optional)
+	 * @param callable|null $else Function with (map, condition) parameter (optional)
 	 * @return self<int|string,mixed> New map
 	 */
-	public function ifEmpty( ?\Closure $then = null, ?\Closure $else = null ) : self
+	public function ifEmpty( ?callable $then = null, ?callable $else = null ) : self
 	{
 		return $this->if( empty( $this->list() ), $then, $else );
 	}
