@@ -1766,9 +1766,23 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	{
 		$list = $this->list();
 
-		if( !empty( $list ) )
+		if( $reverse )
 		{
-			foreach( $reverse ? array_reverse( $list, true ) : $list as $key => $value )
+			$keys = array_keys( $list );
+
+			for( $i = count( $keys ) - 1; $i >= 0; $i-- )
+			{
+				$key = $keys[$i];
+				$value = $list[$key];
+
+				if( $callback( $value, $key ) ) {
+					return $value;
+				}
+			}
+		}
+		else
+		{
+			foreach( $list as $key => $value )
 			{
 				if( $callback( $value, $key ) ) {
 					return $value;
@@ -1813,9 +1827,23 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	{
 		$list = $this->list();
 
-		if( !empty( $list ) )
+		if( $reverse )
 		{
-			foreach( $reverse ? array_reverse( $list, true ) : $list as $key => $value )
+			$keys = array_keys( $list );
+
+			for( $i = count( $keys ) - 1; $i >= 0; $i-- )
+			{
+				$key = $keys[$i];
+				$value = $list[$key];
+
+				if( $callback( $value, $key ) ) {
+					return $key;
+				}
+			}
+		}
+		else
+		{
+			foreach( $list as $key => $value )
 			{
 				if( $callback( $value, $key ) ) {
 					return $key;
@@ -2115,11 +2143,17 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function grep( string $pattern, int $flags = 0 ) : self
 	{
-		$list = array_filter( $this->list(), function( $entry ) {
-			return is_scalar( $entry ) || $entry === null || $entry instanceof \Stringable;
-		} );
+		$filtered = [];
+		$list = $this->list();
 
-		if( ( $result = preg_grep( $pattern, $list, $flags ) ) === false )
+		foreach( $list as $key => $entry )
+		{
+			if( is_scalar( $entry ) || $entry === null || $entry instanceof \Stringable ) {
+				$filtered[$key] = $entry;
+			}
+		}
+
+		if( ( $result = preg_grep( $pattern, $filtered, $flags ) ) === false )
 		{
 			switch( preg_last_error() )
 			{
@@ -2942,16 +2976,7 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function isList() : bool
 	{
-		$i = -1;
-
-		foreach( $this->list() as $k => $v )
-		{
-			if( $k !== ++$i ) {
-				return false;
-			}
-		}
-
-		return true;
+		return array_is_list( $this->list() );
 	}
 
 
@@ -3141,11 +3166,31 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function join( string $glue = '' ) : string
 	{
-		$list = array_filter( $this->list(), function( $entry ) {
-			return is_scalar( $entry ) || $entry === null || $entry instanceof \Stringable;
-		} );
+		$list = $this->list();
+		$all = true;
 
-		return implode( $glue, $list );
+		foreach( $list as $entry )
+		{
+			if( !is_scalar( $entry ) && $entry !== null && !( $entry instanceof \Stringable ) ) {
+				$all = false;
+				break;
+			}
+		}
+
+		if( $all ) {
+			return implode( $glue, $list );
+		}
+
+		$filter = [];
+
+		foreach( $list as $entry )
+		{
+			if( is_scalar( $entry ) || $entry === null || $entry instanceof \Stringable ) {
+				$filter[] = $entry;
+			}
+		}
+
+		return implode( $glue, $filter );
 	}
 
 
@@ -4261,10 +4306,19 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 			$max = $num;
 		}
 
-		$keys = array_keys( $list );
-		$min = $num - $max;
 		$buf = [];
 		$pos = 0;
+
+		if( $max === 1 )
+		{
+			$keys = array_keys( $list );
+			$idx = $this->rand( $num - 1, $buf, $pos );
+
+			return new static( [ $keys[$idx] => $list[$keys[$idx]] ] );
+		}
+
+		$keys = array_keys( $list );
+		$min = $num - $max;
 
 		for( $i = $num - 1; $i > 0 && $i >= $min; $i-- )
 		{
@@ -4811,16 +4865,24 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	 */
 	public function skip( \Closure|int $offset ) : self
 	{
+		$list = $this->list();
+
+		if( is_int( $offset ) )
+		{
+			if( $offset === 0 ) {
+				return clone $this;
+			}
+
+			if( $offset < 0 ) {
+				throw new \InvalidArgumentException( 'Offset must be greater than or equal to zero' );
+			}
+		}
+
 		if( $offset instanceof \Closure ) {
-			$list = $this->list();
 			return new static( array_slice( $list, $this->until( $list, $offset ), null, true ) );
 		}
 
-		if( $offset < 0 ) {
-			throw new \InvalidArgumentException( 'Offset must be greater than or equal to zero' );
-		}
-
-		return new static( array_slice( $this->list(), (int) $offset, null, true ) );
+		return new static( array_slice( $list, (int) $offset, null, true ) );
 	}
 
 
@@ -5999,6 +6061,10 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 	{
 		if( $size < 0 ) {
 			throw new \InvalidArgumentException( 'Size must be greater than or equal to zero' );
+		}
+
+		if( $size === 0 ) {
+			return new static();
 		}
 
 		$list = $this->list();
