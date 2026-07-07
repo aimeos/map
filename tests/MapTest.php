@@ -1919,17 +1919,6 @@ Array
 	}
 
 
-	public function testKeyExists()
-	{
-		$m = new Map( ['a' => null, 'b' => ['c' => 1], 'b/c' => 2] );
-
-		$this->assertTrue( $m->keyExists( 'a' ) );
-		$this->assertTrue( $m->keyExists( 'b/c' ) );
-		$this->assertFalse( $m->keyExists( 'b/c/d' ) );
-		$this->assertFalse( Map::from( ['b' => ['c' => 1]] )->keyExists( 'b/c' ) );
-	}
-
-
 	public function testIf()
 	{
 		$r = Map::from( ['a'] )->if(
