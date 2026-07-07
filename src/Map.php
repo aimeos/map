@@ -2314,28 +2314,6 @@ class Map implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializ
 
 
 	/**
-	 * Determines if a top-level key exists in the map.
-	 *
-	 * Unlike offsetExists(), this method returns TRUE for keys whose value is NULL.
-	 * Unlike has(), this method doesn't check paths into nested arrays or objects.
-	 *
-	 * Examples:
-	 *  Map::from( ['a' => null] )->keyExists( 'a' );
-	 *  Map::from( ['a' => ['b' => 1]] )->keyExists( 'a/b' );
-	 *
-	 * Results:
-	 * The first example will return TRUE while the second one will return FALSE.
-	 *
-	 * @param int|string $key Top-level key to check for
-	 * @return bool TRUE if key is available in map, FALSE if not
-	 */
-	public function keyExists( int|string $key ) : bool
-	{
-		return array_key_exists( $key, $this->list() );
-	}
-
-
-	/**
 	 * Executes callbacks depending on the condition.
 	 *
 	 * If callbacks for "then" and/or "else" are passed, these callbacks will be
