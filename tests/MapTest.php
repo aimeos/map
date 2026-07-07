@@ -35,6 +35,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testMagicCallSkipsNonCallableObjects()
+	{
+		$m = new Map( ['a' => new TestMapMethodObject(), 'b' => new \stdClass()] );
+
+		$this->assertSame( ['a' => 'test'], $m->label()->toArray() );
+		$this->assertSame( [], $m->missing()->toArray() );
+	}
+
+
 	public function testMagicToArray()
 	{
 		$m = new Map( ['name' => 'Hello'] );
@@ -86,6 +95,30 @@ class MapTest extends \PHPUnit\Framework\TestCase
 			return !is_string( $item );
 		} );
 		$this->assertFalse( $result );
+	}
+
+
+	public function testCallableCallbacks()
+	{
+		$callback = new TestMapCallable();
+
+		$this->assertTrue( Map::from( ['a', 1] )->any( __NAMESPACE__ . '\test_map_is_string' ) );
+		$this->assertFalse( Map::from( ['a', 1] )->every( __NAMESPACE__ . '\test_map_is_string' ) );
+
+		$this->assertSame( 'a', Map::from( ['a', 1] )->find( [$callback, 'isString'] ) );
+		$this->assertSame( 0, Map::from( ['a', 1] )->findKey( [$callback, 'isString'] ) );
+
+		Map::from( ['a', 'b'] )->each( [$callback, 'collect'] );
+		$this->assertSame( ['a', 'b'], $callback->values );
+
+		$this->assertSame( [0 => 0, 2 => 5, 4 => 10], Map::times( 3, [$callback, 'times'] )->toArray() );
+		$this->assertSame( 50.0, Map::from( ['a', 1] )->percentage( [$callback, 'isString'] ) );
+		$this->assertSame( 'a-b', Map::from( ['a', 'b'] )->pipe( [$callback, 'join'] ) );
+		$this->assertSame( [2, 4], Map::from( [1, 2] )->transform( [$callback, 'double'] )->toArray() );
+
+		$this->assertSame( ['if'], Map::from( ['a'] )->if( 'count', [$callback, 'ifResult'] )->toArray() );
+		$this->assertSame( ['ifAny'], Map::from( ['a'] )->ifAny( [$callback, 'ifAnyResult'] )->toArray() );
+		$this->assertSame( ['ifEmpty'], Map::from( [] )->ifEmpty( [$callback, 'ifEmptyResult'] )->toArray() );
 	}
 
 
@@ -245,6 +278,14 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testBoolNullWithDefault()
+	{
+		$this->assertFalse( Map::from( ['b' => null] )->bool( 'b', true ) );
+		$this->assertFalse( Map::from( ['a' => ['b' => null]] )->bool( 'a/b', true ) );
+		$this->assertTrue( Map::from( [] )->bool( 'b', true ) );
+	}
+
+
 	public function testBoolClosure()
 	{
 		$this->assertEquals( true, Map::from( [] )->bool( 'c', function() { return rand( 1, 2 ); } ) );
@@ -264,6 +305,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertSame( ['a' => 'p1', 'b' => 'p2'], $m->call( 'get', [1] )->toArray() );
 		$this->assertSame( ['a' => ['prop' => 'p3'], 'b' => ['prop' => 'p4']], $m->call( 'toArray' )->toArray() );
+	}
+
+
+	public function testCallSkipsNonCallableObjects()
+	{
+		$m = new Map( ['a' => new TestMapMethodObject(), 'b' => new \stdClass()] );
+
+		$this->assertSame( ['a' => 'test'], $m->call( 'label' )->toArray() );
+		$this->assertSame( [], $m->call( 'missing' )->toArray() );
 	}
 
 
@@ -354,6 +404,26 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testColIndexMap()
+	{
+		$map = new Map( [Map::from( ['foo' => 'one', 'bar' => 'two'] )] );
+		$r = $map->col( 'bar', 'foo' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['one' => 'two'], $r->toArray() );
+	}
+
+
+	public function testColIndexTraversable()
+	{
+		$map = new Map( [new \ArrayObject( ['foo' => 'one', 'bar' => 'two'] )] );
+		$r = $map->col( 'bar', 'foo' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['one' => 'two'], $r->toArray() );
+	}
+
+
 	public function testColIndexDuplicate()
 	{
 		$map = new Map( [['id' => 'ix', 'val' => 'v1'], ['id' => 'ix', 'val' => 'v2']] );
@@ -391,6 +461,32 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( ['one' => 'two'], $r->toArray() );
+	}
+
+
+	public function testColRecursiveIndexZero()
+	{
+		$map = new Map( [
+			10 => ['foo' => ['bar' => 0, 'baz' => 'zero']],
+			20 => ['foo' => ['bar' => 1, 'baz' => 'one']],
+		] );
+		$r = $map->col( 'foo/baz', 'foo/bar' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [0 => 'zero', 1 => 'one'], $r->toArray() );
+	}
+
+
+	public function testColRecursiveIndexFalse()
+	{
+		$map = new Map( [
+			10 => ['foo' => ['bar' => false, 'baz' => 'false']],
+			20 => ['foo' => ['bar' => true, 'baz' => 'true']],
+		] );
+		$r = $map->col( 'foo/baz', 'foo/bar' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['' => 'false', 1 => 'true'], $r->toArray() );
 	}
 
 
@@ -577,11 +673,32 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testContainsCallbackFalse()
+	{
+		$fcn = function() {
+			return false;
+		};
+
+		$this->assertFalse( Map::from( [$fcn] )->contains( $fcn ) );
+	}
+
+
 	public function testContainsWhere()
 	{
 		$this->assertTrue( Map::from( [['type' => 'name']] )->contains( 'type', 'name' ) );
 		$this->assertTrue( Map::from( [['type' => 'name']] )->contains( 'type', '==', 'name' ) );
 		$this->assertFalse( Map::from( [['type' => 'name']] )->contains( 'type', '!=', 'name' ) );
+	}
+
+
+	public function testContainsWhereNull()
+	{
+		$m = Map::from( [['type' => null], ['type' => 'name'], []] );
+
+		$this->assertTrue( $m->contains( 'type', '==', null ) );
+		$this->assertTrue( $m->contains( 'type', '!=', null ) );
+		$this->assertTrue( $m->contains( 'type', '===', null ) );
+		$this->assertTrue( $m->contains( 'type', '!==', null ) );
 	}
 
 
@@ -641,6 +758,29 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testCountByCallbackKeys()
+	{
+		$key = new class {
+			public function __toString() : string
+			{
+				return 'stringable';
+			}
+		};
+
+		$r = Map::from( [true, false, null, $key] )->countBy( fn( $value ) => $value );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [1 => 1, '' => 2, 'stringable' => 1], $r->toArray() );
+	}
+
+
+	public function testCountByCallbackKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a'] )->countBy( fn() => [] );
+	}
+
+
 	public function testCountByFloat()
 	{
 		$r = Map::from( [1.11, 3.33, 3.33, 9.99] )->countBy();
@@ -659,6 +799,13 @@ class MapTest extends \PHPUnit\Framework\TestCase
 	}
 
 
+	public function testDelimiterException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::delimiter( '' );
+	}
+
+
 	public function testDiff()
 	{
 		$m = new Map( ['id' => 1, 'first_word' => 'Hello'] );
@@ -666,6 +813,15 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( ['id' => 1], $r->toArray() );
+	}
+
+
+	public function testDiffArray()
+	{
+		$r = Map::from( [['a' => 1], ['b' => 2]] )->diff( [['a' => 1]] );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [1 => ['b' => 2]], $r->toArray() );
 	}
 
 
@@ -739,7 +895,8 @@ class MapTest extends \PHPUnit\Framework\TestCase
 
 		// allow for case insensitive difference
 		$this->assertInstanceOf( Map::class, $r2 );
-		$this->assertSame( ['b' => 'brown', 'c' => 'blue', 'red'], $r2->toArray() );
+		$this->assertSame( ['a' => 'green', 'b' => 'brown', 'c' => 'blue', 'red'], $r2->toArray() );
+		$this->assertSame( [], Map::from( [0 => 'a'] )->diffAssoc( [0 => 'A'], 'strcasecmp' )->toArray() );
 	}
 
 
@@ -951,6 +1108,13 @@ Array
 	}
 
 
+	public function testExceptKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a' => 1] )->except( [[]] );
+	}
+
+
 	public function testExplode()
 	{
 		$map = Map::explode( ',', 'a,b,c' );
@@ -1095,6 +1259,16 @@ Array
 			return !strncmp( $value, 'ba', 2 );
 		}, null, true );
 		$this->assertSame( 'baz', $result );
+	}
+
+
+	public function testFindLastPreservesKeys()
+	{
+		$m = new Map( ['foo' => 'bar', 'baz' => 'boo'] );
+		$result = $m->find( function( $value, $key ) {
+			return $key === 'baz';
+		}, null, true );
+		$this->assertSame( 'boo', $result );
 	}
 
 
@@ -1323,6 +1497,13 @@ Array
 	}
 
 
+	public function testFlipKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [[1]] )->flip();
+	}
+
+
 	public function testFloat()
 	{
 		$this->assertSame( 1.0, Map::from( ['a' => true] )->float( 'a' ) );
@@ -1338,6 +1519,14 @@ Array
 		$this->assertSame( 0.0, Map::from( ['b' => null] )->float( 'b' ) );
 		$this->assertSame( 0.0, Map::from( ['b' => [true]] )->float( 'b' ) );
 		$this->assertSame( 0.0, Map::from( ['b' => new \stdClass] )->float( 'b' ) );
+	}
+
+
+	public function testFloatNullWithDefault()
+	{
+		$this->assertSame( 0.0, Map::from( ['b' => null] )->float( 'b', 1.1 ) );
+		$this->assertSame( 0.0, Map::from( ['a' => ['b' => null]] )->float( 'a/b', 1.1 ) );
+		$this->assertSame( 1.1, Map::from( [] )->float( 'b', 1.1 ) );
 	}
 
 
@@ -1383,6 +1572,28 @@ Array
 	}
 
 
+	public function testFromClosureMap()
+	{
+		$map = Map::from( function() {
+			return Map::from( ['foo' => 'bar'] );
+		} );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertSame( ['foo' => 'bar'], $map->toArray() );
+	}
+
+
+	public function testFromClosureGenerator()
+	{
+		$map = Map::from( function() {
+			yield 'foo' => 'bar';
+		} );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertSame( ['foo' => 'bar'], $map->toArray() );
+	}
+
+
 	public function testFromArray()
 	{
 		$map = Map::from( ['foo' => 'bar'] );
@@ -1416,6 +1627,15 @@ Array
 
 		$this->assertInstanceOf( Map::class, $map );
 		$this->assertSame( [''], $map->toArray() );
+	}
+
+
+	public function testFromJsonNull()
+	{
+		$map = Map::fromJson( 'null' );
+
+		$this->assertInstanceOf( Map::class, $map );
+		$this->assertSame( [], $map->toArray() );
 	}
 
 
@@ -1467,12 +1687,28 @@ Array
 	}
 
 
+	public function testGetPathWithNull()
+	{
+		$this->assertNull( Map::from( ['a' => ['b' => null]] )->get( 'a/b', 'default' ) );
+		$this->assertSame( 'default', Map::from( ['a' => ['b' => null]] )->get( 'a/c', 'default' ) );
+	}
+
+
 	public function testGetPathObject()
 	{
 		$obj = new \stdClass;
 		$obj->b = 'X';
 
 		$this->assertSame( 'X', Map::from( ['a' => $obj] )->get( 'a/b' ) );
+	}
+
+
+	public function testGetPathObjectWithNull()
+	{
+		$obj = new \stdClass;
+		$obj->b = null;
+
+		$this->assertNull( Map::from( ['a' => $obj] )->get( 'a/b', 'default' ) );
 	}
 
 
@@ -1667,6 +1903,33 @@ Array
 	}
 
 
+	public function testHasPathWithNull()
+	{
+		$m = new Map( ['a' => ['b' => null]] );
+
+		$this->assertTrue( $m->has( 'a/b' ) );
+		$this->assertFalse( $m->has( 'a/c' ) );
+	}
+
+
+	public function testHasKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a' => 1] )->has( [[]] );
+	}
+
+
+	public function testKeyExists()
+	{
+		$m = new Map( ['a' => null, 'b' => ['c' => 1], 'b/c' => 2] );
+
+		$this->assertTrue( $m->keyExists( 'a' ) );
+		$this->assertTrue( $m->keyExists( 'b/c' ) );
+		$this->assertFalse( $m->keyExists( 'b/c/d' ) );
+		$this->assertFalse( Map::from( ['b' => ['c' => 1]] )->keyExists( 'b/c' ) );
+	}
+
+
 	public function testIf()
 	{
 		$r = Map::from( ['a'] )->if(
@@ -1785,6 +2048,11 @@ Array
 	{
 		$this->assertTrue( Map::from( ['a', 'b'] )->in( 'a' ) );
 		$this->assertTrue( Map::from( ['a', 'b'] )->in( ['a', 'b'] ) );
+		$this->assertTrue( Map::from( ['a', 'b'] )->in( Map::from( ['a', 'b'] ) ) );
+		$this->assertTrue( Map::from( ['a', 'b'] )->in( ( function() {
+			yield 'a';
+			yield 'b';
+		} )() ) );
 		$this->assertFalse( Map::from( ['a', 'b'] )->in( 'x' ) );
 		$this->assertFalse( Map::from( ['a', 'b'] )->in( ['a', 'x'] ) );
 		$this->assertFalse( Map::from( ['1', '2'] )->in( 2, true ) );
@@ -1950,6 +2218,14 @@ Array
 	}
 
 
+	public function testIntNullWithDefault()
+	{
+		$this->assertSame( 0, Map::from( ['b' => null] )->int( 'b', 9 ) );
+		$this->assertSame( 0, Map::from( ['a' => ['b' => null]] )->int( 'a/b', 9 ) );
+		$this->assertSame( 9, Map::from( [] )->int( 'b', 9 ) );
+	}
+
+
 	public function testIntClosure()
 	{
 		$this->assertEquals( 1, Map::from( [] )->int( 'c', function() { return rand( 1, 1 ); } ) );
@@ -1971,6 +2247,15 @@ Array
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( ['first_word' => 'Hello'], $r->toArray() );
+	}
+
+
+	public function testIntersectArray()
+	{
+		$r = Map::from( [['a' => 1], ['b' => 2]] )->intersect( [['a' => 1]] );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [['a' => 1]], $r->toArray() );
 	}
 
 
@@ -2508,9 +2793,14 @@ Array
 		$this->assertFalse( Map::from( ['a', 'b'] )->none( 'a' ) );
 		$this->assertFalse( Map::from( ['a', 'b'] )->none( ['a', 'b'] ) );
 		$this->assertFalse( Map::from( ['a', 'b'] )->none( ['a', 'x'] ) );
+		$this->assertFalse( Map::from( ['a', 'b'] )->none( Map::from( ['a', 'x'] ) ) );
 		$this->assertTrue( Map::from( ['a', 'b'] )->none( 'x' ) );
 		$this->assertTrue( Map::from( ['1', '2'] )->none( 2, true ) );
 		$this->assertTrue( Map::from( ['a', 'b'] )->none( ['x', 'y'] ) );
+		$this->assertTrue( Map::from( ['a', 'b'] )->none( ( function() {
+			yield 'x';
+			yield 'y';
+		} )() ) );
 	}
 
 
@@ -2527,6 +2817,13 @@ Array
 	{
 		$this->expectException( \InvalidArgumentException::class );
 		Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] )->nth( -1 );
+	}
+
+
+	public function testNthOffsetException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a', 'b', 'c', 'd', 'e', 'f'] )->nth( 1, -1 );
 	}
 
 
@@ -2566,6 +2863,13 @@ Array
 	}
 
 
+	public function testOffsetExistsKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a' => 1] )->offsetExists( [] );
+	}
+
+
 	public function testOffsetGet()
 	{
 		$m = new Map( ['foo', 'bar'] );
@@ -2575,12 +2879,26 @@ Array
 	}
 
 
+	public function testOffsetGetKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a' => 1] )->offsetGet( [] );
+	}
+
+
 	public function testOffsetSet()
 	{
 		$m = new Map( ['foo', 'foo'] );
 		$m->offsetSet( 1, 'bar' );
 
 		$this->assertSame( 'bar', $m[1] );
+	}
+
+
+	public function testOffsetSetKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a' => 1] )->offsetSet( [], 2 );
 	}
 
 
@@ -2602,10 +2920,24 @@ Array
 	}
 
 
+	public function testOffsetUnsetKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a' => 1] )->offsetUnset( [] );
+	}
+
+
 	public function testOnly()
 	{
 		$this->assertSame( ['a' => 1], Map::from( ['a' => 1, 0 => 'b'] )->only( 'a' )->toArray() );
 		$this->assertSame( [0 => 'b', 1 => 'c'], Map::from( ['a' => 1, 0 => 'b', 1 => 'c'] )->only( [0, 1] )->toArray() );
+	}
+
+
+	public function testOnlyKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a' => 1] )->only( [[]] );
 	}
 
 
@@ -2616,6 +2948,22 @@ Array
 		$this->assertSame( [0 => 'b', 1 => 'c', 'a' => 1], $m->order( [0, 1, 'a'] )->toArray() );
 		$this->assertSame( [0 => 'b', 1 => 'c', 2 => null], $m->order( [0, 1, 2] )->toArray() );
 		$this->assertSame( [0 => 'b', 1 => 'c'], $m->order( [0, 1] )->toArray() );
+	}
+
+
+	public function testOrderNormalizedKeys()
+	{
+		$key = new class {
+			public function __toString() : string
+			{
+				return 'code';
+			}
+		};
+
+		$m = Map::from( ['code' => 'object', '' => 'empty', '1.5' => 'float'] );
+
+		$this->assertSame( ['code' => 'object', '' => 'empty', '1.5' => 'float'], $m->order( [$key, false, 1.5] )->toArray() );
+		$this->assertSame( ['' => 'empty'], $m->order( [null] )->toArray() );
 	}
 
 
@@ -2654,6 +3002,13 @@ Array
 		$this->assertSame( $expected, Map::from( [1, 2, 3, 4, 5] )->partition( function( $val, $idx ) {
 			return $idx % 3;
 		} )->toArray() );
+	}
+
+
+	public function testPartitionClosureKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [1] )->partition( fn() => [] );
 	}
 
 
@@ -2763,6 +3118,33 @@ Array
 
 		$this->assertSame( 'foo', $m->pull( 0 ) );
 		$this->assertSame( [1 => 'bar'], $m->toArray() );
+	}
+
+
+	public function testPullPath()
+	{
+		$m = new Map( ['a' => ['b' => 'c', 'd' => 'e']] );
+
+		$this->assertSame( 'c', $m->pull( 'a/b' ) );
+		$this->assertSame( ['a' => ['d' => 'e']], $m->toArray() );
+	}
+
+
+	public function testPullPathWithNull()
+	{
+		$m = new Map( ['a' => ['b' => null]] );
+
+		$this->assertNull( $m->pull( 'a/b', 'default' ) );
+		$this->assertSame( ['a' => []], $m->toArray() );
+	}
+
+
+	public function testPullPrefersTopLevelKey()
+	{
+		$m = new Map( ['a/b' => 'top', 'a' => ['b' => 'nested']] );
+
+		$this->assertSame( 'top', $m->pull( 'a/b' ) );
+		$this->assertSame( ['a' => ['b' => 'nested']], $m->toArray() );
 	}
 
 
@@ -2897,6 +3279,13 @@ Array
 	}
 
 
+	public function testRekeyKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a' => 1] )->rekey( fn() => [] );
+	}
+
+
 	public function testRemoveNumeric()
 	{
 		$m = new Map( ['foo', 'bar'] );
@@ -2938,6 +3327,13 @@ Array
 		$this->assertFalse( isset( $m['foo'] ) );
 		$this->assertFalse( isset( $m['baz'] ) );
 		$this->assertTrue( isset( $m['name'] ) );
+	}
+
+
+	public function testRemoveKeyException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( ['a' => 1] )->remove( [[]] );
 	}
 
 
@@ -3006,6 +3402,15 @@ Array
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( [0 => ['name' => 'test'], 2 => ['name' => 'test']], $r->toArray() );
+	}
+
+
+	public function testRestrictKeyWithNull()
+	{
+		$r = Map::from( [['name' => null], ['name' => 'user'], []] )->restrict( null, 'name' );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( [0 => ['name' => null]], $r->toArray() );
 	}
 
 
@@ -3129,6 +3534,13 @@ Array
 	}
 
 
+	public function testSepException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [] )->sep( '' );
+	}
+
+
 	public function testSet()
 	{
 		$map = Map::from( [] );
@@ -3228,6 +3640,13 @@ Array
 	{
 		$this->expectException( \TypeError::class );
 		Map::from( [] )->skip( [] );
+	}
+
+
+	public function testSkipNegativeException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [1, 2, 3, 4] )->skip( -1 );
 	}
 
 
@@ -3372,6 +3791,16 @@ Array
 	}
 
 
+	public function testSomeCallbackFalse()
+	{
+		$fcn = function() {
+			return false;
+		};
+
+		$this->assertFalse( Map::from( [$fcn] )->some( $fcn ) );
+	}
+
+
 	public function testSorted()
 	{
 		$m = new Map( [-1, -3, -2, -4, -5, 0, 5, 3, 1, 2, 4] );
@@ -3449,6 +3878,29 @@ Array
 
 		$this->assertInstanceOf( Map::class, $r );
 		$this->assertSame( ['foo', 'bar'], $m->toArray() );
+	}
+
+
+	public function testSpliceMapReplacement()
+	{
+		$m = new Map( ['foo', 'baz'] );
+		$r = $m->splice( 1, 0, Map::from( ['bar', 'qux'] ) );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['foo', 'bar', 'qux', 'baz'], $m->toArray() );
+	}
+
+
+	public function testSpliceGeneratorReplacement()
+	{
+		$m = new Map( ['foo', 'baz'] );
+		$r = $m->splice( 1, 0, ( function() {
+			yield 'bar';
+			yield 'qux';
+		} )() );
+
+		$this->assertInstanceOf( Map::class, $r );
+		$this->assertSame( ['foo', 'bar', 'qux', 'baz'], $m->toArray() );
 	}
 
 
@@ -3605,6 +4057,14 @@ Array
 	}
 
 
+	public function testStringNullWithDefault()
+	{
+		$this->assertSame( '', Map::from( ['b' => null] )->string( 'b', 'no' ) );
+		$this->assertSame( '', Map::from( ['a' => ['b' => null]] )->string( 'a/b', 'no' ) );
+		$this->assertSame( 'no', Map::from( [] )->string( 'b', 'no' ) );
+	}
+
+
 	public function testStrUpper()
 	{
 		$this->assertEquals( ["MY STRING"], Map::from( ['My String'] )->strUpper()->toArray() );
@@ -3726,9 +4186,10 @@ Array
 	}
 
 
-	public function testTakeNegativeOffset()
+	public function testTakeNegativeOffsetException()
 	{
-		$this->assertSame( [2 => 3, 3 => 4], Map::from( [1, 2, 3, 4] )->take( 2, -2 )->toArray() );
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [1, 2, 3, 4] )->take( 2, -2 );
 	}
 
 
@@ -3746,6 +4207,13 @@ Array
 	{
 		$this->expectException( \TypeError::class );
 		Map::from( [] )->take( 0, [] );
+	}
+
+
+	public function testTakeNegativeSizeException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [1, 2, 3, 4] )->take( -1 );
 	}
 
 
@@ -3809,6 +4277,20 @@ Array
 	{
 		$m = new Map( ['name', 'Hello'] );
 		$this->assertSame( '{"0":"name","1":"Hello"}', $m->toJson( JSON_FORCE_OBJECT ) );
+	}
+
+
+	public function testToJsonException()
+	{
+		$resource = fopen( 'php://memory', 'r' );
+
+		$this->expectException( \JsonException::class );
+
+		try {
+			Map::from( [$resource] )->toJson( JSON_THROW_ON_ERROR );
+		} finally {
+			fclose( $resource );
+		}
 	}
 
 
@@ -3891,6 +4373,28 @@ Array
 	}
 
 
+	public function testTransformMap()
+	{
+		$m = Map::from( ['a' => 2] )->transform( function( $value, $key ) {
+			return Map::from( [$key => $value * 2] );
+		} );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertSame( ['a' => 4], $m->toArray() );
+	}
+
+
+	public function testTransformGenerator()
+	{
+		$m = Map::from( ['a' => 2] )->transform( function( $value, $key ) {
+			yield $key => $value * 2;
+		} );
+
+		$this->assertInstanceOf( Map::class, $m );
+		$this->assertSame( ['a' => 4], $m->toArray() );
+	}
+
+
 	public function testTranspose()
 	{
 		$m = Map::from( [
@@ -3923,6 +4427,56 @@ Array
 			2020 => [200, 300, 400],
 			2021 => [100, 200],
 			2022 => [50]
+		];
+
+		$this->assertSame( $expected, $m->transpose()->toArray() );
+	}
+
+
+	public function testTransposeAdditionalColumns()
+	{
+		$m = Map::from( [
+			['name' => 'A'],
+			['name' => 'B', 2021 => 200],
+			['name' => 'C', 2022 => 300],
+		] );
+
+		$expected = [
+			'name' => ['A', 'B', 'C'],
+			2021 => [200],
+			2022 => [300],
+		];
+
+		$this->assertSame( $expected, $m->transpose()->toArray() );
+	}
+
+
+	public function testTransposeMapRows()
+	{
+		$m = Map::from( [
+			Map::from( ['name' => 'A'] ),
+			Map::from( ['name' => 'B', 2021 => 200] ),
+		] );
+
+		$expected = [
+			'name' => ['A', 'B'],
+			2021 => [200],
+		];
+
+		$this->assertSame( $expected, $m->transpose()->toArray() );
+	}
+
+
+	public function testTransposeTraversableRows()
+	{
+		$m = Map::from( [
+			new \ArrayObject( ['name' => 'A'] ),
+			new \ArrayObject( ['name' => 'B', 2021 => 200] ),
+		] );
+
+		$expected = [
+			'name' => ['A', 'B'],
+			2021 => [200],
 		];
 
 		$this->assertSame( $expected, $m->transpose()->toArray() );
@@ -4057,6 +4611,49 @@ Array
 	}
 
 
+	public function testTreeUnordered()
+	{
+		$expected = [
+			1 => [
+				'id' => 1, 'pid' => null, 'name' => 'Root', 'children' => [
+					2 => ['id' => 2, 'pid' => 1, 'name' => '1/2', 'children' => [
+						3 => ['id' => 3, 'pid' => 2, 'name' => '1/2/3', 'children' => []],
+					]],
+				]
+			]
+		];
+
+		$data = [
+			['id' => 3, 'pid' => 2, 'name' => '1/2/3'],
+			['id' => 2, 'pid' => 1, 'name' => '1/2'],
+			['id' => 1, 'pid' => null, 'name' => 'Root'],
+		];
+
+		$this->assertSame( $expected, Map::from( $data )->tree( 'id', 'pid' )->toArray() );
+	}
+
+
+	public function testTreeDuplicateIdException()
+	{
+		$this->expectException( \UnexpectedValueException::class );
+		Map::from( [['id' => 1, 'pid' => null], ['id' => 1, 'pid' => null]] )->tree( 'id', 'pid' );
+	}
+
+
+	public function testTreeMissingParentException()
+	{
+		$this->expectException( \UnexpectedValueException::class );
+		Map::from( [['id' => 2, 'pid' => 1]] )->tree( 'id', 'pid' );
+	}
+
+
+	public function testTreeCycleException()
+	{
+		$this->expectException( \UnexpectedValueException::class );
+		Map::from( [['id' => 1, 'pid' => 2], ['id' => 2, 'pid' => 1]] )->tree( 'id', 'pid' );
+	}
+
+
 	public function testTreeNodeException()
 	{
 		$this->expectException( \UnexpectedValueException::class );
@@ -4164,6 +4761,18 @@ Array
 
 		$this->assertSame( $exp, Map::from( ['a/b/c' => 1, 'a/b/d' => 2, 'b/e' => 3] )->unflatten()->toArray() );
 		$this->assertSame( $exp, Map::from( ['a.b.c' => 1, 'a.b.d' => 2, 'b.e' => 3] )->sep( '.' )->unflatten()->toArray() );
+	}
+
+
+	public function testUnflattenNestedPathOverwritesScalar()
+	{
+		$this->assertSame( ['a' => ['b' => 2]], Map::from( ['a' => 1, 'a/b' => 2] )->unflatten()->toArray() );
+	}
+
+
+	public function testUnflattenScalarOverwritesNestedPath()
+	{
+		$this->assertSame( ['a' => 1], Map::from( ['a/b' => 2, 'a' => 1] )->unflatten()->toArray() );
 	}
 
 
@@ -4341,6 +4950,22 @@ Array
 	}
 
 
+	public function testWhereOperatorException()
+	{
+		$this->expectException( \InvalidArgumentException::class );
+		Map::from( [['p' => 10]] )->where( 'p', 'equals', 10 );
+	}
+
+
+	public function testWhereWithNull()
+	{
+		$m = Map::from( [['p' => null], ['p' => 1], []] );
+
+		$this->assertSame( [['p' => null]], $m->where( 'p', '==', null )->toArray() );
+		$this->assertSame( [1 => ['p' => 1]], $m->where( 'p', '!=', null )->toArray() );
+	}
+
+
 	public function testWhereBetween()
 	{
 		$m = Map::from( [['p' => 10], ['p' => 20], ['p' => 30]] );
@@ -4348,6 +4973,10 @@ Array
 		$this->assertSame( [['p' => 10], ['p' => 20]], $m->where( 'p', '-', [10, 20] )->toArray() );
 		$this->assertSame( [['p' => 10]], $m->where( 'p', '-', [10] )->toArray() );
 		$this->assertSame( [['p' => 10]], $m->where( 'p', '-', 10 )->toArray() );
+		$this->assertSame( [['p' => 10], ['p' => 20]], $m->where( 'p', '-', ( function() {
+			yield 10;
+			yield 20;
+		} )() )->toArray() );
 	}
 
 
@@ -4357,6 +4986,7 @@ Array
 
 		$this->assertSame( [['p' => 10], 2 => ['p' => 30]], $m->where( 'p', 'in', [10, 30] )->toArray() );
 		$this->assertSame( [['p' => 10]], $m->where( 'p', 'in', 10 )->toArray() );
+		$this->assertSame( [['p' => 10], 2 => ['p' => 30]], $m->where( 'p', 'in', Map::from( [10, 30] ) )->toArray() );
 	}
 
 
@@ -4438,4 +5068,74 @@ class TestMapObject
 	{
 		return ['prop' => 'p' . self::$prop++];
 	}
+}
+
+
+class TestMapCallable
+{
+	public array $values = [];
+
+
+	public function collect( mixed $value, int|string $key ) : void
+	{
+		$this->values[$key] = $value;
+	}
+
+
+	public function ifAnyResult( Map $map, bool $condition ) : array
+	{
+		return ['ifAny'];
+	}
+
+
+	public function ifEmptyResult( Map $map, bool $condition ) : array
+	{
+		return ['ifEmpty'];
+	}
+
+
+	public function ifResult( Map $map, bool $condition ) : array
+	{
+		return ['if'];
+	}
+
+
+	public function double( mixed $value, int|string $key ) : array
+	{
+		return [$key => $value * 2];
+	}
+
+
+	public function isString( mixed $value, int|string $key ) : bool
+	{
+		return is_string( $value );
+	}
+
+
+	public function join( Map $map ) : string
+	{
+		return $map->join( '-' );
+	}
+
+
+	public function times( int $num, int &$key ) : int
+	{
+		$key = $num * 2;
+		return $num * 5;
+	}
+}
+
+
+class TestMapMethodObject
+{
+	public function label() : string
+	{
+		return 'test';
+	}
+}
+
+
+function test_map_is_string( mixed $value, int|string $key ) : bool
+{
+	return is_string( $value );
 }

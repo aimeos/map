@@ -199,6 +199,7 @@ will return:
 <a href="#isstring">isString</a>
 <a href="#join">join</a>
 <a href="#jsonserialize">jsonSerialize</a>
+<a href="#keyexists">keyExists</a>
 <a href="#keys">keys</a>
 <a href="#krsort">krsort</a>
 <a href="#krsorted">krsorted</a>
@@ -332,6 +333,7 @@ will return:
 * [first()](#first) : Returns the first element
 * [firstKey()](#firstkey) : Returns the first key
 * [get()](#get) : Returns an element by key
+* [keyExists()](#keyexists) : Tests if a top-level key exists
 * [index()](#index) : Returns the numerical index of the given key
 * [int()](#int) : Returns an element by key and casts it to integer
 * [float()](#float) : Returns an element by key and casts it to float
@@ -671,9 +673,8 @@ method is called for every element and its return values are also stored in a ne
 map. This last map is then returned and the map keys from the original map are
 preserved in the returned map.
 
-If the elements are not objects, they are skipped and if this applies to all
-elements, an empty map is returned. In case the map contains objects of mixed
-types and one of them doesn't implement the called method, an error will be thrown.
+If the elements are not objects or the method isn't callable, they are skipped
+and if this applies to all elements, an empty map is returned.
 
 **See also:**
 
@@ -776,10 +777,10 @@ This method is for compatibility to Laravel Collections. Use [`to()`](#to) inste
 Tests if at least one element satisfies the callback function.
 
 ```php
-public function any( \Closure $callback ) : bool
+public function any( callable $callback ) : bool
 ```
 
-* @param **\Closure** `$callback` Anonymous function with (item, key) parameter
+* @param **callable** `$callback` Function with (item, key) parameter
 * @return **bool** TRUE if at least one element satisfies the callback function, FALSE if not
 
 **Examples:**
@@ -1184,7 +1185,8 @@ public function call( string $name, array $params = [] ) : self
 
 This method can call methods on the map entries that are also implemented
 by the map object itself and are therefore not reachable when using the
-magic `__call()` method. If some entries are not objects, they will be skipped.
+magic `__call()` method. If some entries are not objects or the method isn't
+callable, they will be skipped.
 
 The keys from the original map are preserved in the returned in the new map.
 
@@ -1916,10 +1918,10 @@ Map::from( [['i' => ['p' => '1']], ['i' => ['p' => 1]]] )->duplicates( fn( $item
 Executes a callback over each entry until FALSE is returned.
 
 ```php
-public function each( \Closure $callback ) : self
+public function each( callable $callback ) : self
 ```
 
-* @param **\Closure** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
+* @param **callable** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
 * @return **self&#60;int&#124;string,mixed&#62;** Same map for fluid interface
 
 **Examples:**
@@ -2006,10 +2008,10 @@ Map::from( ['a', 'b'] )->equals( ['b', 'a'] );
 Verifies that all elements pass the test of the given callback.
 
 ```php
-public function every( \Closure $callback ) : bool
+public function every( callable $callback ) : bool
 ```
 
-* @param **\Closure** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
+* @param **callable** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
 * @return **bool** True if all elements pass the test, false if if fails for at least one element
 
 **Examples:**
@@ -2079,8 +2081,7 @@ public static function explode( string $delimiter, string $string, int $limit = 
 A limit of "0" is treated the same as "1". If limit is negative, the rest of
 the string is dropped and not part of the returned map.
 
-This method creates a lazy Map and the string is split after calling
-another method that operates on the Map contents.
+The string is split immediately and the returned map contains the parts.
 
 **Examples:**
 
@@ -2178,10 +2179,10 @@ Map::from( [2 => 'a', 6 => 'b', 13 => 'm', 30 => 'z'] )->filter( function( $valu
 Returns the first/last matching element where the callback returns TRUE.
 
 ```php
-public function find( \Closure $callback, mixed $default = null, bool $reverse = false ) : mixed
+public function find( callable $callback, mixed $default = null, bool $reverse = false ) : mixed
 ```
 
-* @param **\Closure** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
+* @param **callable** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
 * @param **mixed** `$default` Default value, closure or exception if the callback only returns FALSE
 * @param **bool** `$reverse` TRUE to test elements from back to front, FALSE for front to back (default)
 * @return **mixed** First matching value, passed default value or an exception
@@ -2225,10 +2226,10 @@ Map::from( [] )->find( function( $value, $key ) {
 Returns the first matching key where the callback returns TRUE.
 
 ```php
-public function findKey( \Closure $callback, mixed $default = null, bool $reverse = false ) : mixed
+public function findKey( callable $callback, mixed $default = null, bool $reverse = false ) : mixed
 ```
 
-* @param **\Closure** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
+* @param **callable** `$callback` Function with (value, key) parameters and returns TRUE/FALSE
 * @param **mixed** `$default` Default value, closure or exception if the callback only returns FALSE
 * @param **bool** `$reverse` TRUE to test elements from back to front, FALSE for front to back (default)
 * @return **mixed** First matching value, passed default value or an exception
@@ -2416,6 +2417,7 @@ public function flip() : self
 ```
 
 * @return **self&#60;int&#124;string,mixed&#62;** New map with keys as values and values as keys
+* @throws **\InvalidArgumentException** If one of the values can't be used as key
 
 **Examples:**
 
@@ -2555,15 +2557,15 @@ public static function fromJson( string $json, int $options = JSON_BIGINT_AS_STR
 * @param **int** `$options` Combination of JSON_* constants
 * @return **self&#60;int&#124;string,mixed&#62;** New map from decoded JSON string
 * @throws **\RuntimeException** If the passed JSON string is invalid
+* @throws **\JsonException** If JSON_THROW_ON_ERROR is part of the passed options and the JSON string is invalid
 
 There are several options available for decoding the JSON string which are described in
 the [PHP json_decode() manual](https://www.php.net/manual/en/function.json-decode.php).
 The parameter can be a single JSON_* constant or a bitmask of several constants combine
 by bitwise OR (&#124;), e.g.:
 
-This method creates a lazy Map and the string is decoded after calling
-another method that operates on the Map contents. Thus, the exception in
-case of an error isn't thrown immediately but after calling the next method.
+The JSON string is decoded immediately and invalid JSON strings throw an
+exception while the map is created.
 
 ```php
 JSON_BIGINT_AS_STRING|JSON_INVALID_UTF8_IGNORE
@@ -2817,23 +2819,49 @@ Map::from( ['a' => 'X', 'b' => 'Y'] )->has( 'X' );
 ```
 
 
+### keyExists()
+
+Determines if a top-level key exists in the map.
+
+```php
+public function keyExists( int|string $key ) : bool
+```
+
+* @param **int&#124;string** `$key` Top-level key to check for
+* @return **bool** TRUE if key is available in map, FALSE if not
+
+Unlike [offsetExists()](#offsetexists), this method returns TRUE for keys whose
+value is NULL. Unlike [has()](#has), this method doesn't check paths into nested
+arrays or objects.
+
+**Examples:**
+
+```php
+Map::from( ['a' => null] )->keyExists( 'a' );
+// true
+
+Map::from( ['a' => ['b' => 1]] )->keyExists( 'a/b' );
+// false
+```
+
+
 ### if()
 
 Executes callbacks depending on the condition.
 
 ```php
-public function if( \Closure|bool $condition, ?\Closure $then = null, ?\Closure $else = null ) : self
+public function if( callable|bool $condition, ?callable $then = null, ?callable $else = null ) : self
 ```
 
-* @param **\Closure&#124;bool** `$condition` Boolean or function with (map) parameter returning a boolean
-* @param **\Closure&#124;null** `$then` Function with (map) parameter
-* @param **\Closure&#124;null** `$else` Function with (map) parameter (optional)
+* @param **callable&#124;bool** `$condition` Boolean or function with (map) parameter returning a boolean
+* @param **callable&#124;null** `$then` Function with (map) parameter
+* @param **callable&#124;null** `$else` Function with (map) parameter (optional)
 * @return **self&#60;int&#124;string,mixed&#62;** New map for fluid interface
 
 If callbacks for "then" and/or "else" are passed, these callbacks will be
 executed and their returned value is passed back within a Map object. In
-case no "then" or "else" closure is given, the method will return the same
-map object if the condition is true or an empty map object if it's false.
+case no "then" or "else" callback is given, the method will return the same
+map object.
 
 **Examples:**
 
@@ -2886,11 +2914,11 @@ a void return type and must/will always return something. Details about
 * Executes callbacks depending if the map contains elements or not.
 
 ```php
-public function ifAny( ?\Closure $then = null, ?\Closure $else = null ) : self
+public function ifAny( ?callable $then = null, ?callable $else = null ) : self
 ```
 
-* @param **\Closure&#124;null** `$then` Function with (map, condition) parameter (optional)
-* @param **\Closure&#124;null** `$else` Function with (map, condition) parameter (optional)
+* @param **callable&#124;null** `$then` Function with (map, condition) parameter (optional)
+* @param **callable&#124;null** `$else` Function with (map, condition) parameter (optional)
 * @return **self&#60;int&#124;string,mixed&#62;** New map for fluid interface
 
 If callbacks for "then" and/or "else" are passed, these callbacks will be
@@ -2934,11 +2962,11 @@ a void return type and must/will always return something. Details about
 * Executes callbacks depending if the map is empty or not.
 
 ```php
-public function ifEmpty( ?\Closure $then = null, ?\Closure $else = null ) : self
+public function ifEmpty( ?callable $then = null, ?callable $else = null ) : self
 ```
 
-* @param **\Closure&#124;null** `$then` Function with (map, condition) parameter (optional)
-* @param **\Closure&#124;null** `$else` Function with (map, condition) parameter (optional)
+* @param **callable&#124;null** `$then` Function with (map, condition) parameter (optional)
+* @param **callable&#124;null** `$else` Function with (map, condition) parameter (optional)
 * @return **self&#60;int&#124;string,mixed&#62;** New map for fluid interface
 
 If callbacks for "then" and/or "else" are passed, these callbacks will be
@@ -3152,7 +3180,7 @@ Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 1, 'baz', 'c' );
 // ['a' => 'foo', 'c' => 'baz', 'b' => 'bar']
 
 Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( 5, 'baz' );
-// ['a' => 'foo', 'b' => 'bar', 'c' => 'baz']
+// ['a' => 'foo', 'b' => 'bar', 0 => 'baz']
 
 Map::from( ['a' => 'foo', 'b' => 'bar'] )->insertAt( -1, 'baz', 'c' );
 // ['a' => 'foo', 'c' => 'baz', 'b' => 'bar']
@@ -4462,6 +4490,7 @@ public function only( iterable|string|int $keys ) : self
 
 * @param **iterable&#60;mixed&#62;&#124;array&#60;mixed&#62;&#124;string&#124;int** `$keys` Keys of the elements that should be returned
 * @return **self&#60;int&#124;string,mixed&#62;** New map with only the elements specified by the keys
+* @throws **\InvalidArgumentException** If one of the keys can't be used as key
 
 The keys are preserved using this method.
 
@@ -4588,10 +4617,10 @@ Map::from( [1, 2, 3, 4, 5] )->partition( function( $val, $idx ) {
 Returns the percentage of all elements passing the test in the map.
 
 ```php
-public function percentage( \Closure $fcn, int $precision = 2 ) : float
+public function percentage( callable $fcn, int $precision = 2 ) : float
 ```
 
-* @param **\Closure** `$fcn` Closure to filter the values in the nested array or object to compute the percentage
+* @param **callable** `$fcn` Function to filter the values in the nested array or object to compute the percentage
 * @param **int** `$precision` Number of decimal digits use by the result value
 * @return **float** Percentage of all elements passing the test in the map
 
@@ -4631,10 +4660,10 @@ Map::from( [30, 50, 10] )->percentage( fn( $val, $key ) => $val < 50, -1 );
 Passes the map to the given callback and return the result.
 
 ```php
-public function pipe( \Closure $callback ) : mixed
+public function pipe( callable $callback ) : mixed
 ```
 
-* @param **\Closure** `$callback` Function with map as parameter which returns arbitrary result
+* @param **callable** `$callback` Function with map as parameter which returns arbitrary result
 * @return **mixed** Result returned by the callback
 
 **Examples:**
@@ -4790,7 +4819,7 @@ Returns and removes an element from the map by its key.
 public function pull( int|string $key, mixed $default = null ) : mixed
 ```
 
-* @param **int&#124;string** `$key` Key to retrieve the value for
+* @param **int&#124;string** `$key` Key or path to retrieve the value for
 * @param **mixed** `$default` Default value if key isn't available
 * @return **mixed** Value from map or default value
 
@@ -4799,6 +4828,9 @@ public function pull( int|string $key, mixed $default = null ) : mixed
 ```php
 Map::from( ['a', 'b', 'c'] )->pull( 1 );
 // 'b', map contains ['a', 'c']
+
+Map::from( ['a' => ['b' => 'c']] )->pull( 'a/b' );
+// 'c', map contains ['a' => []]
 
 Map::from( ['a', 'b', 'c'] )->pull( 'x', 'none' );
 // 'none', map contains ['a', 'b', 'c']
@@ -4958,6 +4990,7 @@ public function rekey( callable $callback ) : self
 
 * @param **callable** `$callback` Function with (value, key) parameters and returns new key
 * @return **self&#60;int&#124;string,mixed&#62;** New map with new keys and original values
+* @throws **\InvalidArgumentException** If one of the returned keys can't be used as key
 
 **Examples:**
 
@@ -6569,16 +6602,15 @@ without the first one in the function passed to `tap()` and returns the first it
 Creates a new map by invoking the closure the given number of times.
 
 ```php
-public static function times( int $num, \Closure $callback ) : self
+public static function times( int $num, callable $callback ) : self
 ```
 
 * @param **int** `$num` Number of times the function is called
-* @param **\Closure** `$callback` Function with (value, key) parameters and returns new value
+* @param **callable** `$callback` Function with (value, key) parameters and returns new value
 * @return **self&#60;int&#124;string,mixed&#62;** New map with the generated elements
 
-This method creates a lazy Map and the entries are generated after calling
-another method that operates on the Map contents. Thus, the passed callback
-is not called immediately!
+The entries are generated immediately, so the passed callback is called
+while the map is created.
 
 **Examples:**
 
@@ -6659,6 +6691,7 @@ public function toJson( int $options = 0 ) : ?string
 
 * @param **int** `$options` Combination of JSON_* constants
 * @return **string&#124;null** Array encoded as JSON string or NULL on failure
+* @throws **\JsonException** If JSON_THROW_ON_ERROR is part of the passed options and the map contains unsupported values
 
 There are several options available to modify the JSON string which are described in
 the [PHP json_encode() manual](https://www.php.net/manual/en/function.json-encode.php).
@@ -6747,10 +6780,10 @@ Map::from( ['a' => ['b' => 'abc', 'c' => 'def'], 'd' => 123] )->toUrl();
 Creates new key/value pairs using the passed function and returns a new map for the result.
 
 ```php
-public function transform( \Closure $callback ) : self
+public function transform( callable $callback ) : self
 ```
 
-* @param **\Closure** `$callback` Function with (value, key) parameters and returns an array of new key/value pair(s)
+* @param **callable** `$callback` Function with (value, key) parameters and returns an array of new key/value pair(s)
 * @return **self&#60;int&#124;string,mixed&#62;** New map with the new key/value pairs
 
 If a key is returned twice, the last value will overwrite previous values.
@@ -6833,10 +6866,10 @@ Map::from( [
 Traverses trees of nested items passing each item to the callback.
 
 ```php
-public function traverse( ?\Closure $callback = null, string $nestKey = 'children' ) : self
+public function traverse( ?callable $callback = null, string $nestKey = 'children' ) : self
 ```
 
-* @param **\Closure&#124;null** `$callback` Callback with (entry, key, level, $parent) arguments, returns the entry added to result
+* @param **callable&#124;null** `$callback` Callback with (entry, key, level, $parent) arguments, returns the entry added to result
 * @param **string** `$nestKey` Key to the children of each item
 * @return **self&#60;int&#124;string,mixed&#62;** New map with all items as flat list
 
@@ -6918,6 +6951,7 @@ public function tree( string $idKey, string $parentKey, string $nestKey = 'child
 * @param **string** `$parentKey` Name of the key with the ID of the parent node
 * @param **string** `$nestKey` Name of the key with will contain the children of the node
 * @return **self&#60;int&#124;string,mixed&#62;** New map with one or more root tree nodes
+* @throws **\UnexpectedValueException** If a node isn't an array, an ID isn't a scalar value, an ID is used twice, a parent is missing or nodes reference themselves as parent
 
 Use this method to rebuild trees e.g. from database records. To traverse
 trees, use the [traverse()](#traverse) method.
@@ -6930,7 +6964,7 @@ Map::from( [
   ['id' => 2, 'pid' => 1, 'lvl' => 1, 'name' => 'n2'],
   ['id' => 3, 'pid' => 2, 'lvl' => 2, 'name' => 'n3'],
   ['id' => 4, 'pid' => 1, 'lvl' => 1, 'name' => 'n4'],
-  ['id' => 5, 'pid' => 3, 'lvl' => 2, 'name' => 'n5'],
+  ['id' => 5, 'pid' => 4, 'lvl' => 2, 'name' => 'n5'],
   ['id' => 6, 'pid' => 1, 'lvl' => 1, 'name' => 'n6'],
 ] )->tree( 'id', 'pid' );
 /*
@@ -6948,29 +6982,7 @@ Map::from( [
 */
 ```
 
-To build the tree correctly, the items must be in order or at least the
-nodes of the lower levels must come first. For a tree like this:
-
-```
-n1
-|- n2
-|  |- n3
-|- n4
-|  |- n5
-|- n6
-```
-
-Accepted item order:
-- in order: n1, n2, n3, n4, n5, n6
-- lower levels first: n1, n2, n4, n6, n3, n5
-
-If your items are unordered, apply [usort()](#usort) first to the map entries, e.g.
-
-```php
-Map::from( [['id' => 3, 'lvl' => 2], ...] )->usort( function( $item1, $item2 ) {
-  return $item1['lvl'] <=> $item2['lvl'];
-} );
-```
+Items can be in any order as long as all parent nodes are part of the map.
 
 **See also:**
 
@@ -7153,6 +7165,8 @@ public function unflatten() : self
 ```
 
 This is the inverse method for [flatten()](#flatten).
+If a scalar value and a nested path target the same key, later entries
+overwrite earlier entries.
 
 * @return **self&#60;string,mixed&#62;** New map with multi-dimensional arrays
 
